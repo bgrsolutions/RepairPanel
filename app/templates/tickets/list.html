@@ -1,34 +1,46 @@
 {% extends 'base.html' %}
 {% block title %}Tickets - IRONCore{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-4">
-  <h1 class="text-2xl font-semibold">Tickets</h1>
-  <a href="{{ url_for('tickets.create_ticket') }}" class="bg-indigo-600 rounded px-3 py-2">New Ticket</a>
-</div>
-<div class="rounded-xl border border-slate-800 overflow-hidden">
-  <table class="w-full text-left text-sm">
-    <thead class="bg-slate-900">
-      <tr>
-        <th class="p-3">Number</th>
-        <th class="p-3">Branch</th>
-        <th class="p-3">Customer</th>
-        <th class="p-3">Status</th>
-        <th class="p-3">Priority</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for ticket in tickets %}
-      <tr class="border-t border-slate-800">
-        <td class="p-3">{{ ticket.ticket_number }}</td>
-        <td class="p-3">{{ ticket.branch.code }}</td>
-        <td class="p-3">{{ ticket.customer.full_name }}</td>
-        <td class="p-3">{{ ticket.internal_status }}</td>
-        <td class="p-3">{{ ticket.priority }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" class="p-4 text-slate-400">No tickets yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+<section class="space-y-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight text-white">Tickets</h1>
+      <p class="text-sm text-slate-400">Track active repair jobs across branches.</p>
+    </div>
+    <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">New Ticket</a>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm text-slate-200">
+        <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Number</th>
+            <th class="px-4 py-3 font-semibold">Branch</th>
+            <th class="px-4 py-3 font-semibold">Customer</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Priority</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/90">
+          {% for ticket in tickets %}
+          <tr class="transition hover:bg-slate-800/40">
+            <td class="px-4 py-3 font-medium text-white">{{ ticket.ticket_number }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ ticket.branch.code }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ ticket.customer.full_name }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">{{ ticket.internal_status }}</span>
+            </td>
+            <td class="px-4 py-3 capitalize text-slate-300">{{ ticket.priority }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-slate-400">No tickets yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 {% endblock %}
