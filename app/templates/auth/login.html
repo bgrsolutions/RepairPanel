@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Login - IRONCore{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto rounded-xl bg-slate-900 border border-slate-800 p-6">
+  <h1 class="text-xl font-semibold mb-4">Sign In</h1>
+  <form method="post" class="space-y-4">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="block mb-1">{{ form.email.label }}</label>
+      {{ form.email(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+    </div>
+    <div>
+      <label class="block mb-1">{{ form.password.label }}</label>
+      {{ form.password(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+    </div>
+    {{ form.submit(class='w-full bg-indigo-600 hover:bg-indigo-500 rounded px-3 py-2') }}
+  </form>
+</div>
+{% endblock %}

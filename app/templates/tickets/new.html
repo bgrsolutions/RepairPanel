@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}New Ticket - IRONCore{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">Create Ticket</h1>
+<form method="post" class="space-y-4 max-w-xl rounded-xl p-4 bg-slate-900 border border-slate-800">
+  {{ form.hidden_tag() }}
+  <div>
+    <label class="block mb-1">{{ form.branch_id.label }}</label>
+    {{ form.branch_id(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+  </div>
+  <div>
+    <label class="block mb-1">{{ form.customer_id.label }}</label>
+    {{ form.customer_id(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+  </div>
+  <div>
+    <label class="block mb-1">{{ form.device_id.label }}</label>
+    {{ form.device_id(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+  </div>
+  <div>
+    <label class="block mb-1">{{ form.priority.label }}</label>
+    {{ form.priority(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+  </div>
+  {{ form.submit(class='bg-indigo-600 hover:bg-indigo-500 rounded px-3 py-2') }}
+</form>
+{% endblock %}
