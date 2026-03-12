@@ -1,6 +1,8 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from datetime import datetime
+
+from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_babel import gettext as _
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.forms.ticket_forms import TicketCreateForm
@@ -17,6 +19,67 @@ tickets_bp = Blueprint("tickets", __name__, url_prefix="/tickets")
 def list_tickets():
     tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.desc()).all()
     return render_template("tickets/list.html", tickets=tickets)
+
+
+@tickets_bp.get("/<uuid:ticket_id>")
+@login_required
+def ticket_detail(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    timeline_placeholder = [
+        {"time": ticket.created_at, "event": "Ticket created", "by": "System"},
+        {"time": ticket.updated_at, "event": "Latest update", "by": "Staff"},
+    ]
+
+    return render_template("tickets/detail.html", ticket=ticket, timeline_placeholder=timeline_placeholder)
+
+
+@tickets_bp.get("/board")
+@login_required
+def repair_board():
+    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.desc()).all()
+    columns = [
+        "New",
+        "Awaiting Diagnosis",
+        "Awaiting Quote Approval",
+        "Awaiting Parts",
+        "In Repair",
+        "Testing / QA",
+        "Ready for Collection",
+    ]
+
+    grouped = {status: [] for status in columns}
+    for ticket in tickets:
+        status = ticket.internal_status if ticket.internal_status in grouped else "New"
+        grouped[status].append(ticket)
+
+    return render_template("tickets/board.html", grouped=grouped, columns=columns, now=datetime.utcnow())
+
+
+@tickets_bp.get("/my-queue")
+@login_required
+def my_queue():
+    assigned = (
+        Ticket.query.filter(Ticket.deleted_at.is_(None), Ticket.assigned_technician_id == current_user.id)
+        .order_by(Ticket.created_at.asc())
+        .all()
+    )
+
+    grouped = {
+        "Awaiting Diagnosis": [t for t in assigned if t.internal_status == "Awaiting Diagnosis"],
+        "In Repair": [t for t in assigned if t.internal_status == "In Repair"],
+        "Testing / QA": [t for t in assigned if t.internal_status in {"Testing / QA", "Testing", "QA"}],
+        "Other": [
+            t
+            for t in assigned
+            if t.internal_status not in {"Awaiting Diagnosis", "In Repair", "Testing / QA", "Testing", "QA"}
+        ],
+    }
+
+    return render_template("tickets/my_queue.html", grouped=grouped)
 
 
 @tickets_bp.route("/new", methods=["GET", "POST"])

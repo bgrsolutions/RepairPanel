@@ -21,6 +21,22 @@ input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
   -webkit-text-fill-color: #e2e8f0;
-  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset;
+  -webkit-box-shadow: 0 0 0 1000px #1e293b inset;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Subtle dark scrollbars for board/list usability on desktop/tablet. */
+*::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+  border: 2px solid #0f172a;
 }

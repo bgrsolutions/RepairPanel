@@ -1,25 +1,53 @@
 {% extends 'base.html' %}
 {% block title %}New Ticket - IRONCore{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-semibold mb-4">Create Ticket</h1>
-<form method="post" class="space-y-4 max-w-xl rounded-xl p-4 bg-slate-900 border border-slate-800">
-  {{ form.hidden_tag() }}
-  <div>
-    <label class="block mb-1">{{ form.branch_id.label }}</label>
-    {{ form.branch_id(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+<section class="space-y-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Front Desk Intake</p>
+      <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Create Repair Ticket</h1>
+      <p class="text-sm text-slate-400">Capture a new job and move it into the internal workflow.</p>
+    </div>
+    <a href="{{ url_for('tickets.list_tickets') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Back to Tickets</a>
   </div>
-  <div>
-    <label class="block mb-1">{{ form.customer_id.label }}</label>
-    {{ form.customer_id(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <form method="post" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel lg:col-span-2">
+      {{ form.hidden_tag() }}
+      <div>
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.branch_id.label }}</label>
+        {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_id.label }}</label>
+        {{ form.customer_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_id.label }}</label>
+        {{ form.device_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.priority.label }}</label>
+        {{ form.priority(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+      </div>
+      {{ form.submit(class='inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500') }}
+    </form>
+
+    <aside class="space-y-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Quick Intake Guide</h2>
+        <ul class="mt-3 space-y-2 text-sm text-slate-400">
+          <li>1. Confirm customer identity and contact details.</li>
+          <li>2. Verify device model and serial/IMEI where possible.</li>
+          <li>3. Set appropriate priority before submission.</li>
+          <li>4. After creation, open ticket to continue workflow notes.</li>
+        </ul>
+      </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Phase 2 Placeholders</h2>
+        <p class="mt-2 text-sm text-slate-400">Category-specific intake fields, signatures, attachments, and print labels are planned for the next phase.</p>
+      </div>
+    </aside>
   </div>
-  <div>
-    <label class="block mb-1">{{ form.device_id.label }}</label>
-    {{ form.device_id(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
-  </div>
-  <div>
-    <label class="block mb-1">{{ form.priority.label }}</label>
-    {{ form.priority(class='w-full bg-slate-800 border border-slate-700 rounded px-3 py-2') }}
-  </div>
-  {{ form.submit(class='bg-indigo-600 hover:bg-indigo-500 rounded px-3 py-2') }}
-</form>
+</section>
 {% endblock %}
