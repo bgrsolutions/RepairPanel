@@ -1,5 +1,5 @@
-import uuid
 import secrets
+import uuid
 from datetime import datetime
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -7,6 +7,7 @@ from flask_babel import gettext as _
 
 from app.extensions import db
 from app.forms.intake_forms import PublicIntakeForm
+from app.forms.public_forms import PublicQuoteApprovalForm, PublicStatusLookupForm
 from app.models import (
     Attachment,
     Branch,
@@ -16,7 +17,11 @@ from app.models import (
     IntakeSignature,
     IntakeSubmission,
     PortalToken,
+    Quote,
+    QuoteApproval,
+    Ticket,
 )
+from app.services.audit_service import log_action
 from app.utils.file_uploads import save_intake_file
 
 
@@ -156,3 +161,83 @@ def public_checkin_thank_you():
     reference = request.args.get("reference")
     kiosk_mode = request.args.get("kiosk", "0") == "1"
     return render_template("public/thank_you.html", reference=reference, kiosk_mode=kiosk_mode)
+
+
+@public_portal_bp.route("/status", methods=["GET", "POST"])
+def public_status_lookup():
+    form = PublicStatusLookupForm()
+    lookup_result = None
+    quote_pending = False
+
+    if form.validate_on_submit():
+        ticket_number = (form.ticket_number.data or "").strip()
+        verifier = (form.verifier.data or "").strip().lower()
+
+        ticket = Ticket.query.filter(Ticket.ticket_number == ticket_number, Ticket.deleted_at.is_(None)).first()
+        if ticket and verifier and verifier in {(ticket.customer.email or "").lower(), (ticket.customer.phone or "").lower()}:
+            active_quote = (
+                Quote.query.filter(Quote.ticket_id == ticket.id)
+                .order_by(Quote.version.desc(), Quote.created_at.desc())
+                .first()
+            )
+            quote_pending = bool(active_quote and active_quote.status in {"sent", "draft"})
+            lookup_result = {
+                "ticket_number": ticket.ticket_number,
+                "device_summary": f"{ticket.device.brand} {ticket.device.model}",
+                "customer_status": ticket.customer_status,
+                "ready_for_collection": ticket.customer_status.lower() == "ready for collection",
+                "quote_pending": quote_pending,
+                "estimated_completion": "TBD",
+            }
+        else:
+            flash(_("No repair record found for the provided details"), "error")
+
+    return render_template("public/status.html", form=form, lookup_result=lookup_result, quote_pending=quote_pending)
+
+
+@public_portal_bp.route("/quote/<token>", methods=["GET", "POST"])
+def public_quote_approval(token):
+    approval = QuoteApproval.query.filter_by(token=token).first()
+    if not approval:
+        flash(_("Invalid quote approval link"), "error")
+        return redirect(url_for("public_portal.public_status_lookup"))
+
+    quote = approval.quote
+    form = PublicQuoteApprovalForm()
+    expired = approval.expires_at and approval.expires_at < datetime.utcnow()
+
+    if form.validate_on_submit() and not expired:
+        decision = form.decision.data
+        if decision in {"approved", "declined"}:
+            approval.status = decision
+            approval.method = "portal_token"
+            approval.actor_name = form.actor_name.data
+            approval.actor_contact = form.actor_contact.data
+            approval.language = form.language.data or quote.language
+            approval.ip_address = request.remote_addr
+            approval.approved_at = datetime.utcnow()
+            approval.declined_reason = form.declined_reason.data if decision == "declined" else None
+
+            quote.status = decision
+            quote.ticket.internal_status = "Quote Approved" if decision == "approved" else "On Hold"
+
+            db.session.commit()
+            try:
+                log_action(
+                    "quote.public_decision",
+                    "QuoteApproval",
+                    str(approval.id),
+                    details={"quote_id": str(quote.id), "decision": decision},
+                )
+            except Exception:
+                db.session.rollback()
+
+            flash(_("Your quote decision has been recorded"), "success")
+            return redirect(url_for("public_portal.public_quote_approval", token=token))
+
+    if expired and quote.status == "sent":
+        quote.status = "expired"
+        quote.ticket.internal_status = "On Hold"
+        db.session.commit()
+
+    return render_template("public/quote_approval.html", approval=approval, quote=quote, expired=expired, form=form)

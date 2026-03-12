@@ -9,4 +9,6 @@ def test_app_factory():
     assert "tickets" in app.blueprints
     assert "intake" in app.blueprints
     assert "customers" in app.blueprints
+    assert "diagnostics" in app.blueprints
+    assert "quotes" in app.blueprints
     assert "public_portal" in app.blueprints

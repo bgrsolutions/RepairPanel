@@ -1,0 +1,37 @@
+{% extends 'public_base.html' %}
+{% block title %}Repair Status Lookup - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Repair Status</p>
+    <h2 class="mt-1 text-2xl font-semibold text-white">Lookup Your Repair</h2>
+    <p class="mt-2 text-sm text-slate-400">Enter your ticket number and phone/email used at check-in.</p>
+  </div>
+
+  <form method="post" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-3">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.ticket_number.label.text }}</label>
+      {{ form.ticket_number(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+    </div>
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.verifier.label.text }}</label>
+      {{ form.verifier(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+    </div>
+    {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+  </form>
+
+  {% if lookup_result %}
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+    <h3 class="text-lg font-semibold text-white">{{ lookup_result.ticket_number }}</h3>
+    <p class="text-sm text-slate-300">Device: {{ lookup_result.device_summary }}</p>
+    <p class="text-sm text-slate-300">Status: {{ lookup_result.customer_status }}</p>
+    <p class="text-sm text-slate-300">Quote approval needed: {{ 'Yes' if lookup_result.quote_pending else 'No' }}</p>
+    <p class="text-sm text-slate-300">Estimated completion: {{ lookup_result.estimated_completion }}</p>
+    <p class="text-sm {% if lookup_result.ready_for_collection %}text-emerald-300{% else %}text-slate-300{% endif %}">
+      Ready for collection: {{ 'Yes' if lookup_result.ready_for_collection else 'Not yet' }}
+    </p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

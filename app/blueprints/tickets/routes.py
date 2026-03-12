@@ -5,9 +5,11 @@ from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
 from app.extensions import db
+from app.forms.diagnostic_forms import DiagnosticForm
 from app.forms.ticket_forms import TicketCreateForm
-from app.models import Branch, Customer, Device, Ticket
+from app.models import Branch, Customer, Device, Diagnostic, Quote, Ticket
 from app.services.audit_service import log_action
+from app.services.quote_service import compute_quote_totals
 from app.utils.ticketing import generate_ticket_number
 
 
@@ -34,7 +36,40 @@ def ticket_detail(ticket_id):
         {"time": ticket.updated_at, "event": "Latest update", "by": "Staff"},
     ]
 
-    return render_template("tickets/detail.html", ticket=ticket, timeline_placeholder=timeline_placeholder)
+    diagnosis_entries = (
+        Diagnostic.query.filter_by(ticket_id=ticket.id)
+        .order_by(Diagnostic.version.desc(), Diagnostic.created_at.desc())
+        .all()
+    )
+    latest_diagnosis = diagnosis_entries[0] if diagnosis_entries else None
+
+    diagnostic_form = DiagnosticForm()
+    if latest_diagnosis:
+        diagnostic_form.customer_reported_fault.data = latest_diagnosis.customer_reported_fault
+        diagnostic_form.technician_diagnosis.data = latest_diagnosis.technician_diagnosis
+        diagnostic_form.recommended_repair.data = latest_diagnosis.recommended_repair
+        diagnostic_form.estimated_labour.data = latest_diagnosis.estimated_labour
+        diagnostic_form.repair_notes.data = latest_diagnosis.repair_notes
+
+    quotes = (
+        Quote.query.filter_by(ticket_id=ticket.id)
+        .order_by(Quote.version.desc(), Quote.created_at.desc())
+        .all()
+    )
+    quote_summaries = []
+    for quote in quotes:
+        option_totals, quote_total = compute_quote_totals(quote)
+        quote_summaries.append({"quote": quote, "option_totals": option_totals, "quote_total": quote_total})
+
+    return render_template(
+        "tickets/detail.html",
+        ticket=ticket,
+        timeline_placeholder=timeline_placeholder,
+        diagnosis_entries=diagnosis_entries,
+        latest_diagnosis=latest_diagnosis,
+        diagnostic_form=diagnostic_form,
+        quote_summaries=quote_summaries,
+    )
 
 
 @tickets_bp.get("/board")

@@ -63,3 +63,15 @@
 - Added customer-centered internal workflow UI with searchable customers list and customer profile pages showing linked devices and ticket/repair history.
 - Updated internal navigation to include Customers and added direct customer profile links from dashboard, ticket, and intake views.
 - Improved intake detail page linkage visibility for linked customer, linked device, and converted ticket status/actions.
+
+## [0.4.0] - 2026-03-12
+### Added
+- Phase 3 repair workflow foundations: ticket diagnostics capture with versioned diagnostic history, quote modeling (header/options/lines), and quote approval records.
+- New staff quote module with quote creation, quote detail, send-for-approval action, manual in-store approval/decline placeholder, and expiry status controls.
+- Public customer status lookup page (`/public/status`) with safe verifier-based lookup (`ticket number + phone/email`) and customer-facing data minimization.
+- Public quote approval page (`/public/quote/<token>`) with tokenized decision flow (approve/decline), method metadata, and timestamp capture.
+- Automated Phase 3 tests for diagnostics/quote lifecycle and public status/quote approval flows.
+
+### Changed
+- Ticket detail page now integrates diagnosis form/history, quote summaries, quote approval status visibility, and direct quote creation links.
+- Internal/public route registration expanded with dedicated diagnostics and quotes blueprints.

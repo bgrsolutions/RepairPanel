@@ -7,6 +7,8 @@ from app.blueprints.core.routes import core_bp
 from app.blueprints.tickets.routes import tickets_bp
 from app.blueprints.intake.routes import intake_bp
 from app.blueprints.customers.routes import customers_bp
+from app.blueprints.diagnostics.routes import diagnostics_bp
+from app.blueprints.quotes.routes import quotes_bp
 from app.blueprints.public_portal.routes import public_portal_bp
 from app.config import Config
 from app.extensions import babel, db, login_manager, migrate
@@ -32,6 +34,8 @@ def create_app(config_class=Config):
     app.register_blueprint(tickets_bp)
     app.register_blueprint(intake_bp)
     app.register_blueprint(customers_bp)
+    app.register_blueprint(diagnostics_bp)
+    app.register_blueprint(quotes_bp)
     app.register_blueprint(public_portal_bp)
 
     @app.before_request
