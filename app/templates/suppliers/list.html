@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Suppliers - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-white">Suppliers</h1>
+      <p class="text-sm text-slate-400">Manage supplier contacts and lead times.</p>
+    </div>
+    <a href="{{ url_for('suppliers.new_supplier') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Supplier</a>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
+    <table class="min-w-full text-left text-sm text-slate-200">
+      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400">
+        <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Contact</th><th class="px-4 py-3">Lead Time</th><th class="px-4 py-3">Status</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        {% for supplier in suppliers %}
+        <tr>
+          <td class="px-4 py-3 text-white">{{ supplier.name }}</td>
+          <td class="px-4 py-3 text-slate-300">{{ supplier.contact_name or '—' }} · {{ supplier.email or '—' }}</td>
+          <td class="px-4 py-3 text-slate-400">{{ supplier.default_lead_time_days or '—' }} days</td>
+          <td class="px-4 py-3">{{ 'Active' if supplier.is_active else 'Inactive' }}</td>
+        </tr>
+        {% else %}
+        <tr><td class="px-4 py-8 text-center text-slate-500" colspan="4">No suppliers yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

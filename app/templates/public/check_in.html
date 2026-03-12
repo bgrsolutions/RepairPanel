@@ -1,0 +1,98 @@
+{% extends 'public_base.html' %}
+{% block title %}{% if kiosk_mode %}Kiosk Check-In{% else %}Public Check-In{% endif %} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{% if kiosk_mode %}Kiosk Mode{% else %}Customer Portal{% endif %}</p>
+    <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">{% if kiosk_mode %}Start Device Check-In{% else %}Submit Your Device Check-In{% endif %}</h2>
+    <p class="mt-2 text-sm text-slate-400">Provide your details and device issue. Our reception team will review and confirm your intake.</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5 {% if kiosk_mode %}text-base sm:text-lg{% endif %}">
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {{ form.hidden_tag() }}
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.branch_id.label.text }}</label>
+          {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.preferred_language.label.text }}</label>
+          {{ form.preferred_language(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_name.label.text }}</label>
+          {{ form.customer_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_phone.label.text }}</label>
+          {{ form.customer_phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_email.label.text }}</label>
+          {{ form.customer_email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.preferred_contact_method.label.text }}</label>
+          {{ form.preferred_contact_method(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.category.label.text }}</label>
+          {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_brand.label.text }}</label>
+          {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_model.label.text }}</label>
+          {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.serial_number.label.text }}</label>
+          {{ form.serial_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.imei.label.text }}</label>
+          {{ form.imei(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.reported_fault.label.text }}</label>
+        {{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='4') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.accessories.label.text }}</label>
+        {{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='2') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.intake_notes.label.text }}</label>
+        {{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='2') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.photo.label.text }}</label>
+        {{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-500') }}
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-900 p-3">
+        <label class="inline-flex items-start gap-2 text-sm text-slate-300">
+          {{ form.accepted_disclaimer(class='mt-1 rounded border-slate-600 bg-slate-800 text-indigo-600 focus:ring-indigo-500') }}
+          <span>I accept the intake disclaimer and confirm the submitted details are accurate.</span>
+        </label>
+      </div>
+
+      {{ form.signature_data(value='placeholder-signature') }}
+      <div>
+        {{ form.submit(class='inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500') }}
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

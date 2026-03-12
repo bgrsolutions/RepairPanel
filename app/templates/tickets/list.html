@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import status_badge, priority_badge, empty_state %}
+{% block title %}Tickets - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Front Desk · Operations</p>
+      <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Ticket Operations</h1>
+      <p class="text-sm text-slate-400">Manage intake, assignment, and progress across the workshop.</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Bench Board</a>
+      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Ticket</a>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
+    {% if tickets %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm text-slate-200">
+        <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Ticket</th>
+            <th class="px-4 py-3 font-semibold">Customer & Device</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Priority</th>
+            <th class="px-4 py-3 font-semibold">Technician</th>
+            <th class="px-4 py-3 font-semibold">Created</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/90">
+          {% for ticket in tickets %}
+          <tr class="transition hover:bg-slate-800/30">
+            <td class="px-4 py-3">
+              <a class="font-semibold text-white hover:text-indigo-300" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}">{{ ticket.ticket_number }}</a>
+              <p class="text-xs text-slate-500">{{ ticket.branch.code }}</p>
+            </td>
+            <td class="px-4 py-3">
+              <p class="font-medium text-slate-200"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></p>
+              <p class="text-xs text-slate-500">{{ ticket.device.brand }} {{ ticket.device.model }}</p>
+            </td>
+            <td class="px-4 py-3">{{ status_badge(ticket.internal_status) }}</td>
+            <td class="px-4 py-3">{{ priority_badge(ticket.priority) }}</td>
+            <td class="px-4 py-3 text-xs">
+              {% if ticket.assigned_technician %}
+                <span class="rounded-full border border-cyan-700/60 bg-cyan-950/70 px-2 py-1 text-cyan-200">{{ ticket.assigned_technician.full_name }}</span>
+              {% else %}
+                <span class="rounded-full border border-slate-700 px-2 py-1 text-slate-400">Unassigned</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-slate-400">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td class="px-4 py-3">
+              <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Open</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="p-4">{{ empty_state('No tickets yet', 'Create your first ticket to populate the operations queue.') }}</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
