@@ -15,6 +15,26 @@
     </div>
   </div>
 
+<<<<<<< codex/create-project-governance-documentation-u004qc
+=======
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel sm:p-4">
+    <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Search</label>
+        <input type="text" placeholder="Search by ticket, customer, device, serial, IMEI (UI placeholder)" class="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Filters</label>
+        <div class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-xs text-slate-300">
+          <span class="rounded-lg bg-slate-700/70 px-2 py-1">Branch</span>
+          <span class="rounded-lg bg-slate-700/70 px-2 py-1">Status</span>
+          <span class="rounded-lg bg-slate-700/70 px-2 py-1">Priority</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+>>>>>>> main
   <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
     {% if tickets %}
     <div class="overflow-x-auto">
@@ -25,7 +45,10 @@
             <th class="px-4 py-3 font-semibold">Customer & Device</th>
             <th class="px-4 py-3 font-semibold">Status</th>
             <th class="px-4 py-3 font-semibold">Priority</th>
+<<<<<<< codex/create-project-governance-documentation-u004qc
             <th class="px-4 py-3 font-semibold">Technician</th>
+=======
+>>>>>>> main
             <th class="px-4 py-3 font-semibold">Created</th>
             <th class="px-4 py-3 font-semibold">Actions</th>
           </tr>
@@ -43,6 +66,7 @@
             </td>
             <td class="px-4 py-3">{{ status_badge(ticket.internal_status) }}</td>
             <td class="px-4 py-3">{{ priority_badge(ticket.priority) }}</td>
+<<<<<<< codex/create-project-governance-documentation-u004qc
             <td class="px-4 py-3 text-xs">
               {% if ticket.assigned_technician %}
                 <span class="rounded-full border border-cyan-700/60 bg-cyan-950/70 px-2 py-1 text-cyan-200">{{ ticket.assigned_technician.full_name }}</span>
@@ -50,6 +74,8 @@
                 <span class="rounded-full border border-slate-700 px-2 py-1 text-slate-400">Unassigned</span>
               {% endif %}
             </td>
+=======
+>>>>>>> main
             <td class="px-4 py-3 text-slate-400">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             <td class="px-4 py-3">
               <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Open</a>

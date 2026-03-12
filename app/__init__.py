@@ -10,9 +10,12 @@ from app.blueprints.customers.routes import customers_bp
 from app.blueprints.diagnostics.routes import diagnostics_bp
 from app.blueprints.quotes.routes import quotes_bp
 from app.blueprints.public_portal.routes import public_portal_bp
+<<<<<<< codex/create-project-governance-documentation-u004qc
 from app.blueprints.inventory.routes import inventory_bp
 from app.blueprints.suppliers.routes import suppliers_bp
 from app.blueprints.orders.routes import orders_bp
+=======
+>>>>>>> main
 from app.config import Config
 from app.extensions import babel, db, login_manager, migrate
 from app import models  # noqa: F401
@@ -40,9 +43,12 @@ def create_app(config_class=Config):
     app.register_blueprint(diagnostics_bp)
     app.register_blueprint(quotes_bp)
     app.register_blueprint(public_portal_bp)
+<<<<<<< codex/create-project-governance-documentation-u004qc
     app.register_blueprint(inventory_bp)
     app.register_blueprint(suppliers_bp)
     app.register_blueprint(orders_bp)
+=======
+>>>>>>> main
 
     @app.before_request
     def inject_locale():
