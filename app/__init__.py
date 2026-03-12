@@ -40,12 +40,10 @@ def create_app(config_class=Config):
     app.register_blueprint(diagnostics_bp)
     app.register_blueprint(quotes_bp)
     app.register_blueprint(public_portal_bp)
-<<<<<<< codex/create-project-governance-documentation-u004qc
     app.register_blueprint(inventory_bp)
     app.register_blueprint(suppliers_bp)
     app.register_blueprint(orders_bp)
-=======
->>>>>>> main
+
 
     @app.before_request
     def inject_locale():
