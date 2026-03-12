@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import status_badge, priority_badge, section_card %}
+{% block title %}{{ ticket.ticket_number }} - Ticket Detail - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
+        <p class="mt-1 text-sm text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {{ status_badge(ticket.internal_status) }}
+        {{ priority_badge(ticket.priority) }}
+        <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">Customer Status: {{ ticket.customer_status }}</span>
+        {% if ticket.assigned_technician %}
+          <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">{{ ticket.assigned_technician.full_name }}</span>
+        {% else %}
+          <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">Unassigned</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <div class="space-y-4 xl:col-span-2">
+      {% call section_card('Timeline', 'Workflow events will expand in next phases') %}
+        <ul class="space-y-2 text-sm text-slate-300">
+          {% for item in timeline_placeholder %}
+            <li class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+              <div class="flex items-center justify-between gap-2">
+                <p class="font-medium text-slate-100">{{ item.event }}</p>
+                <p class="text-xs text-slate-500">{{ item.time.strftime('%Y-%m-%d %H:%M') }}</p>
+              </div>
+              <p class="mt-1 text-xs text-slate-500">By: {{ item.by }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endcall %}
+
+      {% call section_card('Diagnosis', 'Technician findings and recommendations') %}
+        <form method="post" action="{{ url_for('diagnostics.save_ticket_diagnostic', ticket_id=ticket.id) }}" class="space-y-3">
+          {{ diagnostic_form.hidden_tag() }}
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.customer_reported_fault.label.text }}</label>
+            {{ diagnostic_form.customer_reported_fault(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.technician_diagnosis.label.text }}</label>
+            {{ diagnostic_form.technician_diagnosis(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.recommended_repair.label.text }}</label>
+            {{ diagnostic_form.recommended_repair(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
+          </div>
+          <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.estimated_labour.label.text }}</label>
+              {{ diagnostic_form.estimated_labour(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+            </div>
+            <div>
+              <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.repair_notes.label.text }}</label>
+              {{ diagnostic_form.repair_notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
+            </div>
+          </div>
+          <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ diagnostic_form.submit.label.text }}</button>
+        </form>
+
+        {% if diagnosis_entries %}
+        <div class="mt-4 space-y-2">
+          {% for diagnosis in diagnosis_entries %}
+          <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm">
+            <p class="text-slate-300">Version {{ diagnosis.version }} · {{ diagnosis.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            <p class="text-slate-100">Diagnosis: {{ diagnosis.technician_diagnosis }}</p>
+            <p class="text-slate-400">Recommended: {{ diagnosis.recommended_repair or '—' }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endcall %}
+
+      {% call section_card('Quotes', 'Quote versions, options, and approval lifecycle') %}
+        <div class="mb-3 flex items-center justify-between">
+          <p class="text-sm text-slate-300">Quote Approval Status integrated for this ticket.</p>
+          <a href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}" class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500">Create Quote</a>
+        </div>
+        {% if quote_summaries %}
+          <div class="space-y-2">
+            {% for item in quote_summaries %}
+            <div class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="text-sm font-semibold text-white">Version {{ item.quote.version }}</p>
+                {{ status_badge(item.quote.status|replace('_',' ')|title) }}
+              </div>
+              <p class="mt-1 text-xs text-slate-400">Options: {{ item.quote.options|length }} · Total(max option): {{ item.quote.currency }} {{ '%.2f'|format(item.quote_total) }}</p>
+              <a href="{{ url_for('quotes.quote_detail', quote_id=item.quote.id) }}" class="mt-2 inline-flex rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-200 hover:bg-slate-700">Open Quote</a>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-sm text-slate-500">No quotes created yet.</p>
+        {% endif %}
+      {% endcall %}
+
+      {% call section_card('Parts', 'Placeholder panel') %}
+        <p class="text-sm text-slate-400">Parts reservations and ordering board will be implemented in Phase 4.</p>
+      {% endcall %}
+
+      {% call section_card('Attachments', 'Placeholder panel') %}
+        <p class="text-sm text-slate-400">Attachment uploader and media timeline are planned in upcoming phases.</p>
+      {% endcall %}
+    </div>
+
+    <aside class="space-y-4">
+      {% call section_card('Customer Panel') %}
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-slate-500">Name</dt><dd class="text-slate-200"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></dd></div>
+          <div><dt class="text-slate-500">Phone</dt><dd class="text-slate-200">{{ ticket.customer.phone or '—' }}</dd></div>
+          <div><dt class="text-slate-500">Email</dt><dd class="text-slate-200">{{ ticket.customer.email or '—' }}</dd></div>
+          <div><dt class="text-slate-500">Language</dt><dd class="text-slate-200">{{ ticket.customer.preferred_language|upper }}</dd></div>
+        </dl>
+      {% endcall %}
+
+      {% call section_card('Device Panel') %}
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-slate-500">Category</dt><dd class="text-slate-200 capitalize">{{ ticket.device.category }}</dd></div>
+          <div><dt class="text-slate-500">Brand / Model</dt><dd class="text-slate-200">{{ ticket.device.brand }} {{ ticket.device.model }}</dd></div>
+          <div><dt class="text-slate-500">Serial</dt><dd class="text-slate-200">{{ ticket.device.serial_number or '—' }}</dd></div>
+          <div><dt class="text-slate-500">IMEI</dt><dd class="text-slate-200">{{ ticket.device.imei or '—' }}</dd></div>
+        </dl>
+      {% endcall %}
+
+      {% call section_card('Activity Sidebar') %}
+        <ul class="space-y-2 text-xs text-slate-400">
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Quote status changes are now tracked for portal/manual approval events.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Diagnosis entries are versioned for timeline-ready history.</li>
+        </ul>
+      {% endcall %}
+    </aside>
+  </div>
+</section>
+{% endblock %}
