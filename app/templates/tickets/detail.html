@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import status_badge, priority_badge, section_card %}
+{% block title %}{{ ticket.ticket_number }} - Ticket Detail - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
+        <p class="mt-1 text-sm text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {{ status_badge(ticket.internal_status) }}
+        {{ priority_badge(ticket.priority) }}
+        {% if ticket.assigned_technician %}
+          <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">{{ ticket.assigned_technician.full_name }}</span>
+        {% else %}
+          <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">Unassigned</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <div class="space-y-4 xl:col-span-2">
+      {% call section_card('Timeline', 'Workflow events will expand in next phases') %}
+        <ul class="space-y-2 text-sm text-slate-300">
+          {% for item in timeline_placeholder %}
+            <li class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+              <div class="flex items-center justify-between gap-2">
+                <p class="font-medium text-slate-100">{{ item.event }}</p>
+                <p class="text-xs text-slate-500">{{ item.time.strftime('%Y-%m-%d %H:%M') }}</p>
+              </div>
+              <p class="mt-1 text-xs text-slate-500">By: {{ item.by }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endcall %}
+
+      {% call section_card('Notes', 'Internal and customer notes placeholder') %}
+        <p class="text-sm text-slate-400">Notes module placeholder for Phase 2+ implementation.</p>
+      {% endcall %}
+
+      {% call section_card('Diagnostics', 'Placeholder panel') %}
+        <p class="text-sm text-slate-400">Diagnostics workflow will be implemented in Phase 3.</p>
+      {% endcall %}
+
+      {% call section_card('Quote', 'Placeholder panel') %}
+        <p class="text-sm text-slate-400">Quote generation and approval workflow will be implemented in Phase 3.</p>
+      {% endcall %}
+
+      {% call section_card('Parts', 'Placeholder panel') %}
+        <p class="text-sm text-slate-400">Parts reservations and ordering board will be implemented in Phase 4.</p>
+      {% endcall %}
+
+      {% call section_card('Attachments', 'Placeholder panel') %}
+        <p class="text-sm text-slate-400">Attachment uploader and media timeline are planned in upcoming phases.</p>
+      {% endcall %}
+    </div>
+
+    <aside class="space-y-4">
+      {% call section_card('Customer Panel') %}
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-slate-500">Name</dt><dd class="text-slate-200">{{ ticket.customer.full_name }}</dd></div>
+          <div><dt class="text-slate-500">Phone</dt><dd class="text-slate-200">{{ ticket.customer.phone or '—' }}</dd></div>
+          <div><dt class="text-slate-500">Email</dt><dd class="text-slate-200">{{ ticket.customer.email or '—' }}</dd></div>
+          <div><dt class="text-slate-500">Language</dt><dd class="text-slate-200">{{ ticket.customer.preferred_language|upper }}</dd></div>
+        </dl>
+      {% endcall %}
+
+      {% call section_card('Device Panel') %}
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-slate-500">Category</dt><dd class="text-slate-200 capitalize">{{ ticket.device.category }}</dd></div>
+          <div><dt class="text-slate-500">Brand / Model</dt><dd class="text-slate-200">{{ ticket.device.brand }} {{ ticket.device.model }}</dd></div>
+          <div><dt class="text-slate-500">Serial</dt><dd class="text-slate-200">{{ ticket.device.serial_number or '—' }}</dd></div>
+          <div><dt class="text-slate-500">IMEI</dt><dd class="text-slate-200">{{ ticket.device.imei or '—' }}</dd></div>
+        </dl>
+      {% endcall %}
+
+      {% call section_card('Activity Sidebar') %}
+        <ul class="space-y-2 text-xs text-slate-400">
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Placeholder: status changes</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Placeholder: technician actions</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Placeholder: customer communication log</li>
+        </ul>
+      {% endcall %}
+    </aside>
+  </div>
+</section>
+{% endblock %}
