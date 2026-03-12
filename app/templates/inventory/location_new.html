@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}New Stock Location - IRONCore{% endblock %}
+{% block content %}
+<section class="max-w-3xl rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
+  <h1 class="text-2xl font-semibold text-white">Create Stock Location</h1>
+  <form method="post" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+    {{ form.hidden_tag() }}
+    <div>{{ form.branch_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.code(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Code') }}</div>
+    <div>{{ form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Location name') }}</div>
+    <div>{{ form.location_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div class="md:col-span-2">{{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
+  </form>
+</section>
+{% endblock %}

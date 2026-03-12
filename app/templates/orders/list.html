@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Part Orders - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-white">Ordered Parts Board</h1>
+      <p class="text-sm text-slate-400">Track ordered, shipped, delayed, partially arrived, arrived, and installed states.</p>
+    </div>
+    <a href="{{ url_for('orders.new_order') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Order</a>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
+    <table class="min-w-full text-left text-sm text-slate-200">
+      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-4 py-3">Reference</th><th class="px-4 py-3">Ticket</th><th class="px-4 py-3">Supplier</th><th class="px-4 py-3">ETA</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Action</th></tr></thead>
+      <tbody class="divide-y divide-slate-800">
+        {% for order in orders %}
+        <tr>
+          <td class="px-4 py-3 text-white">{{ order.reference or order.id }}</td>
+          <td class="px-4 py-3">{{ order.ticket.ticket_number }}</td>
+          <td class="px-4 py-3">{{ order.supplier.name }}</td>
+          <td class="px-4 py-3">{{ order.eta_date or '—' }}</td>
+          <td class="px-4 py-3 text-xs uppercase">{{ order.status|replace('_',' ') }}</td>
+          <td class="px-4 py-3"><a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 hover:bg-slate-800">Open</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No part orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

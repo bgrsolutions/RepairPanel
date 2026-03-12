@@ -12,3 +12,9 @@ def test_app_factory():
     assert "diagnostics" in app.blueprints
     assert "quotes" in app.blueprints
     assert "public_portal" in app.blueprints
+<<<<<<< codex/create-project-governance-documentation-u004qc
+    assert "inventory" in app.blueprints
+    assert "suppliers" in app.blueprints
+    assert "orders" in app.blueprints
+=======
+>>>>>>> main

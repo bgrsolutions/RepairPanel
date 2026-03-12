@@ -75,3 +75,17 @@
 ### Changed
 - Ticket detail page now integrates diagnosis form/history, quote summaries, quote approval status visibility, and direct quote creation links.
 - Internal/public route registration expanded with dedicated diagnostics and quotes blueprints.
+
+## [0.5.0] - 2026-03-12
+### Added
+- Phase 4 operational workflow foundation for technician assignment and ticket notes (`internal`, `customer`, `communication`) with author/timestamp capture.
+- Inventory foundation models and UI for parts catalog, suppliers, stock locations, stock levels, stock movements, and stock reservations.
+- Ordered parts tracking foundation with ticket-linked part orders, order lines, and order event/status timeline (`ordered`, `shipped`, `delayed`, `partially_arrived`, `arrived`, `installed`).
+- New blueprints/modules for inventory, suppliers, and orders, plus stock/order service helpers.
+- Phase 4 migration introducing ticket notes and inventory/order schema tables.
+- Automated tests for assignment/notes, inventory/reservations, and order creation/status transitions.
+
+### Changed
+- Ticket detail now includes technician assignment controls, structured note entry, reserved parts section, and ordered parts visibility.
+- Ticket list, bench board, and my queue views now surface technician ownership more clearly.
+- Internal navigation now exposes Inventory, Suppliers, and Orders operational pages.

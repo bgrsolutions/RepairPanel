@@ -14,7 +14,17 @@ from app.models import (
     QuoteOption,
     Role,
     Ticket,
+    TicketNote,
     User,
+    Part,
+    PartOrder,
+    PartOrderEvent,
+    PartOrderLine,
+    StockLevel,
+    StockLocation,
+    StockMovement,
+    StockReservation,
+    Supplier,
 )
 from app.models.role import role_permissions
 from app.models.user import user_branch_access, user_roles
@@ -50,6 +60,16 @@ def _create_tables():
         QuoteOption.__table__,
         QuoteLine.__table__,
         QuoteApproval.__table__,
+        TicketNote.__table__,
+        Supplier.__table__,
+        Part.__table__,
+        StockLocation.__table__,
+        StockLevel.__table__,
+        StockMovement.__table__,
+        StockReservation.__table__,
+        PartOrder.__table__,
+        PartOrderLine.__table__,
+        PartOrderEvent.__table__,
     ]
     for table in tables:
         table.create(bind=db.engine, checkfirst=True)

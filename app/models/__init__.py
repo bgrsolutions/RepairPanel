@@ -4,8 +4,12 @@ from app.models.customer import Customer
 from app.models.device import Device
 from app.models.diagnostic import Diagnostic
 from app.models.intake import Attachment, IntakeDisclaimerAcceptance, IntakeSignature, IntakeSubmission, PortalToken
+from app.models.inventory import Part, StockLevel, StockLocation, StockMovement, StockReservation
+from app.models.note import TicketNote
+from app.models.order import PartOrder, PartOrderEvent, PartOrderLine
 from app.models.quote import Quote, QuoteApproval, QuoteLine, QuoteOption
 from app.models.role import Role
+from app.models.supplier import Supplier
 from app.models.ticket import Ticket
 from app.models.user import User
 
@@ -20,6 +24,16 @@ __all__ = [
     "IntakeSignature",
     "Attachment",
     "PortalToken",
+    "TicketNote",
+    "Supplier",
+    "Part",
+    "StockLocation",
+    "StockLevel",
+    "StockMovement",
+    "StockReservation",
+    "PartOrder",
+    "PartOrderLine",
+    "PartOrderEvent",
     "Quote",
     "QuoteOption",
     "QuoteLine",

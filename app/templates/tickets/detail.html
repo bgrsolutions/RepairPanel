@@ -15,7 +15,11 @@
         {{ priority_badge(ticket.priority) }}
         <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">Customer Status: {{ ticket.customer_status }}</span>
         {% if ticket.assigned_technician %}
+<<<<<<< codex/create-project-governance-documentation-u004qc
+          <span class="inline-flex items-center rounded-full border border-cyan-700/60 bg-cyan-950/70 px-2.5 py-1 text-xs font-medium text-cyan-200">{{ ticket.assigned_technician.full_name }}</span>
+=======
           <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">{{ ticket.assigned_technician.full_name }}</span>
+>>>>>>> main
         {% else %}
           <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">Unassigned</span>
         {% endif %}
@@ -25,6 +29,47 @@
 
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
     <div class="space-y-4 xl:col-span-2">
+<<<<<<< codex/create-project-governance-documentation-u004qc
+      {% call section_card('Technician Assignment', 'Assign or reassign ownership for this repair') %}
+        <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">
+          {{ assignment_form.hidden_tag() }}
+          <div class="flex-1">
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ assignment_form.assigned_technician_id.label.text }}</label>
+            {{ assignment_form.assigned_technician_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+          </div>
+          {{ assignment_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+        </form>
+      {% endcall %}
+
+      {% call section_card('Notes', 'Internal notes, customer notes, and communication logs') %}
+        <form method="post" action="{{ url_for('tickets.add_note', ticket_id=ticket.id) }}" class="space-y-2">
+          {{ note_form.hidden_tag() }}
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ note_form.note_type.label.text }}</label>
+            {{ note_form.note_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ note_form.content.label.text }}</label>
+            {{ note_form.content(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}
+          </div>
+          {{ note_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+        </form>
+
+        <div class="mt-4 space-y-2">
+          {% for note in notes %}
+          <div class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs uppercase tracking-wide {% if note.note_type == 'internal' %}text-amber-300{% elif note.note_type == 'customer' %}text-emerald-300{% else %}text-sky-300{% endif %}">{{ note.note_type }}</span>
+              <span class="text-xs text-slate-500">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <p class="mt-1 text-sm text-slate-200">{{ note.content }}</p>
+            <p class="mt-1 text-xs text-slate-500">By: {{ note.author_user.full_name if note.author_user else 'System' }}</p>
+          </div>
+          {% else %}
+          <p class="text-sm text-slate-500">No notes yet.</p>
+          {% endfor %}
+        </div>
+=======
       {% call section_card('Timeline', 'Workflow events will expand in next phases') %}
         <ul class="space-y-2 text-sm text-slate-300">
           {% for item in timeline_placeholder %}
@@ -37,6 +82,7 @@
             </li>
           {% endfor %}
         </ul>
+>>>>>>> main
       {% endcall %}
 
       {% call section_card('Diagnosis', 'Technician findings and recommendations') %}
@@ -82,7 +128,11 @@
 
       {% call section_card('Quotes', 'Quote versions, options, and approval lifecycle') %}
         <div class="mb-3 flex items-center justify-between">
+<<<<<<< codex/create-project-governance-documentation-u004qc
+          <p class="text-sm text-slate-300">Quote approval status integrated for this ticket.</p>
+=======
           <p class="text-sm text-slate-300">Quote Approval Status integrated for this ticket.</p>
+>>>>>>> main
           <a href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}" class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500">Create Quote</a>
         </div>
         {% if quote_summaries %}
@@ -103,12 +153,50 @@
         {% endif %}
       {% endcall %}
 
+<<<<<<< codex/create-project-governance-documentation-u004qc
+      {% call section_card('Reserved Parts', 'Reserve in-stock parts against this ticket') %}
+        <form method="post" action="{{ url_for('tickets.reserve_part', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-2 md:grid-cols-3">
+          {{ reservation_form.hidden_tag() }}
+          <div>{{ reservation_form.part_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+          <div>{{ reservation_form.location_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+          <div>{{ reservation_form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Qty') }}</div>
+          <div class="md:col-span-3">{{ reservation_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
+        </form>
+        <div class="mt-3 space-y-2">
+          {% for reservation in reservations %}
+          <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm">
+            <p class="text-slate-100">{{ reservation.part.sku }} · {{ reservation.part.name }}</p>
+            <p class="text-xs text-slate-400">Qty: {{ reservation.quantity }} · Location: {{ reservation.location.code }} · Status: {{ reservation.status }}</p>
+          </div>
+          {% else %}
+          <p class="text-sm text-slate-500">No reservations yet.</p>
+          {% endfor %}
+        </div>
+      {% endcall %}
+
+      {% call section_card('Ordered Parts', 'Track external supplier orders linked to this ticket') %}
+        <div class="space-y-2">
+          {% for order in orders %}
+          <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-3 hover:border-slate-700">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p>
+              <span class="text-xs uppercase text-slate-400">{{ order.status|replace('_',' ') }}</span>
+            </div>
+            <p class="text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.eta_date or '—' }}</p>
+          </a>
+          {% else %}
+          <p class="text-sm text-slate-500">No external part orders linked yet.</p>
+          {% endfor %}
+          <a href="{{ url_for('orders.new_order') }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700">Create Part Order</a>
+        </div>
+=======
       {% call section_card('Parts', 'Placeholder panel') %}
         <p class="text-sm text-slate-400">Parts reservations and ordering board will be implemented in Phase 4.</p>
       {% endcall %}
 
       {% call section_card('Attachments', 'Placeholder panel') %}
         <p class="text-sm text-slate-400">Attachment uploader and media timeline are planned in upcoming phases.</p>
+>>>>>>> main
       {% endcall %}
     </div>
 
@@ -133,8 +221,13 @@
 
       {% call section_card('Activity Sidebar') %}
         <ul class="space-y-2 text-xs text-slate-400">
+<<<<<<< codex/create-project-governance-documentation-u004qc
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Assignment, notes, reservations, and orders are now operationally visible.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Arrived vs installed ordered-part states are tracked separately.</li>
+=======
           <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Quote status changes are now tracked for portal/manual approval events.</li>
           <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Diagnosis entries are versioned for timeline-ready history.</li>
+>>>>>>> main
         </ul>
       {% endcall %}
     </aside>
