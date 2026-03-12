@@ -1,0 +1,28 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /workspace
+    env_file:
+      - ../.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ..:/workspace
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ironcore
+      POSTGRES_USER: ironcore
+      POSTGRES_PASSWORD: ironcore
+    ports:
+      - "5432:5432"
+    volumes:
+      - ironcore_pgdata:/var/lib/postgresql/data
+
+volumes:
+  ironcore_pgdata:

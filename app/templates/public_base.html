@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="{{ current_locale }}" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}IRONCore Public Check-In{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+  </head>
+  <body class="h-full bg-slate-950 text-slate-100 antialiased">
+    <div class="min-h-full bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900/70">
+      <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur">
+        <div class="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Public Check-In</p>
+            <h1 class="text-lg font-semibold tracking-tight text-white">IRONCore</h1>
+          </div>
+          <div class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900/80 p-1">
+            {% for locale in supported_locales %}
+              <a
+                class="rounded-md px-2.5 py-1.5 text-xs font-semibold tracking-wide transition {% if locale == current_locale %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}"
+                href="{{ url_for('set_language', locale=locale) }}"
+              >
+                {{ locale|upper }}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 lg:py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mb-5 space-y-3">
+              {% for category, message in messages %}
+                {% set flash_class = 'border-slate-700/80 bg-slate-800/80 text-slate-100' %}
+                {% if category == 'success' %}
+                  {% set flash_class = 'border-emerald-700/60 bg-emerald-950/70 text-emerald-100' %}
+                {% elif category == 'error' %}
+                  {% set flash_class = 'border-rose-700/60 bg-rose-950/70 text-rose-100' %}
+                {% endif %}
+                <div class="rounded-xl border px-4 py-3 text-sm {{ flash_class }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>
