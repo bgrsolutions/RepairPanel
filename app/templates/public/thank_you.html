@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Check-In Submitted - IRONCore{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-xl rounded-2xl border border-slate-800 bg-slate-900/70 p-8 text-center shadow-panel">
+  <h1 class="text-3xl font-semibold text-white">Thank you</h1>
+  <p class="mt-3 text-slate-300">Your pre-check-in submission has been received.</p>
+  {% if reference %}
+    <p class="mt-2 text-sm text-slate-400">Reference: <span class="font-semibold text-slate-200">{{ reference }}</span></p>
+  {% endif %}
+  {% if kiosk_mode %}
+    <p class="mt-4 text-xs text-slate-500">Kiosk mode: screen can be reset for next customer.</p>
+  {% endif %}
+  <div class="mt-6">
+    <a href="{{ url_for('public_portal.kiosk_checkin' if kiosk_mode else 'public_portal.public_checkin') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">New Submission</a>
+  </div>
+</section>
+{% endblock %}

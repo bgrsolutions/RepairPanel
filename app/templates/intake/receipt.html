@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Intake Receipt {{ intake.reference }}</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      .row { margin-bottom: 8px; }
+      .muted { color: #666; }
+      .box { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+    </style>
+  </head>
+  <body>
+    <h2>IRONCore Intake Receipt</h2>
+    <div class="box">
+      <div class="row"><strong>Reference:</strong> {{ intake.reference }}</div>
+      <div class="row"><strong>Status:</strong> {{ intake.status }}</div>
+      <div class="row"><strong>Customer:</strong> {{ intake.customer_name }}</div>
+      <div class="row"><strong>Device:</strong> {{ intake.device_brand }} {{ intake.device_model }}</div>
+      <div class="row"><strong>Fault:</strong> {{ intake.reported_fault }}</div>
+      <div class="row"><strong>Date:</strong> {{ intake.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+      <div class="row muted">QR/Barcode foundation placeholder: {{ intake.reference }}</div>
+    </div>
+    <script>window.print()</script>
+  </body>
+</html>

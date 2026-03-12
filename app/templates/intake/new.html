@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}New Intake - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">Internal Intake / Check-In</h1>
+    <p class="text-sm text-slate-400">Capture customer/device intake details and create a pre-check-in record.</p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel lg:grid-cols-2">
+    {{ form.hidden_tag() }}
+
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.branch_id.label }}</label>
+      {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.category.label }}</label>
+      {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.customer_name.label }}</label>
+      {{ form.customer_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.customer_phone.label }}</label>
+      {{ form.customer_phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+
+    <div class="lg:col-span-2">
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.customer_email.label }}</label>
+      {{ form.customer_email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.device_brand.label }}</label>
+      {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.device_model.label }}</label>
+      {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.serial_number.label }}</label>
+      {{ form.serial_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.imei.label }}</label>
+      {{ form.imei(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+
+    <div class="lg:col-span-2">
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.reported_fault.label }}</label>
+      {{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-24') }}
+    </div>
+
+    <div class="lg:col-span-2">
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.accessories.label }}</label>
+      {{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-20') }}
+    </div>
+
+    <div class="lg:col-span-2">
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.intake_notes.label }}</label>
+      {{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-20') }}
+    </div>
+
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.photo.label }}</label>
+      {{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+    </div>
+    <div>
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Signature (Optional)</label>
+      {{ form.signature_data(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5', placeholder='Base64 signature payload placeholder') }}
+    </div>
+
+    <div class="lg:col-span-2 flex items-center gap-2">
+      {{ form.accepted_disclaimer(class='h-4 w-4 rounded border-slate-600 bg-slate-800') }}
+      <span class="text-sm text-slate-300">I confirm the customer accepted the intake disclaimer.</span>
+    </div>
+
+    <div class="lg:col-span-2">{{ form.submit(class='inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
+  </form>
+</section>
+{% endblock %}
