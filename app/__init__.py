@@ -10,12 +10,9 @@ from app.blueprints.customers.routes import customers_bp
 from app.blueprints.diagnostics.routes import diagnostics_bp
 from app.blueprints.quotes.routes import quotes_bp
 from app.blueprints.public_portal.routes import public_portal_bp
-<<<<<<< codex/create-project-governance-documentation-u004qc
 from app.blueprints.inventory.routes import inventory_bp
 from app.blueprints.suppliers.routes import suppliers_bp
 from app.blueprints.orders.routes import orders_bp
-=======
->>>>>>> main
 from app.config import Config
 from app.extensions import babel, db, login_manager, migrate
 from app import models  # noqa: F401
