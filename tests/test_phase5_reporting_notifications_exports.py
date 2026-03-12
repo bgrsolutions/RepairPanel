@@ -85,7 +85,7 @@ def test_phase5_foundations(monkeypatch):
         device = Device(customer=customer, category='laptops', brand='Lenovo', model='T14', serial_number='P5', imei=None)
         db.session.add(device)
         db.session.flush()
-        ticket = Ticket(ticket_number='HQ-20260312-9000', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='Awaiting Quote Approval', customer_status='Waiting quote', priority='normal')
+        ticket = Ticket(ticket_number='HQ-20260312-9000', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_quote_approval', customer_status='Waiting quote', priority='normal')
         db.session.add(ticket)
         db.session.flush()
         quote = Quote(ticket_id=ticket.id, version=1, status='sent', currency='EUR', language='en')

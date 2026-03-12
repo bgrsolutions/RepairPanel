@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from flask import Blueprint, flash, render_template, redirect, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
@@ -9,7 +9,7 @@ from app.extensions import db
 from app.forms.diagnostic_forms import DiagnosticForm
 from app.forms.inventory_forms import StockReservationForm
 from app.forms.ticket_forms import TicketCreateForm
-from app.forms.ticket_note_forms import TicketAssignmentForm, TicketNoteForm
+from app.forms.ticket_note_forms import TicketAssignmentForm, TicketNoteForm, TicketStatusForm
 from app.models import (
     Branch,
     Customer,
@@ -26,7 +26,13 @@ from app.models import (
 from app.services.audit_service import log_action
 from app.services.inventory_service import reserve_stock_for_ticket
 from app.services.quote_service import compute_quote_totals
-from app.utils.ticketing import generate_ticket_number
+from app.utils.ticketing import (
+    default_sla_target,
+    generate_ticket_number,
+    is_ticket_overdue,
+    normalize_ticket_status,
+    ticket_age_days,
+)
 
 
 tickets_bp = Blueprint("tickets", __name__, url_prefix="/tickets")
@@ -34,20 +40,43 @@ tickets_bp = Blueprint("tickets", __name__, url_prefix="/tickets")
 
 def _technician_choices(ticket: Ticket):
     users = User.query.filter(User.deleted_at.is_(None), User.is_active.is_(True)).order_by(User.full_name).all()
-    scoped = []
+    scoped = [("", "-- Unassigned --")]
     for u in users:
-        is_technician = any(r.name.lower() == "technician" for r in u.roles)
+        is_technician = any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)
         has_branch = (not u.branches) or any(str(b.id) == str(ticket.branch_id) for b in u.branches)
         if is_technician and has_branch:
             scoped.append((str(u.id), u.full_name))
     return scoped
 
 
+def _sync_assignment_status(ticket: Ticket):
+    normalized = normalize_ticket_status(ticket.internal_status)
+    if normalized == Ticket.STATUS_UNASSIGNED and ticket.assigned_technician_id:
+        ticket.internal_status = Ticket.STATUS_ASSIGNED
+    elif normalized == Ticket.STATUS_ASSIGNED and not ticket.assigned_technician_id:
+        ticket.internal_status = Ticket.STATUS_UNASSIGNED
+
+
 @tickets_bp.get("/")
 @login_required
 def list_tickets():
     tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.desc()).all()
-    return render_template("tickets/list.html", tickets=tickets)
+    return render_template("tickets/list.html", tickets=tickets, is_ticket_overdue=is_ticket_overdue, ticket_age_days=ticket_age_days)
+
+
+@tickets_bp.get("/customer/<uuid:customer_id>/devices")
+@login_required
+def customer_devices(customer_id):
+    devices = Device.query.filter(Device.customer_id == customer_id, Device.deleted_at.is_(None)).order_by(Device.brand.asc()).all()
+    return jsonify(
+        [
+            {
+                "id": str(device.id),
+                "label": f"{device.brand} {device.model} ({device.serial_number or 'N/A'})",
+            }
+            for device in devices
+        ]
+    )
 
 
 @tickets_bp.get("/<uuid:ticket_id>")
@@ -58,13 +87,15 @@ def ticket_detail(ticket_id):
         flash(_("Ticket not found"), "error")
         return redirect(url_for("tickets.list_tickets"))
 
+    ticket.internal_status = normalize_ticket_status(ticket.internal_status)
+    _sync_assignment_status(ticket)
+
     timeline_placeholder = [
         {"time": ticket.created_at, "event": "Ticket created", "by": "System"},
         {"time": ticket.updated_at, "event": "Latest update", "by": "Staff"},
     ]
 
     ticket_uuid = uuid.UUID(str(ticket.id))
-
     diagnosis_entries = (
         Diagnostic.query.filter_by(ticket_id=ticket_uuid)
         .order_by(Diagnostic.version.desc(), Diagnostic.created_at.desc())
@@ -92,15 +123,16 @@ def ticket_detail(ticket_id):
 
     assignment_form = TicketAssignmentForm()
     assignment_form.assigned_technician_id.choices = _technician_choices(ticket)
-    if ticket.assigned_technician_id:
-        assignment_form.assigned_technician_id.data = str(ticket.assigned_technician_id)
+    assignment_form.assigned_technician_id.data = str(ticket.assigned_technician_id) if ticket.assigned_technician_id else ""
+
+    status_form = TicketStatusForm()
+    status_form.internal_status.data = normalize_ticket_status(ticket.internal_status)
 
     note_form = TicketNoteForm()
     notes = TicketNote.query.filter_by(ticket_id=ticket_uuid).order_by(TicketNote.created_at.desc()).all()
 
     reservation_form = StockReservationForm()
     reservation_form.part_id.choices = [(str(p.id), f"{p.sku} - {p.name}") for p in Part.query.filter_by(is_active=True).order_by(Part.name).all()]
-    # use all locations in ticket branch for reservations
     from app.models import StockLocation
 
     reservation_form.location_id.choices = [
@@ -108,7 +140,6 @@ def ticket_detail(ticket_id):
         for loc in StockLocation.query.filter_by(branch_id=ticket.branch_id).order_by(StockLocation.name).all()
     ]
     reservations = StockReservation.query.filter_by(ticket_id=ticket_uuid).order_by(StockReservation.created_at.desc()).all()
-
     orders = PartOrder.query.filter_by(ticket_id=ticket_uuid).order_by(PartOrder.created_at.desc()).all()
 
     return render_template(
@@ -120,11 +151,14 @@ def ticket_detail(ticket_id):
         diagnostic_form=diagnostic_form,
         quote_summaries=quote_summaries,
         assignment_form=assignment_form,
+        status_form=status_form,
         note_form=note_form,
         notes=notes,
         reservation_form=reservation_form,
         reservations=reservations,
         orders=orders,
+        is_overdue=is_ticket_overdue(ticket),
+        age_days=ticket_age_days(ticket),
     )
 
 
@@ -139,14 +173,52 @@ def assign_ticket(ticket_id):
     form = TicketAssignmentForm()
     form.assigned_technician_id.choices = _technician_choices(ticket)
     if form.validate_on_submit():
-        technician_id = uuid.UUID(str(form.assigned_technician_id.data))
-        technician = db.session.get(User, technician_id)
+        previous = ticket.assigned_technician.full_name if ticket.assigned_technician else "Unassigned"
+        technician = db.session.get(User, uuid.UUID(str(form.assigned_technician_id.data))) if form.assigned_technician_id.data else None
         ticket.assigned_technician_id = uuid.UUID(str(technician.id)) if technician else None
+        _sync_assignment_status(ticket)
+
+        db.session.add(
+            TicketNote(
+                ticket_id=ticket.id,
+                author_user_id=current_user.id,
+                note_type="internal",
+                content=f"Assignment changed: {previous} → {(technician.full_name if technician else 'Unassigned')}",
+            )
+        )
         db.session.commit()
         flash(_("Technician assignment updated"), "success")
         return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
     flash(_("Invalid assignment request"), "error")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/status")
+@login_required
+def update_status(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    form = TicketStatusForm()
+    if form.validate_on_submit():
+        previous = ticket.internal_status
+        ticket.internal_status = normalize_ticket_status(form.internal_status.data)
+        db.session.add(
+            TicketNote(
+                ticket_id=ticket.id,
+                author_user_id=current_user.id,
+                note_type="internal",
+                content=f"Status changed: {previous} → {ticket.internal_status}",
+            )
+        )
+        db.session.commit()
+        flash(_("Ticket status updated"), "success")
+    else:
+        flash(_("Invalid status update request"), "error")
+
     return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
 
@@ -212,23 +284,42 @@ def reserve_part(ticket_id):
 @tickets_bp.get("/board")
 @login_required
 def repair_board():
-    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.desc()).all()
-    columns = [
-        "New",
-        "Awaiting Diagnosis",
-        "Awaiting Quote Approval",
-        "Awaiting Parts",
-        "In Repair",
-        "Testing / QA",
-        "Ready for Collection",
-    ]
+    now = datetime.utcnow()
+    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.asc()).all()
 
-    grouped = {status: [] for status in columns}
+    grouped = {
+        "Unassigned": [],
+        "Assigned": [],
+        "Awaiting Diagnostics": [],
+        "Awaiting Parts": [],
+        "In Repair": [],
+        "Ready for Collection": [],
+        "Overdue": [],
+        "Aging": [],
+    }
+
     for ticket in tickets:
-        status = ticket.internal_status if ticket.internal_status in grouped else "New"
-        grouped[status].append(ticket)
+        normalized = normalize_ticket_status(ticket.internal_status)
+        ticket.internal_status = normalized
 
-    return render_template("tickets/board.html", grouped=grouped, columns=columns, now=datetime.utcnow())
+        if normalized == Ticket.STATUS_UNASSIGNED or not ticket.assigned_technician_id:
+            grouped["Unassigned"].append(ticket)
+        if normalized == Ticket.STATUS_ASSIGNED:
+            grouped["Assigned"].append(ticket)
+        if normalized == Ticket.STATUS_AWAITING_DIAGNOSTICS:
+            grouped["Awaiting Diagnostics"].append(ticket)
+        if normalized == Ticket.STATUS_AWAITING_PARTS:
+            grouped["Awaiting Parts"].append(ticket)
+        if normalized in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}:
+            grouped["In Repair"].append(ticket)
+        if normalized == Ticket.STATUS_READY_FOR_COLLECTION:
+            grouped["Ready for Collection"].append(ticket)
+        if is_ticket_overdue(ticket, now):
+            grouped["Overdue"].append(ticket)
+        if ticket_age_days(ticket, now) >= 3 and normalized not in Ticket.CLOSED_STATUSES:
+            grouped["Aging"].append(ticket)
+
+    return render_template("tickets/board.html", grouped=grouped, now=now, ticket_age_days=ticket_age_days, is_ticket_overdue=is_ticket_overdue)
 
 
 @tickets_bp.get("/my-queue")
@@ -241,13 +332,12 @@ def my_queue():
     )
 
     grouped = {
-        "Awaiting Diagnosis": [t for t in assigned if t.internal_status == "Awaiting Diagnosis"],
-        "In Repair": [t for t in assigned if t.internal_status == "In Repair"],
-        "Testing / QA": [t for t in assigned if t.internal_status in {"Testing / QA", "Testing", "QA"}],
+        "Awaiting Diagnostics": [t for t in assigned if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_DIAGNOSTICS],
+        "In Repair": [t for t in assigned if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}],
         "Other": [
             t
             for t in assigned
-            if t.internal_status not in {"Awaiting Diagnosis", "In Repair", "Testing / QA", "Testing", "QA"}
+            if normalize_ticket_status(t.internal_status) not in {Ticket.STATUS_AWAITING_DIAGNOSTICS, Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}
         ],
     }
 
@@ -258,23 +348,33 @@ def my_queue():
 @login_required
 def create_ticket():
     form = TicketCreateForm()
-    form.customer_id.choices = [(str(c.id), c.full_name) for c in Customer.query.order_by(Customer.full_name).all()]
-    form.device_id.choices = [
-        (str(d.id), f"{d.brand} {d.model} ({d.serial_number or 'N/A'})") for d in Device.query.order_by(Device.brand).all()
-    ]
+    selected_customer = (request.form.get("customer_id") or request.args.get("customer_id") or "").strip()
+
+    customers = Customer.query.filter(Customer.deleted_at.is_(None)).order_by(Customer.full_name).all()
+    form.customer_id.choices = [(str(c.id), f"{c.full_name} · {c.phone or c.email or 'No contact'}") for c in customers]
+
+    devices_query = Device.query.filter(Device.deleted_at.is_(None))
+    if selected_customer:
+        devices_query = devices_query.filter(Device.customer_id == uuid.UUID(selected_customer))
+    else:
+        devices_query = devices_query.filter(False)
+
+    devices = devices_query.order_by(Device.brand).all()
+    form.device_id.choices = [(str(d.id), f"{d.brand} {d.model} ({d.serial_number or 'N/A'})") for d in devices]
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]
 
     if form.validate_on_submit():
-        branch = db.session.get(Branch, form.branch_id.data)
+        branch = db.session.get(Branch, uuid.UUID(str(form.branch_id.data)))
         sequence = Ticket.query.count() + 1
         ticket = Ticket(
             ticket_number=generate_ticket_number(branch.code, sequence),
-            branch_id=form.branch_id.data,
-            customer_id=form.customer_id.data,
-            device_id=form.device_id.data,
+            branch_id=uuid.UUID(str(form.branch_id.data)),
+            customer_id=uuid.UUID(str(form.customer_id.data)),
+            device_id=uuid.UUID(str(form.device_id.data)),
             priority=form.priority.data,
-            internal_status="New",
+            internal_status=Ticket.STATUS_UNASSIGNED,
             customer_status="Received",
+            sla_target_at=default_sla_target(datetime.utcnow(), current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)),
         )
         db.session.add(ticket)
         db.session.commit()
@@ -282,4 +382,4 @@ def create_ticket():
         flash(_("Ticket created"), "success")
         return redirect(url_for("tickets.list_tickets"))
 
-    return render_template("tickets/new.html", form=form)
+    return render_template("tickets/new.html", form=form, selected_customer=selected_customer)

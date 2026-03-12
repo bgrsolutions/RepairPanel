@@ -1,12 +1,15 @@
 import uuid
-from flask import Blueprint, flash, redirect, render_template, url_for
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
+from sqlalchemy import or_
 
 from app.extensions import db
 from app.forms.inventory_forms import PartForm, StockAdjustmentForm, StockLocationForm
 from app.models import Branch, Part, StockLevel, StockLocation
 from app.services.inventory_service import apply_stock_movement
+from app.utils.permissions import roles_required
 
 
 inventory_bp = Blueprint("inventory", __name__, url_prefix="/inventory")
@@ -22,8 +25,40 @@ def stock_overview():
 @inventory_bp.get("/parts")
 @login_required
 def list_parts():
-    parts = Part.query.filter(Part.deleted_at.is_(None)).order_by(Part.name.asc()).all()
-    return render_template("inventory/parts_list.html", parts=parts)
+    query = (request.args.get("q") or "").strip()
+    include_inactive = request.args.get("include_inactive") == "1"
+
+    parts_query = Part.query.filter(Part.deleted_at.is_(None))
+    if not include_inactive:
+        parts_query = parts_query.filter(Part.is_active.is_(True))
+    if query:
+        like = f"%{query}%"
+        parts_query = parts_query.filter(
+            or_(
+                Part.name.ilike(like),
+                Part.sku.ilike(like),
+                Part.barcode.ilike(like),
+                Part.supplier_sku.ilike(like),
+            )
+        )
+
+    parts = parts_query.order_by(Part.name.asc()).all()
+    return render_template("inventory/parts_list.html", parts=parts, query=query, include_inactive=include_inactive)
+
+
+@inventory_bp.post("/parts/<uuid:part_id>/toggle-active")
+@login_required
+@roles_required("Super Admin", "Admin", "Manager")
+def toggle_part_active(part_id):
+    part = db.session.get(Part, part_id)
+    if not part or part.deleted_at is not None:
+        flash(_("Part not found"), "error")
+        return redirect(url_for("inventory.list_parts"))
+
+    part.is_active = not part.is_active
+    db.session.commit()
+    flash(_("Part status updated"), "success")
+    return redirect(url_for("inventory.list_parts", include_inactive=1))
 
 
 @inventory_bp.route("/parts/new", methods=["GET", "POST"])
@@ -83,7 +118,7 @@ def new_location():
 @login_required
 def new_movement():
     form = StockAdjustmentForm()
-    form.part_id.choices = [(str(p.id), f"{p.sku} - {p.name}") for p in Part.query.order_by(Part.name).all()]
+    form.part_id.choices = [(str(p.id), f"{p.sku} - {p.name}") for p in Part.query.filter(Part.is_active.is_(True)).order_by(Part.name).all()]
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]
     form.location_id.choices = [(str(l.id), f"{l.code} - {l.name}") for l in StockLocation.query.order_by(StockLocation.name).all()]
 

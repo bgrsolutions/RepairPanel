@@ -41,3 +41,15 @@
 - **Context**: Governance requires shared customer/device history across branches.
 - **Decision**: Keep customer/device as global entities; include optional customer primary branch but avoid hard branch partitioning at model level.
 - **Consequences**: Supports cross-branch service continuity while preserving branch-aware ticket ownership.
+
+## ADR-008: Ticket Operational Status + SLA Foundation
+- **Status**: Accepted
+- **Context**: Operational workflow required consistent ticket lifecycle buckets and overdue logic before future expansion.
+- **Decision**: Normalize internal ticket statuses to controlled snake_case states and add a ticket-level `sla_target_at` timestamp set on creation from configurable default SLA days.
+- **Consequences**: Bench board/dashboard can compute actionable overdue and aging queues; quote workflow remains separate and compatible via `awaiting_quote_approval` status.
+
+## ADR-009: Parts Deactivation over Hard Delete
+- **Status**: Accepted
+- **Context**: Parts are linked to stock, reservations, and order history, making hard-delete unsafe for operational integrity.
+- **Decision**: Keep `Part.is_active` as the operational archive mechanism and expose manager/admin toggle actions in UI; default lists hide inactive parts.
+- **Consequences**: Historical links remain intact while day-to-day workflows are protected from accidental reuse of retired SKUs.
