@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-<<<<<<< codex/create-project-governance-documentation-u004qc
 {% from 'components/ui_macros.html' import status_badge, priority_badge, empty_state %}
 {% block title %}My Queue - IRONCore{% endblock %}
 {% block content %}
@@ -37,7 +36,6 @@
       {% else %}
         {{ empty_state('No assigned tickets', 'You currently have no tickets in this group.') }}
       {% endif %}
-=======
 {% from 'components/ui_macros.html' import ticket_card, empty_state %}
 {% block title %}My Queue - IRONCore{% endblock %}
 {% block content %}
@@ -68,7 +66,6 @@
           {{ empty_state('No assigned tickets in this lane', 'Queue is clear') }}
         {% endif %}
       </div>
->>>>>>> main
     </section>
     {% endfor %}
   </div>
