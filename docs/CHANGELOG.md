@@ -89,3 +89,16 @@
 - Ticket detail now includes technician assignment controls, structured note entry, reserved parts section, and ordered parts visibility.
 - Ticket list, bench board, and my queue views now surface technician ownership more clearly.
 - Internal navigation now exposes Inventory, Suppliers, and Orders operational pages.
+
+## [0.6.0] - 2026-03-12
+### Added
+- Phase 5 foundation modules for reports (`/reports`), notifications (`/notifications`), settings (`/settings`), and export readiness (`/integrations/exports`).
+- KPI dashboard widgets for status/branch distribution, aging tickets, technician workload, most-used parts, and parts awaiting arrival.
+- Notification foundation schema and UI placeholders for templates, events, and delivery logs.
+- Odoo export readiness foundation with ticket payload preview and export queue logging.
+- Migration adding notification and export queue tables.
+- Automated Phase 5 integration test covering new pages and export queue flow.
+
+### Changed
+- Internal navigation and dashboard quick actions now link to Reports, Notifications, Exports, and Settings.
+

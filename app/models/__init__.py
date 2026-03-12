@@ -4,6 +4,8 @@ from app.models.customer import Customer
 from app.models.device import Device
 from app.models.diagnostic import Diagnostic
 from app.models.intake import Attachment, IntakeDisclaimerAcceptance, IntakeSignature, IntakeSubmission, PortalToken
+from app.models.integration import ExportQueueItem
+from app.models.notification import NotificationDelivery, NotificationEvent, NotificationTemplate
 from app.models.inventory import Part, StockLevel, StockLocation, StockMovement, StockReservation
 from app.models.note import TicketNote
 from app.models.order import PartOrder, PartOrderEvent, PartOrderLine
@@ -24,6 +26,10 @@ __all__ = [
     "IntakeSignature",
     "Attachment",
     "PortalToken",
+    "NotificationTemplate",
+    "NotificationEvent",
+    "NotificationDelivery",
+    "ExportQueueItem",
     "TicketNote",
     "Supplier",
     "Part",

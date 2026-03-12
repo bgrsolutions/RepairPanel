@@ -15,3 +15,7 @@ def test_app_factory():
     assert "inventory" in app.blueprints
     assert "suppliers" in app.blueprints
     assert "orders" in app.blueprints
+    assert "reports" in app.blueprints
+    assert "notifications" in app.blueprints
+    assert "settings" in app.blueprints
+    assert "integrations" in app.blueprints

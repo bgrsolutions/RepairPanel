@@ -40,6 +40,10 @@
             <a href="{{ url_for('inventory.stock_overview') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Inventory</a>
             <a href="{{ url_for('suppliers.list_suppliers') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Suppliers</a>
             <a href="{{ url_for('orders.list_orders') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Orders</a>
+            <a href="{{ url_for('reports.kpi_dashboard') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Reports</a>
+            <a href="{{ url_for('notifications.list_events') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Notifications</a>
+            <a href="{{ url_for('integrations.export_queue') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Exports</a>
+            <a href="{{ url_for('settings.index') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Settings</a>
             <a href="{{ url_for('tickets.repair_board') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Bench Board</a>
             <a href="{{ url_for('tickets.my_queue') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">My Queue</a>
             <a href="{{ url_for('tickets.create_ticket') }}" class="ml-2 inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">+ New Ticket</a>
@@ -74,6 +78,8 @@
             <a href="{{ url_for('intake.list_intakes') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Intake</a>
             <a href="{{ url_for('customers.list_customers') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Customers</a>
             <a href="{{ url_for('inventory.stock_overview') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Inventory</a>
+            <a href="{{ url_for('reports.kpi_dashboard') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Reports</a>
+            <a href="{{ url_for('settings.index') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Settings</a>
             <a href="{{ url_for('suppliers.list_suppliers') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Suppliers</a>
             <a href="{{ url_for('orders.list_orders') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Orders</a>
             <a href="{{ url_for('tickets.repair_board') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Bench Board</a>
