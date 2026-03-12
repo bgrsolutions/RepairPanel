@@ -87,7 +87,7 @@ def test_public_status_lookup_and_quote_approval(monkeypatch):
             branch_id=branch.id,
             customer_id=customer.id,
             device_id=device.id,
-            internal_status="Awaiting Quote Approval",
+            internal_status="awaiting_quote_approval",
             customer_status="Quote sent",
             priority="normal",
         )

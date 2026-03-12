@@ -102,3 +102,16 @@
 ### Changed
 - Internal navigation and dashboard quick actions now link to Reports, Notifications, Exports, and Settings.
 
+
+## [0.6.1] - 2026-03-12
+### Added
+- Staff user management module (`/users`) with list/create/edit flows for login-capable users, role assignment, branch access, and active/inactive control.
+- Ticket workflow status update endpoint/UI and SLA target foundation (`tickets.sla_target_at`) with overdue/aging calculations used across dashboard and bench board.
+- Ticket creation customer-device usability improvement via customer-scoped device filtering endpoint and dynamic form behavior.
+- Inventory parts operational improvements: multi-field search (name/SKU/barcode/supplier SKU) and safe activate/deactivate action instead of destructive delete behavior.
+- Refinement pass integration test coverage for user management, assignment/status lifecycle, customer-device filtering, and parts deactivate flow.
+
+### Changed
+- Bench board now groups operational buckets (Unassigned, Assigned, Awaiting Diagnostics, Awaiting Parts, In Repair, Ready for Collection, Overdue, Aging) using real status + assignment + SLA logic.
+- Dashboard metrics now expose distinct aging and overdue counters based on SLA foundations.
+- Internal navigation reorganized into grouped operations menus with persistent New Ticket CTA and added Users/Staff access.

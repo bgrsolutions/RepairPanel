@@ -6,7 +6,7 @@
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Front Desk Intake</p>
       <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Create Repair Ticket</h1>
-      <p class="text-sm text-slate-400">Capture a new job and move it into the internal workflow.</p>
+      <p class="text-sm text-slate-400">Search customer, then select from that customer's devices only.</p>
     </div>
     <a href="{{ url_for('tickets.list_tickets') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Back to Tickets</a>
   </div>
@@ -16,19 +16,20 @@
       {{ form.hidden_tag() }}
       <div>
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.branch_id.label }}</label>
-        {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
       </div>
       <div>
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_id.label }}</label>
-        {{ form.customer_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        {{ form.customer_id(id='customer-select', class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
       </div>
       <div>
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_id.label }}</label>
-        {{ form.device_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        {{ form.device_id(id='device-select', class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
+        <p class="mt-1 text-xs text-slate-500">Only devices for the selected customer are shown.</p>
       </div>
       <div>
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.priority.label }}</label>
-        {{ form.priority(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        {{ form.priority(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
       </div>
       {{ form.submit(class='inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500') }}
     </form>
@@ -37,17 +38,50 @@
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Quick Intake Guide</h2>
         <ul class="mt-3 space-y-2 text-sm text-slate-400">
-          <li>1. Confirm customer identity and contact details.</li>
-          <li>2. Verify device model and serial/IMEI where possible.</li>
-          <li>3. Set appropriate priority before submission.</li>
-          <li>4. After creation, open ticket to continue workflow notes.</li>
+          <li>1. Search/select the customer first.</li>
+          <li>2. Confirm the correct device from customer-owned list.</li>
+          <li>3. Set priority and create ticket.</li>
+          <li>4. Assign technician and status from ticket detail.</li>
         </ul>
-      </div>
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Phase 2 Placeholders</h2>
-        <p class="mt-2 text-sm text-slate-400">Category-specific intake fields, signatures, attachments, and print labels are planned for the next phase.</p>
       </div>
     </aside>
   </div>
 </section>
+<script>
+  const customerSelect = document.getElementById('customer-select');
+  const deviceSelect = document.getElementById('device-select');
+
+  async function loadDevices(customerId) {
+    deviceSelect.innerHTML = '';
+    if (!customerId) {
+      const placeholder = document.createElement('option');
+      placeholder.text = 'Select customer first';
+      placeholder.value = '';
+      deviceSelect.appendChild(placeholder);
+      return;
+    }
+    const response = await fetch(`/tickets/customer/${customerId}/devices`);
+    const devices = await response.json();
+    if (!devices.length) {
+      const empty = document.createElement('option');
+      empty.text = 'No devices for selected customer';
+      empty.value = '';
+      deviceSelect.appendChild(empty);
+      return;
+    }
+    for (const device of devices) {
+      const option = document.createElement('option');
+      option.value = device.id;
+      option.text = device.label;
+      deviceSelect.appendChild(option);
+    }
+  }
+
+  customerSelect.addEventListener('change', (e) => loadDevices(e.target.value));
+  if (customerSelect.value) {
+    loadDevices(customerSelect.value);
+  } else if (!deviceSelect.options.length) {
+    loadDevices('');
+  }
+</script>
 {% endblock %}

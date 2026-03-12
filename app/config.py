@@ -21,3 +21,4 @@ class Config:
         "I confirm the provided details are accurate and accept the intake terms.",
     )
 
+    DEFAULT_TICKET_SLA_DAYS = int(os.getenv("DEFAULT_TICKET_SLA_DAYS", "5"))

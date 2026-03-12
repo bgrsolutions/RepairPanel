@@ -107,7 +107,7 @@ def send_quote(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     set_quote_status(quote, "sent")
-    quote.ticket.internal_status = "Awaiting Quote Approval"
+    quote.ticket.internal_status = "awaiting_quote_approval"
     db.session.commit()
 
     log_action("quote.send", "Quote", str(quote.id), details={"ticket_id": str(quote.ticket_id)})
@@ -124,7 +124,7 @@ def mark_expired(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     quote.status = "expired"
-    quote.ticket.internal_status = "On Hold"
+    quote.ticket.internal_status = "awaiting_quote_approval"
     db.session.commit()
     log_action("quote.expire", "Quote", str(quote.id), details={"ticket_id": str(quote.ticket_id)})
     flash(_("Quote marked as expired"), "info")
@@ -156,7 +156,7 @@ def manual_approval(quote_id):
         quote.ticket.internal_status = "Quote Approved"
     else:
         quote.status = "declined"
-        quote.ticket.internal_status = "On Hold"
+        quote.ticket.internal_status = "awaiting_quote_approval"
 
     db.session.commit()
     log_action("quote.manual_decision", "QuoteApproval", str(approval.id), details={"quote_id": str(quote.id), "decision": decision})

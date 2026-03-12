@@ -19,3 +19,4 @@ def test_app_factory():
     assert "notifications" in app.blueprints
     assert "settings" in app.blueprints
     assert "integrations" in app.blueprints
+    assert "users" in app.blueprints

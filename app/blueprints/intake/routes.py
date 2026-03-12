@@ -210,7 +210,7 @@ def convert_intake(intake_id):
         branch_id=intake.branch_id,
         customer_id=intake.customer_id,
         device_id=intake.device_id,
-        internal_status="New",
+        internal_status="unassigned",
         customer_status="Received",
         priority="normal",
     )

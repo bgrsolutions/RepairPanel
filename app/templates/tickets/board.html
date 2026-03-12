@@ -16,17 +16,17 @@
   </div>
 
   <div class="overflow-x-auto pb-2">
-    <div class="grid min-w-[1200px] grid-cols-7 gap-3">
-      {% for column in columns %}
+    <div class="grid min-w-[1400px] grid-cols-8 gap-3">
+      {% for column, items in grouped.items() %}
       <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel">
         <div class="mb-3 flex items-center justify-between">
           <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-300">{{ column }}</h2>
-          <span class="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">{{ grouped[column]|length }}</span>
+          <span class="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">{{ items|length }}</span>
         </div>
 
         <div class="space-y-2">
-          {% if grouped[column] %}
-            {% for ticket in grouped[column] %}
+          {% if items %}
+            {% for ticket in items %}
               <div class="rounded-xl border border-slate-800 bg-slate-900 p-3">
                 {{ ticket_card(ticket) }}
                 <p class="mt-2 text-xs text-slate-400">
@@ -37,6 +37,7 @@
                     <span class="text-slate-500">Unassigned</span>
                   {% endif %}
                 </p>
+                <p class="mt-1 text-xs {% if is_ticket_overdue(ticket, now) %}text-rose-300{% else %}text-slate-500{% endif %}">Age: {{ ticket_age_days(ticket, now) }}d{% if is_ticket_overdue(ticket, now) %} · Overdue{% endif %}</p>
               </div>
             {% endfor %}
           {% else %}

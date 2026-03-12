@@ -5,24 +5,34 @@
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-2xl font-semibold text-white">Parts Catalog</h1>
-      <p class="text-sm text-slate-400">Repair parts master definitions.</p>
+      <p class="text-sm text-slate-400">Search by name, SKU, barcode, or supplier SKU.</p>
     </div>
     <a href="{{ url_for('inventory.new_part') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Part</a>
   </div>
+
+  <form method="get" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3">
+    <input type="text" name="q" value="{{ query }}" placeholder="Name, SKU, barcode, supplier SKU" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" />
+    <label class="inline-flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" name="include_inactive" value="1" {% if include_inactive %}checked{% endif %}/> Show inactive</label>
+    <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Search</button>
+  </form>
+
   <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
     <table class="min-w-full text-left text-sm text-slate-200">
-      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-4 py-3">SKU</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Pricing</th><th class="px-4 py-3">Flags</th></tr></thead>
+      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-4 py-3">SKU</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Pricing</th><th class="px-4 py-3">State</th><th class="px-4 py-3">Action</th></tr></thead>
       <tbody class="divide-y divide-slate-800">
       {% for part in parts %}
         <tr>
           <td class="px-4 py-3 text-white">{{ part.sku }}</td>
-          <td class="px-4 py-3">{{ part.name }}<div class="text-xs text-slate-500">{{ part.barcode or '—' }}</div></td>
+          <td class="px-4 py-3">{{ part.name }}<div class="text-xs text-slate-500">Barcode: {{ part.barcode or '—' }} · Supplier SKU: {{ part.supplier_sku or '—' }}</div></td>
           <td class="px-4 py-3">{{ part.category or '—' }}</td>
           <td class="px-4 py-3 text-xs text-slate-300">Cost {{ part.cost_price or '—' }} / Sale {{ part.sale_price or '—' }}</td>
-          <td class="px-4 py-3 text-xs">{{ 'serial' if part.serial_tracking else 'no-serial' }} · {{ 'active' if part.is_active else 'inactive' }}</td>
+          <td class="px-4 py-3 text-xs">{% if part.is_active %}<span class="text-emerald-300">Active</span>{% else %}<span class="text-amber-300">Inactive</span>{% endif %}</td>
+          <td class="px-4 py-3">
+            <form method="post" action="{{ url_for('inventory.toggle_part_active', part_id=part.id) }}"><button class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">{% if part.is_active %}Deactivate{% else %}Reactivate{% endif %}</button></form>
+          </td>
         </tr>
       {% else %}
-        <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No parts found.</td></tr>
+        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No parts found.</td></tr>
       {% endfor %}
       </tbody>
     </table>
