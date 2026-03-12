@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import stat_card %}
+{% block title %}Reports - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="flex items-end justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Reporting</p>
+      <h1 class="text-2xl font-semibold text-white">KPI Dashboard</h1>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    {{ stat_card('Awaiting Diagnosis', kpis.awaiting_diagnosis, 'Needs triage', 'amber') }}
+    {{ stat_card('Awaiting Quote Approval', kpis.awaiting_quote_approval, 'Customer response pending', 'indigo') }}
+    {{ stat_card('Awaiting Parts', kpis.awaiting_parts, 'External dependency', 'cyan') }}
+    {{ stat_card('In Repair', kpis.in_repair, 'Actively on bench', 'emerald') }}
+    {{ stat_card('Ready for Collection', kpis.ready_for_collection, 'Pickup queue', 'emerald') }}
+    {{ stat_card('Overdue / Aging', kpis.overdue, 'Older than 7 days', 'rose') }}
+    {{ stat_card('Quote Approval Rate', kpis.quote_approval_rate_placeholder, 'Placeholder', 'indigo') }}
+    {{ stat_card('Average Turnaround', kpis.average_turnaround_placeholder, 'Placeholder', 'cyan') }}
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 xl:col-span-2">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Tickets by Status</h2>
+      <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {% for status, count in statuses.items() %}
+        <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 flex justify-between"><span class="text-slate-300">{{ status }}</span><span class="text-white font-semibold">{{ count }}</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">By Branch</h2>
+        <div class="mt-3 space-y-2">
+          {% for branch_code, count in by_branch.items() %}
+          <div class="rounded-lg border border-slate-800 bg-slate-900 p-2 flex justify-between"><span class="text-slate-300">{{ branch_code }}</span><span class="text-white">{{ count }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Technician Workload</h2>
+        <div class="mt-3 space-y-2">
+          {% for owner, count in workload.items() %}
+          <div class="rounded-lg border border-slate-800 bg-slate-900 p-2 flex justify-between"><span class="text-slate-300">{{ owner }}</span><span class="text-white">{{ count }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Most-used Parts</h2>
+      <div class="mt-3 space-y-2">
+        {% for sku, qty in most_used %}
+        <div class="rounded-lg border border-slate-800 bg-slate-900 p-2 flex justify-between"><span class="text-slate-300">{{ sku }}</span><span class="text-white">{{ '%.2f'|format(qty) }}</span></div>
+        {% else %}
+        <p class="text-sm text-slate-500">No part reservations recorded yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Parts Awaiting Arrival</h2>
+      <div class="mt-3 space-y-2">
+        {% for order in awaiting_arrival %}
+        <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-2 hover:border-slate-700 text-sm text-slate-300">{{ order.reference or order.id }} · {{ order.supplier.name }} · {{ order.status }}</a>
+        {% else %}
+        <p class="text-sm text-slate-500">No pending part orders.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}

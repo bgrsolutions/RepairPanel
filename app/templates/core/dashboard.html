@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import stat_card, status_badge, priority_badge, empty_state %}
+{% block title %}Dashboard - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Operations Command</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Repair Desk Dashboard</h1>
+      <p class="mt-1 text-sm text-slate-400">Live queue health for reception and bench technicians.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Ticket</a>
+      <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Open Bench Board</a>
+      <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">My Queue</a>
+      <a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Reports</a>
+      <a href="{{ url_for('integrations.export_queue') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Exports</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    {{ stat_card('Total Open Tickets', stats.open_tickets, 'Current active repairs', 'indigo') }}
+    {{ stat_card('Awaiting Diagnosis', stats.awaiting_diagnosis, 'Needs technician triage', 'amber') }}
+    {{ stat_card('In Repair', stats.in_repair, 'Currently on bench', 'cyan') }}
+    {{ stat_card('Ready for Collection', stats.ready_for_collection, 'Awaiting customer pickup', 'emerald') }}
+    {{ stat_card('Aging / Overdue', stats.aging_tickets, 'Older than 5 days (placeholder SLA)', 'rose') }}
+    {{ stat_card("Today's New", stats.new_today, 'Intakes registered today', 'indigo') }}
+    {{ stat_card('Assigned to Techs', technician_workload.assigned, 'Work actively owned', 'cyan') }}
+    {{ stat_card('Unassigned', technician_workload.unassigned, 'Needs assignment', 'amber') }}
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <section class="xl:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Tickets</h2>
+        <a href="{{ url_for('tickets.list_tickets') }}" class="text-xs text-indigo-300 hover:text-indigo-200">View all</a>
+      </div>
+      {% if recent_tickets %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left text-sm text-slate-200">
+          <thead class="text-xs uppercase tracking-wider text-slate-400">
+            <tr>
+              <th class="px-3 py-2">Ticket</th>
+              <th class="px-3 py-2">Customer</th>
+              <th class="px-3 py-2">Device</th>
+              <th class="px-3 py-2">Status</th>
+              <th class="px-3 py-2">Priority</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            {% for ticket in recent_tickets %}
+            <tr class="hover:bg-slate-800/40">
+              <td class="px-3 py-3"><a class="font-medium text-white hover:text-indigo-300" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}">{{ ticket.ticket_number }}</a></td>
+              <td class="px-3 py-3 text-slate-300"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></td>
+              <td class="px-3 py-3 text-slate-400">{{ ticket.device.brand }} {{ ticket.device.model }}</td>
+              <td class="px-3 py-3">{{ status_badge(ticket.internal_status) }}</td>
+              <td class="px-3 py-3">{{ priority_badge(ticket.priority) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        {{ empty_state('No recent tickets yet', 'Create a new intake to start operations') }}
+      {% endif %}
+    </section>
+
+    <section class="space-y-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Needs Attention</h2>
+        <div class="mt-3 space-y-2">
+          {% if attention_tickets %}
+            {% for ticket in attention_tickets %}
+              <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-3 hover:border-slate-700">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm font-semibold text-white">{{ ticket.ticket_number }}</p>
+                  {{ priority_badge(ticket.priority) }}
+                </div>
+                <p class="mt-1 text-xs text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+                <div class="mt-2">{{ status_badge(ticket.internal_status) }}</div>
+              </a>
+            {% endfor %}
+          {% else %}
+            {{ empty_state('No urgent tickets', 'Queue is currently stable') }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Activity</h2>
+        <ul class="mt-3 space-y-2 text-sm text-slate-400">
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Notifications foundation now supports template + event + delivery log placeholders.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Reports module surfaces queue status and technician workload KPI widgets.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Odoo export readiness is available via payload preview and export queue.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
