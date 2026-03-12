@@ -33,3 +33,12 @@
 
 ### Added
 - Automated auth/seed integration test covering seed idempotency, working demo credentials, successful login redirect, and invalid-credential error handling.
+
+## [0.2.3] - 2026-03-12
+### Fixed
+- Canonical demo admin is now `admin@ironcore.com` with deterministic seed normalization from legacy demo addresses (`admin@ironcore.local`, `admin@ironcore.test`).
+- Seed process now enforces active canonical admin state, role linkage, default branch, and branch access on every run in dev/demo/testing.
+- Local host-based setup defaults now point Flask to `127.0.0.1:5432` for PostgreSQL when DB runs in Docker.
+
+### Added
+- Auth/seed integration coverage now includes CSRF-backed login POST validation, canonical seed normalization checks, successful login redirect assertions, and invalid credential behavior.
