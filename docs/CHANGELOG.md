@@ -24,3 +24,12 @@
 ### Changed
 - Upgraded base layout/navbar, dashboard, ticket list, and new ticket pages for premium spacing, hierarchy, and responsive behavior.
 - Kept Tailwind CDN strategy and minimal custom CSS approach while improving dark-theme polish.
+
+## [0.2.2] - 2026-03-11
+### Fixed
+- Login form email validation now supports local demo domains (`*.local`) by disabling deliverability checks for login input validation.
+- Authentication now rejects inactive or soft-deleted users before login.
+- Seed logic is now deterministic/idempotent for demo admin setup, including active flag, default branch, branch access, role assignment, and documented demo password reset in dev/demo/testing environments.
+
+### Added
+- Automated auth/seed integration test covering seed idempotency, working demo credentials, successful login redirect, and invalid-credential error handling.

@@ -1,7 +1,18 @@
+import os
+
 from app.config import Config
 from app.extensions import db
 from app.models import Branch, Customer, Device, Role, Ticket, User
 from app.utils.ticketing import generate_ticket_number
+
+
+DEMO_ADMIN_EMAIL = "admin@ironcore.local"
+DEMO_ADMIN_PASSWORD = "admin1234"
+
+
+def _should_reset_demo_password() -> bool:
+    env = os.getenv("FLASK_ENV", "development").lower()
+    return env in {"development", "dev", "demo", "testing"}
 
 
 def seed_phase1_data():
@@ -19,20 +30,28 @@ def seed_phase1_data():
         if not Role.query.filter_by(name=role_name).first():
             db.session.add(Role(name=role_name, description=f"Seeded role: {role_name}"))
 
+    db.session.flush()
+
     branch = Branch.query.filter_by(code=Config.DEFAULT_BRANCH_CODE).first()
     if not branch:
         branch = Branch(code=Config.DEFAULT_BRANCH_CODE, name="Main Branch")
         db.session.add(branch)
         db.session.flush()
 
-    admin = User.query.filter_by(email="admin@ironcore.local").first()
+    admin = User.query.filter_by(email=DEMO_ADMIN_EMAIL).first()
     if not admin:
-        admin = User(full_name="IRONCore Admin", email="admin@ironcore.local", preferred_language="en")
-        admin.set_password("admin1234")
-        admin.default_branch = branch
-        admin.branches.append(branch)
+        admin = User(full_name="IRONCore Admin", email=DEMO_ADMIN_EMAIL, preferred_language="en")
         db.session.add(admin)
-        db.session.flush()
+
+    # Deterministic demo state for local/dev environments.
+    if _should_reset_demo_password() or not admin.password_hash:
+        admin.set_password(DEMO_ADMIN_PASSWORD)
+
+    admin.is_active = True
+    admin.preferred_language = admin.preferred_language or "en"
+    admin.default_branch = branch
+    if branch not in admin.branches:
+        admin.branches.append(branch)
 
     admin_role = Role.query.filter_by(name="Admin").first()
     if admin_role and admin_role not in admin.roles:

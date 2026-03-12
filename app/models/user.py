@@ -1,3 +1,5 @@
+import uuid
+
 from flask_login import UserMixin
 from sqlalchemy import Boolean, ForeignKey, String, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -47,7 +49,15 @@ class User(UUIDMixin, TimestampMixin, SoftDeleteMixin, UserMixin, db.Model):
     def has_role(self, role_name: str) -> bool:
         return any(role.name == role_name for role in self.roles)
 
+    def get_id(self):
+        # Ensure Flask-Login always stores a JSON-serializable identifier.
+        return str(self.id)
+
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, user_id)
+    try:
+        normalized_id = uuid.UUID(str(user_id))
+    except (TypeError, ValueError):
+        return None
+    return db.session.get(User, normalized_id)

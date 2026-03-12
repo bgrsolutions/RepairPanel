@@ -29,3 +29,6 @@
 Default demo login:
 - email: `admin@ironcore.local`
 - password: `admin1234`
+
+Notes:
+- `flask seed` is idempotent and will ensure the demo admin is active with the documented password in development/demo/testing environments.
