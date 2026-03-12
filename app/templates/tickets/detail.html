@@ -8,7 +8,7 @@
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
-        <p class="mt-1 text-sm text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+        <p class="mt-1 text-sm text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
       </div>
       <div class="flex flex-wrap gap-2">
         {{ status_badge(ticket.internal_status) }}
@@ -62,7 +62,7 @@
     <aside class="space-y-4">
       {% call section_card('Customer Panel') %}
         <dl class="space-y-2 text-sm">
-          <div><dt class="text-slate-500">Name</dt><dd class="text-slate-200">{{ ticket.customer.full_name }}</dd></div>
+          <div><dt class="text-slate-500">Name</dt><dd class="text-slate-200"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></dd></div>
           <div><dt class="text-slate-500">Phone</dt><dd class="text-slate-200">{{ ticket.customer.phone or '—' }}</dd></div>
           <div><dt class="text-slate-500">Email</dt><dd class="text-slate-200">{{ ticket.customer.email or '—' }}</dd></div>
           <div><dt class="text-slate-500">Language</dt><dd class="text-slate-200">{{ ticket.customer.preferred_language|upper }}</dd></div>

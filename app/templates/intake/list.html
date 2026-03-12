@@ -28,7 +28,7 @@
         <tr class="hover:bg-slate-800/30">
           <td class="px-4 py-3 font-semibold text-white">{{ intake.reference }}</td>
           <td class="px-4 py-3 capitalize text-slate-300">{{ intake.source }}</td>
-          <td class="px-4 py-3 text-slate-300">{{ intake.customer_name }}</td>
+          <td class="px-4 py-3 text-slate-300">{% if intake.customer_id %}<a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=intake.customer_id) }}">{{ intake.customer_name }}</a>{% else %}{{ intake.customer_name }}{% endif %}</td>
           <td class="px-4 py-3 text-slate-400">{{ intake.device_brand }} {{ intake.device_model }}</td>
           <td class="px-4 py-3">{{ status_badge(intake.status|replace('_', ' ')|title) }}</td>
           <td class="px-4 py-3"><a href="{{ url_for('intake.intake_detail', intake_id=intake.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs hover:bg-slate-800">Open</a></td>

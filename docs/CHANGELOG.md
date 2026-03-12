@@ -56,3 +56,10 @@
 ### Changed
 - Base navigation now exposes intake management to internal staff users.
 - App configuration expanded with upload/disclaimer defaults for intake workflows.
+
+## [0.3.1] - 2026-03-12
+### Changed
+- Added isolated public-facing layout for `/public/check-in`, `/public/kiosk/check-in`, and public thank-you flow to remove internal staff navigation from kiosk/public screens.
+- Added customer-centered internal workflow UI with searchable customers list and customer profile pages showing linked devices and ticket/repair history.
+- Updated internal navigation to include Customers and added direct customer profile links from dashboard, ticket, and intake views.
+- Improved intake detail page linkage visibility for linked customer, linked device, and converted ticket status/actions.
