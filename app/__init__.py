@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from app.blueprints.auth.routes import auth_bp
 from app.blueprints.core.routes import core_bp
 from app.blueprints.tickets.routes import tickets_bp
+from app.blueprints.intake.routes import intake_bp
+from app.blueprints.public_portal.routes import public_portal_bp
 from app.config import Config
 from app.extensions import babel, db, login_manager, migrate
 from app import models  # noqa: F401
@@ -27,6 +29,8 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(core_bp)
     app.register_blueprint(tickets_bp)
+    app.register_blueprint(intake_bp)
+    app.register_blueprint(public_portal_bp)
 
     @app.before_request
     def inject_locale():

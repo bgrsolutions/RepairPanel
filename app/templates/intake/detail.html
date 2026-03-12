@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ intake.reference }} - Intake - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-4">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold text-white">{{ intake.reference }}</h1>
+        <p class="text-sm text-slate-400">{{ intake.customer_name }} · {{ intake.device_brand }} {{ intake.device_model }} · {{ intake.source|capitalize }}</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="{{ url_for('intake.intake_receipt', intake_id=intake.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Print Receipt</a>
+        {% if not intake.converted_ticket_id %}
+        <form method="post" action="{{ url_for('intake.convert_intake', intake_id=intake.id) }}">
+          <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Convert to Ticket</button>
+        </form>
+        {% else %}
+          <a href="{{ url_for('tickets.ticket_detail', ticket_id=intake.converted_ticket_id) }}" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Open Ticket</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div class="lg:col-span-2 space-y-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Reported Fault</h2>
+        <p class="mt-2 text-sm text-slate-200">{{ intake.reported_fault }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Accessories & Notes</h2>
+        <p class="mt-2 text-sm text-slate-300">Accessories: {{ intake.accessories or '—' }}</p>
+        <p class="mt-1 text-sm text-slate-300">Notes: {{ intake.intake_notes or '—' }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Attachments</h2>
+        <ul class="mt-2 space-y-1 text-sm text-slate-300">
+        {% for attachment in attachments %}
+          <li>{{ attachment.original_filename }} <span class="text-slate-500">({{ attachment.mime_type or 'unknown' }})</span></li>
+        {% else %}
+          <li class="text-slate-500">No attachments uploaded.</li>
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <aside class="space-y-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Customer</h2>
+        <p class="mt-2 text-sm text-slate-200">{{ intake.customer_name }}</p>
+        <p class="text-sm text-slate-400">{{ intake.customer_phone or '—' }}</p>
+        <p class="text-sm text-slate-400">{{ intake.customer_email or '—' }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Disclaimers / Signatures</h2>
+        <p class="mt-2 text-xs text-slate-500">Disclaimer records: {{ disclaimers|length }}</p>
+        <p class="text-xs text-slate-500">Signatures: {{ signatures|length }}</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

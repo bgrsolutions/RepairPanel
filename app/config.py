@@ -13,3 +13,11 @@ class Config:
     SUPPORTED_LOCALES = [x.strip() for x in os.getenv("SUPPORTED_LOCALES", "en,es").split(",") if x.strip()]
 
     DEFAULT_BRANCH_CODE = os.getenv("DEFAULT_BRANCH_CODE", "HQ")
+    UPLOAD_ROOT = os.getenv("UPLOAD_ROOT", "uploads")
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(10 * 1024 * 1024)))
+
+    DEFAULT_INTAKE_DISCLAIMER_TEXT = os.getenv(
+        "DEFAULT_INTAKE_DISCLAIMER_TEXT",
+        "I confirm the provided details are accurate and accept the intake terms.",
+    )
+

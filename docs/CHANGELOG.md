@@ -42,3 +42,17 @@
 
 ### Added
 - Auth/seed integration coverage now includes CSRF-backed login POST validation, canonical seed normalization checks, successful login redirect assertions, and invalid credential behavior.
+
+## [0.3.0] - 2026-03-12
+### Added
+- Phase 2 intake foundations: internal intake workflow, public check-in portal, kiosk mode entrypoint, intake detail/review, and pre-check-in to ticket conversion flow.
+- New intake domain models for intake submissions, disclaimer acceptance records, signatures, attachments, and portal tokens.
+- Intake/public forms for required Phase 2 categories (phones, laptops, desktops, game consoles, other).
+- Attachment upload utility with safe filename handling and image extension allowlist.
+- Printable intake receipt foundation with reference and device/customer summary.
+- Phase 2 migration introducing intake-related tables and indexes.
+- Automated tests for internal intake creation+conversion and public pre-check-in submission (including CSRF-backed flows).
+
+### Changed
+- Base navigation now exposes intake management to internal staff users.
+- App configuration expanded with upload/disclaimer defaults for intake workflows.

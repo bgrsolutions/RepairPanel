@@ -1,4 +1,4 @@
-# IRONCore (Phase 1)
+# IRONCore (Phase 2 Foundations)
 
 ## Quick Start (Local Host + Dockerized PostgreSQL)
 1. Install deps:
@@ -39,6 +39,13 @@ DATABASE_URL=postgresql://ironcore:ironcore@127.0.0.1:5432/ironcore
 - email: `admin@ironcore.com`
 - password: `admin1234`
 
+## Phase 2 Foundation Endpoints
+- Internal intake list: `/intake/`
+- Internal new intake: `/intake/new`
+- Public check-in: `/public/check-in`
+- Kiosk check-in: `/public/kiosk/check-in`
+
 ## Notes
 - `flask seed` is idempotent and deterministic for demo auth setup.
 - Legacy demo admins (`admin@ironcore.local`, `admin@ironcore.test`) are normalized to `admin@ironcore.com` during seed.
+- Intake uploads are stored under `UPLOAD_ROOT` (default `uploads/`).
