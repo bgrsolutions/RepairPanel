@@ -6,11 +6,12 @@ from app.models.diagnostic import Diagnostic
 from app.models.intake import Attachment, IntakeDisclaimerAcceptance, IntakeSignature, IntakeSubmission, PortalToken
 from app.models.integration import ExportQueueItem
 from app.models.notification import NotificationDelivery, NotificationEvent, NotificationTemplate
-from app.models.inventory import Part, StockLevel, StockLocation, StockMovement, StockReservation
+from app.models.inventory import Part, PartCategory, PartSupplier, StockLayer, StockLevel, StockLocation, StockMovement, StockReservation
 from app.models.note import TicketNote
 from app.models.order import PartOrder, PartOrderEvent, PartOrderLine
 from app.models.quote import Quote, QuoteApproval, QuoteLine, QuoteOption
 from app.models.role import Role
+from app.models.setting import AppSetting
 from app.models.supplier import Supplier
 from app.models.ticket import Ticket
 from app.models.user import User
@@ -33,6 +34,9 @@ __all__ = [
     "TicketNote",
     "Supplier",
     "Part",
+    "PartCategory",
+    "PartSupplier",
+    "StockLayer",
     "StockLocation",
     "StockLevel",
     "StockMovement",
@@ -45,6 +49,7 @@ __all__ = [
     "QuoteLine",
     "QuoteApproval",
     "Role",
+    "AppSetting",
     "Ticket",
     "User",
 ]

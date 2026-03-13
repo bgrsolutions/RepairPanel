@@ -2,12 +2,12 @@
 {% from 'components/ui_macros.html' import ticket_card, empty_state %}
 {% block title %}Bench Board - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
+<section class="space-y-4" data-board>
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Technician Workflow</p>
       <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Repair Bench Board</h1>
-      <p class="text-sm text-slate-400">Kanban-style workflow with technician ownership visibility.</p>
+      <p class="text-sm text-slate-400">Tabbed workshop view for fast triage and bench execution.</p>
     </div>
     <div class="flex gap-2">
       <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">My Queue</a>
@@ -15,37 +15,64 @@
     </div>
   </div>
 
-  <div class="overflow-x-auto pb-2">
-    <div class="grid min-w-[1200px] grid-cols-7 gap-3">
-      {% for column in columns %}
-      <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel">
-        <div class="mb-3 flex items-center justify-between">
-          <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-300">{{ column }}</h2>
-          <span class="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">{{ grouped[column]|length }}</span>
-        </div>
 
-        <div class="space-y-2">
-          {% if grouped[column] %}
-            {% for ticket in grouped[column] %}
-              <div class="rounded-xl border border-slate-800 bg-slate-900 p-3">
-                {{ ticket_card(ticket) }}
-                <p class="mt-2 text-xs text-slate-400">
-                  Technician:
-                  {% if ticket.assigned_technician %}
-                    <span class="text-cyan-300">{{ ticket.assigned_technician.full_name }}</span>
-                  {% else %}
-                    <span class="text-slate-500">Unassigned</span>
-                  {% endif %}
-                </p>
-              </div>
-            {% endfor %}
-          {% else %}
-            {{ empty_state('No tickets', 'Queue is clear for this stage.') }}
-          {% endif %}
-        </div>
-      </section>
-      {% endfor %}
-    </div>
+  <form method="get" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel grid grid-cols-1 md:grid-cols-7 gap-2">
+    <select name="sort" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs">
+      <option value="oldest" {% if filters.sort=='oldest' %}selected{% endif %}>Oldest first</option>
+      <option value="newest" {% if filters.sort=='newest' %}selected{% endif %}>Newest first</option>
+      <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promised due soonest</option>
+      <option value="sla_due" {% if filters.sort=='sla_due' %}selected{% endif %}>SLA due soonest</option>
+    </select>
+    <select name="technician_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs"><option value="">Any technician</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>
+    <select name="branch_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs"><option value="">Any branch</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }}</option>{% endfor %}</select>
+    <select name="date_range" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs">
+      <option value="">Any date</option>
+      <option value="today" {% if filters.date_range=='today' %}selected{% endif %}>Today</option>
+      <option value="this_week" {% if filters.date_range=='this_week' %}selected{% endif %}>This week</option>
+      <option value="this_month" {% if filters.date_range=='this_month' %}selected{% endif %}>This month</option>
+    </select>
+    <label class="inline-flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" name="waiting_parts" value="1" {% if filters.waiting_parts %}checked{% endif %}/> Waiting on parts</label>
+    <label class="inline-flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" name="only_overdue" value="1" {% if filters.only_overdue %}checked{% endif %}/> Overdue only</label>
+    <button class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white">Apply</button>
+  </form>
+
+  <div class="flex flex-wrap gap-2">
+    {% for column, items in grouped.items() %}
+    <button type="button" data-tab="{{ loop.index0 }}" class="board-tab rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 {% if loop.first %}ring-1 ring-indigo-500{% endif %}">{{ column }} <span class="text-slate-400">({{ items|length }})</span></button>
+    {% endfor %}
   </div>
+
+  {% for column, items in grouped.items() %}
+  <section data-panel="{{ loop.index0 }}" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel {% if not loop.first %}hidden{% endif %}">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-300">{{ column }}</h2>
+    <div class="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+      {% if items %}
+        {% for ticket in items %}
+          <article class="rounded-xl border border-slate-800 bg-slate-900 p-3">
+            {{ ticket_card(ticket) }}
+            <p class="mt-2 text-xs text-slate-400">Technician: <span class="{% if ticket.assigned_technician %}text-cyan-300{% else %}text-slate-500{% endif %}">{{ ticket.assigned_technician.full_name if ticket.assigned_technician else 'Unassigned' }}</span></p>
+            <p class="mt-1 text-xs {% if is_ticket_overdue(ticket, now) %}text-rose-300{% else %}text-slate-500{% endif %}">Age: {{ ticket_age_days(ticket, now) }}d{% if is_ticket_overdue(ticket, now) %} · Overdue{% endif %}</p>
+          </article>
+        {% endfor %}
+      {% else %}
+        <div class="lg:col-span-2 xl:col-span-3">{{ empty_state('No tickets', 'Queue is clear for this stage.') }}</div>
+      {% endif %}
+    </div>
+  </section>
+  {% endfor %}
 </section>
+<script>
+(() => {
+  const root = document.querySelector('[data-board]');
+  if (!root) return;
+  const tabs = [...root.querySelectorAll('.board-tab')];
+  const panels = [...root.querySelectorAll('[data-panel]')];
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    const id = tab.dataset.tab;
+    tabs.forEach(t => t.classList.remove('ring-1','ring-indigo-500'));
+    tab.classList.add('ring-1','ring-indigo-500');
+    panels.forEach(p => p.classList.toggle('hidden', p.dataset.panel !== id));
+  }));
+})();
+</script>
 {% endblock %}

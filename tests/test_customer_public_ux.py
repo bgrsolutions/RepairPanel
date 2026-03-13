@@ -114,7 +114,7 @@ def test_customer_list_search_and_profile_links(monkeypatch):
             branch_id=branch.id,
             customer_id=customer.id,
             device_id=device.id,
-            internal_status="New",
+            internal_status="unassigned",
             customer_status="Received",
             priority="normal",
         )

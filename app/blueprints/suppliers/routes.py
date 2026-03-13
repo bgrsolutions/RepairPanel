@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
 
@@ -39,3 +39,38 @@ def new_supplier():
         return redirect(url_for("suppliers.list_suppliers"))
 
     return render_template("suppliers/new.html", form=form)
+
+
+@suppliers_bp.get('/<uuid:supplier_id>')
+@login_required
+def supplier_detail(supplier_id):
+    supplier = db.session.get(Supplier, supplier_id)
+    if not supplier or supplier.deleted_at is not None:
+        flash(_("Supplier not found"), "error")
+        return redirect(url_for("suppliers.list_suppliers"))
+    form = SupplierForm(obj=supplier)
+    return render_template("suppliers/detail.html", supplier=supplier, form=form)
+
+
+@suppliers_bp.post('/<uuid:supplier_id>/update')
+@login_required
+def update_supplier(supplier_id):
+    supplier = db.session.get(Supplier, supplier_id)
+    if not supplier or supplier.deleted_at is not None:
+        flash(_("Supplier not found"), "error")
+        return redirect(url_for("suppliers.list_suppliers"))
+    form = SupplierForm()
+    if form.validate_on_submit():
+        supplier.name=form.name.data
+        supplier.contact_name=form.contact_name.data
+        supplier.email=form.email.data
+        supplier.phone=form.phone.data
+        supplier.website=form.website.data
+        supplier.account_reference=form.account_reference.data
+        supplier.default_lead_time_days=form.default_lead_time_days.data
+        supplier.notes=form.notes.data
+        supplier.is_active=bool(form.is_active.data)
+        db.session.commit()
+        flash(_("Supplier updated"), "success")
+        return redirect(url_for("suppliers.supplier_detail", supplier_id=supplier.id))
+    return render_template("suppliers/detail.html", supplier=supplier, form=form)

@@ -3,10 +3,15 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template
 from flask_login import login_required
 
-from app.models import PartOrder, StockReservation, Ticket
+from app.models import PartOrder, Quote, StockReservation, Ticket
+from app.utils.ticketing import normalize_ticket_status
 
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
+
+
+def _label(status: str) -> str:
+    return status.replace("_", " ").title()
 
 
 @reports_bp.get("/")
@@ -18,14 +23,15 @@ def kpi_dashboard():
     workload = {}
 
     for t in tickets:
-        statuses[t.internal_status] = statuses.get(t.internal_status, 0) + 1
-        branch_key = t.branch.code if t.branch else "UNKNOWN"
-        by_branch[branch_key] = by_branch.get(branch_key, 0) + 1
+        normalized = normalize_ticket_status(t.internal_status)
+        statuses[_label(normalized)] = statuses.get(_label(normalized), 0) + 1
+        branch_name = t.branch.name if t.branch else "Unknown"
+        by_branch[branch_name] = by_branch.get(branch_name, 0) + 1
         owner = t.assigned_technician.full_name if t.assigned_technician else "Unassigned"
         workload[owner] = workload.get(owner, 0) + 1
 
     now = datetime.utcnow()
-    aging = [t for t in tickets if (now - t.created_at) > timedelta(days=7)]
+    overdue = [t for t in tickets if t.sla_target_at and t.sla_target_at < now and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES]
 
     usage = {}
     for r in StockReservation.query.all():
@@ -34,20 +40,34 @@ def kpi_dashboard():
     most_used = sorted(usage.items(), key=lambda item: item[1], reverse=True)[:5]
 
     awaiting_arrival = (
-        PartOrder.query.filter(PartOrder.status.in_(["ordered", "shipped", "delayed", "partially_arrived"]))
+        PartOrder.query.filter(PartOrder.status.in_(["ordered", "shipped", "partially_received"]))
         .order_by(PartOrder.created_at.desc())
         .all()
     )
 
+    sent_quotes = Quote.query.filter(Quote.status.in_(["sent", "approved", "declined"]))
+    sent_count = sent_quotes.count()
+    approved_count = sent_quotes.filter(Quote.status == "approved").count()
+    quote_approval_rate = (approved_count / sent_count * 100) if sent_count else 0.0
+
+    finished = [t for t in tickets if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_COMPLETED, Ticket.STATUS_READY_FOR_COLLECTION}]
+    avg_turnaround_days = 0.0
+    if finished:
+        durations = []
+        for t in finished:
+            end_at = t.updated_at or t.created_at
+            durations.append(max((end_at - t.created_at).total_seconds() / 86400, 0))
+        avg_turnaround_days = sum(durations) / len(durations)
+
     kpis = {
-        "awaiting_diagnosis": statuses.get("Awaiting Diagnosis", 0),
+        "awaiting_diagnosis": statuses.get("Awaiting Diagnostics", 0),
         "awaiting_quote_approval": statuses.get("Awaiting Quote Approval", 0),
         "awaiting_parts": statuses.get("Awaiting Parts", 0),
         "in_repair": statuses.get("In Repair", 0),
-        "ready_for_collection": statuses.get("Ready for Collection", 0),
-        "overdue": len(aging),
-        "quote_approval_rate_placeholder": "--",
-        "average_turnaround_placeholder": "--",
+        "ready_for_collection": statuses.get("Ready For Collection", 0),
+        "overdue": len(overdue),
+        "quote_approval_rate": quote_approval_rate,
+        "average_turnaround_days": avg_turnaround_days,
     }
 
     return render_template(

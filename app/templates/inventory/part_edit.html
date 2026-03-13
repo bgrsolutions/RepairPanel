@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Edit {{ part.sku }} - IRONCore{% endblock %}
+{% block content %}
+<section class="max-w-5xl rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
+  <h1 class="text-2xl font-semibold text-white">Edit Part</h1>
+  <form method="post" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+    {{ form.hidden_tag() }}
+    <div>{{ form.sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.barcode(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.category(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.default_supplier_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div class="md:col-span-2">{{ form.supplier_ids.label(class='mb-1 block text-xs text-slate-400') }}{{ form.supplier_ids(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', multiple=true, size='4') }}</div>
+    <div class="md:col-span-2">{{ form.category_ids.label(class='mb-1 block text-xs text-slate-400') }}{{ form.category_ids(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', multiple=true, size='4') }}</div>
+    <div>{{ form.lead_time_days(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.low_stock_threshold(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.cost_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div>{{ form.sale_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div class="md:col-span-2">{{ form.image_url(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+    <div class="md:col-span-2">{{ form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+    <label class="inline-flex items-center gap-2 text-sm text-slate-300">{{ form.serial_tracking() }} Serial tracking</label>
+    <label class="inline-flex items-center gap-2 text-sm text-slate-300">{{ form.is_active() }} Active</label>
+    <div class="md:col-span-2">{{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+    <div class="md:col-span-2"><button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Save Part</button></div>
+  </form>
+</section>
+{% endblock %}
