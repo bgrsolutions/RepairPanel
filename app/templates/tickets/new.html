@@ -6,7 +6,7 @@
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Front Desk Intake</p>
       <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Create Repair Ticket</h1>
-      <p class="text-sm text-slate-400">Search customer, then select from that customer's devices only.</p>
+      <p class="text-sm text-slate-400">Search customer, then select a customer-owned device.</p>
     </div>
     <a href="{{ url_for('tickets.list_tickets') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Back to Tickets</a>
   </div>
@@ -14,23 +14,33 @@
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
     <form method="post" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel lg:col-span-2">
       {{ form.hidden_tag() }}
-      <div>
-        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.branch_id.label }}</label>
-        {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
-      </div>
-      <div>
-        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_id.label }}</label>
-        {{ form.customer_id(id='customer-select', class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.branch_id.label }}</label>
+          {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">Find Customer</label>
+          <input id="customer-search" list="customer-options" type="text" placeholder="Type customer name, phone, or email" class="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100" />
+          <datalist id="customer-options">
+            {% for value, label in form.customer_id.choices %}
+              <option data-id="{{ value }}" value="{{ label }}"></option>
+            {% endfor %}
+          </datalist>
+          {{ form.customer_id(id='customer-select', class='mt-2 w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
+        </div>
       </div>
       <div>
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_id.label }}</label>
         {{ form.device_id(id='device-select', class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
-        <p class="mt-1 text-xs text-slate-500">Only devices for the selected customer are shown.</p>
       </div>
-      <div>
-        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.priority.label }}</label>
-        {{ form.priority(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div>{{ form.assigned_technician_id.label(class='mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400') }}{{ form.assigned_technician_id(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}</div>
+        <div>{{ form.internal_status.label(class='mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400') }}{{ form.internal_status(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}</div>
+        <div>{{ form.priority.label(class='mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400') }}{{ form.priority(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}</div>
       </div>
+      <div>{{ form.issue_summary.label(class='mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400') }}{{ form.issue_summary(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100', rows='3') }}</div>
+      <div>{{ form.quoted_completion_at.label(class='mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400') }}{{ form.quoted_completion_at(class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}</div>
       {{ form.submit(class='inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500') }}
     </form>
 
@@ -38,18 +48,27 @@
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Quick Intake Guide</h2>
         <ul class="mt-3 space-y-2 text-sm text-slate-400">
-          <li>1. Search/select the customer first.</li>
-          <li>2. Confirm the correct device from customer-owned list.</li>
-          <li>3. Set priority and create ticket.</li>
-          <li>4. Assign technician and status from ticket detail.</li>
+          <li>1. Search and select customer.</li>
+          <li>2. Confirm customer device.</li>
+          <li>3. Capture issue summary + promised ETA.</li>
+          <li>4. Assign technician if known at intake.</li>
         </ul>
       </div>
     </aside>
   </div>
 </section>
 <script>
+  const customerSearch = document.getElementById('customer-search');
   const customerSelect = document.getElementById('customer-select');
   const deviceSelect = document.getElementById('device-select');
+
+  customerSearch?.addEventListener('change', () => {
+    const match = [...document.querySelectorAll('#customer-options option')].find(o => o.value === customerSearch.value);
+    if (match?.dataset.id) {
+      customerSelect.value = match.dataset.id;
+      loadDevices(match.dataset.id);
+    }
+  });
 
   async function loadDevices(customerId) {
     deviceSelect.innerHTML = '';
@@ -78,10 +97,6 @@
   }
 
   customerSelect.addEventListener('change', (e) => loadDevices(e.target.value));
-  if (customerSelect.value) {
-    loadDevices(customerSelect.value);
-  } else if (!deviceSelect.options.length) {
-    loadDevices('');
-  }
+  if (customerSelect.value) loadDevices(customerSelect.value);
 </script>
 {% endblock %}

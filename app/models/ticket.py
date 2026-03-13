@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
@@ -45,6 +45,8 @@ class Ticket(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
 
     assigned_technician_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     sla_target_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
+    quoted_completion_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
+    issue_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     branch = relationship("Branch")
     customer = relationship("Customer", back_populates="tickets")

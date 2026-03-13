@@ -2,7 +2,7 @@ import uuid
 import secrets
 from datetime import datetime
 
-from flask import Blueprint, current_app, flash, redirect, render_template, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
@@ -18,6 +18,7 @@ from app.models import (
     IntakeSubmission,
     PortalToken,
     Ticket,
+    User,
 )
 from app.services.audit_service import log_action
 from app.utils.file_uploads import save_intake_file
@@ -183,12 +184,15 @@ def intake_detail(intake_id):
     attachments = Attachment.query.filter_by(intake_submission_id=intake.id).all()
     disclaimers = IntakeDisclaimerAcceptance.query.filter_by(intake_submission_id=intake.id).all()
     signatures = IntakeSignature.query.filter_by(intake_submission_id=intake.id).all()
+    technicians = User.query.filter(User.deleted_at.is_(None), User.is_active.is_(True)).order_by(User.full_name.asc()).all()
+    technicians = [u for u in technicians if any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)]
     return render_template(
         "intake/detail.html",
         intake=intake,
         attachments=attachments,
         disclaimers=disclaimers,
         signatures=signatures,
+        technicians=technicians,
     )
 
 
@@ -205,14 +209,19 @@ def convert_intake(intake_id):
         return redirect(url_for("tickets.ticket_detail", ticket_id=intake.converted_ticket_id))
 
     sequence = Ticket.query.count() + 1
+    assigned_technician_id = request.form.get("assigned_technician_id")
+    quoted_completion_at = request.form.get("quoted_completion_at")
     ticket = Ticket(
         ticket_number=generate_ticket_number(intake.branch.code, sequence),
         branch_id=intake.branch_id,
         customer_id=intake.customer_id,
         device_id=intake.device_id,
-        internal_status="unassigned",
+        internal_status="assigned" if assigned_technician_id else "unassigned",
         customer_status="Received",
         priority="normal",
+        assigned_technician_id=uuid.UUID(str(assigned_technician_id)) if assigned_technician_id else None,
+        issue_summary=intake.reported_fault,
+        quoted_completion_at=datetime.fromisoformat(quoted_completion_at) if quoted_completion_at else None,
     )
     db.session.add(ticket)
     db.session.flush()

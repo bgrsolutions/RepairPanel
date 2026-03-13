@@ -115,3 +115,17 @@
 - Bench board now groups operational buckets (Unassigned, Assigned, Awaiting Diagnostics, Awaiting Parts, In Repair, Ready for Collection, Overdue, Aging) using real status + assignment + SLA logic.
 - Dashboard metrics now expose distinct aging and overdue counters based on SLA foundations.
 - Internal navigation reorganized into grouped operations menus with persistent New Ticket CTA and added Users/Staff access.
+
+## [0.6.2] - 2026-03-12
+### Added
+- Ticket create/check-in workflow improvements: searchable customer finder pattern, create-time technician assignment, create-time operational status selection, issue summary capture, and promised completion datetime capture.
+- Ticket detail metadata edit flow for issue summary + promised completion, with continued SLA visibility side-by-side.
+- Quote workflow upgrades for practical multi-line quoting including optional part-linked quote lines and draft quote editing.
+- Part order workflow upgrades for multi-line orders with line-level metadata, supplier reference/tracking/ETA fields, optional ticket linkage for general stock orders, and order edit flow.
+- Receiving workflow for part orders that records inbound stock movements, supports partial receipts, and updates order/line statuses.
+- New integration coverage for Pass B+ (ticket create assignment/ETA, multi-line quote, stock order without ticket, and partial receiving behavior).
+
+### Changed
+- Global and ticket-context order creation now uses explicit ticket selection (optional) to prevent stale/incorrect ticket associations.
+- Order list/detail screens now expose repair-vs-stock context, ETA/tracking metadata, and overdue operational visibility.
+- Intake conversion now supports optional technician assignment and promised completion datetime propagation into created tickets.

@@ -53,3 +53,15 @@
 - **Context**: Parts are linked to stock, reservations, and order history, making hard-delete unsafe for operational integrity.
 - **Decision**: Keep `Part.is_active` as the operational archive mechanism and expose manager/admin toggle actions in UI; default lists hide inactive parts.
 - **Consequences**: Historical links remain intact while day-to-day workflows are protected from accidental reuse of retired SKUs.
+
+## ADR-010: Part Orders Support Both Repair-Linked and General Stock Procurement
+- **Status**: Accepted
+- **Context**: Real operations require both ticket-specific purchasing and proactive stock replenishment.
+- **Decision**: Make `PartOrder.ticket_id` optional and classify orders as `repair` or `stock` based on ticket linkage while keeping one supplier per order and many lines per order.
+- **Consequences**: Prevents forced ticket coupling, supports multi-supplier procurement across a single repair via multiple orders, and keeps order context explicit in UI/export workflows.
+
+## ADR-011: Receiving Updates Inventory via Stock Movements with Partial Receipt Support
+- **Status**: Accepted
+- **Context**: Receiving must preserve inventory auditability and cannot rely on silent quantity changes.
+- **Decision**: Implement receiving against order lines using explicit inbound stock movements, line `received_quantity`, and derived order status transitions (`partially_received` / `received`).
+- **Consequences**: Inventory integrity is preserved with traceable movement history; order progress reflects real-world partial deliveries and remains extensible for richer ASN/packing-slip flows later.
