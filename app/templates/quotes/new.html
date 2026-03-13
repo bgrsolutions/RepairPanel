@@ -21,19 +21,88 @@
     <section class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
       <h2 class="text-sm font-semibold text-slate-300">Option {{ loop.index }}</h2>
       {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Option name') }}
+      <div class="quote-lines" data-option-index="{{ loop.index0 }}">
       {% for line in option.form.lines %}
-      <div class="grid grid-cols-1 gap-2 md:grid-cols-5">
+      <div class="quote-line grid grid-cols-1 gap-2 md:grid-cols-6 rounded border border-slate-800 bg-slate-950 p-2">
         <div>{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-        <div>{{ line.form.linked_part_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-        <div>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description (leave blank to skip)') }}</div>
+        <div>{{ line.form.linked_part_id(class='quote-part w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
+        <div>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description') }}</div>
         <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
-        <div>{{ line.form.unit_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
+        <div>{{ line.form.unit_price(class='quote-unit w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
+        <button type="button" class="remove-quote-line rounded border border-rose-800 bg-rose-950 px-2 py-1 text-xs text-rose-200">Remove</button>
       </div>
       {% endfor %}
+      </div>
+      <button type="button" class="add-quote-line rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">+ Add Line</button>
     </section>
     {% endfor %}
 
+    <div class="rounded border border-slate-800 bg-slate-950 p-3 text-xs text-slate-400">Default tax policy: IGIC {{ '%.0f'|format(igic_rate * 100) }}% on commercial quote totals.</div>
     {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
   </form>
 </section>
+<script>
+function reindexOptionLines(optionWrap){
+  const lines = [...optionWrap.querySelectorAll('.quote-line')];
+  const optionIndex = optionWrap.dataset.optionIndex;
+  lines.forEach((line, idx)=>{
+    line.querySelectorAll('input,select,textarea').forEach(el=>{
+      if(el.name) el.name = el.name.replace(new RegExp(`options-${optionIndex}-lines-\\d+-`), `options-${optionIndex}-lines-${idx}-`);
+      if(el.id) el.id = el.id.replace(new RegExp(`options-${optionIndex}-lines-\\d+-`), `options-${optionIndex}-lines-${idx}-`);
+    });
+  });
+}
+
+document.querySelectorAll('.add-quote-line').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const optionSection = btn.closest('section');
+    const optionWrap = optionSection.querySelector('.quote-lines');
+    const lines = optionWrap.querySelectorAll('.quote-line');
+    const clone = lines[lines.length-1].cloneNode(true);
+    clone.querySelectorAll('input').forEach(i=> i.value='');
+    clone.querySelectorAll('select').forEach(s=> s.selectedIndex=0);
+    optionWrap.appendChild(clone);
+    reindexOptionLines(optionWrap);
+    wirePartAutofill(clone);
+    wireRemove(clone);
+  });
+});
+
+function wireRemove(scope=document){
+  scope.querySelectorAll('.remove-quote-line').forEach(btn=>{
+    if(btn.dataset.wired==='1') return;
+    btn.dataset.wired='1';
+    btn.addEventListener('click', ()=>{
+      const wrap = btn.closest('.quote-lines');
+      const rows = wrap.querySelectorAll('.quote-line');
+      if(rows.length===1){
+        rows[0].querySelectorAll('input').forEach(i=>i.value='');
+        rows[0].querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+        return;
+      }
+      btn.closest('.quote-line').remove();
+      reindexOptionLines(wrap);
+    });
+  });
+}
+
+function wirePartAutofill(scope=document){
+  scope.querySelectorAll('.quote-part').forEach(sel=>{
+    if(sel.dataset.wired==='1') return;
+    sel.dataset.wired='1';
+    sel.addEventListener('change', async ()=>{
+      const partId = sel.value;
+      if(!partId) return;
+      const line = sel.closest('.quote-line');
+      const unit = line.querySelector('.quote-unit');
+      if(unit.value && Number(unit.value) > 0) return;
+      const data = await (await fetch(`/quotes/part-price/${partId}`)).json();
+      if(data.ok){ unit.value = data.sale_price; }
+    });
+  });
+}
+
+wireRemove(document);
+wirePartAutofill(document);
+</script>
 {% endblock %}

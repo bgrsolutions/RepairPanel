@@ -194,5 +194,5 @@ def test_pass_c1_order_blank_lines_and_ticket_detail_compact(monkeypatch):
     detail = client.get(f'/tickets/{ticket.id}')
     assert detail.status_code == 200
     html = detail.data.decode()
-    assert 'Quick Actions' in html
+    assert 'Actions' in html
     assert 'Search by part name, SKU, barcode, supplier SKU' in html

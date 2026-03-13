@@ -77,3 +77,22 @@
 - **Context**: Devices can change ownership over time, but past repairs must remain auditable by original ticket/customer context.
 - **Decision**: Allow current device owner transfer/unlink actions by updating `Device.customer_id` for future workflows, while keeping historical tickets unchanged (`Ticket.customer_id` remains immutable historical reference).
 - **Consequences**: Supports real ownership lifecycle operations without rewriting historical repair accountability.
+
+
+## ADR-014: FIFO Costing Foundation via Receipt Layers
+- **Status**: Accepted
+- **Context**: Inventory consumption/costing needed deterministic oldest-stock-first behavior without rewriting all movement workflows in one pass.
+- **Decision**: Add `stock_layers` as receipt-layer records (`quantity_received`/`quantity_remaining`, optional unit cost) and consume outbound/install quantities from oldest remaining layers first.
+- **Consequences**: Preserves stock movement history while enabling incremental FIFO costing maturity in later passes.
+
+## ADR-015: Commercial Tax Default Uses IGIC 7%
+- **Status**: Accepted
+- **Context**: Commercial quote outputs require consistent Canary Islands tax defaults.
+- **Decision**: Standardize quote/commercial totals to apply and display 7% IGIC by default (configurable via `DEFAULT_IGIC_RATE`).
+- **Consequences**: Commercial totals are consistent and explicit; internal operational stock records remain untaxed.
+
+## ADR-016: Part Master Supports Multiple Suppliers and Category Classification
+- **Status**: Accepted
+- **Context**: Operational procurement required alternate suppliers and stronger catalog browsing semantics.
+- **Decision**: Keep one optional default supplier on `Part` and add supporting many-to-many-style link records (`part_suppliers`) plus category entities (`part_categories` + links).
+- **Consequences**: Improves sourcing flexibility and inventory browse/filter UX while preserving existing single-order single-supplier procurement flow.

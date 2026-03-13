@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
 
@@ -28,8 +28,7 @@ def _ensure_default_entries(form: QuoteCreateForm):
     if not form.options:
         form.options.append_entry()
     if not form.options[0].form.lines:
-        for _ in range(3):
-            form.options[0].form.lines.append_entry()
+        form.options[0].form.lines.append_entry()
 
 
 def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
@@ -53,6 +52,11 @@ def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
             description = (line_form.form.description.data or "").strip()
             quantity = line_form.form.quantity.data
             unit_price = line_form.form.unit_price.data
+            linked_part_id = line_form.form.linked_part_id.data or None
+            linked_part_uuid = uuid.UUID(str(linked_part_id)) if linked_part_id else None
+            linked_part = db.session.get(Part, linked_part_uuid) if linked_part_uuid else None
+            if (unit_price is None or float(unit_price) <= 0) and linked_part and linked_part.sale_price is not None:
+                unit_price = linked_part.sale_price
             if not description:
                 continue
             if quantity is None or unit_price is None:
@@ -64,9 +68,18 @@ def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
                     description=description,
                     quantity=quantity,
                     unit_price=unit_price,
-                    part_id=uuid.UUID(str(line_form.form.linked_part_id.data)) if line_form.form.linked_part_id.data else None,
+                    part_id=linked_part_uuid,
                 )
             )
+
+
+@quotes_bp.get("/part-price/<uuid:part_id>")
+@login_required
+def part_price(part_id):
+    part = db.session.get(Part, part_id)
+    if not part:
+        return jsonify({"ok": False}), 404
+    return jsonify({"ok": True, "sale_price": float(part.sale_price or 0)})
 
 
 @quotes_bp.get("/ticket/<uuid:ticket_id>/new")
@@ -81,7 +94,7 @@ def new_quote(ticket_id):
     _ensure_default_entries(form)
     _populate_part_choices(form)
 
-    return render_template("quotes/new.html", ticket=ticket, form=form, mode="create")
+    return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
 
 
 @quotes_bp.post("/ticket/<uuid:ticket_id>/create")
@@ -98,7 +111,7 @@ def create_quote(ticket_id):
 
     if not form.validate_on_submit():
         flash(_("Invalid quote data"), "error")
-        return render_template("quotes/new.html", ticket=ticket, form=form, mode="create")
+        return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
 
     latest_version = db.session.query(db.func.max(Quote.version)).filter(Quote.ticket_id == ticket.id).scalar() or 0
     quote = Quote(ticket_id=ticket.id, version=int(latest_version) + 1, status="draft")
@@ -146,7 +159,7 @@ def edit_quote(quote_id):
         _ensure_default_entries(form)
     _populate_part_choices(form)
 
-    return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote)
+    return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
 
 
 @quotes_bp.post("/<uuid:quote_id>/update")
@@ -161,7 +174,7 @@ def update_quote(quote_id):
     _populate_part_choices(form)
     if not form.validate_on_submit():
         flash(_("Invalid quote data"), "error")
-        return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote)
+        return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
 
     _save_quote_from_form(quote, form)
     db.session.commit()
@@ -178,7 +191,10 @@ def quote_detail(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     option_totals, quote_total = compute_quote_totals(quote)
-    return render_template("quotes/detail.html", quote=quote, option_totals=option_totals, quote_total=quote_total)
+    igic_rate = current_app.config.get("DEFAULT_IGIC_RATE", 0.07)
+    tax_total = quote_total * igic_rate
+    grand_total = quote_total + tax_total
+    return render_template("quotes/detail.html", quote=quote, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total)
 
 
 @quotes_bp.post("/<uuid:quote_id>/send")

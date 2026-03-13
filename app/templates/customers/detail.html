@@ -28,12 +28,11 @@
               <input type="hidden" name="redirect_customer_id" value="{{ customer.id }}" />
               <button class="rounded border border-rose-700 bg-rose-950 px-2 py-1 text-xs">Unlink</button>
             </form>
-            <form method="post" action="{{ url_for('customers.transfer_device', device_id=device.id) }}" class="flex gap-1">
+            <form method="post" action="{{ url_for('customers.transfer_device', device_id=device.id) }}" class="flex gap-1 items-center">
               <input type="hidden" name="redirect_customer_id" value="{{ customer.id }}" />
-              <select name="target_customer_id" class="rounded border border-slate-700 bg-slate-800 px-1 py-1 text-xs">
-                <option value="">Transfer to…</option>
-                {% for c in customer_choices %}<option value="{{ c.id }}">{{ c.full_name }}</option>{% endfor %}
-              </select>
+              <input type="hidden" name="target_customer_id" class="transfer-target-id" />
+              <input type="text" placeholder="Search customer" class="transfer-search rounded border border-slate-700 bg-slate-800 px-1 py-1 text-xs" />
+              <div class="transfer-results absolute mt-16 z-10 w-56 space-y-1"></div>
               <button class="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs">Move</button>
             </form>
           </div>
@@ -72,4 +71,24 @@
     </section>
   </div>
 </section>
+<script>
+document.querySelectorAll('.transfer-search').forEach((input)=>{
+  const form=input.closest('form');
+  const results=form.querySelector('.transfer-results');
+  const target=form.querySelector('.transfer-target-id');
+  input.addEventListener('input', async ()=>{
+    const q=input.value.trim(); results.innerHTML="";
+    if(q.length<2) return;
+    const data=await (await fetch(`/customers/search?q=${encodeURIComponent(q)}`)).json();
+    for(const item of data.items){
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='block w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-left text-xs';
+      b.textContent=item.label;
+      b.onclick=()=>{target.value=item.id; input.value=item.label; results.innerHTML="";};
+      results.appendChild(b);
+    }
+  });
+});
+</script>
 {% endblock %}

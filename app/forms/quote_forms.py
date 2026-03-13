@@ -22,7 +22,7 @@ class QuoteOptionForm(FlaskForm):
         csrf = False
 
     name = StringField("Option Name", validators=[DataRequired(), Length(max=120)])
-    lines = FieldList(FormField(QuoteLineForm), min_entries=3, max_entries=20)
+    lines = FieldList(FormField(QuoteLineForm), min_entries=1, max_entries=60)
 
 
 class QuoteCreateForm(FlaskForm):
@@ -31,5 +31,5 @@ class QuoteCreateForm(FlaskForm):
     expires_at = DateField("Expires At", validators=[Optional()], format="%Y-%m-%d")
     notes_snapshot = TextAreaField("Quote Notes", validators=[Optional(), Length(max=5000)])
     terms_snapshot = TextAreaField("Terms Snapshot", validators=[Optional(), Length(max=5000)])
-    options = FieldList(FormField(QuoteOptionForm), min_entries=1, max_entries=3)
+    options = FieldList(FormField(QuoteOptionForm), min_entries=1, max_entries=5)
     submit = SubmitField("Save Quote")

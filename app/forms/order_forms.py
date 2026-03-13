@@ -50,4 +50,6 @@ class ReceiveOrderLineForm(FlaskForm):
     location_id = SelectField("Receive Into Location", validators=[DataRequired()], coerce=str)
     quantity = DecimalField("Received Quantity", validators=[DataRequired(), NumberRange(min=0.01)], places=2)
     received_note = StringField("Delivery Note", validators=[Optional(), Length(max=255)])
+    cost_price = DecimalField("Update Cost Price", validators=[Optional(), NumberRange(min=0)], places=2)
+    sale_price = DecimalField("Update Sale Price", validators=[Optional(), NumberRange(min=0)], places=2)
     submit = SubmitField("Receive Stock")

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, DecimalField, IntegerField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
 
@@ -10,10 +10,15 @@ class PartForm(FlaskForm):
     category = StringField("Category", validators=[Optional(), Length(max=120)])
     supplier_sku = StringField("Supplier SKU", validators=[Optional(), Length(max=120)])
     default_supplier_id = SelectField("Default Supplier", validators=[Optional()], coerce=str)
+    supplier_ids = SelectMultipleField("Other Suppliers", validators=[Optional()], coerce=str)
+    category_ids = SelectMultipleField("Categories", validators=[Optional()], coerce=str)
     lead_time_days = IntegerField("Lead Time (days)", validators=[Optional(), NumberRange(min=0, max=365)])
+    low_stock_threshold = IntegerField("Low Stock Threshold", validators=[Optional(), NumberRange(min=0, max=10000)], default=3)
     cost_price = DecimalField("Cost Price", validators=[Optional(), NumberRange(min=0)], places=2)
     sale_price = DecimalField("Sale Price", validators=[Optional(), NumberRange(min=0)], places=2)
     serial_tracking = BooleanField("Serial Tracking")
+    description = TextAreaField("Description", validators=[Optional(), Length(max=5000)])
+    image_url = StringField("Image URL", validators=[Optional(), Length(max=255)])
     notes = TextAreaField("Notes", validators=[Optional(), Length(max=5000)])
     is_active = BooleanField("Active", default=True)
     submit = SubmitField("Save Part")
@@ -66,3 +71,10 @@ class StockReservationForm(FlaskForm):
     location_id = SelectField("Location", validators=[DataRequired()], coerce=str)
     quantity = DecimalField("Quantity", validators=[DataRequired(), NumberRange(min=0.01)], places=2)
     submit = SubmitField("Reserve Part")
+
+
+class PartCategoryForm(FlaskForm):
+    name = StringField("Category Name", validators=[DataRequired(), Length(max=120)])
+    code = StringField("Code", validators=[Optional(), Length(max=40)])
+    description = TextAreaField("Description", validators=[Optional(), Length(max=1000)])
+    submit = SubmitField("Save Category")

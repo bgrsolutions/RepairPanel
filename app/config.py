@@ -22,3 +22,4 @@ class Config:
     )
 
     DEFAULT_TICKET_SLA_DAYS = int(os.getenv("DEFAULT_TICKET_SLA_DAYS", "5"))
+    DEFAULT_IGIC_RATE = float(os.getenv("DEFAULT_IGIC_RATE", "0.07"))

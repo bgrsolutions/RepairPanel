@@ -2,7 +2,7 @@ import uuid
 from decimal import Decimal
 
 from app.extensions import db
-from app.models import StockLevel, StockMovement, StockReservation
+from app.models import StockLayer, StockLevel, StockMovement, StockReservation
 
 
 def _as_decimal(value) -> Decimal:
@@ -11,6 +11,11 @@ def _as_decimal(value) -> Decimal:
 
 def _as_uuid(value):
     return value if isinstance(value, uuid.UUID) else uuid.UUID(str(value))
+
+
+def _has_stock_layers_table() -> bool:
+    conn = db.session.connection()
+    return conn.dialect.has_table(conn, "stock_layers")
 
 
 def get_or_create_stock_level(part_id, branch_id, location_id):
@@ -26,7 +31,26 @@ def get_or_create_stock_level(part_id, branch_id, location_id):
     return level
 
 
-def apply_stock_movement(part_id, branch_id, location_id, movement_type, quantity, notes=None, ticket_id=None):
+def _consume_fifo_layers(part_id, branch_id, location_id, qty):
+    remaining = _as_decimal(qty)
+    if not _has_stock_layers_table():
+        return
+    layers = (
+        StockLayer.query.filter_by(part_id=part_id, branch_id=branch_id, location_id=location_id)
+        .filter(StockLayer.quantity_remaining > 0)
+        .order_by(StockLayer.created_at.asc())
+        .all()
+    )
+    for layer in layers:
+        if remaining <= 0:
+            break
+        available = _as_decimal(layer.quantity_remaining)
+        consume = available if available <= remaining else remaining
+        layer.quantity_remaining = available - consume
+        remaining -= consume
+
+
+def apply_stock_movement(part_id, branch_id, location_id, movement_type, quantity, notes=None, ticket_id=None, unit_cost=None):
     part_id = _as_uuid(part_id)
     branch_id = _as_uuid(branch_id)
     location_id = _as_uuid(location_id)
@@ -38,6 +62,7 @@ def apply_stock_movement(part_id, branch_id, location_id, movement_type, quantit
         level.on_hand_qty = _as_decimal(level.on_hand_qty) + qty
     elif movement_type in {"outbound", "install"}:
         level.on_hand_qty = _as_decimal(level.on_hand_qty) - qty
+        _consume_fifo_layers(part_id, branch_id, location_id, qty)
     elif movement_type == "reservation":
         level.reserved_qty = _as_decimal(level.reserved_qty) + qty
     elif movement_type == "release":
@@ -56,6 +81,19 @@ def apply_stock_movement(part_id, branch_id, location_id, movement_type, quantit
     )
     db.session.add(movement)
     db.session.flush()
+
+    if movement_type == "inbound" and _has_stock_layers_table():
+        layer = StockLayer(
+            part_id=part_id,
+            branch_id=branch_id,
+            location_id=location_id,
+            source_movement_id=movement.id,
+            unit_cost=unit_cost,
+            quantity_received=qty,
+            quantity_remaining=qty,
+        )
+        db.session.add(layer)
+        db.session.flush()
     return movement
 
 

@@ -3,11 +3,11 @@ import uuid
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
-from sqlalchemy import func, or_
+from sqlalchemy import func, inspect, or_
 
 from app.extensions import db
-from app.forms.inventory_forms import PartForm, StockAdjustmentForm, StockLocationForm
-from app.models import Branch, Part, StockLevel, StockLocation, Supplier
+from app.forms.inventory_forms import PartCategoryForm, PartForm, StockAdjustmentForm, StockLocationForm
+from app.models import Branch, Part, PartCategory, PartSupplier, StockLayer, StockLevel, StockLocation, Supplier
 from app.services.inventory_service import apply_stock_movement
 from app.utils.permissions import roles_required
 
@@ -27,6 +27,13 @@ def stock_overview():
 def list_parts():
     query = (request.args.get("q") or "").strip()
     include_inactive = request.args.get("include_inactive") == "1"
+    category_id = (request.args.get("category_id") or "").strip()
+    supplier_id = (request.args.get("supplier_id") or "").strip()
+    stock_state = (request.args.get("stock_state") or "").strip()
+
+    inspector = inspect(db.engine)
+    has_categories = inspector.has_table("part_categories") and inspector.has_table("part_category_links")
+    has_part_suppliers = inspector.has_table("part_suppliers")
 
     parts_query = Part.query.filter(Part.deleted_at.is_(None))
     if not include_inactive:
@@ -34,6 +41,16 @@ def list_parts():
     if query:
         like = f"%{query}%"
         parts_query = parts_query.filter(or_(Part.name.ilike(like), Part.sku.ilike(like), Part.barcode.ilike(like), Part.supplier_sku.ilike(like)))
+    if category_id and has_categories:
+        parts_query = parts_query.join(Part.categories).filter(PartCategory.id == uuid.UUID(category_id))
+    if supplier_id:
+        sid = uuid.UUID(supplier_id)
+        if has_part_suppliers:
+            parts_query = parts_query.outerjoin(PartSupplier, PartSupplier.part_id == Part.id).filter(
+                or_(Part.default_supplier_id == sid, PartSupplier.supplier_id == sid)
+            )
+        else:
+            parts_query = parts_query.filter(Part.default_supplier_id == sid)
 
     parts = parts_query.order_by(Part.name.asc()).all()
     totals = {
@@ -43,7 +60,34 @@ def list_parts():
         ).group_by(StockLevel.part_id)
     }
 
-    return render_template("inventory/parts_list.html", parts=parts, query=query, include_inactive=include_inactive, totals=totals)
+    if stock_state:
+        def state_for(part):
+            on_hand, reserved = totals.get(str(part.id), (0.0, 0.0))
+            available = on_hand - reserved
+            threshold = part.low_stock_threshold or 3
+            if available <= 0:
+                return "out"
+            if available < threshold:
+                return "low"
+            return "in"
+        parts = [p for p in parts if state_for(p) == stock_state]
+
+    has_categories = inspect(db.engine).has_table("part_categories") and inspect(db.engine).has_table("part_category_links")
+    has_part_suppliers = inspect(db.engine).has_table("part_suppliers")
+    categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else [] if has_categories else []
+    suppliers = Supplier.query.filter_by(is_active=True).order_by(Supplier.name.asc()).all()
+    return render_template(
+        "inventory/parts_list.html",
+        parts=parts,
+        query=query,
+        include_inactive=include_inactive,
+        totals=totals,
+        categories=categories,
+        suppliers=suppliers,
+        category_id=category_id,
+        supplier_id=supplier_id,
+        stock_state=stock_state,
+    )
 
 
 @inventory_bp.get('/parts/search')
@@ -80,7 +124,14 @@ def toggle_part_active(part_id):
 @login_required
 def new_part():
     form = PartForm()
-    form.default_supplier_id.choices = [("", "-- None --")] + [(str(s.id), s.name) for s in Supplier.query.filter_by(is_active=True).order_by(Supplier.name).all()]
+    suppliers = Supplier.query.filter_by(is_active=True).order_by(Supplier.name).all()
+    has_categories = inspect(db.engine).has_table("part_categories") and inspect(db.engine).has_table("part_category_links")
+    has_part_suppliers = inspect(db.engine).has_table("part_suppliers")
+    categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else []
+    form.default_supplier_id.choices = [("", "-- None --")] + [(str(s.id), s.name) for s in suppliers]
+    form.supplier_ids.choices = [(str(s.id), s.name) for s in suppliers]
+    form.category_ids.choices = [(str(c.id), c.name) for c in categories]
+
     if form.validate_on_submit():
         part = Part(
             sku=form.sku.data,
@@ -93,15 +144,77 @@ def new_part():
             cost_price=form.cost_price.data,
             sale_price=form.sale_price.data,
             serial_tracking=bool(form.serial_tracking.data),
+            description=form.description.data,
+            image_url=form.image_url.data,
+            low_stock_threshold=form.low_stock_threshold.data,
             notes=form.notes.data,
             is_active=bool(form.is_active.data),
         )
         db.session.add(part)
+        db.session.flush()
+
+        if has_categories:
+            for category_id in (form.category_ids.data or []):
+                category = db.session.get(PartCategory, uuid.UUID(str(category_id)))
+                if category:
+                    part.categories.append(category)
+
+        if has_part_suppliers:
+            for supplier_id in (form.supplier_ids.data or []):
+                sid = uuid.UUID(str(supplier_id))
+                if form.default_supplier_id.data and sid == uuid.UUID(form.default_supplier_id.data):
+                    continue
+                db.session.add(PartSupplier(part_id=part.id, supplier_id=sid, is_default=False))
+
         db.session.commit()
         flash(_("Part created"), "success")
-        return redirect(url_for("inventory.list_parts"))
+        return redirect(url_for("inventory.part_detail", part_id=part.id))
 
     return render_template("inventory/part_new.html", form=form)
+
+
+@inventory_bp.get("/parts/<uuid:part_id>")
+@login_required
+def part_detail(part_id):
+    part = db.session.get(Part, part_id)
+    if not part or part.deleted_at is not None:
+        flash(_("Part not found"), "error")
+        return redirect(url_for("inventory.list_parts"))
+
+    stock_levels = StockLevel.query.filter_by(part_id=part.id).order_by(StockLevel.updated_at.desc()).all()
+    linked_orders = []
+    if inspect(db.engine).has_table("stock_layers"):
+        linked_orders = (
+            db.session.query(StockLayer)
+            .filter(StockLayer.part_id == part.id)
+            .order_by(StockLayer.created_at.desc())
+            .limit(20)
+            .all()
+        )
+    return render_template("inventory/part_detail.html", part=part, stock_levels=stock_levels, stock_layers=linked_orders)
+
+
+@inventory_bp.get("/categories")
+@login_required
+def list_categories():
+    categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else []
+    return render_template("inventory/categories_list.html", categories=categories)
+
+
+@inventory_bp.route("/categories/new", methods=["GET", "POST"])
+@login_required
+def new_category():
+    if not inspect(db.engine).has_table("part_categories"):
+        flash(_("Categories unavailable until migrations are applied"), "warning")
+        return redirect(url_for("inventory.list_parts"))
+    form = PartCategoryForm()
+    if form.validate_on_submit():
+        category = PartCategory(name=form.name.data.strip(), code=(form.code.data or '').strip() or None, description=form.description.data)
+        db.session.add(category)
+        db.session.commit()
+        flash(_("Category saved"), "success")
+        return redirect(url_for("inventory.list_categories"))
+    return render_template("inventory/category_new.html", form=form)
 
 
 @inventory_bp.get("/locations")

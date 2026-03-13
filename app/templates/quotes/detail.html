@@ -59,7 +59,9 @@
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Quote Snapshot</h2>
         <p class="mt-2 text-xs text-slate-400">Expires: {{ quote.expires_at.strftime('%Y-%m-%d') if quote.expires_at else '—' }}</p>
         <p class="text-xs text-slate-400">Sent: {{ quote.sent_at.strftime('%Y-%m-%d %H:%M') if quote.sent_at else '—' }}</p>
-        <p class="text-xs text-slate-400">Total (max option): {{ quote.currency }} {{ '%.2f'|format(quote_total) }}</p>
+        <p class="text-xs text-slate-400">Subtotal: {{ quote.currency }} {{ '%.2f'|format(quote_total) }}</p>
+        <p class="text-xs text-slate-400">IGIC ({{ '%.0f'|format(igic_rate * 100) }}%): {{ quote.currency }} {{ '%.2f'|format(tax_total) }}</p>
+        <p class="text-xs text-slate-200 font-semibold">Grand total: {{ quote.currency }} {{ '%.2f'|format(grand_total) }}</p>
         <p class="mt-2 text-xs text-slate-500">Terms: {{ quote.terms_snapshot or '—' }}</p>
       </div>
 

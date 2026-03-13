@@ -151,3 +151,15 @@
 
 ### Fixed
 - Ticket detail reserve-part search prompt now explicitly aligns with supported part matching fields (name/SKU/barcode/supplier SKU).
+
+## [0.7.0] - 2026-03-13
+### Added
+- Pass D ticket-detail modal workflow: read-only top summary with modal dialogs for ticket meta updates, note capture, and diagnostics entry.
+- Inventory product record expansion with dedicated part detail page, category management pages, multi-supplier linkage support, and richer parts filtering (category/supplier/stock state).
+- FIFO costing foundation via stock receipt layers (`stock_layers`) and oldest-layer consumption hooks in inventory movement service.
+- Quote workflow enhancements for dynamic line add/remove and part-price autofill endpoint (`/quotes/part-price/<id>`).
+
+### Changed
+- Quotes now display commercial totals with default 7% IGIC (subtotal, IGIC, grand total) and expose IGIC policy in quote builder UX.
+- Receiving workflow can now maintain/update part cost and sale prices at receive time.
+- Parts list and stock overview now surface clickable part records with expanded pricing/lead-time/supplier visibility.

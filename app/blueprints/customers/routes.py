@@ -58,6 +58,19 @@ def unlink_device(device_id):
     return redirect(url_for('customers.customer_detail', customer_id=redirect_customer))
 
 
+@customers_bp.get("/search")
+@login_required
+def customer_search_json():
+    query = (request.args.get("q") or "").strip()
+    if len(query) < 2:
+        return {"items": []}
+    like = f"%{query}%"
+    rows = Customer.query.filter(Customer.deleted_at.is_(None)).filter(
+        or_(Customer.full_name.ilike(like), Customer.phone.ilike(like), Customer.email.ilike(like))
+    ).order_by(Customer.full_name.asc()).limit(25).all()
+    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ''}"} for c in rows]}
+
+
 @customers_bp.get("/<uuid:customer_id>")
 @login_required
 def customer_detail(customer_id):

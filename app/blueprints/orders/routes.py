@@ -187,6 +187,11 @@ def receive_order_line(order_id):
         line.received_quantity = Decimal(str(line.received_quantity or 0)) + receive_qty
         line.status = "received" if line_remaining_qty(line) <= 0 else "partially_received"
 
+        if form.cost_price.data is not None:
+            line.part.cost_price = form.cost_price.data
+        if form.sale_price.data is not None:
+            line.part.sale_price = form.sale_price.data
+
         apply_stock_movement(
             part_id=line.part_id,
             branch_id=order.branch_id,
@@ -195,6 +200,7 @@ def receive_order_line(order_id):
             quantity=receive_qty,
             notes=f"Order receive {order.reference or order.id}: {form.received_note.data or ''}".strip(),
             ticket_id=order.ticket_id,
+            unit_cost=form.cost_price.data if form.cost_price.data is not None else line.unit_cost,
         )
 
         if all(line_remaining_qty(l) <= 0 for l in order.lines):
