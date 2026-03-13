@@ -5,24 +5,61 @@
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-2xl font-semibold text-white">Parts Catalog</h1>
-      <p class="text-sm text-slate-400">Repair parts master definitions.</p>
+      <p class="text-sm text-slate-400">Operational filtering by category, supplier, stock state, and active status.</p>
     </div>
-    <a href="{{ url_for('inventory.new_part') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Part</a>
+    <div class="flex gap-2">
+      <a href="{{ url_for('inventory.list_categories') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800">Categories</a>
+      <a href="{{ url_for('inventory.new_part') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Part</a>
+    </div>
   </div>
+
+  <form method="get" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel grid grid-cols-1 md:grid-cols-7 gap-3">
+    <input type="text" name="q" value="{{ query }}" placeholder="Name, SKU, barcode, supplier SKU" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm md:col-span-2" />
+    <select name="category_id" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.id }}" {% if category_id == c.id|string %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <select name="supplier_id" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="">All suppliers</option>
+      {% for s in suppliers %}<option value="{{ s.id }}" {% if supplier_id == s.id|string %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+    </select>
+    <select name="stock_state" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="">Any stock state</option>
+      <option value="in" {% if stock_state=='in' %}selected{% endif %}>In stock</option>
+      <option value="low" {% if stock_state=='low' %}selected{% endif %}>Low stock</option>
+      <option value="out" {% if stock_state=='out' %}selected{% endif %}>Out of stock</option>
+    </select>
+    <select name="lead_time" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="">Any lead time</option>
+      <option value="has" {% if lead_time_filter=='has' %}selected{% endif %}>Has lead time</option>
+      <option value="long" {% if lead_time_filter=='long' %}selected{% endif %}>Long lead time (7d+)</option>
+    </select>
+    <div class="flex items-center gap-2">
+      <label class="inline-flex items-center gap-2 text-sm text-slate-300"><input type="checkbox" name="include_inactive" value="1" {% if include_inactive %}checked{% endif %}/> Inactive</label>
+      <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Filter</button>
+    </div>
+  </form>
+
   <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
     <table class="min-w-full text-left text-sm text-slate-200">
-      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-4 py-3">SKU</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Pricing</th><th class="px-4 py-3">Flags</th></tr></thead>
+      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-4 py-3">SKU</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Supplier</th><th class="px-4 py-3">Lead Time</th><th class="px-4 py-3">Pricing</th><th class="px-4 py-3">Stock</th><th class="px-4 py-3">State</th><th class="px-4 py-3">Action</th></tr></thead>
       <tbody class="divide-y divide-slate-800">
       {% for part in parts %}
+        {% set on_hand, reserved = totals.get(part.id|string, (0,0)) %}
+        {% set available = on_hand - reserved %}
         <tr>
           <td class="px-4 py-3 text-white">{{ part.sku }}</td>
-          <td class="px-4 py-3">{{ part.name }}<div class="text-xs text-slate-500">{{ part.barcode or '—' }}</div></td>
-          <td class="px-4 py-3">{{ part.category or '—' }}</td>
-          <td class="px-4 py-3 text-xs text-slate-300">Cost {{ part.cost_price or '—' }} / Sale {{ part.sale_price or '—' }}</td>
-          <td class="px-4 py-3 text-xs">{{ 'serial' if part.serial_tracking else 'no-serial' }} · {{ 'active' if part.is_active else 'inactive' }}</td>
+          <td class="px-4 py-3"><a class="font-medium text-indigo-300 hover:text-indigo-200" href="{{ url_for('inventory.part_detail', part_id=part.id) }}">{{ part.name }}</a><div class="text-xs text-slate-500">Barcode: {{ part.barcode or '—' }} · Supplier SKU: {{ part.supplier_sku or '—' }}</div></td>
+          <td class="px-4 py-3 text-xs text-slate-300">{{ part.categories|map(attribute='name')|join(', ') or (part.category or '—') }}</td>
+          <td class="px-4 py-3 text-xs">{% if part.default_supplier %}<a class='text-indigo-300 hover:text-indigo-200' href='{{ url_for("suppliers.supplier_detail", supplier_id=part.default_supplier.id) }}'>{{ part.default_supplier.name }}</a>{% else %}—{% endif %}</td>
+          <td class="px-4 py-3 text-xs">{{ part.lead_time_days ~ 'd' if part.lead_time_days is not none else '—' }}</td>
+          <td class="px-4 py-3 text-xs text-slate-300">Cost {{ part.cost_price or '—' }} · Sale {{ part.sale_price or '—' }}</td>
+          <td class="px-4 py-3 text-xs {% if available <= 0 %}text-rose-300{% elif available < (part.low_stock_threshold or 3) %}text-amber-300{% else %}text-emerald-300{% endif %}">On hand {{ on_hand }} · Avail {{ available }}</td>
+          <td class="px-4 py-3 text-xs">{% if part.is_active %}<span class="text-emerald-300">Active</span>{% else %}<span class="text-amber-300">Inactive</span>{% endif %}</td>
+          <td class="px-4 py-3"><form method="post" action="{{ url_for('inventory.toggle_part_active', part_id=part.id) }}"><button class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">{% if part.is_active %}Deactivate{% else %}Reactivate{% endif %}</button></form></td>
         </tr>
       {% else %}
-        <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No parts found.</td></tr>
+        <tr><td colspan="9" class="px-4 py-8 text-center text-slate-500">No parts found.</td></tr>
       {% endfor %}
       </tbody>
     </table>

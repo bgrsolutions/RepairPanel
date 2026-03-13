@@ -26,7 +26,7 @@
             <th class="px-4 py-3 font-semibold">Status</th>
             <th class="px-4 py-3 font-semibold">Priority</th>
             <th class="px-4 py-3 font-semibold">Technician</th>
-            <th class="px-4 py-3 font-semibold">Created</th>
+            <th class="px-4 py-3 font-semibold">Promised ETA</th><th class="px-4 py-3 font-semibold">Created</th>
             <th class="px-4 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
@@ -50,7 +50,7 @@
                 <span class="rounded-full border border-slate-700 px-2 py-1 text-slate-400">Unassigned</span>
               {% endif %}
             </td>
-            <td class="px-4 py-3 text-slate-400">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td class="px-4 py-3 text-xs text-slate-400">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</td><td class="px-4 py-3 text-slate-400">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             <td class="px-4 py-3">
               <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Open</a>
             </td>

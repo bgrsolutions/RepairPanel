@@ -12,6 +12,7 @@
       </div>
       <div class="flex gap-2">
         {% if quote.status == 'draft' %}
+        <a href="{{ url_for('quotes.edit_quote', quote_id=quote.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Edit Quote</a>
         <form method="post" action="{{ url_for('quotes.send_quote', quote_id=quote.id) }}">
           <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Send for Approval</button>
         </form>
@@ -39,7 +40,7 @@
               {% for line in item.option.lines %}
               <tr>
                 <td class="px-2 py-2 capitalize">{{ line.line_type }}</td>
-                <td class="px-2 py-2">{{ line.description }}</td>
+                <td class="px-2 py-2">{{ line.description }}{% if line.part %}<div class="text-xs text-slate-500">Part: {{ line.part.sku }}</div>{% endif %}</td>
                 <td class="px-2 py-2">{{ line.quantity }}</td>
                 <td class="px-2 py-2">{{ quote.currency }} {{ '%.2f'|format(line.unit_price) }}</td>
                 <td class="px-2 py-2">{{ quote.currency }} {{ '%.2f'|format((line.quantity * line.unit_price)) }}</td>
@@ -58,7 +59,9 @@
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Quote Snapshot</h2>
         <p class="mt-2 text-xs text-slate-400">Expires: {{ quote.expires_at.strftime('%Y-%m-%d') if quote.expires_at else '—' }}</p>
         <p class="text-xs text-slate-400">Sent: {{ quote.sent_at.strftime('%Y-%m-%d %H:%M') if quote.sent_at else '—' }}</p>
-        <p class="text-xs text-slate-400">Total (max option): {{ quote.currency }} {{ '%.2f'|format(quote_total) }}</p>
+        <p class="text-xs text-slate-400">Subtotal: {{ quote.currency }} {{ '%.2f'|format(quote_total) }}</p>
+        <p class="text-xs text-slate-400">IGIC ({{ '%.0f'|format(igic_rate * 100) }}%): {{ quote.currency }} {{ '%.2f'|format(tax_total) }}</p>
+        <p class="text-xs text-slate-200 font-semibold">Grand total: {{ quote.currency }} {{ '%.2f'|format(grand_total) }}</p>
         <p class="mt-2 text-xs text-slate-500">Terms: {{ quote.terms_snapshot or '—' }}</p>
       </div>
 

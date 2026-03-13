@@ -11,7 +11,14 @@
       <div class="flex gap-2">
         <a href="{{ url_for('intake.intake_receipt', intake_id=intake.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Print Receipt</a>
         {% if not intake.converted_ticket_id %}
-        <form method="post" action="{{ url_for('intake.convert_intake', intake_id=intake.id) }}">
+        <form method="post" action="{{ url_for('intake.convert_intake', intake_id=intake.id) }}" class="flex flex-col gap-2">
+          <select name="assigned_technician_id" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">
+            <option value="">Assign technician (optional)</option>
+            {% for tech in technicians %}<option value="{{ tech.id }}">{{ tech.full_name }}</option>{% endfor %}
+          </select>
+          <input type="datetime-local" name="quoted_completion_at" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200" />
+          <input type="datetime-local" name="sla_target_at" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200" />
+          <p class="text-[11px] text-slate-500">Promised completion is customer-facing. SLA target is internal deadline.</p>
           <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Convert to Ticket</button>
         </form>
         {% else %}

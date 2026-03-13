@@ -47,7 +47,9 @@ def build_ticket_export_payload(ticket: Ticket) -> dict:
         {
             "supplier": o.supplier.name,
             "status": o.status,
-            "eta_date": str(o.eta_date) if o.eta_date else None,
+            "estimated_arrival_at": o.estimated_arrival_at.isoformat() if o.estimated_arrival_at else None,
+            "tracking_number": o.tracking_number,
+            "supplier_reference": o.supplier_reference,
             "reference": o.reference,
         }
         for o in orders
