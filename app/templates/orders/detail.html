@@ -3,8 +3,13 @@
 {% block content %}
 <section class="space-y-4">
   <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
-    <h1 class="text-2xl font-semibold text-white">Order {{ order.reference or order.id }}</h1>
-    <p class="text-sm text-slate-400">Ticket {{ order.ticket.ticket_number }} · Supplier {{ order.supplier.name }} · Status {{ order.status|replace('_',' ') }}</p>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-white">Order {{ order.reference or order.id }}</h1>
+        <p class="text-sm text-slate-400">{{ 'Repair-linked: ' ~ order.ticket.ticket_number if order.ticket else 'General stock order' }} · Supplier {{ order.supplier.name }} · Status {{ order.status|replace('_',' ') }}</p>
+      </div>
+      <a href="{{ url_for('orders.edit_order', order_id=order.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm">Edit</a>
+    </div>
   </div>
 
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -13,33 +18,41 @@
       <div class="mt-3 space-y-2">
         {% for line in order.lines %}
         <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm">
-          <p class="text-white">{{ line.part.sku }} · {{ line.part.name }}</p>
-          <p class="text-xs text-slate-400">Qty {{ line.quantity }} · Unit Cost {{ line.unit_cost or '—' }} · Line State {{ line.status }}</p>
+          <p class="text-white">{{ line.part.sku }} · {{ line.description_override or line.part.name }}</p>
+          <p class="text-xs text-slate-400">Qty {{ line.quantity }} · Received {{ line.received_quantity }} · Remaining {{ line_remaining_qty(line) }} · Unit Cost {{ line.unit_cost or '—' }} · State {{ line.status }}</p>
         </div>
         {% endfor %}
       </div>
+      <p class="mt-3 text-right text-sm font-semibold text-white">Order total: {{ '%.2f'|format(order_total_cost(order)) }}</p>
     </section>
 
     <aside class="space-y-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel text-xs text-slate-300">
+        <p>Ordered at: {{ order.ordered_at.strftime('%Y-%m-%d %H:%M') if order.ordered_at else '—' }}</p>
+        <p>ETA: {{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</p>
+        <p>Tracking: {{ order.tracking_number or '—' }}</p>
+        <p>Supplier ref: {{ order.supplier_reference or '—' }}</p>
+      </div>
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
-        <h2 class="text-sm uppercase tracking-wide text-slate-300">Update Status</h2>
-        <form method="post" class="mt-3 space-y-2">
-          {{ form.hidden_tag() }}
-          {{ form.event_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-          {{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3', placeholder='Notes') }}
-          {{ form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+        <h2 class="text-sm uppercase tracking-wide text-slate-300">Receive Stock</h2>
+        <form method="post" action="{{ url_for('orders.receive_order_line', order_id=order.id) }}" class="mt-3 space-y-2">
+          {{ receive_form.hidden_tag() }}
+          {{ receive_form.line_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+          {{ receive_form.location_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+          {{ receive_form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Qty') }}
+          {{ receive_form.received_note(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Delivery note') }}
+          {{ receive_form.submit(class='rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white') }}
         </form>
       </div>
 
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
-        <h2 class="text-sm uppercase tracking-wide text-slate-300">Status Events</h2>
-        <ul class="mt-2 space-y-2 text-xs text-slate-300">
-          {% for event in order.events %}
-          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2">{{ event.event_type|replace('_',' ') }} · {{ event.occurred_at.strftime('%Y-%m-%d %H:%M') }}{% if event.notes %}<br/><span class="text-slate-500">{{ event.notes }}</span>{% endif %}</li>
-          {% else %}
-          <li class="text-slate-500">No events yet.</li>
-          {% endfor %}
-        </ul>
+        <h2 class="text-sm uppercase tracking-wide text-slate-300">Update Status</h2>
+        <form method="post" class="mt-3 space-y-2">
+          {{ form.hidden_tag() }}
+          {{ form.event_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+          {{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='3') }}
+          {{ form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}
+        </form>
       </div>
     </aside>
   </div>

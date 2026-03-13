@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, DecimalField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, DecimalField, IntegerField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
 
@@ -9,6 +9,8 @@ class PartForm(FlaskForm):
     name = StringField("Part Name", validators=[DataRequired(), Length(max=255)])
     category = StringField("Category", validators=[Optional(), Length(max=120)])
     supplier_sku = StringField("Supplier SKU", validators=[Optional(), Length(max=120)])
+    default_supplier_id = SelectField("Default Supplier", validators=[Optional()], coerce=str)
+    lead_time_days = IntegerField("Lead Time (days)", validators=[Optional(), NumberRange(min=0, max=365)])
     cost_price = DecimalField("Cost Price", validators=[Optional(), NumberRange(min=0)], places=2)
     sale_price = DecimalField("Sale Price", validators=[Optional(), NumberRange(min=0)], places=2)
     serial_tracking = BooleanField("Serial Tracking")

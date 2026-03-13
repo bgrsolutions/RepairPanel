@@ -4,6 +4,7 @@ from flask import Blueprint, render_template
 from flask_login import login_required
 
 from app.models import PartOrder, StockReservation, Ticket
+from app.utils.ticketing import normalize_ticket_status
 
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
@@ -18,7 +19,8 @@ def kpi_dashboard():
     workload = {}
 
     for t in tickets:
-        statuses[t.internal_status] = statuses.get(t.internal_status, 0) + 1
+        normalized = normalize_ticket_status(t.internal_status)
+        statuses[normalized] = statuses.get(normalized, 0) + 1
         branch_key = t.branch.code if t.branch else "UNKNOWN"
         by_branch[branch_key] = by_branch.get(branch_key, 0) + 1
         owner = t.assigned_technician.full_name if t.assigned_technician else "Unassigned"
@@ -40,11 +42,11 @@ def kpi_dashboard():
     )
 
     kpis = {
-        "awaiting_diagnosis": statuses.get("Awaiting Diagnosis", 0),
-        "awaiting_quote_approval": statuses.get("Awaiting Quote Approval", 0),
-        "awaiting_parts": statuses.get("Awaiting Parts", 0),
-        "in_repair": statuses.get("In Repair", 0),
-        "ready_for_collection": statuses.get("Ready for Collection", 0),
+        "awaiting_diagnosis": statuses.get("awaiting_diagnostics", 0),
+        "awaiting_quote_approval": statuses.get("awaiting_quote_approval", 0),
+        "awaiting_parts": statuses.get("awaiting_parts", 0),
+        "in_repair": statuses.get("in_repair", 0),
+        "ready_for_collection": statuses.get("ready_for_collection", 0),
         "overdue": len(aging),
         "quote_approval_rate_placeholder": "--",
         "average_turnaround_placeholder": "--",
