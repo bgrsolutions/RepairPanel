@@ -45,8 +45,10 @@ class QuoteLine(UUIDMixin, TimestampMixin, db.Model):
     description: Mapped[str] = mapped_column(String(255), nullable=False)
     quantity: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False, default=1)
     unit_price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False, default=0)
+    part_id: Mapped[str | None] = mapped_column(ForeignKey("parts.id"), nullable=True, index=True)
 
     option = relationship("QuoteOption", back_populates="lines")
+    part = relationship("Part")
 
 
 class QuoteApproval(UUIDMixin, TimestampMixin, db.Model):

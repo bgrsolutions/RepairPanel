@@ -23,7 +23,8 @@
     {{ stat_card('Awaiting Diagnosis', stats.awaiting_diagnosis, 'Needs technician triage', 'amber') }}
     {{ stat_card('In Repair', stats.in_repair, 'Currently on bench', 'cyan') }}
     {{ stat_card('Ready for Collection', stats.ready_for_collection, 'Awaiting customer pickup', 'emerald') }}
-    {{ stat_card('Aging / Overdue', stats.aging_tickets, 'Older than 5 days (placeholder SLA)', 'rose') }}
+    {{ stat_card('Aging', stats.aging_tickets, '3+ days old and still active', 'amber') }}
+    {{ stat_card('Overdue', stats.overdue_tickets, 'Past SLA target date', 'rose') }}
     {{ stat_card("Today's New", stats.new_today, 'Intakes registered today', 'indigo') }}
     {{ stat_card('Assigned to Techs', technician_workload.assigned, 'Work actively owned', 'cyan') }}
     {{ stat_card('Unassigned', technician_workload.unassigned, 'Needs assignment', 'amber') }}

@@ -36,6 +36,32 @@
         </form>
       {% endcall %}
 
+      {% call section_card('Workflow Status', 'Update ticket operational lifecycle state') %}
+        <form method="post" action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">
+          {{ status_form.hidden_tag() }}
+          <div class="flex-1">
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ status_form.internal_status.label.text }}</label>
+            {{ status_form.internal_status(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+          </div>
+          {{ status_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+        </form>
+      {% endcall %}
+
+      {% call section_card('Ticket Details', 'Issue summary and promised completion') %}
+        <form method="post" action="{{ url_for('tickets.update_ticket_meta', ticket_id=ticket.id) }}" class="space-y-2">
+          {{ meta_form.hidden_tag() }}
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ meta_form.issue_summary.label.text }}</label>
+            {{ meta_form.issue_summary(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}
+          </div>
+          <div>
+            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ meta_form.quoted_completion_at.label.text }}</label>
+            {{ meta_form.quoted_completion_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+          </div>
+          {{ meta_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+        </form>
+      {% endcall %}
+
       {% call section_card('Notes', 'Internal notes, customer notes, and communication logs') %}
         <form method="post" action="{{ url_for('tickets.add_note', ticket_id=ticket.id) }}" class="space-y-2">
           {{ note_form.hidden_tag() }}
@@ -158,12 +184,13 @@
               <p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p>
               <span class="text-xs uppercase text-slate-400">{{ order.status|replace('_',' ') }}</span>
             </div>
-            <p class="text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.eta_date or '—' }}</p>
+            <p class="text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</p>
+            <p class="text-xs text-slate-500">Tracking: {{ order.tracking_number or '—' }} · {{ 'Stock order' if not order.ticket_id else 'Repair order' }}</p>
           </a>
           {% else %}
           <p class="text-sm text-slate-500">No external part orders linked yet.</p>
           {% endfor %}
-          <a href="{{ url_for('orders.new_order') }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700">Create Part Order</a>
+          <a href="{{ url_for('orders.new_order', ticket_id=ticket.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700">Create Part Order</a>
         </div>
       {% endcall %}
     </div>
@@ -184,6 +211,16 @@
           <div><dt class="text-slate-500">Brand / Model</dt><dd class="text-slate-200">{{ ticket.device.brand }} {{ ticket.device.model }}</dd></div>
           <div><dt class="text-slate-500">Serial</dt><dd class="text-slate-200">{{ ticket.device.serial_number or '—' }}</dd></div>
           <div><dt class="text-slate-500">IMEI</dt><dd class="text-slate-200">{{ ticket.device.imei or '—' }}</dd></div>
+        </dl>
+      {% endcall %}
+
+      {% call section_card('SLA') %}
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-slate-500">Created</dt><dd class="text-slate-200">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</dd></div>
+          <div><dt class="text-slate-500">SLA Target</dt><dd class="text-slate-200">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else '—' }}</dd></div>
+          <div><dt class="text-slate-500">Age</dt><dd class="text-slate-200">{{ age_days }} day(s)</dd></div>
+          <div><dt class="text-slate-500">Promised Completion</dt><dd class="text-slate-200">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</dd></div>
+          <div><dt class="text-slate-500">State</dt><dd class="{% if is_overdue %}text-rose-300{% else %}text-emerald-300{% endif %}">{{ 'Overdue' if is_overdue else 'Within SLA' }}</dd></div>
         </dl>
       {% endcall %}
 
