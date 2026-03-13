@@ -17,6 +17,8 @@ class InternalIntakeForm(FlaskForm):
     branch_id = SelectField("Branch", validators=[DataRequired()], coerce=str)
     category = SelectField("Device Category", choices=CATEGORY_CHOICES, validators=[DataRequired()])
 
+    existing_customer_id = HiddenField("Existing Customer")
+    customer_search = StringField("Find Existing Customer", validators=[Optional(), Length(max=255)])
     customer_name = StringField("Customer Name", validators=[DataRequired(), Length(max=120)])
     customer_phone = StringField("Customer Phone", validators=[Optional(), Length(max=50)])
     customer_email = StringField("Customer Email", validators=[Optional(), Email(check_deliverability=False), Length(max=255)])
@@ -42,6 +44,8 @@ class PublicIntakeForm(FlaskForm):
     preferred_language = SelectField("Language", choices=[("en", "English"), ("es", "Español")], default="en")
     category = SelectField("Device Category", choices=CATEGORY_CHOICES, validators=[DataRequired()])
 
+    existing_customer_id = HiddenField("Existing Customer")
+    customer_search = StringField("Find Existing Customer", validators=[Optional(), Length(max=255)])
     customer_name = StringField("Customer Name", validators=[DataRequired(), Length(max=120)])
     customer_phone = StringField("Customer Phone", validators=[DataRequired(), Length(max=50)])
     customer_email = StringField("Customer Email", validators=[Optional(), Email(check_deliverability=False), Length(max=255)])

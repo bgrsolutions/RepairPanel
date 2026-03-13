@@ -8,7 +8,7 @@ from flask_login import login_required
 
 from app.extensions import db
 from app.forms.order_forms import PartOrderCreateForm, PartOrderStatusForm, ReceiveOrderLineForm
-from app.models import Branch, Part, PartOrder, PartOrderLine, StockLocation, Supplier, Ticket
+from app.models import Branch, Customer, Part, PartOrder, PartOrderLine, StockLocation, Supplier, Ticket
 from app.services.inventory_service import apply_stock_movement
 from app.services.order_service import append_order_event, line_remaining_qty, order_total_cost
 
@@ -77,6 +77,20 @@ def _save_order_from_form(order: PartOrder, form: PartOrderCreateForm):
                 status=order.status,
             )
         )
+
+
+@orders_bp.get("/ticket-search")
+@login_required
+def ticket_search():
+    q=(request.args.get("q") or "").strip()
+    if len(q)<2:
+        return {"items": []}
+    from sqlalchemy import or_
+    like=f"%{q}%"
+    rows=Ticket.query.filter(Ticket.deleted_at.is_(None)).join(Customer, Ticket.customer_id==Customer.id).filter(
+        or_(Ticket.ticket_number.ilike(like), Customer.full_name.ilike(like), Customer.email.ilike(like))
+    ).order_by(Ticket.created_at.desc()).limit(25).all()
+    return {"items": [{"id": str(t.id), "label": f"{t.ticket_number} · {t.customer.full_name}"} for t in rows]}
 
 
 @orders_bp.get("/")

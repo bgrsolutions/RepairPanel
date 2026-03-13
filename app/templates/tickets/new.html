@@ -21,12 +21,8 @@
         </div>
         <div>
           <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">Find Customer</label>
-          <input id="customer-search" list="customer-options" type="text" placeholder="Type customer name, phone, or email" class="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100" />
-          <datalist id="customer-options">
-            {% for value, label in form.customer_id.choices %}
-              <option data-id="{{ value }}" value="{{ label }}"></option>
-            {% endfor %}
-          </datalist>
+          <input id="customer-search" type="text" placeholder="Type customer name, phone, or email" class="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100" />
+          <div id="customer-results" class="mt-2 space-y-1"></div>
           {{ form.customer_id(id='customer-select', class='mt-2 w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
         </div>
       </div>
@@ -59,14 +55,23 @@
 </section>
 <script>
   const customerSearch = document.getElementById('customer-search');
+  const customerResults = document.getElementById('customer-results');
   const customerSelect = document.getElementById('customer-select');
   const deviceSelect = document.getElementById('device-select');
 
-  customerSearch?.addEventListener('change', () => {
-    const match = [...document.querySelectorAll('#customer-options option')].find(o => o.value === customerSearch.value);
-    if (match?.dataset.id) {
-      customerSelect.value = match.dataset.id;
-      loadDevices(match.dataset.id);
+  customerSearch?.addEventListener('input', async () => {
+    const q = customerSearch.value.trim();
+    customerResults.innerHTML = '';
+    if (q.length < 2) return;
+    const response = await fetch(`/tickets/customer-search?q=${encodeURIComponent(q)}`);
+    const data = await response.json();
+    for (const item of data.items) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'block w-full text-left rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs hover:bg-slate-800';
+      btn.textContent = item.label;
+      btn.onclick = () => { customerSelect.value = item.id; loadDevices(item.id); customerResults.innerHTML=''; };
+      customerResults.appendChild(btn);
     }
   });
 

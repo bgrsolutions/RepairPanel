@@ -23,6 +23,20 @@
           <p class="mt-1 text-xs text-slate-500">{{ device.category|replace('_', ' ')|title }}</p>
           <p class="text-xs text-slate-400">Serial: {{ device.serial_number or '—' }}</p>
           <p class="text-xs text-slate-400">IMEI: {{ device.imei or '—' }}</p>
+          <div class="mt-2 flex gap-2">
+            <form method="post" action="{{ url_for('customers.unlink_device', device_id=device.id) }}">
+              <input type="hidden" name="redirect_customer_id" value="{{ customer.id }}" />
+              <button class="rounded border border-rose-700 bg-rose-950 px-2 py-1 text-xs">Unlink</button>
+            </form>
+            <form method="post" action="{{ url_for('customers.transfer_device', device_id=device.id) }}" class="flex gap-1">
+              <input type="hidden" name="redirect_customer_id" value="{{ customer.id }}" />
+              <select name="target_customer_id" class="rounded border border-slate-700 bg-slate-800 px-1 py-1 text-xs">
+                <option value="">Transfer to…</option>
+                {% for c in customer_choices %}<option value="{{ c.id }}">{{ c.full_name }}</option>{% endfor %}
+              </select>
+              <button class="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs">Move</button>
+            </form>
+          </div>
         </div>
         {% else %}
         <div class="rounded-lg border border-dashed border-slate-700 bg-slate-900 p-4 text-sm text-slate-500">No devices linked yet.</div>
@@ -33,19 +47,12 @@
     <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel lg:col-span-2">
       <div class="mb-3 flex items-center justify-between">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Repair History</h2>
-        <a href="{{ url_for('tickets.list_tickets') }}" class="text-xs text-indigo-300 hover:text-indigo-200">All Tickets</a>
       </div>
       {% if tickets %}
       <div class="overflow-x-auto">
         <table class="min-w-full text-left text-sm text-slate-200">
           <thead class="text-xs uppercase tracking-wide text-slate-400">
-            <tr>
-              <th class="px-3 py-2">Ticket</th>
-              <th class="px-3 py-2">Device</th>
-              <th class="px-3 py-2">Status</th>
-              <th class="px-3 py-2">Priority</th>
-              <th class="px-3 py-2">Created</th>
-            </tr>
+            <tr><th class="px-3 py-2">Ticket</th><th class="px-3 py-2">Device</th><th class="px-3 py-2">Status</th><th class="px-3 py-2">Priority</th><th class="px-3 py-2">Fitted Parts</th><th class="px-3 py-2">Created</th></tr>
           </thead>
           <tbody class="divide-y divide-slate-800">
             {% for ticket in tickets %}
@@ -54,15 +61,14 @@
               <td class="px-3 py-3 text-slate-400">{{ ticket.device.brand }} {{ ticket.device.model }}</td>
               <td class="px-3 py-3">{{ status_badge(ticket.internal_status) }}</td>
               <td class="px-3 py-3">{{ priority_badge(ticket.priority) }}</td>
-              <td class="px-3 py-3 text-slate-500">{{ ticket.created_at.strftime('%Y-%m-%d') }}</td>
+              <td class="px-3 py-3 text-xs text-slate-400">{{ fitted_parts[ticket.id|string]|join(', ') or '—' }}</td>
+              <td class="px-3 py-3 text-slate-500">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-      {% else %}
-      <div class="rounded-lg border border-dashed border-slate-700 bg-slate-900 p-4 text-sm text-slate-500">No repair history yet.</div>
-      {% endif %}
+      {% else %}<p class="text-sm text-slate-500">No repair history yet.</p>{% endif %}
     </section>
   </div>
 </section>

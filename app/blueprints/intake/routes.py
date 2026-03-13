@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from app.extensions import db
 from app.forms.intake_forms import InternalIntakeForm
@@ -72,6 +73,31 @@ def list_intakes():
     return render_template("intake/list.html", intakes=intakes)
 
 
+
+
+@intake_bp.get('/customer-search')
+@login_required
+def customer_search():
+    q = (request.args.get('q') or '').strip()
+    if len(q) < 2:
+        return {"items": []}
+    like = f"%{q}%"
+    rows = Customer.query.filter(
+        Customer.deleted_at.is_(None),
+        or_(Customer.full_name.ilike(like), Customer.email.ilike(like), Customer.phone.ilike(like)),
+    ).order_by(Customer.full_name.asc()).limit(25).all()
+    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ''}"} for c in rows]}
+
+
+
+@intake_bp.get('/customer/<uuid:customer_id>')
+@login_required
+def customer_detail_json(customer_id):
+    customer = Customer.query.filter(Customer.id == customer_id, Customer.deleted_at.is_(None)).first()
+    if not customer:
+        return {"ok": False}, 404
+    return {"ok": True, "id": str(customer.id), "full_name": customer.full_name, "phone": customer.phone or "", "email": customer.email or ""}
+
 @intake_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def new_intake():
@@ -80,13 +106,16 @@ def new_intake():
 
     if form.validate_on_submit():
         branch = db.session.get(Branch, uuid.UUID(str(form.branch_id.data)))
-        customer = _find_or_create_customer(
-            name=form.customer_name.data,
-            phone=form.customer_phone.data,
-            email=form.customer_email.data,
-            language=getattr(current_user, "preferred_language", "en") or "en",
-            branch=branch,
-        )
+        existing_customer_id = form.existing_customer_id.data
+        customer = db.session.get(Customer, uuid.UUID(existing_customer_id)) if existing_customer_id else None
+        if customer is None:
+            customer = _find_or_create_customer(
+                name=form.customer_name.data,
+                phone=form.customer_phone.data,
+                email=form.customer_email.data,
+                language=getattr(current_user, "preferred_language", "en") or "en",
+                branch=branch,
+            )
         device = _find_or_create_device(
             customer=customer,
             category=form.category.data,

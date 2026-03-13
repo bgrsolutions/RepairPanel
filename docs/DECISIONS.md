@@ -65,3 +65,15 @@
 - **Context**: Receiving must preserve inventory auditability and cannot rely on silent quantity changes.
 - **Decision**: Implement receiving against order lines using explicit inbound stock movements, line `received_quantity`, and derived order status transitions (`partially_received` / `received`).
 - **Consequences**: Inventory integrity is preserved with traceable movement history; order progress reflects real-world partial deliveries and remains extensible for richer ASN/packing-slip flows later.
+
+## ADR-012: Public Intake Uses Exact-Match Customer Linking
+- **Status**: Accepted
+- **Context**: Public intake should reduce duplicate customers without becoming a discoverable public customer lookup channel.
+- **Decision**: Only perform public customer linkage on strict exact-match email/phone criteria (with minimal format/length sanity checks); otherwise create new intake customer data.
+- **Consequences**: Maintains privacy-safe behavior while reducing duplicate records and preserving staff-side relinking control during internal conversion review.
+
+## ADR-013: Device Ownership Reassignment Preserves Historical Ticket Integrity
+- **Status**: Accepted
+- **Context**: Devices can change ownership over time, but past repairs must remain auditable by original ticket/customer context.
+- **Decision**: Allow current device owner transfer/unlink actions by updating `Device.customer_id` for future workflows, while keeping historical tickets unchanged (`Ticket.customer_id` remains immutable historical reference).
+- **Consequences**: Supports real ownership lifecycle operations without rewriting historical repair accountability.

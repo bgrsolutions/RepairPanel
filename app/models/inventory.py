@@ -15,11 +15,15 @@ class Part(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     category: Mapped[str | None] = mapped_column(String(120), nullable=True)
     supplier_sku: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    default_supplier_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("suppliers.id"), nullable=True, index=True)
+    lead_time_days: Mapped[int | None] = mapped_column(nullable=True)
     cost_price: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     sale_price: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     serial_tracking: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    default_supplier = relationship("Supplier")
 
 
 class StockLocation(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):

@@ -129,3 +129,16 @@
 - Global and ticket-context order creation now uses explicit ticket selection (optional) to prevent stale/incorrect ticket associations.
 - Order list/detail screens now expose repair-vs-stock context, ETA/tracking metadata, and overdue operational visibility.
 - Intake conversion now supports optional technician assignment and promised completion datetime propagation into created tickets.
+
+## [0.6.3] - 2026-03-13
+### Added
+- Unified internal searchable lookup endpoints for customers/tickets/parts to support intake, ticket creation, reservations, and order workflows without long static dropdown scrolling.
+- Internal intake existing-customer search/select flow with safe prefill and persisted `existing_customer_id` linking behavior.
+- Device ownership lifecycle actions in customer profile for transfer-to-another-customer and unlink operations while preserving historical ticket ownership context.
+- Pass C automated coverage for unified search endpoints, public exact-match intake linking behavior, and device transfer/unlink workflows.
+
+### Changed
+- Public check-in customer matching now uses explicit exact-match policy for email/phone before creating a new customer, without exposing customer directory data publicly.
+- Ticket create and part-order create screens now use server-backed search suggestion patterns for customer/ticket lookup consistency.
+- Ticket detail reserve-part workflow now includes searchable part lookup and improved ordered-part ETA/tracking visibility cues.
+- Parts catalog now surfaces operational supplier + lead-time + stock availability context for better procurement decisions.

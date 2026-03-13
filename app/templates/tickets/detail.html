@@ -9,6 +9,7 @@
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
         <p class="mt-1 text-sm text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+        {% if ticket.issue_summary %}<p class="mt-2 text-sm text-slate-300">{{ ticket.issue_summary }}</p>{% endif %}
       </div>
       <div class="flex flex-wrap gap-2">
         {{ status_badge(ticket.internal_status) }}
@@ -159,7 +160,7 @@
       {% call section_card('Reserved Parts', 'Reserve in-stock parts against this ticket') %}
         <form method="post" action="{{ url_for('tickets.reserve_part', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-2 md:grid-cols-3">
           {{ reservation_form.hidden_tag() }}
-          <div>{{ reservation_form.part_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+          <div><input type='text' id='reserve-part-search' placeholder='Search part name/SKU/barcode' class='mb-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200'/>{{ reservation_form.part_id(id='reserve-part-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
           <div>{{ reservation_form.location_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
           <div>{{ reservation_form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Qty') }}</div>
           <div class="md:col-span-3">{{ reservation_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
@@ -227,10 +228,19 @@
       {% call section_card('Activity Sidebar') %}
         <ul class="space-y-2 text-xs text-slate-400">
           <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Assignment, notes, reservations, and orders are now operationally visible.</li>
-          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Arrived vs installed ordered-part states are tracked separately.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Ordered part ETAs and tracking are shown in the ordered-parts section for quick arrival visibility.</li>
         </ul>
       {% endcall %}
     </aside>
   </div>
 </section>
+<script>
+const reserveSearch=document.getElementById('reserve-part-search');
+reserveSearch?.addEventListener('input', async ()=>{
+ const q=reserveSearch.value.trim(); if(q.length<2) return;
+ const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+ const sel=document.getElementById('reserve-part-select'); sel.innerHTML='';
+ for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; sel.appendChild(o);}
+});
+</script>
 {% endblock %}

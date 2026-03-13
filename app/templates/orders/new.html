@@ -6,7 +6,12 @@
   <form method="post" class="space-y-3">
     {{ form.hidden_tag() }}
     <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <div>{{ form.ticket_id.label(class='text-xs text-slate-400') }}{{ form.ticket_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>
+        <label class='text-xs text-slate-400'>Search Ticket (optional)</label>
+        <input id="ticket-search" type="text" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" placeholder="Ticket #, customer name, email" />
+        <div id="ticket-results" class="mt-1 space-y-1"></div>
+        {{ form.ticket_id(class='mt-2 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+      </div>
       <div>{{ form.supplier_id.label(class='text-xs text-slate-400') }}{{ form.supplier_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
       <div>{{ form.branch_id.label(class='text-xs text-slate-400') }}{{ form.branch_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
       <div>{{ form.status.label(class='text-xs text-slate-400') }}{{ form.status(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
@@ -20,16 +25,46 @@
 
     <h2 class="text-sm font-semibold text-slate-300">Order Lines</h2>
     {% for line in form.lines %}
-    <div class="grid grid-cols-1 gap-2 md:grid-cols-5 rounded-xl border border-slate-800 bg-slate-900 p-3">
-      <div>{{ line.form.part_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm') }}</div>
-      <div>{{ line.form.description_override(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm', placeholder='Description override') }}</div>
-      <div>{{ line.form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm', placeholder='Supplier SKU') }}</div>
-      <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm', placeholder='Qty') }}</div>
-      <div>{{ line.form.unit_cost(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm', placeholder='Unit cost') }}</div>
+    <div class="order-line grid grid-cols-1 gap-2 md:grid-cols-5 rounded-xl border border-slate-800 bg-slate-900 p-3 {% if loop.index > 3 and mode != 'edit' %}hidden{% endif %}">
+      <div>
+        <input type="text" class="part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Search part" />
+        {{ line.form.part_id(class='part-select mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}
+      </div>
+      <div>{{ line.form.description_override(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description override') }}</div>
+      <div>{{ line.form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Supplier SKU') }}</div>
+      <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
+      <div>{{ line.form.unit_cost(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit cost') }}</div>
     </div>
     {% endfor %}
 
+    <button type="button" id="add-line" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">+ Add Line</button>
     {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
   </form>
 </section>
+<script>
+const ticketSearch=document.getElementById('ticket-search');
+const ticketResults=document.getElementById('ticket-results');
+const ticketSelect=document.getElementById('ticket_id');
+ticketSearch?.addEventListener('input', async ()=>{
+  const q=ticketSearch.value.trim(); ticketResults.innerHTML=''; if(q.length<2) return;
+  const data=await (await fetch(`/orders/ticket-search?q=${encodeURIComponent(q)}`)).json();
+  for(const item of data.items){const b=document.createElement('button'); b.type='button'; b.className='block w-full text-left rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs'; b.textContent=item.label; b.onclick=()=>{ticketSelect.value=item.id; ticketResults.innerHTML='';}; ticketResults.appendChild(b);} 
+});
+
+document.querySelectorAll('.part-search').forEach(input=>{
+  input.addEventListener('input', async ()=>{
+    const q=input.value.trim(); if(q.length<2) return;
+    const row=input.closest('.order-line'); const select=row.querySelector('.part-select');
+    const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+    select.innerHTML='';
+    for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);} 
+  });
+});
+
+const addBtn=document.getElementById('add-line');
+addBtn?.addEventListener('click', ()=>{
+  const hidden=document.querySelector('.order-line.hidden');
+  if(hidden) hidden.classList.remove('hidden');
+});
+</script>
 {% endblock %}

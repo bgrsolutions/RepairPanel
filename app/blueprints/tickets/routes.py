@@ -46,6 +46,18 @@ def list_tickets():
     return render_template("tickets/list.html", tickets=tickets, is_ticket_overdue=is_ticket_overdue, ticket_age_days=ticket_age_days)
 
 
+@tickets_bp.get("/customer-search")
+@login_required
+def customer_search():
+    q=(request.args.get("q") or "").strip()
+    if len(q)<2:
+        return {"items": []}
+    from sqlalchemy import or_
+    like=f"%{q}%"
+    rows=Customer.query.filter(Customer.deleted_at.is_(None), or_(Customer.full_name.ilike(like), Customer.email.ilike(like), Customer.phone.ilike(like))).order_by(Customer.full_name.asc()).limit(25).all()
+    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ""}"} for c in rows]}
+
+
 @tickets_bp.get("/customer/<uuid:customer_id>/devices")
 @login_required
 def customer_devices(customer_id):
