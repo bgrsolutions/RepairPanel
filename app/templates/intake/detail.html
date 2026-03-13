@@ -74,7 +74,12 @@
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Conversion Status</h2>
         {% if intake.converted_ticket_id %}
           <p class="mt-2 text-sm text-emerald-300">Converted to ticket.</p>
-          <a href="{{ url_for('tickets.ticket_detail', ticket_id=intake.converted_ticket_id) }}" class="mt-3 inline-flex rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500">Open Created Ticket</a>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <a href="{{ url_for('tickets.ticket_detail', ticket_id=intake.converted_ticket_id) }}" class="inline-flex rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500">Open Created Ticket</a>
+            {% if intake.customer_id %}
+            <a href="{{ url_for('tickets.create_ticket', customer_id=intake.customer_id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Add Another Device / Ticket</a>
+            {% endif %}
+          </div>
         {% else %}
           <p class="mt-2 text-sm text-slate-400">Not converted yet.</p>
         {% endif %}

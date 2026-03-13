@@ -13,23 +13,27 @@
       <div>{{ form.currency.label(class='text-xs text-slate-400') }}{{ form.currency(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
       <div>{{ form.language.label(class='text-xs text-slate-400') }}{{ form.language(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
       <div>{{ form.expires_at.label(class='text-xs text-slate-400') }}{{ form.expires_at(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
     </div>
     <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
 
     {% for option in form.options %}
-    <section class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
-      <h2 class="text-sm font-semibold text-slate-300">Repair Section {{ loop.index }}</h2>
-      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Section title (e.g. Standard Repair)') }}
-      <div class="quote-lines" data-option-index="{{ loop.index0 }}">
+    <section class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3">
+      <h2 class="text-sm font-semibold text-slate-300">Repair Option {{ loop.index }}</h2>
+      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Option name (e.g. Standard Repair)') }}
+
+      <div class="quote-lines space-y-2" data-option-index="{{ loop.index0 }}">
       {% for line in option.form.lines %}
-      <div class="quote-line grid grid-cols-1 gap-2 md:grid-cols-6 rounded border border-slate-800 bg-slate-950 p-2">
-        <div>{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-        <div><input type='text' class='quote-part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs' placeholder='Search part' />{{ line.form.linked_part_id(class='quote-part mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-        <div>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description') }}</div>
-        <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
-        <div>{{ line.form.unit_price(class='quote-unit w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
-        <button type="button" class="remove-quote-line rounded border border-rose-800 bg-rose-950 px-2 py-1 text-xs text-rose-200">Remove</button>
+      <div class="quote-line rounded border border-slate-800 bg-slate-950 p-2">
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-12">
+          <div class="md:col-span-2"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Type</label>{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
+          <div class="md:col-span-3"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Part search</label><input type="text" class="quote-part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Search part" /></div>
+          <div class="md:col-span-3"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Part link (optional)</label>{{ line.form.linked_part_id(class='quote-part w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
+          <div class="md:col-span-4"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Description</label>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Line description') }}</div>
+          <div class="md:col-span-2"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Qty</label>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
+          <div class="md:col-span-3"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Unit price</label>{{ line.form.unit_price(class='quote-unit w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
+          <div class="md:col-span-2 flex items-end"><button type="button" class="remove-quote-line w-full rounded border border-rose-800 bg-rose-950 px-2 py-2 text-xs text-rose-200">Remove</button></div>
+        </div>
       </div>
       {% endfor %}
       </div>
@@ -47,7 +51,7 @@ function reindexOptionLines(optionWrap){
   const optionIndex = Number(optionWrap.dataset.optionIndex);
   const lines = [...optionWrap.querySelectorAll('.quote-line')];
   lines.forEach((line, idx)=>{
-    line.querySelectorAll('input,select,textarea').forEach(el=>{
+    line.querySelectorAll('input,select,textarea').forEach((el)=>{
       if(el.name) el.name = el.name.replace(new RegExp(`options-${optionIndex}-lines-\\d+-`), `options-${optionIndex}-lines-${idx}-`);
       if(el.id) el.id = el.id.replace(new RegExp(`options-${optionIndex}-lines-\\d+-`), `options-${optionIndex}-lines-${idx}-`);
     });
@@ -55,33 +59,38 @@ function reindexOptionLines(optionWrap){
 }
 
 function bindPartSearch(scope=document){
-  scope.querySelectorAll('.quote-part-search').forEach(input=>{
-    if (input.dataset.bound==='1') return;
-    input.dataset.bound='1';
+  scope.querySelectorAll('.quote-part-search').forEach((input)=>{
+    if (input.dataset.bound === '1') return;
+    input.dataset.bound = '1';
     input.addEventListener('input', async ()=>{
-      const q=input.value.trim();
-      if (q.length<2) return;
-      const line=input.closest('.quote-line');
-      const sel=line.querySelector('.quote-part');
-      const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
-      const previous = sel.value;
-      sel.innerHTML='<option value="">-- No linked part --</option>';
-      for (const item of data.items){ const o=document.createElement('option'); o.value=item.id; o.textContent=item.label; sel.appendChild(o); }
-      if (previous) sel.value = previous;
+      const q = input.value.trim();
+      if (q.length < 2) return;
+      const line = input.closest('.quote-line');
+      const select = line.querySelector('.quote-part');
+      const current = select.value;
+      const data = await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+      select.innerHTML = '<option value="">-- No linked part --</option>';
+      for (const item of data.items) {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.label;
+        select.appendChild(option);
+      }
+      if (current) select.value = current;
     });
   });
 }
 
 function wireRemove(scope=document){
-  scope.querySelectorAll('.remove-quote-line').forEach(btn=>{
-    if(btn.dataset.wired==='1') return;
-    btn.dataset.wired='1';
+  scope.querySelectorAll('.remove-quote-line').forEach((btn)=>{
+    if (btn.dataset.wired === '1') return;
+    btn.dataset.wired = '1';
     btn.addEventListener('click', ()=>{
       const wrap = btn.closest('.quote-lines');
       const rows = wrap.querySelectorAll('.quote-line');
-      if(rows.length===1){
-        rows[0].querySelectorAll('input').forEach(i=>i.value='');
-        rows[0].querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+      if (rows.length === 1) {
+        rows[0].querySelectorAll('input, textarea').forEach((i)=>{ i.value = ''; });
+        rows[0].querySelectorAll('select').forEach((s)=>{ s.selectedIndex = 0; });
         return;
       }
       btn.closest('.quote-line').remove();
@@ -91,40 +100,48 @@ function wireRemove(scope=document){
 }
 
 function wirePartAutofill(scope=document){
-  scope.querySelectorAll('.quote-part').forEach(sel=>{
-    if(sel.dataset.wired==='1') return;
-    sel.dataset.wired='1';
-    sel.addEventListener('change', async ()=>{
-      const partId = sel.value;
-      if(!partId) return;
-      const line = sel.closest('.quote-line');
+  scope.querySelectorAll('.quote-part').forEach((select)=>{
+    if (select.dataset.wired === '1') return;
+    select.dataset.wired = '1';
+    select.addEventListener('change', async ()=>{
+      const partId = select.value;
+      if (!partId) return;
+      const line = select.closest('.quote-line');
       const unit = line.querySelector('.quote-unit');
-      if(unit.dataset.manual !== '1'){ // update unless manually overridden
-        const data = await (await fetch(`/quotes/part-price/${partId}`)).json();
-        if(data.ok){ unit.value = data.sale_price; }
-      }
+      if (unit.dataset.manual === '1') return;
+      const data = await (await fetch(`/quotes/part-price/${partId}`)).json();
+      if (data.ok) unit.value = data.sale_price;
     });
   });
-  scope.querySelectorAll('.quote-unit').forEach(inp=>{
-    if(inp.dataset.wiredManual==='1') return;
-    inp.dataset.wiredManual='1';
-    inp.addEventListener('input', ()=>{ inp.dataset.manual='1'; });
+  scope.querySelectorAll('.quote-unit').forEach((input)=>{
+    if (input.dataset.wiredManual === '1') return;
+    input.dataset.wiredManual = '1';
+    input.addEventListener('input', ()=>{ input.dataset.manual = '1'; });
   });
 }
 
-document.querySelectorAll('.add-quote-line').forEach(btn=>{
+document.querySelectorAll('.add-quote-line').forEach((btn)=>{
   btn.addEventListener('click', ()=>{
-    const optionSection = btn.closest('section');
-    const optionWrap = optionSection.querySelector('.quote-lines');
-    const lines = optionWrap.querySelectorAll('.quote-line');
-    const clone = lines[lines.length-1].cloneNode(true);
-    clone.querySelectorAll('input').forEach(i=> {i.value=''; i.dataset.manual='';});
-    clone.querySelectorAll('select').forEach(s=> s.selectedIndex=0);
-    optionWrap.appendChild(clone);
-    reindexOptionLines(optionWrap);
-    wirePartAutofill(clone);
-    wireRemove(clone);
+    const section = btn.closest('section');
+    const wrap = section.querySelector('.quote-lines');
+    const rows = wrap.querySelectorAll('.quote-line');
+    const clone = rows[rows.length - 1].cloneNode(true);
+    clone.querySelectorAll('input, textarea').forEach((el)=>{
+      el.value = '';
+      delete el.dataset.bound;
+      delete el.dataset.manual;
+      delete el.dataset.wiredManual;
+    });
+    clone.querySelectorAll('select').forEach((el)=>{
+      el.selectedIndex = 0;
+      delete el.dataset.wired;
+    });
+    clone.querySelectorAll('button').forEach((el)=>{ delete el.dataset.wired; });
+    wrap.appendChild(clone);
+    reindexOptionLines(wrap);
     bindPartSearch(clone);
+    wireRemove(clone);
+    wirePartAutofill(clone);
   });
 });
 

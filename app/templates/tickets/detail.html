@@ -8,7 +8,10 @@
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
-        <p class="mt-1 text-sm text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+        <p class="mt-1 text-sm text-slate-400">
+          <a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a>
+          · {{ ticket.device.brand }} {{ ticket.device.model }}
+        </p>
         {% if ticket.issue_summary %}<p class="mt-2 text-sm text-slate-300">{{ ticket.issue_summary }}</p>{% endif %}
       </div>
       <div class="flex flex-wrap gap-2 lg:justify-end">
@@ -47,16 +50,77 @@
         {% for note in notes %}
         {% set cls = 'border-slate-800 bg-slate-900 text-slate-200' %}
         {% if note.note_type == 'internal' %}{% set cls = 'border-blue-800/70 bg-blue-950/30 text-blue-100' %}{% endif %}
-        {% if note.note_type == 'customer' or note.note_type == 'customer_update' %}{% set cls = 'border-emerald-800/70 bg-emerald-950/30 text-emerald-100' %}{% endif %}
+        {% if note.note_type in ['customer', 'customer_update'] %}{% set cls = 'border-emerald-800/70 bg-emerald-950/30 text-emerald-100' %}{% endif %}
         {% if note.note_type == 'communication' %}{% set cls = 'border-amber-800/70 bg-amber-950/30 text-amber-100' %}{% endif %}
         <article class="rounded-lg border p-3 {{ cls }}">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-xs uppercase tracking-wide">{{ note.note_type|replace('_',' ') }}</span>
+            <span class="text-xs uppercase tracking-wide">{{ note.note_type|replace('_', ' ') }}</span>
             <span class="text-xs opacity-70">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
           </div>
           <p class="mt-1 text-sm">{{ note.content }}</p>
         </article>
         {% else %}<p class="text-sm text-slate-500">No notes yet.</p>{% endfor %}
+      </div>
+      {% endcall %}
+    </div>
+
+    <aside class="space-y-4">
+      {% call section_card('Technician & Workflow') %}
+      <p class="mb-2 text-xs text-slate-500">Keep assignment and status updates in one compact panel.</p>
+      <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="space-y-2">
+        {{ assignment_form.hidden_tag() }}
+        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="assigned_technician_id">Assigned technician</label>
+        {{ assignment_form.assigned_technician_id(id='assigned_technician_id', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}
+        {{ assignment_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white') }}
+      </form>
+      <form method="post" action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" class="space-y-2 pt-2">
+        {{ status_form.hidden_tag() }}
+        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="internal_status">Workflow status</label>
+        {{ status_form.internal_status(id='internal_status', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}
+        {{ status_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white') }}
+      </form>
+      {% endcall %}
+
+      {% call section_card('SLA & Promise') %}
+      <dl class="space-y-2 text-sm">
+        <div>
+          <dt class="text-slate-500">SLA target</dt>
+          <dd class="text-slate-200">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else 'Not set' }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Promised completion</dt>
+          <dd class="text-slate-200">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else 'Not set' }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Ticket age</dt>
+          <dd class="text-slate-200">{{ age_days }} days{% if is_overdue %} · <span class="text-rose-300">Overdue SLA</span>{% endif %}</dd>
+        </div>
+      </dl>
+      <a href="{{ url_for('tickets.create_ticket', customer_id=ticket.customer_id) }}" class="mt-3 inline-flex rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Create another ticket for this customer</a>
+      {% endcall %}
+
+      {% call section_card('Quotes') %}
+      <div class="space-y-2">
+        {% for item in quote_summaries %}
+        <a href="{{ url_for('quotes.quote_detail', quote_id=item.quote.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-3 hover:border-slate-700">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>v{{ item.quote.version }}</span>
+            <span>{{ item.quote.status|replace('_', ' ')|title }}</span>
+          </div>
+          <p class="mt-1 text-sm font-semibold text-white">Quote total: {{ '%.2f'|format(item.quote_total) }}</p>
+        </a>
+        {% else %}<p class="text-sm text-slate-500">No quotes yet.</p>{% endfor %}
+      </div>
+      {% endcall %}
+
+      {% call section_card('Reserved Parts', 'Allocated stock for this ticket') %}
+      <div class="space-y-2">
+        {% for reservation in reservations %}
+        <article class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+          <p class="text-sm font-semibold text-white">{{ reservation.part.sku }} · {{ reservation.part.name }}</p>
+          <p class="text-xs text-slate-400">Qty {{ reservation.quantity }} · {{ reservation.location.code if reservation.location else 'No location' }}</p>
+        </article>
+        {% else %}<p class="text-sm text-slate-500">No reserved parts.</p>{% endfor %}
       </div>
       {% endcall %}
 
@@ -65,56 +129,131 @@
         {% for order in orders %}
         {% set overdue_order = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}
         <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border {% if overdue_order %}border-rose-700/70{% else %}border-slate-800{% endif %} bg-slate-900 p-3 hover:border-slate-700">
-          <div class="flex items-center justify-between gap-2"><p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p><span class="text-xs uppercase {% if order.status in ['received'] %}text-emerald-300{% elif overdue_order %}text-rose-300{% else %}text-slate-400{% endif %}">{{ order.status|replace('_',' ') }}</span></div>
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p>
+            <span class="text-xs uppercase {% if order.status in ['received'] %}text-emerald-300{% elif overdue_order %}text-rose-300{% else %}text-slate-400{% endif %}">{{ order.status|replace('_',' ') }}</span>
+          </div>
           <p class="mt-1 text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</p>
         </a>
         {% else %}<p class="text-sm text-slate-500">No linked orders yet.</p>{% endfor %}
       </div>
       {% endcall %}
-    </div>
-
-    <aside class="space-y-4">
-      {% call section_card('Technician & Workflow') %}
-      <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="space-y-2">{{ assignment_form.hidden_tag() }}{{ assignment_form.assigned_technician_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ assignment_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white') }}</form>
-      <form method="post" action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" class="space-y-2 mt-2">{{ status_form.hidden_tag() }}{{ status_form.internal_status(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ status_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white') }}</form>
-      {% endcall %}
-
-      {% call section_card('SLA') %}
-      <dl class="space-y-2 text-sm">
-        <div><dt class="text-slate-500">SLA Target</dt><dd class="text-slate-200">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else '—' }}</dd></div>
-        <div><dt class="text-slate-500">Promised</dt><dd class="text-slate-200">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</dd></div>
-        <div><dt class="text-slate-500">State</dt><dd class="{% if is_overdue %}text-rose-300{% else %}text-emerald-300{% endif %}">{{ 'Overdue' if is_overdue else 'Within SLA' }}</dd></div>
-      </dl>
-      {% endcall %}
-
-      {% call section_card('Quotes') %}
-      <div class="space-y-2">
-        {% for qs in quote_summaries %}
-        <a href="{{ url_for('quotes.quote_detail', quote_id=qs.quote.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs text-slate-300">v{{ qs.quote.version }} · {{ qs.quote.status }} · {{ qs.quote.currency }} {{ '%.2f'|format(qs.quote_total) }}</a>
-        {% else %}<p class="text-sm text-slate-500">No quotes yet.</p>{% endfor %}
-      </div>
-      {% endcall %}
-
-      {% call section_card('Reserved Parts') %}
-      <div class="space-y-2">
-        {% for reservation in reservations %}
-          <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm"><p class="text-slate-100">{{ reservation.part.sku }} · {{ reservation.part.name }}</p><p class="text-xs text-slate-400">Qty: {{ reservation.quantity }} · {{ reservation.location.code }} · {{ reservation.status }}</p></div>
-        {% else %}<p class="text-sm text-slate-500">No reservations yet.</p>{% endfor %}
-      </div>
-      {% endcall %}
     </aside>
   </div>
 
-  <dialog id="meta-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Edit ticket details</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('tickets.update_ticket_meta', ticket_id=ticket.id) }}" class="space-y-2 p-4">{{ meta_form.hidden_tag() }}{{ meta_form.issue_summary(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}{{ meta_form.quoted_completion_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}{{ meta_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}</form></dialog>
-  <dialog id="note-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Add note</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('tickets.add_note', ticket_id=ticket.id) }}" class="space-y-2 p-4">{{ note_form.hidden_tag() }}{{ note_form.note_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}{{ note_form.content(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='4') }}{{ note_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}</form></dialog>
-  <dialog id="diag-modal" class="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Add diagnostics</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('diagnostics.save_ticket_diagnostic', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-2 p-4">{{ diagnostic_form.hidden_tag() }}{{ diagnostic_form.customer_reported_fault(class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}{{ diagnostic_form.technician_diagnosis(class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}{{ diagnostic_form.recommended_repair(class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}{{ diagnostic_form.estimated_labour(class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}{{ diagnostic_form.repair_notes(class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}{{ diagnostic_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}</form></dialog>
-  <dialog id="quote-modal" class="w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Create Quote</h3><button class="text-slate-400">✕</button></form><div class="p-4 text-sm text-slate-300"><a class="inline-flex rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white" href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}">Open Quote Builder</a></div></dialog>
-  <dialog id="reserve-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Reserve Part</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('tickets.reserve_part', ticket_id=ticket.id) }}" class="space-y-2 p-4">{{ reservation_form.hidden_tag() }}<input id="reserve-part-search" type="text" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" placeholder="Search by part name, SKU, barcode, supplier SKU" /><div>{{ reservation_form.part_id(id='reserve-part-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div><div>{{ reservation_form.location_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div><div>{{ reservation_form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>{{ reservation_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}</form></dialog>
-  <dialog id="update-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Send Update to Customer</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('tickets.send_customer_update', ticket_id=ticket.id) }}" class="space-y-2 p-4"><textarea name="content" rows="4" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" placeholder="Write a customer-facing progress update"></textarea><button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Send Update</button></form></dialog>
+  <dialog id="meta-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Edit ticket details</h3><button class="text-slate-400">✕</button></form>
+    <form method="post" action="{{ url_for('tickets.update_ticket_meta', ticket_id=ticket.id) }}" class="space-y-3 p-4">
+      {{ meta_form.hidden_tag() }}
+      <p class="text-xs text-slate-500">Update the customer-facing issue summary and promised completion datetime.</p>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="meta_issue_summary">Issue summary</label>
+        {{ meta_form.issue_summary(id='meta_issue_summary', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="meta_quoted_completion_at">Promised completion</label>
+        {{ meta_form.quoted_completion_at(id='meta_quoted_completion_at', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+      </div>
+      {{ meta_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}
+    </form>
+  </dialog>
+
+  <dialog id="note-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Add note (internal)</h3><button class="text-slate-400">✕</button></form>
+    <form method="post" action="{{ url_for('tickets.add_note', ticket_id=ticket.id) }}" class="space-y-3 p-4">
+      {{ note_form.hidden_tag() }}
+      <p class="text-xs text-slate-500">Use this for internal/admin notes. These notes are not sent to customers.</p>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="note_type">Note type</label>
+        {{ note_form.note_type(id='note_type', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="note_content">Note content</label>
+        {{ note_form.content(id='note_content', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='4') }}
+      </div>
+      {{ note_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}
+    </form>
+  </dialog>
+
+  <dialog id="diag-modal" class="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Add diagnostics</h3><button class="text-slate-400">✕</button></form>
+    <form method="post" action="{{ url_for('diagnostics.save_ticket_diagnostic', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-3 p-4">
+      {{ diagnostic_form.hidden_tag() }}
+      <p class="text-xs text-slate-500">Capture bench findings and recommended repair actions.</p>
+      <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="diag_fault">Customer reported fault</label>{{ diagnostic_form.customer_reported_fault(id='diag_fault', class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}</div>
+      <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="diag_diagnosis">Technician diagnosis</label>{{ diagnostic_form.technician_diagnosis(id='diag_diagnosis', class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+      <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="diag_recommended">Recommended repair</label>{{ diagnostic_form.recommended_repair(id='diag_recommended', class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+      <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="diag_labour">Estimated labour</label>{{ diagnostic_form.estimated_labour(id='diag_labour', class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+      <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="diag_notes">Repair notes</label>{{ diagnostic_form.repair_notes(id='diag_notes', class='rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}</div>
+      {{ diagnostic_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}
+    </form>
+  </dialog>
+
+  <dialog id="quote-modal" class="w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Create quote</h3><button class="text-slate-400">✕</button></form>
+    <div class="space-y-2 p-4 text-sm text-slate-300">
+      <p>Open the quote builder to add labour and part lines for this ticket.</p>
+      <a class="inline-flex rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white" href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}">Open Quote Builder</a>
+    </div>
+  </dialog>
+
+  <dialog id="reserve-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Reserve part</h3><button class="text-slate-400">✕</button></form>
+    <form method="post" action="{{ url_for('tickets.reserve_part', ticket_id=ticket.id) }}" class="space-y-3 p-4">
+      {{ reservation_form.hidden_tag() }}
+      <p class="text-xs text-slate-500">Reserve stock against this ticket so parts are blocked for this repair job.</p>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-part-search">Search part</label>
+        <input id="reserve-part-search" type="text" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" placeholder="Search by part name, SKU, barcode, supplier SKU" />
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-part-select">Part</label>
+        {{ reservation_form.part_id(id='reserve-part-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-location-select">Stock location</label>
+        {{ reservation_form.location_id(id='reserve-location-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-qty">Quantity</label>
+        {{ reservation_form.quantity(id='reserve-qty', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
+      </div>
+      {{ reservation_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}
+    </form>
+  </dialog>
+
+  <dialog id="update-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Send update to customer</h3><button class="text-slate-400">✕</button></form>
+    <form method="post" action="{{ url_for('tickets.send_customer_update', ticket_id=ticket.id) }}" class="space-y-3 p-4">
+      <p class="text-xs text-slate-500">Customer-facing updates appear on the public repair status page. Optional email only sends intent unless outbound email is configured.</p>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="update-content">Update message</label>
+        <textarea id="update-content" name="content" rows="4" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" placeholder="Write a customer-facing progress update"></textarea>
+      </div>
+      <label class="inline-flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" name="send_email" value="1" /> Send this update as an email to {{ ticket.customer.email or 'the customer email on file' }}</label>
+      <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Send Update</button>
+    </form>
+  </dialog>
 </section>
 <script>
-  document.querySelectorAll('[data-open-modal]').forEach((btn)=>btn.addEventListener('click', ()=>{ const dlg=document.getElementById(btn.dataset.openModal); if(dlg&&dlg.showModal) dlg.showModal(); }));
-  const reserveSearch=document.getElementById('reserve-part-search');
-  reserveSearch?.addEventListener('input', async ()=>{ const q=reserveSearch.value.trim(); if(q.length<2) return; const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json(); const sel=document.getElementById('reserve-part-select'); sel.innerHTML=''; for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; sel.appendChild(o);} });
+  document.querySelectorAll('[data-open-modal]').forEach((btn) => btn.addEventListener('click', () => {
+    const dlg = document.getElementById(btn.dataset.openModal);
+    if (dlg && dlg.showModal) dlg.showModal();
+  }));
+
+  const reserveSearch = document.getElementById('reserve-part-search');
+  reserveSearch?.addEventListener('input', async () => {
+    const q = reserveSearch.value.trim();
+    if (q.length < 2) return;
+    const data = await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+    const sel = document.getElementById('reserve-part-select');
+    sel.innerHTML = '';
+    for (const item of data.items) {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.text = item.label;
+      sel.appendChild(option);
+    }
+  });
 </script>
 {% endblock %}

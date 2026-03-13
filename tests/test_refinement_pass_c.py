@@ -367,3 +367,105 @@ def test_pass_f_reports_human_labels_and_metrics(monkeypatch):
     assert 'Quote Approval Rate' in html
     assert '%' in html
     assert 'Awaiting Diagnosis' in html
+
+
+def test_pass_f1_waiting_parts_filter_and_queue_eta(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        tech = User.query.filter(User.is_active.is_(True)).first()
+        customer = Customer(full_name='Wait Parts', phone='+34000111', email='wait.parts@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer)
+        db.session.flush()
+        device = Device(customer=customer, category='phones', brand='Sony', model='X', serial_number='WAIT-1', imei='WAIT-IMEI')
+        db.session.add(device)
+        db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-7777', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='in_repair', customer_status='In Progress', priority='normal', assigned_technician_id=tech.id)
+        db.session.add(ticket)
+        db.session.flush()
+        supplier = Supplier(name='ETA Supplier', is_active=True)
+        db.session.add(supplier)
+        db.session.flush()
+        order = PartOrder(reference='PO-WAIT-1', supplier_id=supplier.id, branch_id=branch.id, ticket_id=ticket.id, status='ordered')
+        order.estimated_arrival_at = ticket.created_at
+        db.session.add(order)
+        db.session.commit()
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    board = client.get('/tickets/board?waiting_parts=1')
+    assert board.status_code == 200
+    assert 'HQ-20260313-7777' in board.data.decode()
+
+    queue = client.get('/tickets/my-queue')
+    html = queue.data.decode()
+    assert 'Parts ETA:' in html
+
+
+def test_pass_f1_send_update_email_intent(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Mail Target', phone='+34000222', email='mail.target@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer)
+        db.session.flush()
+        device = Device(customer=customer, category='phones', brand='LG', model='G', serial_number='MAIL-1', imei='MAIL-IMEI')
+        db.session.add(device)
+        db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-6666', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_diagnostics', customer_status='Received', priority='normal')
+        db.session.add(ticket)
+        db.session.commit()
+        ticket_id = ticket.id
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    monkeypatch.setattr('app.services.communication_service.send_customer_update_email', lambda **kwargs: True)
+    client = app.test_client()
+    _login(client)
+
+    post = client.post(f'/tickets/{ticket_id}/send-update', data={'content': 'Ready for pickup soon', 'send_email': '1'}, follow_redirects=False)
+    assert post.status_code == 302
+
+    with app.app_context():
+        notes = TicketNote.query.filter_by(ticket_id=ticket_id).order_by(TicketNote.created_at.asc()).all()
+        note_types = [n.note_type for n in notes]
+        assert 'customer_update' in note_types
+        assert 'communication' in note_types
+
+
+def test_pass_f1_ticket_modal_labels_and_quote_script_present(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Modal Check', phone='+34000333', email='modal.check@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer)
+        db.session.flush()
+        device = Device(customer=customer, category='phones', brand='Dell', model='D', serial_number='MODAL-1', imei='MODAL-IMEI')
+        db.session.add(device)
+        db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-6655', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_diagnostics', customer_status='Received', priority='normal')
+        db.session.add(ticket)
+        db.session.commit()
+        ticket_id = ticket.id
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    detail = client.get(f'/tickets/{ticket_id}')
+    html = detail.data.decode()
+    assert 'Issue summary' in html
+    assert 'Send this update as an email' in html
+    assert html.count('Technician &amp; Workflow') == 1
+
+    quote_page = client.get(f'/quotes/ticket/{ticket_id}/new')
+    quote_html = quote_page.data.decode()
+    assert 'Repair Option 1' in quote_html
+    assert 'delete el.dataset.wired' in quote_html

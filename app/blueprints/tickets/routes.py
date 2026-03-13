@@ -45,6 +45,24 @@ def _ticket_has_overdue_parts(ticket: Ticket, now: datetime | None = None) -> bo
     return any(o.status not in {"received", "cancelled"} and o.estimated_arrival_at < current for o in orders)
 
 
+def _open_ticket_orders(ticket: Ticket):
+    return PartOrder.query.filter(PartOrder.ticket_id == ticket.id).all()
+
+
+def _ticket_waiting_on_parts(ticket: Ticket) -> bool:
+    normalized = normalize_ticket_status(ticket.internal_status)
+    if normalized == Ticket.STATUS_AWAITING_PARTS:
+        return True
+    return any(o.status not in {"received", "cancelled"} for o in _open_ticket_orders(ticket))
+
+
+def _ticket_next_parts_eta(ticket: Ticket) -> datetime | None:
+    open_orders = [o for o in _open_ticket_orders(ticket) if o.status not in {"received", "cancelled"} and o.estimated_arrival_at]
+    if not open_orders:
+        return None
+    return min(o.estimated_arrival_at for o in open_orders)
+
+
 @tickets_bp.get("/")
 @login_required
 def list_tickets():
@@ -71,7 +89,7 @@ def list_tickets():
         n = normalize_ticket_status(t.internal_status)
         if status == "overdue" and not is_ticket_overdue(t, now):
             continue
-        if status == "awaiting_parts" and n != Ticket.STATUS_AWAITING_PARTS:
+        if status == "awaiting_parts" and not _ticket_waiting_on_parts(t):
             continue
         if status == "assigned" and not t.assigned_technician_id:
             continue
@@ -291,11 +309,18 @@ def send_customer_update(ticket_id):
         return redirect(url_for("tickets.list_tickets"))
 
     content = (request.form.get("content") or "").strip()
+    send_email = request.form.get("send_email") == "1"
     if not content:
         flash(_("Update content is required"), "error")
         return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
     db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=uuid.UUID(str(current_user.id)), note_type="customer_update", content=content))
+    if send_email and ticket.customer and ticket.customer.email:
+        from app.services.communication_service import send_customer_update_email
+
+        queued = send_customer_update_email(customer_email=ticket.customer.email, customer_name=ticket.customer.full_name, ticket_number=ticket.ticket_number, message=content)
+        status_text = "queued" if queued else "intended"
+        db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=uuid.UUID(str(current_user.id)), note_type="communication", content=f"Customer update email {status_text} to {ticket.customer.email}"))
     db.session.commit()
     flash(_("Customer update recorded"), "success")
     return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
@@ -358,7 +383,7 @@ def repair_board():
             continue
         if branch_id and str(ticket.branch_id) != branch_id:
             continue
-        if only_waiting_parts and normalized != Ticket.STATUS_AWAITING_PARTS:
+        if only_waiting_parts and not _ticket_waiting_on_parts(ticket):
             continue
         if only_overdue and not is_ticket_overdue(ticket, now):
             continue
@@ -387,7 +412,7 @@ def repair_board():
             grouped["Assigned"].append(ticket)
         if normalized == Ticket.STATUS_AWAITING_DIAGNOSTICS:
             grouped["Awaiting Diagnostics"].append(ticket)
-        if normalized == Ticket.STATUS_AWAITING_PARTS:
+        if _ticket_waiting_on_parts(ticket):
             grouped["Awaiting Parts"].append(ticket)
         if normalized in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}:
             grouped["In Repair"].append(ticket)
@@ -413,12 +438,14 @@ def my_queue():
     grouped = {
         "Awaiting Diagnostics": [t for t in assigned if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_DIAGNOSTICS],
         "In Repair": [t for t in assigned if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}],
-        "Waiting on Parts": [t for t in assigned if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_PARTS],
+        "Waiting on Parts": [t for t in assigned if _ticket_waiting_on_parts(t)],
         "Overdue Parts": [t for t in assigned if _ticket_has_overdue_parts(t, now)],
         "Overdue Tickets": [t for t in assigned if is_ticket_overdue(t, now)],
     }
 
-    return render_template("tickets/my_queue.html", grouped=grouped, is_ticket_overdue=is_ticket_overdue, now=now)
+    eta_by_ticket = {str(t.id): _ticket_next_parts_eta(t) for t in assigned}
+
+    return render_template("tickets/my_queue.html", grouped=grouped, is_ticket_overdue=is_ticket_overdue, now=now, eta_by_ticket=eta_by_ticket)
 
 
 @tickets_bp.route("/new", methods=["GET", "POST"])

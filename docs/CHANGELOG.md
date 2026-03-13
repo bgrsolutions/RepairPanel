@@ -192,3 +192,18 @@
 - Quote detail and public quote approval pages now render professional line-item summaries with IGIC subtotal/tax/total context.
 - Reports now show human-friendly status labels, branch names, richer awaiting-arrival context, and real quote approval/turnaround metrics.
 - Ticket detail right-side operational context now groups quotes + reserved parts and keeps technician/workflow controls compact.
+
+## [0.8.1] - 2026-03-13
+### Added
+- Pass F.1 technician queue improvements: waiting-on-parts now captures tickets with open linked orders and My Queue surfaces earliest part ETA with overdue ETA cues.
+- Ticket detail Send Update flow now supports optional email intent logging through a new communication service hook while preserving customer-update note visibility.
+- Intake/ticket multi-device fast path links (create another ticket for same customer) from intake conversion and ticket detail contexts.
+
+### Changed
+- Ticket detail modal UX now includes explicit field labels/help text for Edit Ticket Details, Add Note, Add Diagnostics, Create Quote, Reserve Part, and Send Update dialogs.
+- Part create/edit forms now use clear labels and sectioned guidance for identity, suppliers, categories, pricing, lead time, stock behavior, and notes.
+- Quote builder line rows were cleaned up with clearer field labels and repaired dynamic line wiring so part-price autofill works reliably on newly-added lines.
+
+### Fixed
+- Bench board “waiting on parts” filtering now includes tickets blocked by non-received/non-cancelled linked part orders, not only explicit awaiting_parts status.
+- Quote dynamic add/remove rows now reset JS wiring correctly, fixing second+ row sale-price autofill behavior.

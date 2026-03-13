@@ -26,6 +26,9 @@
           {{ form.customer_id(id='customer-select', class='mt-2 w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
         </div>
       </div>
+      {% if selected_customer %}
+      <div class="rounded-lg border border-emerald-800/60 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-200">Fast check-in mode enabled for selected customer. Choose a different device to create another ticket quickly.</div>
+      {% endif %}
       <div>
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_id.label }}</label>
         {{ form.device_id(id='device-select', class='w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-slate-100') }}
