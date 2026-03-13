@@ -131,3 +131,68 @@ def test_pass_c_search_and_device_transfer(monkeypatch):
     with app.app_context():
         device = db.session.get(Device, d1_id)
         assert device.customer_id is None
+
+
+def test_pass_c1_order_blank_lines_and_ticket_detail_compact(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Order Person', phone='+34999999', email='order.person@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer); db.session.flush()
+        device = Device(customer=customer, category='phones', brand='Google', model='Pixel', serial_number='PX-1', imei='IMEI-PX')
+        db.session.add(device); db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-5555', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_parts', customer_status='Waiting parts', priority='normal')
+        supplier = Supplier(name='Dynamic Supplier', is_active=True)
+        part = Part(sku='BAT-900', name='Battery Pack', is_active=True, supplier_sku='SUP-BAT-900')
+        db.session.add_all([ticket, supplier, part])
+        db.session.commit()
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    # ticket lookup includes customer email search
+    ticket_search_resp = client.get('/orders/ticket-search?q=order.person@example.com')
+    assert ticket_search_resp.status_code == 200
+    assert any('5555' in item['label'] for item in ticket_search_resp.get_json()['items'])
+
+    # create order with one valid line and one blank line (blank should be ignored)
+    order_page = client.get('/orders/new')
+    token = _csrf(order_page.data)
+    with app.app_context():
+        supplier = Supplier.query.filter_by(name='Dynamic Supplier').first()
+        branch = Branch.query.filter_by(code='HQ').first()
+        part = Part.query.filter_by(sku='BAT-900').first()
+        ticket = Ticket.query.filter_by(ticket_number='HQ-20260313-5555').first()
+
+    post = client.post('/orders/new', data={
+        'csrf_token': token,
+        'ticket_id': str(ticket.id),
+        'supplier_id': str(supplier.id),
+        'branch_id': str(branch.id),
+        'status': 'ordered',
+        'reference': 'PO-DYN-1',
+        'lines-0-part_id': str(part.id),
+        'lines-0-quantity': '2',
+        'lines-0-unit_cost': '15',
+        'lines-1-part_id': '',
+        'lines-1-quantity': '',
+        'lines-1-unit_cost': '',
+    }, follow_redirects=False)
+    assert post.status_code == 302
+
+    with app.app_context():
+        order = PartOrder.query.filter_by(reference='PO-DYN-1').first()
+        assert order is not None
+        assert len(order.lines) == 1
+        assert float(order.lines[0].quantity) == 2.0
+
+        ticket = Ticket.query.filter_by(ticket_number='HQ-20260313-5555').first()
+
+    detail = client.get(f'/tickets/{ticket.id}')
+    assert detail.status_code == 200
+    html = detail.data.decode()
+    assert 'Quick Actions' in html
+    assert 'Search by part name, SKU, barcode, supplier SKU' in html

@@ -3,7 +3,7 @@
 {% block content %}
 <section class="max-w-6xl rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel space-y-4">
   <h1 class="text-2xl font-semibold text-white">{{ 'Edit' if mode == 'edit' else 'Create' }} Part Order</h1>
-  <form method="post" class="space-y-3">
+  <form method="post" class="space-y-3" id="order-form">
     {{ form.hidden_tag() }}
     <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <div>
@@ -24,47 +24,110 @@
     <div>{{ form.notes.label(class='text-xs text-slate-400') }}{{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
 
     <h2 class="text-sm font-semibold text-slate-300">Order Lines</h2>
-    {% for line in form.lines %}
-    <div class="order-line grid grid-cols-1 gap-2 md:grid-cols-5 rounded-xl border border-slate-800 bg-slate-900 p-3 {% if loop.index > 3 and mode != 'edit' %}hidden{% endif %}">
-      <div>
-        <input type="text" class="part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Search part" />
-        {{ line.form.part_id(class='part-select mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}
+    <div id="order-lines" class="space-y-2">
+      {% for line in form.lines %}
+      <div class="order-line grid grid-cols-1 gap-2 md:grid-cols-5 rounded-xl border border-slate-800 bg-slate-900 p-3" data-index="{{ loop.index0 }}">
+        <div>
+          <input type="text" class="part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Search part by name/SKU/barcode/supplier SKU" />
+          {{ line.form.part_id(class='part-select mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}
+        </div>
+        <div>{{ line.form.description_override(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description override') }}</div>
+        <div>{{ line.form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Supplier SKU') }}</div>
+        <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
+        <div class="space-y-2">
+          {{ line.form.unit_cost(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit cost') }}
+          <button type="button" class="remove-line w-full rounded border border-rose-800 bg-rose-950 px-2 py-1 text-[11px] text-rose-200 hover:bg-rose-900">Remove line</button>
+        </div>
       </div>
-      <div>{{ line.form.description_override(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description override') }}</div>
-      <div>{{ line.form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Supplier SKU') }}</div>
-      <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
-      <div>{{ line.form.unit_cost(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit cost') }}</div>
+      {% endfor %}
     </div>
-    {% endfor %}
 
-    <button type="button" id="add-line" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">+ Add Line</button>
-    {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+    <div class="flex gap-2">
+      <button type="button" id="add-line" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">+ Add Line</button>
+      {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+    </div>
   </form>
 </section>
 <script>
 const ticketSearch=document.getElementById('ticket-search');
 const ticketResults=document.getElementById('ticket-results');
 const ticketSelect=document.getElementById('ticket_id');
+
 ticketSearch?.addEventListener('input', async ()=>{
   const q=ticketSearch.value.trim(); ticketResults.innerHTML=''; if(q.length<2) return;
   const data=await (await fetch(`/orders/ticket-search?q=${encodeURIComponent(q)}`)).json();
-  for(const item of data.items){const b=document.createElement('button'); b.type='button'; b.className='block w-full text-left rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs'; b.textContent=item.label; b.onclick=()=>{ticketSelect.value=item.id; ticketResults.innerHTML='';}; ticketResults.appendChild(b);} 
+  for(const item of data.items){
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='block w-full text-left rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs';
+    b.textContent=item.label;
+    b.onclick=()=>{ticketSelect.value=item.id; ticketResults.innerHTML='';};
+    ticketResults.appendChild(b);
+  }
 });
 
-document.querySelectorAll('.part-search').forEach(input=>{
-  input.addEventListener('input', async ()=>{
-    const q=input.value.trim(); if(q.length<2) return;
-    const row=input.closest('.order-line'); const select=row.querySelector('.part-select');
-    const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
-    select.innerHTML='';
-    for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);} 
-  });
-});
-
+const linesContainer = document.getElementById('order-lines');
 const addBtn=document.getElementById('add-line');
+
+function wirePartSearch(scope=document){
+  scope.querySelectorAll('.part-search').forEach(input=>{
+    if (input.dataset.wired === '1') return;
+    input.dataset.wired = '1';
+    input.addEventListener('input', async ()=>{
+      const q=input.value.trim(); if(q.length<2) return;
+      const row=input.closest('.order-line'); const select=row.querySelector('.part-select');
+      const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+      select.innerHTML='';
+      for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);} 
+    });
+  });
+}
+
+function reindexLines(){
+  const rows = [...linesContainer.querySelectorAll('.order-line')];
+  rows.forEach((row, idx) => {
+    row.dataset.index = String(idx);
+    row.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.name) el.name = el.name.replace(/lines-\d+-/, `lines-${idx}-`);
+      if (el.id) el.id = el.id.replace(/lines-\d+-/, `lines-${idx}-`);
+    });
+  });
+}
+
+function wireRemoveButtons(){
+  linesContainer.querySelectorAll('.remove-line').forEach(btn => {
+    if (btn.dataset.wired === '1') return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', () => {
+      const rows = linesContainer.querySelectorAll('.order-line');
+      if (rows.length === 1) {
+        rows[0].querySelectorAll('input, textarea').forEach(el => {
+          if (el.type !== 'hidden' && !el.classList.contains('part-search')) el.value = '';
+        });
+        rows[0].querySelector('.part-search').value = '';
+        return;
+      }
+      btn.closest('.order-line').remove();
+      reindexLines();
+    });
+  });
+}
+
 addBtn?.addEventListener('click', ()=>{
-  const hidden=document.querySelector('.order-line.hidden');
-  if(hidden) hidden.classList.remove('hidden');
+  const rows = linesContainer.querySelectorAll('.order-line');
+  const clone = rows[rows.length - 1].cloneNode(true);
+  clone.querySelectorAll('input, textarea').forEach(el => {
+    if (el.type !== 'hidden') el.value = '';
+  });
+  clone.querySelectorAll('select').forEach(sel => { if (sel.classList.contains('part-select')) sel.selectedIndex = 0; });
+  clone.querySelector('.part-search').value = '';
+  linesContainer.appendChild(clone);
+  reindexLines();
+  wirePartSearch(clone);
+  wireRemoveButtons();
 });
+
+wirePartSearch(document);
+wireRemoveButtons();
 </script>
 {% endblock %}

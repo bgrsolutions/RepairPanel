@@ -142,3 +142,12 @@
 - Ticket create and part-order create screens now use server-backed search suggestion patterns for customer/ticket lookup consistency.
 - Ticket detail reserve-part workflow now includes searchable part lookup and improved ordered-part ETA/tracking visibility cues.
 - Parts catalog now surfaces operational supplier + lead-time + stock availability context for better procurement decisions.
+
+## [0.6.4] - 2026-03-13
+### Changed
+- Ticket detail hierarchy is now more operationally compact: assignment + workflow controls are surfaced near the top and common updates (ticket details, notes, diagnostics) are collapsed into quick-action panels to reduce scrolling.
+- Ticket ordered-parts visibility now highlights ETA/status scanability with clearer overdue cues for orders past ETA and not yet received/cancelled.
+- Part-order create/edit UI now supports practical dynamic line add/remove behavior (no fixed 3-line reveal limit) while keeping server-side blank-line ignore behavior intact.
+
+### Fixed
+- Ticket detail reserve-part search prompt now explicitly aligns with supported part matching fields (name/SKU/barcode/supplier SKU).

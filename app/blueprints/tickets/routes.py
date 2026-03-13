@@ -134,6 +134,7 @@ def ticket_detail(ticket_id):
         orders=orders,
         is_overdue=is_ticket_overdue(ticket),
         age_days=ticket_age_days(ticket),
+        now=datetime.utcnow(),
     )
 
 

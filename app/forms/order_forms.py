@@ -35,7 +35,7 @@ class PartOrderCreateForm(FlaskForm):
     ordered_at = DateTimeLocalField("Ordered At", validators=[Optional()], format="%Y-%m-%dT%H:%M")
     estimated_arrival_at = DateTimeLocalField("Estimated Arrival", validators=[Optional()], format="%Y-%m-%dT%H:%M")
     notes = TextAreaField("Notes", validators=[Optional(), Length(max=5000)])
-    lines = FieldList(FormField(PartOrderLineForm), min_entries=3, max_entries=20)
+    lines = FieldList(FormField(PartOrderLineForm), min_entries=1, max_entries=50)
     submit = SubmitField("Save Part Order")
 
 

@@ -35,6 +35,8 @@ def _prepare_order_form(form: PartOrderCreateForm, selected_ticket_id: str | Non
     form.supplier_id.choices = [(str(s.id), s.name) for s in Supplier.query.filter_by(is_active=True).order_by(Supplier.name).all()]
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]
     form.ticket_id.choices = _ticket_choices(selected_ticket_id)
+    if not form.lines.entries:
+        form.lines.append_entry()
     part_choices = _part_choices()
     for entry in form.lines.entries:
         entry.form.part_id.choices = part_choices
