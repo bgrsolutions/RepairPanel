@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
@@ -55,7 +56,7 @@ def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
             linked_part_id = line_form.form.linked_part_id.data or None
             linked_part_uuid = uuid.UUID(str(linked_part_id)) if linked_part_id else None
             linked_part = db.session.get(Part, linked_part_uuid) if linked_part_uuid else None
-            if (unit_price is None or float(unit_price) <= 0) and linked_part and linked_part.sale_price is not None:
+            if (unit_price is None or unit_price <= 0) and linked_part and linked_part.sale_price is not None:
                 unit_price = linked_part.sale_price
             if not description:
                 continue
@@ -191,7 +192,7 @@ def quote_detail(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     option_totals, quote_total = compute_quote_totals(quote)
-    igic_rate = current_app.config.get("DEFAULT_IGIC_RATE", 0.07)
+    igic_rate = Decimal(str(current_app.config.get("DEFAULT_IGIC_RATE", 0.07)))
     tax_total = quote_total * igic_rate
     grand_total = quote_total + tax_total
     return render_template("quotes/detail.html", quote=quote, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total)

@@ -74,7 +74,7 @@ def list_parts():
 
     has_categories = inspect(db.engine).has_table("part_categories") and inspect(db.engine).has_table("part_category_links")
     has_part_suppliers = inspect(db.engine).has_table("part_suppliers")
-    categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else [] if has_categories else []
+    categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else []
     suppliers = Supplier.query.filter_by(is_active=True).order_by(Supplier.name.asc()).all()
     return render_template(
         "inventory/parts_list.html",
@@ -197,6 +197,10 @@ def part_detail(part_id):
 @inventory_bp.get("/categories")
 @login_required
 def list_categories():
+    has_categories = inspect(db.engine).has_table("part_categories")
+    if not has_categories:
+        flash(_("Categories unavailable until migrations are applied"), "warning")
+        return redirect(url_for("inventory.list_parts"))
     categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else []
     return render_template("inventory/categories_list.html", categories=categories)
 

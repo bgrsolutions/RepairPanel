@@ -3,13 +3,14 @@ import re
 from app import create_app
 from app.extensions import db
 from app.models import (
-    Branch, Customer, Device, Diagnostic, IntakeDisclaimerAcceptance, IntakeSubmission, Part, PartOrder, PartOrderEvent, PartOrderLine,
+    Branch, Customer, Device, Diagnostic, IntakeDisclaimerAcceptance, IntakeSubmission, Part, PartCategory, PartOrder, PartOrderEvent, PartOrderLine,
     PortalToken,
-    Quote, QuoteApproval, QuoteLine, QuoteOption, Role, StockLevel, StockLocation, StockMovement, StockReservation,
+    Quote, QuoteApproval, QuoteLine, QuoteOption, Role, StockLayer, StockLevel, StockLocation, StockMovement, StockReservation,
     Supplier, Ticket, TicketNote, User,
 )
 from app.models.role import role_permissions
 from app.models.user import user_branch_access, user_roles
+from app.models.inventory import part_category_links
 from app.services.seed_service import seed_phase1_data
 
 
@@ -30,8 +31,8 @@ def _create_tables():
     tables = [
         Branch.__table__, Role.__table__, Customer.__table__, User.__table__, role_permissions, user_roles, user_branch_access,
         Device.__table__, Ticket.__table__, IntakeSubmission.__table__, IntakeDisclaimerAcceptance.__table__, PortalToken.__table__, Diagnostic.__table__, Quote.__table__, QuoteOption.__table__,
-        QuoteLine.__table__, QuoteApproval.__table__, TicketNote.__table__, Supplier.__table__, Part.__table__, StockLocation.__table__,
-        StockLevel.__table__, StockMovement.__table__, StockReservation.__table__, PartOrder.__table__, PartOrderLine.__table__, PartOrderEvent.__table__,
+        QuoteLine.__table__, QuoteApproval.__table__, TicketNote.__table__, Supplier.__table__, PartCategory.__table__, part_category_links, Part.__table__, StockLocation.__table__,
+        StockLevel.__table__, StockMovement.__table__, StockReservation.__table__, StockLayer.__table__, PartOrder.__table__, PartOrderLine.__table__, PartOrderEvent.__table__,
     ]
     for t in tables:
         t.create(bind=db.engine, checkfirst=True)
@@ -196,3 +197,54 @@ def test_pass_c1_order_blank_lines_and_ticket_detail_compact(monkeypatch):
     html = detail.data.decode()
     assert 'Actions' in html
     assert 'Search by part name, SKU, barcode, supplier SKU' in html
+
+
+def test_pass_c_categories_route_loads_without_nameerror(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    resp = client.get('/inventory/categories', follow_redirects=False)
+    assert resp.status_code == 200
+    assert 'Part Categories' in resp.data.decode()
+
+
+def test_pass_c_quote_detail_igic_decimal_safe(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Quote Decimal', phone='+3477777', email='quote.decimal@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer)
+        db.session.flush()
+        device = Device(customer=customer, category='phones', brand='Nokia', model='3310', serial_number='QUOTE-DEV', imei='Q-IMEI')
+        db.session.add(device)
+        db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-8888', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_diagnostics', customer_status='Received', priority='normal')
+        db.session.add(ticket)
+        db.session.flush()
+        quote = Quote(ticket_id=ticket.id, version=1, status='draft')
+        db.session.add(quote)
+        db.session.flush()
+        option = QuoteOption(quote_id=quote.id, name='Standard', position=1)
+        db.session.add(option)
+        db.session.flush()
+        db.session.add(QuoteLine(option_id=option.id, line_type='part', description='Screen', quantity=2, unit_price=50))
+        db.session.commit()
+        quote_id = quote.id
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    resp = client.get(f'/quotes/{quote_id}')
+    assert resp.status_code == 200
+    html = resp.data.decode()
+    assert 'IGIC (7%)' in html
+    assert '107.00' in html
