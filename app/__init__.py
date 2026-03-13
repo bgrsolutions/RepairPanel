@@ -17,6 +17,7 @@ from app.blueprints.reports.routes import reports_bp
 from app.blueprints.notifications.routes import notifications_bp
 from app.blueprints.settings.routes import settings_bp
 from app.blueprints.integrations.routes import integrations_bp
+from app.blueprints.users.routes import users_bp
 from app.config import Config
 from app.extensions import babel, db, login_manager, migrate
 from app import models  # noqa: F401
@@ -51,6 +52,7 @@ def create_app(config_class=Config):
     app.register_blueprint(notifications_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(integrations_bp)
+    app.register_blueprint(users_bp)
 
     @app.before_request
     def inject_locale():
