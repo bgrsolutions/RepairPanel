@@ -163,3 +163,17 @@
 - Quotes now display commercial totals with default 7% IGIC (subtotal, IGIC, grand total) and expose IGIC policy in quote builder UX.
 - Receiving workflow can now maintain/update part cost and sale prices at receive time.
 - Parts list and stock overview now surface clickable part records with expanded pricing/lead-time/supplier visibility.
+
+## [0.7.1] - 2026-03-13
+### Added
+- Bench board reworked into a tabbed workshop view (Unassigned, Assigned, Awaiting Diagnostics, Awaiting Parts, In Repair, Ready for Collection, Overdue, Aging) with lightweight in-page tab switching.
+- Supplier detail/edit flow with clickable supplier records from supplier and inventory screens.
+- Part edit page for operational product maintenance (pricing, lead time, suppliers, categories, metadata).
+
+### Changed
+- Ticket detail actions now include modal entry points for Create Quote and Reserve Part, with clearer ordered/reserved part visibility and restored note type color differentiation.
+- My Queue now highlights waiting-on-parts, overdue-parts, and overdue-ticket buckets for technician actionability.
+- Intake conversion now accepts both promised completion and explicit SLA target inputs, keeping customer-facing ETA and internal SLA distinct.
+- Dashboard attention list now focuses on exception tickets (overdue SLA and overdue part ETA blockers).
+- Quote builder adds searchable part lookup per line while preserving sale-price autofill and manual override behavior.
+- Parts list adds lead-time presence/range filtering and supplier links to supplier detail pages.

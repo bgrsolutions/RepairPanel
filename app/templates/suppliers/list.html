@@ -18,7 +18,7 @@
       <tbody class="divide-y divide-slate-800">
         {% for supplier in suppliers %}
         <tr>
-          <td class="px-4 py-3 text-white">{{ supplier.name }}</td>
+          <td class="px-4 py-3 text-white"><a class='hover:text-indigo-300' href='{{ url_for("suppliers.supplier_detail", supplier_id=supplier.id) }}'>{{ supplier.name }}</a></td>
           <td class="px-4 py-3 text-slate-300">{{ supplier.contact_name or '—' }} · {{ supplier.email or '—' }}</td>
           <td class="px-4 py-3 text-slate-400">{{ supplier.default_lead_time_days or '—' }} days</td>
           <td class="px-4 py-3">{{ 'Active' if supplier.is_active else 'Inactive' }}</td>

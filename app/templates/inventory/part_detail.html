@@ -9,7 +9,10 @@
         <h1 class="text-2xl font-semibold text-white">{{ part.name }} <span class="text-slate-400">({{ part.sku }})</span></h1>
         <p class="text-sm text-slate-400">{{ part.description or 'No description' }}</p>
       </div>
-      {% if part.image_url %}<img src="{{ part.image_url }}" alt="part image" class="h-24 w-24 rounded border border-slate-700 object-cover" />{% endif %}
+      <div class="flex gap-2">
+        <a href="{{ url_for('inventory.edit_part', part_id=part.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Edit Part</a>
+        {% if part.image_url %}<img src="{{ part.image_url }}" alt="part image" class="h-24 w-24 rounded border border-slate-700 object-cover" />{% endif %}
+      </div>
     </div>
   </div>
 
@@ -21,29 +24,35 @@
         <tbody class="divide-y divide-slate-800">
           {% for level in stock_levels %}
           <tr><td class="px-2 py-2">{{ level.branch.code }} / {{ level.location.code }}</td><td class="px-2 py-2">{{ level.on_hand_qty }}</td><td class="px-2 py-2">{{ level.reserved_qty }}</td><td class="px-2 py-2">{{ level.on_hand_qty - level.reserved_qty }}</td></tr>
-          {% else %}
-          <tr><td class="px-2 py-4 text-slate-500" colspan="4">No stock levels yet.</td></tr>
-          {% endfor %}
+          {% else %}<tr><td class="px-2 py-4 text-slate-500" colspan="4">No stock levels yet.</td></tr>{% endfor %}
         </tbody>
       </table>
     </div>
     <div class="space-y-4">
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel text-sm">
-        <p>Default supplier: <span class="text-slate-200">{{ part.default_supplier.name if part.default_supplier else '—' }}</span></p>
-        <p>Other suppliers: <span class="text-slate-200">{{ part.supplier_links|map(attribute='supplier.name')|join(', ') or '—' }}</span></p>
+      {% set cost=(part.cost_price or 0) %}{% set sale=(part.sale_price or 0) %}{% set margin=(sale-cost) %}{% set margin_pct=((margin/sale*100) if sale else 0) %}
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel text-sm space-y-1">
+        <p>Default supplier: <span class="text-slate-200">{% if part.default_supplier %}<a class="hover:text-indigo-300" href="{{ url_for('suppliers.supplier_detail', supplier_id=part.default_supplier.id) }}">{{ part.default_supplier.name }}</a>{% else %}—{% endif %}</span></p>
+        <p>Other suppliers: <span class="text-slate-200">{% for l in part.supplier_links %}<a class="hover:text-indigo-300" href="{{ url_for('suppliers.supplier_detail', supplier_id=l.supplier.id) }}">{{ l.supplier.name }}</a>{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</span></p>
         <p>Lead time: <span class="text-slate-200">{{ part.lead_time_days ~ ' days' if part.lead_time_days is not none else '—' }}</span></p>
         <p>Cost price: <span class="text-slate-200">{{ part.cost_price or '—' }}</span></p>
         <p>Sale price: <span class="text-slate-200">{{ part.sale_price or '—' }}</span></p>
+        <p>Gross margin: <span class="text-slate-200">{{ '%.2f'|format(margin) }} ({{ '%.1f'|format(margin_pct) }}%)</span></p>
         <p>Categories: <span class="text-slate-200">{{ part.categories|map(attribute='name')|join(', ') or (part.category or '—') }}</span></p>
+      </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <h3 class="text-sm font-semibold text-slate-200">Recent Purchase Price History</h3>
+        <ul class="mt-2 space-y-2 text-xs text-slate-300">
+          {% for line in recent_order_lines %}
+          <li class="rounded border border-slate-800 bg-slate-900 p-2">{{ line.created_at.strftime('%Y-%m-%d') }} · Cost {{ line.unit_cost or '—' }} · Qty {{ line.quantity }}</li>
+          {% else %}<li class="text-slate-500">No order history yet.</li>{% endfor %}
+        </ul>
       </div>
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
         <h3 class="text-sm font-semibold text-slate-200">Recent FIFO Layers</h3>
         <ul class="mt-2 space-y-2 text-xs text-slate-300">
           {% for layer in stock_layers %}
           <li class="rounded border border-slate-800 bg-slate-900 p-2">Remaining {{ layer.quantity_remaining }} / {{ layer.quantity_received }} {% if layer.unit_cost %}· Cost {{ layer.unit_cost }}{% endif %}</li>
-          {% else %}
-          <li class="text-slate-500">No receipt layers yet.</li>
-          {% endfor %}
+          {% else %}<li class="text-slate-500">No receipt layers yet.</li>{% endfor %}
         </ul>
       </div>
     </div>

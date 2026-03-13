@@ -68,7 +68,7 @@
 
     <section class="space-y-4">
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Needs Attention</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Tickets Need Attention</h2>
         <div class="mt-3 space-y-2">
           {% if attention_tickets %}
             {% for ticket in attention_tickets %}
@@ -82,7 +82,7 @@
               </a>
             {% endfor %}
           {% else %}
-            {{ empty_state('No urgent tickets', 'Queue is currently stable') }}
+            {{ empty_state('No exception tickets', 'No overdue or blocked tickets right now') }}
           {% endif %}
         </div>
       </div>

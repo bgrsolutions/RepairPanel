@@ -39,6 +39,12 @@ def _sync_assignment_status(ticket: Ticket):
         ticket.internal_status = Ticket.STATUS_UNASSIGNED
 
 
+def _ticket_has_overdue_parts(ticket: Ticket, now: datetime | None = None) -> bool:
+    current = now or datetime.utcnow()
+    orders = PartOrder.query.filter(PartOrder.ticket_id == ticket.id, PartOrder.estimated_arrival_at.is_not(None)).all()
+    return any(o.status not in {"received", "cancelled"} and o.estimated_arrival_at < current for o in orders)
+
+
 @tickets_bp.get("/")
 @login_required
 def list_tickets():
@@ -284,15 +290,18 @@ def repair_board():
 @tickets_bp.get("/my-queue")
 @login_required
 def my_queue():
+    now = datetime.utcnow()
     assigned = Ticket.query.filter(Ticket.deleted_at.is_(None), Ticket.assigned_technician_id == current_user.id).order_by(Ticket.created_at.asc()).all()
 
     grouped = {
         "Awaiting Diagnostics": [t for t in assigned if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_DIAGNOSTICS],
         "In Repair": [t for t in assigned if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}],
-        "Other": [t for t in assigned if normalize_ticket_status(t.internal_status) not in {Ticket.STATUS_AWAITING_DIAGNOSTICS, Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}],
+        "Waiting on Parts": [t for t in assigned if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_PARTS],
+        "Overdue Parts": [t for t in assigned if _ticket_has_overdue_parts(t, now)],
+        "Overdue Tickets": [t for t in assigned if is_ticket_overdue(t, now)],
     }
 
-    return render_template("tickets/my_queue.html", grouped=grouped)
+    return render_template("tickets/my_queue.html", grouped=grouped, is_ticket_overdue=is_ticket_overdue, now=now)
 
 
 @tickets_bp.route("/new", methods=["GET", "POST"])

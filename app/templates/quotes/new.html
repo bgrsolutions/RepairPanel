@@ -25,7 +25,7 @@
       {% for line in option.form.lines %}
       <div class="quote-line grid grid-cols-1 gap-2 md:grid-cols-6 rounded border border-slate-800 bg-slate-950 p-2">
         <div>{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-        <div>{{ line.form.linked_part_id(class='quote-part w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
+        <div><input type='text' class='quote-part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs' placeholder='Search part' />{{ line.form.linked_part_id(class='quote-part mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
         <div>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description') }}</div>
         <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
         <div>{{ line.form.unit_price(class='quote-unit w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
@@ -52,6 +52,24 @@ function reindexOptionLines(optionWrap){
     });
   });
 }
+
+function bindPartSearch(scope=document){
+  scope.querySelectorAll('.quote-part-search').forEach(input=>{
+    if (input.dataset.bound==='1') return;
+    input.dataset.bound='1';
+    input.addEventListener('input', async ()=>{
+      const q=input.value.trim();
+      if (q.length<2) return;
+      const line=input.closest('.quote-line');
+      const sel=line.querySelector('.quote-part');
+      const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+      sel.innerHTML='<option value="">-- No linked part --</option>';
+      for (const item of data.items){ const o=document.createElement('option'); o.value=item.id; o.textContent=item.label; sel.appendChild(o); }
+    });
+  });
+}
+
+bindPartSearch();
 
 document.querySelectorAll('.add-quote-line').forEach(btn=>{
   btn.addEventListener('click', ()=>{

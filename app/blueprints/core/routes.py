@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template
 from flask_login import login_required
 
-from app.models import Ticket
+from app.models import PartOrder, Ticket
 from app.utils.ticketing import is_ticket_overdue, normalize_ticket_status, ticket_age_days
 
 
@@ -29,11 +29,23 @@ def dashboard():
     }
 
     recent_tickets = sorted(active_tickets, key=lambda t: t.created_at, reverse=True)[:6]
-    attention_tickets = [
-        t
-        for t in active_tickets
-        if t.priority in {"urgent", "high"} or is_ticket_overdue(t, now) or normalize_ticket_status(t.internal_status) in {Ticket.STATUS_UNASSIGNED, Ticket.STATUS_AWAITING_DIAGNOSTICS}
-    ][:6]
+    overdue_part_ticket_ids = {
+        str(order.ticket_id)
+        for order in PartOrder.query.filter(PartOrder.ticket_id.is_not(None), PartOrder.estimated_arrival_at.is_not(None)).all()
+        if order.status not in {"received", "cancelled"} and order.estimated_arrival_at < now
+    }
+
+    attention_tickets = []
+    for ticket in active_tickets:
+        normalized = normalize_ticket_status(ticket.internal_status)
+        if normalized in Ticket.CLOSED_STATUSES:
+            continue
+        overdue = is_ticket_overdue(ticket, now)
+        overdue_parts = str(ticket.id) in overdue_part_ticket_ids
+        blocked = overdue_parts and normalized == Ticket.STATUS_AWAITING_PARTS
+        if overdue or overdue_parts or blocked:
+            attention_tickets.append(ticket)
+    attention_tickets = attention_tickets[:8]
 
     technician_workload = {
         "assigned": sum(1 for t in active_tickets if t.assigned_technician_id and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES),

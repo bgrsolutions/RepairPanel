@@ -248,3 +248,58 @@ def test_pass_c_quote_detail_igic_decimal_safe(monkeypatch):
     html = resp.data.decode()
     assert 'IGIC (7%)' in html
     assert '107.00' in html
+
+
+def test_pass_e1_bench_board_tabs_visible(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    resp = client.get('/tickets/board')
+    assert resp.status_code == 200
+    html = resp.data.decode()
+    assert 'Repair Bench Board' in html
+    assert 'Awaiting Parts' in html
+    assert 'data-tab="0"' in html
+
+
+def test_pass_e1_supplier_detail_update(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        supplier = Supplier(name='Edit Me', is_active=True)
+        db.session.add(supplier)
+        db.session.commit()
+        supplier_id = supplier.id
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    page = client.get(f'/suppliers/{supplier_id}')
+    assert page.status_code == 200
+    token = _csrf(page.data)
+    post = client.post(f'/suppliers/{supplier_id}/update', data={
+        'csrf_token': token,
+        'name': 'Edited Supplier',
+        'contact_name': 'Ops',
+        'email': 'ops@example.com',
+        'phone': '1234',
+        'website': '',
+        'account_reference': 'AC-1',
+        'default_lead_time_days': '5',
+        'notes': 'Updated',
+        'is_active': 'y',
+    }, follow_redirects=False)
+    assert post.status_code == 302
+
+    with app.app_context():
+        updated = db.session.get(Supplier, supplier_id)
+        assert updated.name == 'Edited Supplier'
+        assert updated.default_lead_time_days == 5
