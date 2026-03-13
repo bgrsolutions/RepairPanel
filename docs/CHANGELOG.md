@@ -177,3 +177,18 @@
 - Dashboard attention list now focuses on exception tickets (overdue SLA and overdue part ETA blockers).
 - Quote builder adds searchable part lookup per line while preserving sale-price autofill and manual override behavior.
 - Parts list adds lead-time presence/range filtering and supplier links to supplier detail pages.
+
+## [0.8.0] - 2026-03-13
+### Added
+- Pass F bench board operational controls: technician/branch/date/sort filters and waiting-parts/overdue toggles.
+- Ticket operations list filters for status, branch, technician, date ranges, and due-date-oriented sorting.
+- Public customer update flow: ticket-side “Send Update” action creates customer-facing updates rendered in public status view.
+- Public portal contact update form on status page for contact person/phone/email and customer remarks.
+- Quote payment-choice foundation during public approval (pay now online vs pay in store) with Stripe session service scaffold and persisted payment metadata.
+- Persistent public portal settings foundation via `app_settings` table and editable portal settings page.
+
+### Changed
+- Quote builder line persistence/autofill hardened: part selection updates unit price from sale price unless manually overridden; blank/invalid lines ignored safely.
+- Quote detail and public quote approval pages now render professional line-item summaries with IGIC subtotal/tax/total context.
+- Reports now show human-friendly status labels, branch names, richer awaiting-arrival context, and real quote approval/turnaround metrics.
+- Ticket detail right-side operational context now groups quotes + reserved parts and keeps technician/workflow controls compact.

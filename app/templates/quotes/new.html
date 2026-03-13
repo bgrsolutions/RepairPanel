@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
-{% block title %}{{ 'Edit' if mode == 'edit' else 'New' }} Quote - {{ ticket.ticket_number }} - IRONCore{% endblock %}
+{% block title %}{% if mode == 'edit' %}Edit Quote{% else %}Create Quote{% endif %} - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Quote Builder</p>
-    <h1 class="mt-1 text-2xl font-semibold text-white">{{ 'Edit' if mode == 'edit' else 'Create' }} Quote for {{ ticket.ticket_number }}</h1>
+<section class="space-y-4 max-w-6xl">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">{% if mode == 'edit' %}Edit Repair Quote{% else %}Create Repair Quote{% endif %}</h1>
+    <p class="text-sm text-slate-400">Ticket {{ ticket.ticket_number }} · {{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
   </div>
 
-  <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_quote', ticket_id=ticket.id) }}{% endif %}" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
+  <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_quote', ticket_id=ticket.id) }}{% endif %}" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
     {{ form.hidden_tag() }}
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-      <div>{{ form.currency.label(class='text-xs text-slate-400') }}{{ form.currency(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.language.label(class='text-xs text-slate-400') }}{{ form.language(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.expires_at.label(class='text-xs text-slate-400') }}{{ form.expires_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.notes_snapshot.label(class='text-xs text-slate-400') }}{{ form.notes_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+      <div>{{ form.currency.label(class='text-xs text-slate-400') }}{{ form.currency(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.language.label(class='text-xs text-slate-400') }}{{ form.language(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.expires_at.label(class='text-xs text-slate-400') }}{{ form.expires_at(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
     </div>
     <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
 
     {% for option in form.options %}
     <section class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
-      <h2 class="text-sm font-semibold text-slate-300">Option {{ loop.index }}</h2>
-      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Option name') }}
+      <h2 class="text-sm font-semibold text-slate-300">Repair Section {{ loop.index }}</h2>
+      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Section title (e.g. Standard Repair)') }}
       <div class="quote-lines" data-option-index="{{ loop.index0 }}">
       {% for line in option.form.lines %}
       <div class="quote-line grid grid-cols-1 gap-2 md:grid-cols-6 rounded border border-slate-800 bg-slate-950 p-2">
@@ -37,14 +37,15 @@
     </section>
     {% endfor %}
 
+    <div>{{ form.notes_snapshot.label(class='text-xs text-slate-400') }}{{ form.notes_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='3') }}</div>
     <div class="rounded border border-slate-800 bg-slate-950 p-3 text-xs text-slate-400">Default tax policy: IGIC {{ '%.0f'|format(igic_rate * 100) }}% on commercial quote totals.</div>
     {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
   </form>
 </section>
 <script>
 function reindexOptionLines(optionWrap){
+  const optionIndex = Number(optionWrap.dataset.optionIndex);
   const lines = [...optionWrap.querySelectorAll('.quote-line')];
-  const optionIndex = optionWrap.dataset.optionIndex;
   lines.forEach((line, idx)=>{
     line.querySelectorAll('input,select,textarea').forEach(el=>{
       if(el.name) el.name = el.name.replace(new RegExp(`options-${optionIndex}-lines-\\d+-`), `options-${optionIndex}-lines-${idx}-`);
@@ -63,28 +64,13 @@ function bindPartSearch(scope=document){
       const line=input.closest('.quote-line');
       const sel=line.querySelector('.quote-part');
       const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+      const previous = sel.value;
       sel.innerHTML='<option value="">-- No linked part --</option>';
       for (const item of data.items){ const o=document.createElement('option'); o.value=item.id; o.textContent=item.label; sel.appendChild(o); }
+      if (previous) sel.value = previous;
     });
   });
 }
-
-bindPartSearch();
-
-document.querySelectorAll('.add-quote-line').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const optionSection = btn.closest('section');
-    const optionWrap = optionSection.querySelector('.quote-lines');
-    const lines = optionWrap.querySelectorAll('.quote-line');
-    const clone = lines[lines.length-1].cloneNode(true);
-    clone.querySelectorAll('input').forEach(i=> i.value='');
-    clone.querySelectorAll('select').forEach(s=> s.selectedIndex=0);
-    optionWrap.appendChild(clone);
-    reindexOptionLines(optionWrap);
-    wirePartAutofill(clone);
-    wireRemove(clone);
-  });
-});
 
 function wireRemove(scope=document){
   scope.querySelectorAll('.remove-quote-line').forEach(btn=>{
@@ -113,13 +99,36 @@ function wirePartAutofill(scope=document){
       if(!partId) return;
       const line = sel.closest('.quote-line');
       const unit = line.querySelector('.quote-unit');
-      if(unit.value && Number(unit.value) > 0) return;
-      const data = await (await fetch(`/quotes/part-price/${partId}`)).json();
-      if(data.ok){ unit.value = data.sale_price; }
+      if(unit.dataset.manual !== '1'){ // update unless manually overridden
+        const data = await (await fetch(`/quotes/part-price/${partId}`)).json();
+        if(data.ok){ unit.value = data.sale_price; }
+      }
     });
+  });
+  scope.querySelectorAll('.quote-unit').forEach(inp=>{
+    if(inp.dataset.wiredManual==='1') return;
+    inp.dataset.wiredManual='1';
+    inp.addEventListener('input', ()=>{ inp.dataset.manual='1'; });
   });
 }
 
+document.querySelectorAll('.add-quote-line').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const optionSection = btn.closest('section');
+    const optionWrap = optionSection.querySelector('.quote-lines');
+    const lines = optionWrap.querySelectorAll('.quote-line');
+    const clone = lines[lines.length-1].cloneNode(true);
+    clone.querySelectorAll('input').forEach(i=> {i.value=''; i.dataset.manual='';});
+    clone.querySelectorAll('select').forEach(s=> s.selectedIndex=0);
+    optionWrap.appendChild(clone);
+    reindexOptionLines(optionWrap);
+    wirePartAutofill(clone);
+    wireRemove(clone);
+    bindPartSearch(clone);
+  });
+});
+
+bindPartSearch(document);
 wireRemove(document);
 wirePartAutofill(document);
 </script>

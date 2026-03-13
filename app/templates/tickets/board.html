@@ -15,6 +15,27 @@
     </div>
   </div>
 
+
+  <form method="get" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel grid grid-cols-1 md:grid-cols-7 gap-2">
+    <select name="sort" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs">
+      <option value="oldest" {% if filters.sort=='oldest' %}selected{% endif %}>Oldest first</option>
+      <option value="newest" {% if filters.sort=='newest' %}selected{% endif %}>Newest first</option>
+      <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promised due soonest</option>
+      <option value="sla_due" {% if filters.sort=='sla_due' %}selected{% endif %}>SLA due soonest</option>
+    </select>
+    <select name="technician_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs"><option value="">Any technician</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>
+    <select name="branch_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs"><option value="">Any branch</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }}</option>{% endfor %}</select>
+    <select name="date_range" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs">
+      <option value="">Any date</option>
+      <option value="today" {% if filters.date_range=='today' %}selected{% endif %}>Today</option>
+      <option value="this_week" {% if filters.date_range=='this_week' %}selected{% endif %}>This week</option>
+      <option value="this_month" {% if filters.date_range=='this_month' %}selected{% endif %}>This month</option>
+    </select>
+    <label class="inline-flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" name="waiting_parts" value="1" {% if filters.waiting_parts %}checked{% endif %}/> Waiting on parts</label>
+    <label class="inline-flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" name="only_overdue" value="1" {% if filters.only_overdue %}checked{% endif %}/> Overdue only</label>
+    <button class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white">Apply</button>
+  </form>
+
   <div class="flex flex-wrap gap-2">
     {% for column, items in grouped.items() %}
     <button type="button" data-tab="{{ loop.index0 }}" class="board-tab rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 {% if loop.first %}ring-1 ring-indigo-500{% endif %}">{{ column }} <span class="text-slate-400">({{ items|length }})</span></button>

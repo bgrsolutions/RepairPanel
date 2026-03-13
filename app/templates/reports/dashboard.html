@@ -17,8 +17,8 @@
     {{ stat_card('In Repair', kpis.in_repair, 'Actively on bench', 'emerald') }}
     {{ stat_card('Ready for Collection', kpis.ready_for_collection, 'Pickup queue', 'emerald') }}
     {{ stat_card('Overdue / Aging', kpis.overdue, 'Older than 7 days', 'rose') }}
-    {{ stat_card('Quote Approval Rate', kpis.quote_approval_rate_placeholder, 'Placeholder', 'indigo') }}
-    {{ stat_card('Average Turnaround', kpis.average_turnaround_placeholder, 'Placeholder', 'cyan') }}
+    {{ stat_card('Quote Approval Rate', ('%.1f%%'|format(kpis.quote_approval_rate)), 'Approved / sent quotes', 'indigo') }}
+    {{ stat_card('Average Turnaround', ('%.1f days'|format(kpis.average_turnaround_days)), 'Created to ready/completed', 'cyan') }}
   </div>
 
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -68,7 +68,10 @@
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Parts Awaiting Arrival</h2>
       <div class="mt-3 space-y-2">
         {% for order in awaiting_arrival %}
-        <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-2 hover:border-slate-700 text-sm text-slate-300">{{ order.reference or order.id }} · {{ order.supplier.name }} · {{ order.status }}</a>
+        <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-2 hover:border-slate-700 text-sm text-slate-300">
+          <div>{{ order.reference or order.id }} · {{ order.supplier.name if order.supplier else '—' }} · {{ order.status|replace('_',' ')|title }} · ETA {{ order.estimated_arrival_at.strftime('%Y-%m-%d') if order.estimated_arrival_at else '—' }}</div>
+          {% if order.ticket %}<div class='text-xs text-slate-500'>Ticket {{ order.ticket.ticket_number }} · {{ order.ticket.customer.full_name }} · {{ order.ticket.device.brand }} {{ order.ticket.device.model }}</div>{% endif %}
+        </a>
         {% else %}
         <p class="text-sm text-slate-500">No pending part orders.</p>
         {% endfor %}

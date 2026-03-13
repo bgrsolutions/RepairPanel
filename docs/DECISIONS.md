@@ -96,3 +96,23 @@
 - **Context**: Operational procurement required alternate suppliers and stronger catalog browsing semantics.
 - **Decision**: Keep one optional default supplier on `Part` and add supporting many-to-many-style link records (`part_suppliers`) plus category entities (`part_categories` + links).
 - **Consequences**: Improves sourcing flexibility and inventory browse/filter UX while preserving existing single-order single-supplier procurement flow.
+
+## ADR-017: Quote approval payment choice and Stripe foundation
+- **Date:** 2026-03-13
+- **Status:** Accepted
+
+### Context
+Quote approval needed to support both operational in-store payment and optional online payment without blocking the existing approval workflow.
+
+### Decision
+- Capture payment intent at quote approval time using `quote_approvals` metadata:
+  - `payment_choice` (`pay_now` / `pay_in_store`)
+  - `payment_status`
+  - optional Stripe session/url identifiers.
+- Keep quote approval as the source of truth for customer decision; payment execution can proceed independently.
+- Provide a Stripe service-layer foundation that can create live Checkout sessions when keys/sdk are available, and safely return a placeholder checkout path otherwise.
+
+### Consequences
+- Existing quote approval flow remains intact and backwards compatible.
+- Deployment can roll out pay-now incrementally by setting Stripe keys, without schema redesign.
+- Future reconciliation/webhook handling can be added without changing public approval UX contract.

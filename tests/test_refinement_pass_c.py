@@ -6,7 +6,7 @@ from app.models import (
     Branch, Customer, Device, Diagnostic, IntakeDisclaimerAcceptance, IntakeSubmission, Part, PartCategory, PartOrder, PartOrderEvent, PartOrderLine,
     PortalToken,
     Quote, QuoteApproval, QuoteLine, QuoteOption, Role, StockLayer, StockLevel, StockLocation, StockMovement, StockReservation,
-    Supplier, Ticket, TicketNote, User,
+    Supplier, Ticket, TicketNote, User, AppSetting,
 )
 from app.models.role import role_permissions
 from app.models.user import user_branch_access, user_roles
@@ -32,7 +32,7 @@ def _create_tables():
         Branch.__table__, Role.__table__, Customer.__table__, User.__table__, role_permissions, user_roles, user_branch_access,
         Device.__table__, Ticket.__table__, IntakeSubmission.__table__, IntakeDisclaimerAcceptance.__table__, PortalToken.__table__, Diagnostic.__table__, Quote.__table__, QuoteOption.__table__,
         QuoteLine.__table__, QuoteApproval.__table__, TicketNote.__table__, Supplier.__table__, PartCategory.__table__, part_category_links, Part.__table__, StockLocation.__table__,
-        StockLevel.__table__, StockMovement.__table__, StockReservation.__table__, StockLayer.__table__, PartOrder.__table__, PartOrderLine.__table__, PartOrderEvent.__table__,
+        StockLevel.__table__, StockMovement.__table__, StockReservation.__table__, StockLayer.__table__, PartOrder.__table__, PartOrderLine.__table__, PartOrderEvent.__table__, AppSetting.__table__,
     ]
     for t in tables:
         t.create(bind=db.engine, checkfirst=True)
@@ -303,3 +303,67 @@ def test_pass_e1_supplier_detail_update(monkeypatch):
         updated = db.session.get(Supplier, supplier_id)
         assert updated.name == 'Edited Supplier'
         assert updated.default_lead_time_days == 5
+
+
+def test_pass_f_quote_public_payment_choice_and_customer_update(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Portal Customer', phone='+34911111', email='portal.customer@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer); db.session.flush()
+        device = Device(customer=customer, category='phones', brand='Apple', model='iPhone', serial_number='PORTAL-1', imei='IM-1')
+        db.session.add(device); db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-9900', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_quote_approval', customer_status='Waiting quote', priority='normal')
+        db.session.add(ticket); db.session.flush()
+        quote = Quote(ticket_id=ticket.id, version=1, status='sent')
+        db.session.add(quote); db.session.flush()
+        option = QuoteOption(quote_id=quote.id, name='Standard', position=1)
+        db.session.add(option); db.session.flush()
+        db.session.add(QuoteLine(option_id=option.id, line_type='part', description='Battery', quantity=1, unit_price=99))
+        approval = QuoteApproval(quote_id=quote.id, status='pending')
+        db.session.add(approval)
+        db.session.add(TicketNote(ticket_id=ticket.id, note_type='internal', content='Internal only note'))
+        db.session.add(TicketNote(ticket_id=ticket.id, note_type='customer_update', content='Your part arrived'))
+        db.session.commit()
+        token = approval.token
+
+    monkeypatch.setattr('app.services.audit_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+
+    page = client.get(f'/public/quote/{token}')
+    csrf = _csrf(page.data)
+    post = client.post(f'/public/quote/{token}', data={
+        'csrf_token': csrf,
+        'actor_name': 'Portal Customer',
+        'actor_contact': 'portal.customer@example.com',
+        'language': 'en',
+        'decision': 'approved',
+        'payment_choice': 'pay_in_store',
+        'declined_reason': '',
+    }, follow_redirects=False)
+    assert post.status_code == 302
+
+    status_page = client.post('/public/status', data={'ticket_number': 'HQ-20260313-9900', 'verifier': 'portal.customer@example.com', 'csrf_token': _csrf(client.get('/public/status').data)}, follow_redirects=True)
+    html = status_page.data.decode()
+    assert 'Your part arrived' in html
+    assert 'Internal only note' not in html
+
+
+def test_pass_f_reports_human_labels_and_metrics(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    resp = client.get('/reports/')
+    assert resp.status_code == 200
+    html = resp.data.decode()
+    assert 'Quote Approval Rate' in html
+    assert '%' in html
+    assert 'Awaiting Diagnosis' in html

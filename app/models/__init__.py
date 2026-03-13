@@ -11,6 +11,7 @@ from app.models.note import TicketNote
 from app.models.order import PartOrder, PartOrderEvent, PartOrderLine
 from app.models.quote import Quote, QuoteApproval, QuoteLine, QuoteOption
 from app.models.role import Role
+from app.models.setting import AppSetting
 from app.models.supplier import Supplier
 from app.models.ticket import Ticket
 from app.models.user import User
@@ -48,6 +49,7 @@ __all__ = [
     "QuoteLine",
     "QuoteApproval",
     "Role",
+    "AppSetting",
     "Ticket",
     "User",
 ]

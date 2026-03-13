@@ -64,6 +64,10 @@ class QuoteApproval(UUIDMixin, TimestampMixin, db.Model):
     language: Mapped[str | None] = mapped_column(String(5), nullable=True)
     declined_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    payment_choice: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    payment_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    stripe_session_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    stripe_checkout_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=lambda: datetime.utcnow() + timedelta(days=7))
 
     quote = relationship("Quote", back_populates="approvals")

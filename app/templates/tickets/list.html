@@ -15,6 +15,34 @@
     </div>
   </div>
 
+
+  <form method="get" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel grid grid-cols-1 md:grid-cols-6 gap-3">
+    <select name="status" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="">Any status</option>
+      <option value="overdue" {% if filters.status=='overdue' %}selected{% endif %}>Overdue</option>
+      <option value="awaiting_parts" {% if filters.status=='awaiting_parts' %}selected{% endif %}>Awaiting parts</option>
+      <option value="assigned" {% if filters.status=='assigned' %}selected{% endif %}>Assigned</option>
+      <option value="unassigned" {% if filters.status=='unassigned' %}selected{% endif %}>Unassigned</option>
+      <option value="in_repair" {% if filters.status=='in_repair' %}selected{% endif %}>In repair</option>
+      <option value="ready_for_collection" {% if filters.status=='ready_for_collection' %}selected{% endif %}>Ready for collection</option>
+    </select>
+    <select name="branch_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm"><option value="">All branches</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }} - {{ b.name }}</option>{% endfor %}</select>
+    <select name="technician_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm"><option value="">All technicians</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>
+    <select name="date_range" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="">Any date</option>
+      <option value="today" {% if filters.date_range=='today' %}selected{% endif %}>Today</option>
+      <option value="last_week" {% if filters.date_range=='last_week' %}selected{% endif %}>Last week</option>
+      <option value="this_month" {% if filters.date_range=='this_month' %}selected{% endif %}>This month</option>
+    </select>
+    <select name="sort" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
+      <option value="newest" {% if filters.sort=='newest' %}selected{% endif %}>Newest first</option>
+      <option value="oldest" {% if filters.sort=='oldest' %}selected{% endif %}>Oldest first</option>
+      <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promised due soonest</option>
+      <option value="sla_due" {% if filters.sort=='sla_due' %}selected{% endif %}>SLA due soonest</option>
+    </select>
+    <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Apply</button>
+  </form>
+
   <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
     {% if tickets %}
     <div class="overflow-x-auto">

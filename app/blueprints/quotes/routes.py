@@ -8,7 +8,7 @@ from flask_login import login_required
 
 from app.extensions import db
 from app.forms.quote_forms import QuoteCreateForm
-from app.models import Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
+from app.models import Diagnostic, Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
 from app.services.audit_service import log_action
 from app.services.quote_service import compute_quote_totals, set_quote_status
 
@@ -27,7 +27,7 @@ def _populate_part_choices(form: QuoteCreateForm):
 
 def _ensure_default_entries(form: QuoteCreateForm):
     if not form.options:
-        form.options.append_entry()
+        form.options.append_entry({"name": "Repair Quote"})
     if not form.options[0].form.lines:
         form.options[0].form.lines.append_entry()
 
@@ -43,12 +43,12 @@ def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
     db.session.flush()
 
     for idx, option_form in enumerate(form.options.entries, start=1):
-        if not (option_form.form.name.data or "").strip():
-            continue
-        option = QuoteOption(quote_id=quote.id, name=option_form.form.name.data.strip(), position=idx)
+        option_name = (option_form.form.name.data or "").strip() or "Repair Quote"
+        option = QuoteOption(quote_id=quote.id, name=option_name, position=idx)
         db.session.add(option)
         db.session.flush()
 
+        kept_lines = 0
         for line_form in option_form.form.lines.entries:
             description = (line_form.form.description.data or "").strip()
             quantity = line_form.form.quantity.data
@@ -56,22 +56,30 @@ def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
             linked_part_id = line_form.form.linked_part_id.data or None
             linked_part_uuid = uuid.UUID(str(linked_part_id)) if linked_part_id else None
             linked_part = db.session.get(Part, linked_part_uuid) if linked_part_uuid else None
+
+            if not description and linked_part:
+                description = linked_part.name
             if (unit_price is None or unit_price <= 0) and linked_part and linked_part.sale_price is not None:
                 unit_price = linked_part.sale_price
-            if not description:
+            if quantity is None or quantity <= 0:
+                quantity = Decimal("1")
+            if not description or unit_price is None:
                 continue
-            if quantity is None or unit_price is None:
-                continue
+
             db.session.add(
                 QuoteLine(
                     option_id=option.id,
-                    line_type=line_form.form.line_type.data,
+                    line_type=line_form.form.line_type.data or "part",
                     description=description,
                     quantity=quantity,
                     unit_price=unit_price,
                     part_id=linked_part_uuid,
                 )
             )
+            kept_lines += 1
+
+        if kept_lines == 0:
+            db.session.delete(option)
 
 
 @quotes_bp.get("/part-price/<uuid:part_id>")
@@ -195,7 +203,17 @@ def quote_detail(quote_id):
     igic_rate = Decimal(str(current_app.config.get("DEFAULT_IGIC_RATE", 0.07)))
     tax_total = quote_total * igic_rate
     grand_total = quote_total + tax_total
-    return render_template("quotes/detail.html", quote=quote, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total)
+    latest_diag = Diagnostic.query.filter_by(ticket_id=quote.ticket_id).order_by(Diagnostic.created_at.desc()).first()
+    return render_template(
+        "quotes/detail.html",
+        quote=quote,
+        option_totals=option_totals,
+        quote_total=quote_total,
+        igic_rate=igic_rate,
+        tax_total=tax_total,
+        grand_total=grand_total,
+        latest_diag=latest_diag,
+    )
 
 
 @quotes_bp.post("/<uuid:quote_id>/send")

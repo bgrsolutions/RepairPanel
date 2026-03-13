@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
@@ -48,8 +48,60 @@ def _ticket_has_overdue_parts(ticket: Ticket, now: datetime | None = None) -> bo
 @tickets_bp.get("/")
 @login_required
 def list_tickets():
-    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.desc()).all()
-    return render_template("tickets/list.html", tickets=tickets, is_ticket_overdue=is_ticket_overdue, ticket_age_days=ticket_age_days)
+    now = datetime.utcnow()
+    status = (request.args.get("status") or "").strip()
+    branch_id = (request.args.get("branch_id") or "").strip()
+    technician_id = (request.args.get("technician_id") or "").strip()
+    date_range = (request.args.get("date_range") or "").strip()
+    sort = (request.args.get("sort") or "newest")
+
+    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
+
+    def in_range(ticket):
+        if date_range == "today":
+            return ticket.created_at.date() == now.date()
+        if date_range == "last_week":
+            return ticket.created_at >= (now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=7))
+        if date_range == "this_month":
+            return ticket.created_at.year == now.year and ticket.created_at.month == now.month
+        return True
+
+    filtered = []
+    for t in tickets:
+        n = normalize_ticket_status(t.internal_status)
+        if status == "overdue" and not is_ticket_overdue(t, now):
+            continue
+        if status == "awaiting_parts" and n != Ticket.STATUS_AWAITING_PARTS:
+            continue
+        if status == "assigned" and not t.assigned_technician_id:
+            continue
+        if status == "unassigned" and t.assigned_technician_id:
+            continue
+        if status == "in_repair" and n not in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}:
+            continue
+        if status == "ready_for_collection" and n != Ticket.STATUS_READY_FOR_COLLECTION:
+            continue
+        if branch_id and str(t.branch_id) != branch_id:
+            continue
+        if technician_id and str(t.assigned_technician_id or "") != technician_id:
+            continue
+        if not in_range(t):
+            continue
+        filtered.append(t)
+
+    if sort == "oldest":
+        filtered.sort(key=lambda t: t.created_at)
+    elif sort == "sla_due":
+        filtered.sort(key=lambda t: t.sla_target_at or datetime.max)
+    elif sort == "promise_due":
+        filtered.sort(key=lambda t: t.quoted_completion_at or datetime.max)
+    else:
+        filtered.sort(key=lambda t: t.created_at, reverse=True)
+
+    branches = Branch.query.order_by(Branch.code.asc()).all()
+    technicians = [u for u in User.query.filter(User.is_active.is_(True), User.deleted_at.is_(None)).order_by(User.full_name.asc()).all() if any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)]
+
+    return render_template("tickets/list.html", tickets=filtered, is_ticket_overdue=is_ticket_overdue, ticket_age_days=ticket_age_days, branches=branches, technicians=technicians, filters={"status":status,"branch_id":branch_id,"technician_id":technician_id,"date_range":date_range,"sort":sort})
 
 
 @tickets_bp.get("/customer-search")
@@ -61,7 +113,7 @@ def customer_search():
     from sqlalchemy import or_
     like=f"%{q}%"
     rows=Customer.query.filter(Customer.deleted_at.is_(None), or_(Customer.full_name.ilike(like), Customer.email.ilike(like), Customer.phone.ilike(like))).order_by(Customer.full_name.asc()).limit(25).all()
-    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ""}"} for c in rows]}
+    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ''}"} for c in rows]}
 
 
 @tickets_bp.get("/customer/<uuid:customer_id>/devices")
@@ -228,6 +280,27 @@ def add_note(ticket_id):
     return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
 
+
+
+@tickets_bp.post("/<uuid:ticket_id>/send-update")
+@login_required
+def send_customer_update(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    content = (request.form.get("content") or "").strip()
+    if not content:
+        flash(_("Update content is required"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=uuid.UUID(str(current_user.id)), note_type="customer_update", content=content))
+    db.session.commit()
+    flash(_("Customer update recorded"), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
 @tickets_bp.post("/<uuid:ticket_id>/reserve")
 @login_required
 def reserve_part(ticket_id):
@@ -259,14 +332,55 @@ def reserve_part(ticket_id):
 @login_required
 def repair_board():
     now = datetime.utcnow()
-    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.asc()).all()
+    sort = (request.args.get("sort") or "oldest")
+    technician_id = (request.args.get("technician_id") or "").strip()
+    branch_id = (request.args.get("branch_id") or "").strip()
+    date_range = (request.args.get("date_range") or "").strip()
+    only_waiting_parts = request.args.get("waiting_parts") == "1"
+    only_overdue = request.args.get("only_overdue") == "1"
 
-    grouped = {"Unassigned": [], "Assigned": [], "Awaiting Diagnostics": [], "Awaiting Parts": [], "In Repair": [], "Ready for Collection": [], "Overdue": [], "Aging": []}
+    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
 
+    def in_range(ticket):
+        if date_range == "today":
+            return ticket.created_at.date() == now.date()
+        if date_range == "this_week":
+            return ticket.created_at >= (now - timedelta(days=7))
+        if date_range == "this_month":
+            return ticket.created_at.year == now.year and ticket.created_at.month == now.month
+        return True
+
+    scoped = []
     for ticket in tickets:
         normalized = normalize_ticket_status(ticket.internal_status)
         ticket.internal_status = normalized
+        if technician_id and str(ticket.assigned_technician_id or "") != technician_id:
+            continue
+        if branch_id and str(ticket.branch_id) != branch_id:
+            continue
+        if only_waiting_parts and normalized != Ticket.STATUS_AWAITING_PARTS:
+            continue
+        if only_overdue and not is_ticket_overdue(ticket, now):
+            continue
+        if not in_range(ticket):
+            continue
+        scoped.append(ticket)
 
+    def sort_key(ticket):
+        if sort == "newest":
+            return -ticket.created_at.timestamp()
+        if sort == "promise_due":
+            return (ticket.quoted_completion_at or datetime.max).timestamp()
+        if sort == "sla_due":
+            return (ticket.sla_target_at or datetime.max).timestamp()
+        return ticket.created_at.timestamp()
+
+    scoped.sort(key=sort_key)
+
+    grouped = {"Unassigned": [], "Assigned": [], "Awaiting Diagnostics": [], "Awaiting Parts": [], "In Repair": [], "Ready for Collection": [], "Overdue": [], "Aging": []}
+
+    for ticket in scoped:
+        normalized = normalize_ticket_status(ticket.internal_status)
         if normalized == Ticket.STATUS_UNASSIGNED or not ticket.assigned_technician_id:
             grouped["Unassigned"].append(ticket)
         if normalized == Ticket.STATUS_ASSIGNED:
@@ -284,7 +398,10 @@ def repair_board():
         if ticket_age_days(ticket, now) >= 3 and normalized not in Ticket.CLOSED_STATUSES:
             grouped["Aging"].append(ticket)
 
-    return render_template("tickets/board.html", grouped=grouped, now=now, ticket_age_days=ticket_age_days, is_ticket_overdue=is_ticket_overdue)
+    technicians = [u for u in User.query.filter(User.deleted_at.is_(None), User.is_active.is_(True)).order_by(User.full_name.asc()).all() if any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)]
+    branches = Branch.query.order_by(Branch.code.asc()).all()
+
+    return render_template("tickets/board.html", grouped=grouped, now=now, ticket_age_days=ticket_age_days, is_ticket_overdue=is_ticket_overdue, technicians=technicians, branches=branches, filters={"sort":sort,"technician_id":technician_id,"branch_id":branch_id,"date_range":date_range,"waiting_parts":only_waiting_parts,"only_overdue":only_overdue})
 
 
 @tickets_bp.get("/my-queue")
