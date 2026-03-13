@@ -121,7 +121,7 @@ def _seed_ticket(app):
             branch_id=branch.id,
             customer_id=customer.id,
             device_id=device.id,
-            internal_status="Awaiting Diagnosis",
+            internal_status="awaiting_diagnostics",
             customer_status="Received",
             priority="normal",
         )
@@ -200,7 +200,7 @@ def test_phase3_diagnostics_and_quote_workflow(monkeypatch):
 
         db.session.refresh(quote)
         assert quote.status == "sent"
-        assert quote.ticket.internal_status == "Awaiting Quote Approval"
+        assert quote.ticket.internal_status == "awaiting_quote_approval"
 
         approval = QuoteApproval.query.filter_by(quote_id=quote.id).first()
         assert approval is not None

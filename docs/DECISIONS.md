@@ -41,3 +41,39 @@
 - **Context**: Governance requires shared customer/device history across branches.
 - **Decision**: Keep customer/device as global entities; include optional customer primary branch but avoid hard branch partitioning at model level.
 - **Consequences**: Supports cross-branch service continuity while preserving branch-aware ticket ownership.
+
+## ADR-008: Ticket Operational Status + SLA Foundation
+- **Status**: Accepted
+- **Context**: Operational workflow required consistent ticket lifecycle buckets and overdue logic before future expansion.
+- **Decision**: Normalize internal ticket statuses to controlled snake_case states and add a ticket-level `sla_target_at` timestamp set on creation from configurable default SLA days.
+- **Consequences**: Bench board/dashboard can compute actionable overdue and aging queues; quote workflow remains separate and compatible via `awaiting_quote_approval` status.
+
+## ADR-009: Parts Deactivation over Hard Delete
+- **Status**: Accepted
+- **Context**: Parts are linked to stock, reservations, and order history, making hard-delete unsafe for operational integrity.
+- **Decision**: Keep `Part.is_active` as the operational archive mechanism and expose manager/admin toggle actions in UI; default lists hide inactive parts.
+- **Consequences**: Historical links remain intact while day-to-day workflows are protected from accidental reuse of retired SKUs.
+
+## ADR-010: Part Orders Support Both Repair-Linked and General Stock Procurement
+- **Status**: Accepted
+- **Context**: Real operations require both ticket-specific purchasing and proactive stock replenishment.
+- **Decision**: Make `PartOrder.ticket_id` optional and classify orders as `repair` or `stock` based on ticket linkage while keeping one supplier per order and many lines per order.
+- **Consequences**: Prevents forced ticket coupling, supports multi-supplier procurement across a single repair via multiple orders, and keeps order context explicit in UI/export workflows.
+
+## ADR-011: Receiving Updates Inventory via Stock Movements with Partial Receipt Support
+- **Status**: Accepted
+- **Context**: Receiving must preserve inventory auditability and cannot rely on silent quantity changes.
+- **Decision**: Implement receiving against order lines using explicit inbound stock movements, line `received_quantity`, and derived order status transitions (`partially_received` / `received`).
+- **Consequences**: Inventory integrity is preserved with traceable movement history; order progress reflects real-world partial deliveries and remains extensible for richer ASN/packing-slip flows later.
+
+## ADR-012: Public Intake Uses Exact-Match Customer Linking
+- **Status**: Accepted
+- **Context**: Public intake should reduce duplicate customers without becoming a discoverable public customer lookup channel.
+- **Decision**: Only perform public customer linkage on strict exact-match email/phone criteria (with minimal format/length sanity checks); otherwise create new intake customer data.
+- **Consequences**: Maintains privacy-safe behavior while reducing duplicate records and preserving staff-side relinking control during internal conversion review.
+
+## ADR-013: Device Ownership Reassignment Preserves Historical Ticket Integrity
+- **Status**: Accepted
+- **Context**: Devices can change ownership over time, but past repairs must remain auditable by original ticket/customer context.
+- **Decision**: Allow current device owner transfer/unlink actions by updating `Device.customer_id` for future workflows, while keeping historical tickets unchanged (`Ticket.customer_id` remains immutable historical reference).
+- **Consequences**: Supports real ownership lifecycle operations without rewriting historical repair accountability.

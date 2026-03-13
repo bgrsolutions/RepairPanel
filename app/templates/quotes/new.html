@@ -1,57 +1,39 @@
 {% extends 'base.html' %}
-{% block title %}New Quote - {{ ticket.ticket_number }} - IRONCore{% endblock %}
+{% block title %}{{ 'Edit' if mode == 'edit' else 'New' }} Quote - {{ ticket.ticket_number }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-4">
   <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Quote Builder</p>
-    <h1 class="mt-1 text-2xl font-semibold text-white">Create Quote for {{ ticket.ticket_number }}</h1>
-    <p class="text-sm text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+    <h1 class="mt-1 text-2xl font-semibold text-white">{{ 'Edit' if mode == 'edit' else 'Create' }} Quote for {{ ticket.ticket_number }}</h1>
   </div>
 
-  <form method="post" action="{{ url_for('quotes.create_quote', ticket_id=ticket.id) }}" class="space-y-4">
+  <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_quote', ticket_id=ticket.id) }}{% endif %}" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
     {{ form.hidden_tag() }}
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
-      <div>
-        <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.currency.label.text }}</label>
-        {{ form.currency(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-      </div>
-      <div>
-        <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.language.label.text }}</label>
-        {{ form.language(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-      </div>
-      <div>
-        <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.expires_at.label.text }}</label>
-        {{ form.expires_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-      </div>
-      <div class="md:col-span-3">
-        <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.notes_snapshot.label.text }}</label>
-        {{ form.notes_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
-      </div>
-      <div class="md:col-span-3">
-        <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.terms_snapshot.label.text }}</label>
-        {{ form.terms_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
-      </div>
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div>{{ form.currency.label(class='text-xs text-slate-400') }}{{ form.currency(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.language.label(class='text-xs text-slate-400') }}{{ form.language(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.expires_at.label(class='text-xs text-slate-400') }}{{ form.expires_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
+      <div>{{ form.notes_snapshot.label(class='text-xs text-slate-400') }}{{ form.notes_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
     </div>
+    <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
 
     {% for option in form.options %}
-    <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-3">
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ option.form.name.label.text }}</label>
-      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-
-      <div class="space-y-3">
-        {% for line in option.form.lines %}
-        <div class="grid grid-cols-1 gap-2 md:grid-cols-12 rounded-xl border border-slate-800 bg-slate-900 p-3">
-          <div class="md:col-span-2">{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm text-slate-200') }}</div>
-          <div class="md:col-span-6">{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm text-slate-200', placeholder='Line description') }}</div>
-          <div class="md:col-span-2">{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm text-slate-200', placeholder='Qty') }}</div>
-          <div class="md:col-span-2">{{ line.form.unit_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-sm text-slate-200', placeholder='Unit price') }}</div>
-        </div>
-        {% endfor %}
+    <section class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
+      <h2 class="text-sm font-semibold text-slate-300">Option {{ loop.index }}</h2>
+      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Option name') }}
+      {% for line in option.form.lines %}
+      <div class="grid grid-cols-1 gap-2 md:grid-cols-5">
+        <div>{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
+        <div>{{ line.form.linked_part_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
+        <div>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description (leave blank to skip)') }}</div>
+        <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
+        <div>{{ line.form.unit_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
       </div>
-    </div>
+      {% endfor %}
+    </section>
     {% endfor %}
 
-    <button type="submit" class="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ form.submit.label.text }}</button>
+    {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
   </form>
 </section>
 {% endblock %}

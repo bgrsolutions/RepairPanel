@@ -32,6 +32,17 @@ def _new_intake_reference() -> str:
     return f"INT-{datetime.utcnow().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
 
 
+def _safe_exact_customer_match(email: str | None, phone: str | None):
+    email = (email or '').strip().lower()
+    phone = (phone or '').strip()
+    customer = None
+    if email and '@' in email and len(email) >= 6:
+        customer = Customer.query.filter_by(email=email).first()
+    if customer is None and phone and len(phone) >= 7:
+        customer = Customer.query.filter_by(phone=phone).first()
+    return customer
+
+
 @public_portal_bp.route("/check-in", methods=["GET", "POST"])
 def public_checkin():
     return _render_public_checkin(kiosk_mode=False)
@@ -50,11 +61,7 @@ def _render_public_checkin(kiosk_mode: bool):
     if form.validate_on_submit():
         branch = db.session.get(Branch, uuid.UUID(str(form.branch_id.data)))
 
-        customer = None
-        if form.customer_email.data:
-            customer = Customer.query.filter_by(email=form.customer_email.data.lower().strip()).first()
-        if customer is None:
-            customer = Customer.query.filter_by(phone=form.customer_phone.data.strip()).first()
+        customer = _safe_exact_customer_match(form.customer_email.data, form.customer_phone.data)
         if customer is None:
             customer = Customer(
                 full_name=form.customer_name.data,

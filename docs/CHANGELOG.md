@@ -102,3 +102,43 @@
 ### Changed
 - Internal navigation and dashboard quick actions now link to Reports, Notifications, Exports, and Settings.
 
+
+## [0.6.1] - 2026-03-12
+### Added
+- Staff user management module (`/users`) with list/create/edit flows for login-capable users, role assignment, branch access, and active/inactive control.
+- Ticket workflow status update endpoint/UI and SLA target foundation (`tickets.sla_target_at`) with overdue/aging calculations used across dashboard and bench board.
+- Ticket creation customer-device usability improvement via customer-scoped device filtering endpoint and dynamic form behavior.
+- Inventory parts operational improvements: multi-field search (name/SKU/barcode/supplier SKU) and safe activate/deactivate action instead of destructive delete behavior.
+- Refinement pass integration test coverage for user management, assignment/status lifecycle, customer-device filtering, and parts deactivate flow.
+
+### Changed
+- Bench board now groups operational buckets (Unassigned, Assigned, Awaiting Diagnostics, Awaiting Parts, In Repair, Ready for Collection, Overdue, Aging) using real status + assignment + SLA logic.
+- Dashboard metrics now expose distinct aging and overdue counters based on SLA foundations.
+- Internal navigation reorganized into grouped operations menus with persistent New Ticket CTA and added Users/Staff access.
+
+## [0.6.2] - 2026-03-12
+### Added
+- Ticket create/check-in workflow improvements: searchable customer finder pattern, create-time technician assignment, create-time operational status selection, issue summary capture, and promised completion datetime capture.
+- Ticket detail metadata edit flow for issue summary + promised completion, with continued SLA visibility side-by-side.
+- Quote workflow upgrades for practical multi-line quoting including optional part-linked quote lines and draft quote editing.
+- Part order workflow upgrades for multi-line orders with line-level metadata, supplier reference/tracking/ETA fields, optional ticket linkage for general stock orders, and order edit flow.
+- Receiving workflow for part orders that records inbound stock movements, supports partial receipts, and updates order/line statuses.
+- New integration coverage for Pass B+ (ticket create assignment/ETA, multi-line quote, stock order without ticket, and partial receiving behavior).
+
+### Changed
+- Global and ticket-context order creation now uses explicit ticket selection (optional) to prevent stale/incorrect ticket associations.
+- Order list/detail screens now expose repair-vs-stock context, ETA/tracking metadata, and overdue operational visibility.
+- Intake conversion now supports optional technician assignment and promised completion datetime propagation into created tickets.
+
+## [0.6.3] - 2026-03-13
+### Added
+- Unified internal searchable lookup endpoints for customers/tickets/parts to support intake, ticket creation, reservations, and order workflows without long static dropdown scrolling.
+- Internal intake existing-customer search/select flow with safe prefill and persisted `existing_customer_id` linking behavior.
+- Device ownership lifecycle actions in customer profile for transfer-to-another-customer and unlink operations while preserving historical ticket ownership context.
+- Pass C automated coverage for unified search endpoints, public exact-match intake linking behavior, and device transfer/unlink workflows.
+
+### Changed
+- Public check-in customer matching now uses explicit exact-match policy for email/phone before creating a new customer, without exposing customer directory data publicly.
+- Ticket create and part-order create screens now use server-backed search suggestion patterns for customer/ticket lookup consistency.
+- Ticket detail reserve-part workflow now includes searchable part lookup and improved ordered-part ETA/tracking visibility cues.
+- Parts catalog now surfaces operational supplier + lead-time + stock availability context for better procurement decisions.
