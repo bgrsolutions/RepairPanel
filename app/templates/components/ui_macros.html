@@ -1,10 +1,12 @@
 {% macro status_badge(status) -%}
   {% set s = (status or 'Unknown') %}
-  {% set normalized = s|lower %}
+  {% set normalized = s|lower|replace('_',' ') %}
   {% set cls = 'border-slate-700 bg-slate-800 text-slate-200' %}
-  {% if normalized in ['new'] %}
+  {% if normalized in ['new', 'unassigned'] %}
     {% set cls = 'border-sky-700/60 bg-sky-950/60 text-sky-200' %}
-  {% elif normalized in ['awaiting diagnosis', 'diagnosed'] %}
+  {% elif normalized in ['assigned'] %}
+    {% set cls = 'border-cyan-700/60 bg-cyan-950/60 text-cyan-200' %}
+  {% elif normalized in ['awaiting diagnosis', 'awaiting diagnostics', 'diagnosed'] %}
     {% set cls = 'border-amber-700/60 bg-amber-950/60 text-amber-200' %}
   {% elif normalized in ['awaiting quote approval', 'quote approved'] %}
     {% set cls = 'border-violet-700/60 bg-violet-950/60 text-violet-200' %}
@@ -16,12 +18,12 @@
     {% set cls = 'border-cyan-700/60 bg-cyan-950/60 text-cyan-200' %}
   {% elif normalized in ['ready for collection'] %}
     {% set cls = 'border-emerald-700/60 bg-emerald-950/60 text-emerald-200' %}
-  {% elif normalized in ['collected'] %}
+  {% elif normalized in ['collected', 'completed'] %}
     {% set cls = 'border-green-700/60 bg-green-950/60 text-green-200' %}
   {% elif normalized in ['cancelled', 'unrepairable', 'on hold'] %}
     {% set cls = 'border-rose-700/60 bg-rose-950/60 text-rose-200' %}
   {% endif %}
-  <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide {{ cls }}">{{ s }}</span>
+  <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide {{ cls }}">{{ s|replace('_', ' ')|title }}</span>
 {%- endmacro %}
 
 {% macro priority_badge(priority) -%}

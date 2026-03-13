@@ -4,61 +4,90 @@
 {% block content %}
 <section class="space-y-4">
   <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
         <p class="mt-1 text-sm text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+        {% if ticket.issue_summary %}<p class="mt-2 text-sm text-slate-300">{{ ticket.issue_summary }}</p>{% endif %}
       </div>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2 lg:max-w-[56%] lg:justify-end">
         {{ status_badge(ticket.internal_status) }}
         {{ priority_badge(ticket.priority) }}
-        <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">Customer Status: {{ ticket.customer_status }}</span>
-        {% if ticket.assigned_technician %}
-          <span class="inline-flex items-center rounded-full border border-cyan-700/60 bg-cyan-950/70 px-2.5 py-1 text-xs font-medium text-cyan-200">{{ ticket.assigned_technician.full_name }}</span>
-        {% else %}
-          <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">Unassigned</span>
-        {% endif %}
+        <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-200">{{ ticket.assigned_technician.full_name if ticket.assigned_technician else 'Unassigned' }}</span>
+        <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-300">SLA: {{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else '—' }}</span>
+        <span class="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-300">Promised: {{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</span>
       </div>
+    </div>
+
+    <div class="mt-3 grid grid-cols-1 gap-2 rounded-xl border border-slate-800 bg-slate-900 p-3 md:grid-cols-2">
+      <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+        {{ assignment_form.hidden_tag() }}
+        <div>
+          <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Technician</label>
+          {{ assignment_form.assigned_technician_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+        </div>
+        {{ assignment_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500') }}
+      </form>
+      <form method="post" action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+        {{ status_form.hidden_tag() }}
+        <div>
+          <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Workflow</label>
+          {{ status_form.internal_status(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+        </div>
+        {{ status_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500') }}
+      </form>
     </div>
   </div>
 
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
     <div class="space-y-4 xl:col-span-2">
-      {% call section_card('Technician Assignment', 'Assign or reassign ownership for this repair') %}
-        <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">
-          {{ assignment_form.hidden_tag() }}
-          <div class="flex-1">
-            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ assignment_form.assigned_technician_id.label.text }}</label>
-            {{ assignment_form.assigned_technician_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-          </div>
-          {{ assignment_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
-        </form>
+      {% call section_card('Actions', 'Open modal dialogs for ticket updates') %}
+        <div class="flex flex-wrap gap-2">
+          <button type="button" data-open-modal="meta-modal" class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white">Edit ticket details</button>
+          <button type="button" data-open-modal="note-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Add note</button>
+          <button type="button" data-open-modal="diag-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Add diagnostics</button>
+        </div>
+
+        <dialog id="meta-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+          <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Edit ticket details</h3><button class="text-slate-400">✕</button></form>
+          <form method="post" action="{{ url_for('tickets.update_ticket_meta', ticket_id=ticket.id) }}" class="space-y-2 p-4">{{ meta_form.hidden_tag() }}
+            <div>{{ meta_form.issue_summary.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ meta_form.issue_summary(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+            <div>{{ meta_form.quoted_completion_at.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ meta_form.quoted_completion_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+            {{ meta_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+          </form>
+        </dialog>
+
+        <dialog id="note-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+          <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Add note</h3><button class="text-slate-400">✕</button></form>
+          <form method="post" action="{{ url_for('tickets.add_note', ticket_id=ticket.id) }}" class="space-y-2 p-4">{{ note_form.hidden_tag() }}
+            <div>{{ note_form.note_type.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ note_form.note_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+            <div>{{ note_form.content.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ note_form.content(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+            {{ note_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+          </form>
+        </dialog>
+
+        <dialog id="diag-modal" class="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+          <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Add diagnostics</h3><button class="text-slate-400">✕</button></form>
+          <form method="post" action="{{ url_for('diagnostics.save_ticket_diagnostic', ticket_id=ticket.id) }}" class="space-y-3 p-4">{{ diagnostic_form.hidden_tag() }}
+            <div>{{ diagnostic_form.customer_reported_fault.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ diagnostic_form.customer_reported_fault(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}</div>
+            <div>{{ diagnostic_form.technician_diagnosis.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ diagnostic_form.technician_diagnosis(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+            <div>{{ diagnostic_form.recommended_repair.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ diagnostic_form.recommended_repair(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}</div>
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2"><div>{{ diagnostic_form.estimated_labour.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ diagnostic_form.estimated_labour(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div><div>{{ diagnostic_form.repair_notes.label(class='mb-1 block text-xs uppercase tracking-wide text-slate-400') }}{{ diagnostic_form.repair_notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div></div>
+            {{ diagnostic_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+          </form>
+        </dialog>
       {% endcall %}
 
-      {% call section_card('Notes', 'Internal notes, customer notes, and communication logs') %}
-        <form method="post" action="{{ url_for('tickets.add_note', ticket_id=ticket.id) }}" class="space-y-2">
-          {{ note_form.hidden_tag() }}
-          <div>
-            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ note_form.note_type.label.text }}</label>
-            {{ note_form.note_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-          </div>
-          <div>
-            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ note_form.content.label.text }}</label>
-            {{ note_form.content(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}
-          </div>
-          {{ note_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
-        </form>
-
-        <div class="mt-4 space-y-2">
+      {% call section_card('Recent Notes') %}
+        <div class="space-y-2">
           {% for note in notes %}
           <div class="rounded-lg border border-slate-800 bg-slate-900 p-3">
             <div class="flex items-center justify-between gap-2">
-              <span class="text-xs uppercase tracking-wide {% if note.note_type == 'internal' %}text-amber-300{% elif note.note_type == 'customer' %}text-emerald-300{% else %}text-sky-300{% endif %}">{{ note.note_type }}</span>
+              <span class="text-xs uppercase tracking-wide text-slate-400">{{ note.note_type }}</span>
               <span class="text-xs text-slate-500">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
             </div>
-            <p class="mt-1 text-sm text-slate-200">{{ note.content }}</p>
-            <p class="mt-1 text-xs text-slate-500">By: {{ note.author_user.full_name if note.author_user else 'System' }}</p>
+            <p class="mt-2 text-sm text-slate-200">{{ note.content }}</p>
           </div>
           {% else %}
           <p class="text-sm text-slate-500">No notes yet.</p>
@@ -66,52 +95,25 @@
         </div>
       {% endcall %}
 
-      {% call section_card('Diagnosis', 'Technician findings and recommendations') %}
-        <form method="post" action="{{ url_for('diagnostics.save_ticket_diagnostic', ticket_id=ticket.id) }}" class="space-y-3">
-          {{ diagnostic_form.hidden_tag() }}
-          <div>
-            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.customer_reported_fault.label.text }}</label>
-            {{ diagnostic_form.customer_reported_fault(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
-          </div>
-          <div>
-            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.technician_diagnosis.label.text }}</label>
-            {{ diagnostic_form.technician_diagnosis(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
-          </div>
-          <div>
-            <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.recommended_repair.label.text }}</label>
-            {{ diagnostic_form.recommended_repair(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
-          </div>
-          <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
-            <div>
-              <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.estimated_labour.label.text }}</label>
-              {{ diagnostic_form.estimated_labour(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-            </div>
-            <div>
-              <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ diagnostic_form.repair_notes.label.text }}</label>
-              {{ diagnostic_form.repair_notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='2') }}
-            </div>
-          </div>
-          <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">{{ diagnostic_form.submit.label.text }}</button>
-        </form>
-
-        {% if diagnosis_entries %}
-        <div class="mt-4 space-y-2">
+      {% call section_card('Diagnostic History') %}
+        <div class="space-y-2">
           {% for diagnosis in diagnosis_entries %}
-          <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm">
-            <p class="text-slate-300">Version {{ diagnosis.version }} · {{ diagnosis.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
-            <p class="text-slate-100">Diagnosis: {{ diagnosis.technician_diagnosis }}</p>
-            <p class="text-slate-400">Recommended: {{ diagnosis.recommended_repair or '—' }}</p>
+          <div class="rounded-lg border border-slate-800 bg-slate-900 p-3">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-sm font-semibold text-white">Version {{ diagnosis.version }}</p>
+              <span class="text-xs text-slate-500">{{ diagnosis.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-400">Fault: {{ diagnosis.customer_reported_fault or '—' }}</p>
+            <p class="text-xs text-slate-300">Diagnosis: {{ diagnosis.technician_diagnosis or '—' }}</p>
           </div>
+          {% else %}
+          <p class="text-sm text-slate-500">No diagnostics captured yet.</p>
           {% endfor %}
         </div>
-        {% endif %}
       {% endcall %}
 
-      {% call section_card('Quotes', 'Quote versions, options, and approval lifecycle') %}
-        <div class="mb-3 flex items-center justify-between">
-          <p class="text-sm text-slate-300">Quote approval status integrated for this ticket.</p>
-          <a href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}" class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500">Create Quote</a>
-        </div>
+      {% call section_card('Quotes', 'Repair quote options and approval state') %}
+        <div class="mb-2"><a href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}" class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500">Create Quote</a></div>
         {% if quote_summaries %}
           <div class="space-y-2">
             {% for item in quote_summaries %}
@@ -133,7 +135,10 @@
       {% call section_card('Reserved Parts', 'Reserve in-stock parts against this ticket') %}
         <form method="post" action="{{ url_for('tickets.reserve_part', ticket_id=ticket.id) }}" class="grid grid-cols-1 gap-2 md:grid-cols-3">
           {{ reservation_form.hidden_tag() }}
-          <div>{{ reservation_form.part_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+          <div>
+            <input type='text' id='reserve-part-search' placeholder='Search by part name, SKU, barcode, supplier SKU' class='mb-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200'/>
+            {{ reservation_form.part_id(id='reserve-part-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
+          </div>
           <div>{{ reservation_form.location_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
           <div>{{ reservation_form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Qty') }}</div>
           <div class="md:col-span-3">{{ reservation_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
@@ -150,20 +155,22 @@
         </div>
       {% endcall %}
 
-      {% call section_card('Ordered Parts', 'Track external supplier orders linked to this ticket') %}
+      {% call section_card('Ordered Parts', 'Track supplier ETA + receipt state for this repair') %}
         <div class="space-y-2">
           {% for order in orders %}
-          <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-3 hover:border-slate-700">
-            <div class="flex items-center justify-between">
+          {% set overdue_order = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}
+          <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border {% if overdue_order %}border-rose-700/70{% else %}border-slate-800{% endif %} bg-slate-900 p-3 hover:border-slate-700">
+            <div class="flex items-center justify-between gap-2">
               <p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p>
-              <span class="text-xs uppercase text-slate-400">{{ order.status|replace('_',' ') }}</span>
+              <span class="text-xs uppercase {% if order.status in ['received'] %}text-emerald-300{% elif overdue_order %}text-rose-300{% else %}text-slate-400{% endif %}">{{ order.status|replace('_',' ') }}</span>
             </div>
-            <p class="text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.eta_date or '—' }}</p>
+            <p class="mt-1 text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</p>
+            <p class="text-xs text-slate-500">Tracking: {{ order.tracking_number or '—' }} · {{ 'Stock order' if not order.ticket_id else 'Repair order' }}</p>
           </a>
           {% else %}
           <p class="text-sm text-slate-500">No external part orders linked yet.</p>
           {% endfor %}
-          <a href="{{ url_for('orders.new_order') }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700">Create Part Order</a>
+          <a href="{{ url_for('orders.new_order', ticket_id=ticket.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700">Create Part Order</a>
         </div>
       {% endcall %}
     </div>
@@ -187,13 +194,41 @@
         </dl>
       {% endcall %}
 
+      {% call section_card('SLA') %}
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-slate-500">Created</dt><dd class="text-slate-200">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</dd></div>
+          <div><dt class="text-slate-500">SLA Target</dt><dd class="text-slate-200">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else '—' }}</dd></div>
+          <div><dt class="text-slate-500">Age</dt><dd class="text-slate-200">{{ age_days }} day(s)</dd></div>
+          <div><dt class="text-slate-500">Promised Completion</dt><dd class="text-slate-200">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</dd></div>
+          <div><dt class="text-slate-500">State</dt><dd class="{% if is_overdue %}text-rose-300{% else %}text-emerald-300{% endif %}">{{ 'Overdue' if is_overdue else 'Within SLA' }}</dd></div>
+        </dl>
+      {% endcall %}
+
       {% call section_card('Activity Sidebar') %}
         <ul class="space-y-2 text-xs text-slate-400">
-          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Assignment, notes, reservations, and orders are now operationally visible.</li>
-          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Arrived vs installed ordered-part states are tracked separately.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Assignment and workflow are editable at the top for faster triage updates.</li>
+          <li class="rounded-lg border border-slate-800 bg-slate-900 p-2.5">Ordered parts section highlights ETA/status to make awaiting-parts decisions faster.</li>
         </ul>
       {% endcall %}
     </aside>
   </div>
 </section>
+<script>
+
+
+document.querySelectorAll('[data-open-modal]').forEach((btn)=>{
+  btn.addEventListener('click', ()=>{
+    const id=btn.getAttribute('data-open-modal');
+    const dlg=document.getElementById(id);
+    if(dlg && dlg.showModal) dlg.showModal();
+  });
+});
+const reserveSearch=document.getElementById('reserve-part-search');
+reserveSearch?.addEventListener('input', async ()=>{
+ const q=reserveSearch.value.trim(); if(q.length<2) return;
+ const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+ const sel=document.getElementById('reserve-part-select'); sel.innerHTML='';
+ for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; sel.appendChild(o);} 
+});
+</script>
 {% endblock %}

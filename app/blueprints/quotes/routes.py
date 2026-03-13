@@ -1,17 +1,86 @@
+import uuid
 from datetime import datetime
+from decimal import Decimal
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
 
 from app.extensions import db
 from app.forms.quote_forms import QuoteCreateForm
-from app.models import Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
+from app.models import Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
 from app.services.audit_service import log_action
 from app.services.quote_service import compute_quote_totals, set_quote_status
 
 
 quotes_bp = Blueprint("quotes", __name__, url_prefix="/quotes")
+
+
+def _populate_part_choices(form: QuoteCreateForm):
+    choices = [("", "-- No linked part --")] + [
+        (str(part.id), f"{part.sku} - {part.name}") for part in Part.query.filter(Part.is_active.is_(True)).order_by(Part.name.asc()).all()
+    ]
+    for option in form.options.entries:
+        for line in option.form.lines.entries:
+            line.form.linked_part_id.choices = choices
+
+
+def _ensure_default_entries(form: QuoteCreateForm):
+    if not form.options:
+        form.options.append_entry()
+    if not form.options[0].form.lines:
+        form.options[0].form.lines.append_entry()
+
+
+def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
+    quote.currency = form.currency.data
+    quote.language = form.language.data
+    quote.notes_snapshot = form.notes_snapshot.data
+    quote.terms_snapshot = form.terms_snapshot.data
+    quote.expires_at = datetime.combine(form.expires_at.data, datetime.min.time()) if form.expires_at.data else None
+
+    quote.options.clear()
+    db.session.flush()
+
+    for idx, option_form in enumerate(form.options.entries, start=1):
+        if not (option_form.form.name.data or "").strip():
+            continue
+        option = QuoteOption(quote_id=quote.id, name=option_form.form.name.data.strip(), position=idx)
+        db.session.add(option)
+        db.session.flush()
+
+        for line_form in option_form.form.lines.entries:
+            description = (line_form.form.description.data or "").strip()
+            quantity = line_form.form.quantity.data
+            unit_price = line_form.form.unit_price.data
+            linked_part_id = line_form.form.linked_part_id.data or None
+            linked_part_uuid = uuid.UUID(str(linked_part_id)) if linked_part_id else None
+            linked_part = db.session.get(Part, linked_part_uuid) if linked_part_uuid else None
+            if (unit_price is None or unit_price <= 0) and linked_part and linked_part.sale_price is not None:
+                unit_price = linked_part.sale_price
+            if not description:
+                continue
+            if quantity is None or unit_price is None:
+                continue
+            db.session.add(
+                QuoteLine(
+                    option_id=option.id,
+                    line_type=line_form.form.line_type.data,
+                    description=description,
+                    quantity=quantity,
+                    unit_price=unit_price,
+                    part_id=linked_part_uuid,
+                )
+            )
+
+
+@quotes_bp.get("/part-price/<uuid:part_id>")
+@login_required
+def part_price(part_id):
+    part = db.session.get(Part, part_id)
+    if not part:
+        return jsonify({"ok": False}), 404
+    return jsonify({"ok": True, "sale_price": float(part.sale_price or 0)})
 
 
 @quotes_bp.get("/ticket/<uuid:ticket_id>/new")
@@ -23,12 +92,10 @@ def new_quote(ticket_id):
         return redirect(url_for("tickets.list_tickets"))
 
     form = QuoteCreateForm()
-    if not form.options:
-        form.options.append_entry()
-    if not form.options[0].form.lines:
-        form.options[0].form.lines.append_entry()
+    _ensure_default_entries(form)
+    _populate_part_choices(form)
 
-    return render_template("quotes/new.html", ticket=ticket, form=form)
+    return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
 
 
 @quotes_bp.post("/ticket/<uuid:ticket_id>/create")
@@ -40,49 +107,79 @@ def create_quote(ticket_id):
         return redirect(url_for("tickets.list_tickets"))
 
     form = QuoteCreateForm()
+    _ensure_default_entries(form)
+    _populate_part_choices(form)
+
     if not form.validate_on_submit():
         flash(_("Invalid quote data"), "error")
-        return redirect(url_for("quotes.new_quote", ticket_id=ticket.id))
+        return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
 
     latest_version = db.session.query(db.func.max(Quote.version)).filter(Quote.ticket_id == ticket.id).scalar() or 0
-    quote = Quote(
-        ticket_id=ticket.id,
-        version=int(latest_version) + 1,
-        status="draft",
-        currency=form.currency.data,
-        language=form.language.data,
-        notes_snapshot=form.notes_snapshot.data,
-        terms_snapshot=form.terms_snapshot.data,
-        expires_at=datetime.combine(form.expires_at.data, datetime.min.time()) if form.expires_at.data else None,
-    )
+    quote = Quote(ticket_id=ticket.id, version=int(latest_version) + 1, status="draft")
     db.session.add(quote)
     db.session.flush()
 
-    for idx, option_form in enumerate(form.options.entries, start=1):
-        option = QuoteOption(quote_id=quote.id, name=option_form.form.name.data, position=idx)
-        db.session.add(option)
-        db.session.flush()
-        for line_form in option_form.form.lines.entries:
-            line = QuoteLine(
-                option_id=option.id,
-                line_type=line_form.form.line_type.data,
-                description=line_form.form.description.data,
-                quantity=line_form.form.quantity.data,
-                unit_price=line_form.form.unit_price.data,
-            )
-            db.session.add(line)
+    _save_quote_from_form(quote, form)
 
-    approval = QuoteApproval(
-        quote_id=quote.id,
-        status="pending",
-        language=quote.language,
-    )
+    approval = QuoteApproval(quote_id=quote.id, status="pending", language=quote.language)
     db.session.add(approval)
-
     db.session.commit()
 
     log_action("quote.create", "Quote", str(quote.id), details={"ticket_id": str(ticket.id), "version": quote.version})
     flash(_("Quote created"), "success")
+    return redirect(url_for("quotes.quote_detail", quote_id=quote.id))
+
+
+@quotes_bp.get("/<uuid:quote_id>/edit")
+@login_required
+def edit_quote(quote_id):
+    quote = db.session.get(Quote, quote_id)
+    if not quote:
+        flash(_("Quote not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    form = QuoteCreateForm(obj=quote)
+    while len(form.options.entries):
+        form.options.pop_entry()
+    for option in quote.options:
+        opt = form.options.append_entry({"name": option.name})
+        while len(opt.form.lines.entries):
+            opt.form.lines.pop_entry()
+        for line in option.lines:
+            opt.form.lines.append_entry(
+                {
+                    "line_type": line.line_type,
+                    "linked_part_id": str(line.part_id) if line.part_id else "",
+                    "description": line.description,
+                    "quantity": line.quantity,
+                    "unit_price": line.unit_price,
+                }
+            )
+        opt.form.lines.append_entry()
+    if not form.options:
+        _ensure_default_entries(form)
+    _populate_part_choices(form)
+
+    return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
+
+
+@quotes_bp.post("/<uuid:quote_id>/update")
+@login_required
+def update_quote(quote_id):
+    quote = db.session.get(Quote, quote_id)
+    if not quote:
+        flash(_("Quote not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    form = QuoteCreateForm()
+    _populate_part_choices(form)
+    if not form.validate_on_submit():
+        flash(_("Invalid quote data"), "error")
+        return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
+
+    _save_quote_from_form(quote, form)
+    db.session.commit()
+    flash(_("Quote updated"), "success")
     return redirect(url_for("quotes.quote_detail", quote_id=quote.id))
 
 
@@ -95,7 +192,10 @@ def quote_detail(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     option_totals, quote_total = compute_quote_totals(quote)
-    return render_template("quotes/detail.html", quote=quote, option_totals=option_totals, quote_total=quote_total)
+    igic_rate = Decimal(str(current_app.config.get("DEFAULT_IGIC_RATE", 0.07)))
+    tax_total = quote_total * igic_rate
+    grand_total = quote_total + tax_total
+    return render_template("quotes/detail.html", quote=quote, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total)
 
 
 @quotes_bp.post("/<uuid:quote_id>/send")
@@ -107,7 +207,7 @@ def send_quote(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     set_quote_status(quote, "sent")
-    quote.ticket.internal_status = "Awaiting Quote Approval"
+    quote.ticket.internal_status = "awaiting_quote_approval"
     db.session.commit()
 
     log_action("quote.send", "Quote", str(quote.id), details={"ticket_id": str(quote.ticket_id)})
@@ -124,7 +224,7 @@ def mark_expired(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     quote.status = "expired"
-    quote.ticket.internal_status = "On Hold"
+    quote.ticket.internal_status = "awaiting_quote_approval"
     db.session.commit()
     log_action("quote.expire", "Quote", str(quote.id), details={"ticket_id": str(quote.ticket_id)})
     flash(_("Quote marked as expired"), "info")
@@ -153,10 +253,10 @@ def manual_approval(quote_id):
 
     if decision == "approved":
         quote.status = "approved"
-        quote.ticket.internal_status = "Quote Approved"
+        quote.ticket.internal_status = "in_repair"
     else:
         quote.status = "declined"
-        quote.ticket.internal_status = "On Hold"
+        quote.ticket.internal_status = "awaiting_quote_approval"
 
     db.session.commit()
     log_action("quote.manual_decision", "QuoteApproval", str(approval.id), details={"quote_id": str(quote.id), "decision": decision})

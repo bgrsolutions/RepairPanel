@@ -6,109 +6,69 @@
     <title>{% block title %}IRONCore{% endblock %}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            boxShadow: {
-              panel: '0 10px 30px -12px rgba(2, 6, 23, 0.6)',
-              glow: '0 0 0 1px rgba(99, 102, 241, 0.25), 0 12px 40px -20px rgba(99, 102, 241, 0.6)'
-            }
-          }
-        }
-      }
-    </script>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
   </head>
   <body class="h-full bg-slate-950 text-slate-100 antialiased dark">
     <div class="min-h-full bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900/70">
       <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur">
-        <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <a href="{{ url_for('core.dashboard') }}" class="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-white">
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold shadow-glow">IR</span>
-            IRONCore
-          </a>
+        <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <a href="{{ url_for('core.dashboard') }}" class="inline-flex items-center gap-2 text-lg font-semibold text-white"><span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold">IR</span>IRONCore</a>
 
           {% if current_user.is_authenticated %}
-          <nav class="hidden items-center gap-1 lg:flex">
-            <a href="{{ url_for('core.dashboard') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Dashboard</a>
-            <a href="{{ url_for('tickets.list_tickets') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Tickets</a>
-            <a href="{{ url_for('intake.list_intakes') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Intake</a>
-            <a href="{{ url_for('customers.list_customers') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Customers</a>
-            <a href="{{ url_for('inventory.stock_overview') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Inventory</a>
-            <a href="{{ url_for('suppliers.list_suppliers') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Suppliers</a>
-            <a href="{{ url_for('orders.list_orders') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Orders</a>
-            <a href="{{ url_for('reports.kpi_dashboard') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Reports</a>
-            <a href="{{ url_for('notifications.list_events') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Notifications</a>
-            <a href="{{ url_for('integrations.export_queue') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Exports</a>
-            <a href="{{ url_for('settings.index') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Settings</a>
-            <a href="{{ url_for('tickets.repair_board') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Bench Board</a>
-            <a href="{{ url_for('tickets.my_queue') }}" class="rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">My Queue</a>
-            <a href="{{ url_for('tickets.create_ticket') }}" class="ml-2 inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">+ New Ticket</a>
+          <nav class="hidden items-center gap-2 lg:flex text-sm">
+            <a href="{{ url_for('core.dashboard') }}" class="rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Dashboard</a>
+
+            <details class="group relative">
+              <summary class="list-none cursor-pointer rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Repairs</summary>
+              <div class="absolute left-0 mt-1 w-48 rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-panel">
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('tickets.list_tickets') }}">Tickets</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('intake.list_intakes') }}">Intake</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('customers.list_customers') }}">Customers</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('tickets.repair_board') }}">Bench Board</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('tickets.my_queue') }}">My Queue</a>
+              </div>
+            </details>
+
+            <details class="group relative">
+              <summary class="list-none cursor-pointer rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Inventory</summary>
+              <div class="absolute left-0 mt-1 w-48 rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-panel">
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('inventory.stock_overview') }}">Inventory</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('inventory.list_parts') }}">Parts</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('suppliers.list_suppliers') }}">Suppliers</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('orders.list_orders') }}">Orders</a>
+              </div>
+            </details>
+
+            <details class="group relative">
+              <summary class="list-none cursor-pointer rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Operations</summary>
+              <div class="absolute left-0 mt-1 w-48 rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-panel">
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('reports.kpi_dashboard') }}">Reports</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('notifications.list_events') }}">Notifications</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('integrations.export_queue') }}">Exports</a>
+              </div>
+            </details>
+
+            <details class="group relative">
+              <summary class="list-none cursor-pointer rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Admin</summary>
+              <div class="absolute left-0 mt-1 w-48 rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-panel">
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('settings.index') }}">Settings</a>
+                <a class="block rounded px-2 py-1.5 hover:bg-slate-800" href="{{ url_for('users.list_users') }}">Users / Staff</a>
+              </div>
+            </details>
+
+            <a href="{{ url_for('tickets.create_ticket') }}" class="ml-1 inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 font-semibold text-white hover:bg-indigo-500">+ New Ticket</a>
           </nav>
           {% endif %}
 
-          <div class="flex items-center gap-2 sm:gap-3 text-sm">
-            {% if current_user.is_authenticated %}
-              <a href="{{ url_for('auth.logout') }}" class="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-white">Logout</a>
-            {% else %}
-              <a href="{{ url_for('auth.login') }}" class="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-white">Login</a>
-            {% endif %}
-
-            <div class="ml-1 inline-flex items-center rounded-xl border border-slate-700 bg-slate-900/80 p-1">
-              {% for locale in supported_locales %}
-                <a
-                  class="rounded-md px-2.5 py-1.5 text-xs font-semibold tracking-wide transition {% if locale == current_locale %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}"
-                  href="{{ url_for('set_language', locale=locale) }}"
-                >
-                  {{ locale|upper }}
-                </a>
-              {% endfor %}
-            </div>
+          <div class="flex items-center gap-2 text-sm">
+            {% if current_user.is_authenticated %}<a href="{{ url_for('auth.logout') }}" class="rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Logout</a>{% else %}<a href="{{ url_for('auth.login') }}" class="rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Login</a>{% endif %}
+            <div class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900/80 p-1">{% for locale in supported_locales %}<a class="rounded-md px-2.5 py-1.5 text-xs font-semibold {% if locale == current_locale %}bg-indigo-600 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}" href="{{ url_for('set_language', locale=locale) }}">{{ locale|upper }}</a>{% endfor %}</div>
           </div>
         </div>
-
-        {% if current_user.is_authenticated %}
-        <div class="border-t border-slate-800/80 lg:hidden">
-          <div class="mx-auto flex w-full max-w-[1400px] gap-1 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
-            <a href="{{ url_for('core.dashboard') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Dashboard</a>
-            <a href="{{ url_for('tickets.list_tickets') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Tickets</a>
-            <a href="{{ url_for('intake.list_intakes') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Intake</a>
-            <a href="{{ url_for('customers.list_customers') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Customers</a>
-            <a href="{{ url_for('inventory.stock_overview') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Inventory</a>
-            <a href="{{ url_for('reports.kpi_dashboard') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Reports</a>
-            <a href="{{ url_for('settings.index') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Settings</a>
-            <a href="{{ url_for('suppliers.list_suppliers') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Suppliers</a>
-            <a href="{{ url_for('orders.list_orders') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Orders</a>
-            <a href="{{ url_for('tickets.repair_board') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">Bench Board</a>
-            <a href="{{ url_for('tickets.my_queue') }}" class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">My Queue</a>
-            <a href="{{ url_for('tickets.create_ticket') }}" class="whitespace-nowrap rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white">+ New Ticket</a>
-          </div>
-        </div>
-        {% endif %}
       </header>
 
       <main class="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <div class="mb-6 space-y-3">
-              {% for category, message in messages %}
-                {% set flash_class = 'border-slate-700/80 bg-slate-800/80 text-slate-100' %}
-                {% if category == 'success' %}
-                  {% set flash_class = 'border-emerald-700/60 bg-emerald-950/70 text-emerald-100' %}
-                {% elif category == 'error' %}
-                  {% set flash_class = 'border-rose-700/60 bg-rose-950/70 text-rose-100' %}
-                {% elif category == 'info' %}
-                  {% set flash_class = 'border-sky-700/60 bg-sky-950/70 text-sky-100' %}
-                {% endif %}
-                <div class="rounded-xl border px-4 py-3 text-sm shadow-panel {{ flash_class }}">{{ message }}</div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
+        {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="mb-6 space-y-3">{% for category, message in messages %}<div class="rounded-xl border px-4 py-3 text-sm border-slate-700/80 bg-slate-800/80">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
         {% block content %}{% endblock %}
       </main>
     </div>

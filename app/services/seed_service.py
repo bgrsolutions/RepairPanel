@@ -1,6 +1,8 @@
 import os
 from datetime import datetime
 
+from app.utils.ticketing import default_sla_target
+
 from app.config import Config
 from app.extensions import db
 from app.models import Branch, Customer, Device, Role, Ticket, User
@@ -130,10 +132,11 @@ def seed_phase1_data():
             branch=branch,
             customer=customer,
             device=device,
-            internal_status="New",
+            internal_status="unassigned",
             customer_status="Received",
             priority="normal",
             assigned_technician=None,
+            sla_target_at=default_sla_target(datetime.utcnow(), Config.DEFAULT_TICKET_SLA_DAYS),
         )
         db.session.add(ticket)
 
