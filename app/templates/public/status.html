@@ -5,33 +5,51 @@
   <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Repair Status</p>
     <h2 class="mt-1 text-2xl font-semibold text-white">Lookup Your Repair</h2>
-    <p class="mt-2 text-sm text-slate-400">Enter your ticket number and phone/email used at check-in.</p>
   </div>
 
   <form method="post" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-3">
     {{ form.hidden_tag() }}
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.ticket_number.label.text }}</label>
-      {{ form.ticket_number(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-    </div>
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.verifier.label.text }}</label>
-      {{ form.verifier(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}
-    </div>
+    {{ form.ticket_number(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Ticket number') }}
+    {{ form.verifier(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Phone or email used at check-in') }}
     {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
   </form>
 
   {% if lookup_result %}
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-2">
     <h3 class="text-lg font-semibold text-white">{{ lookup_result.ticket_number }}</h3>
     <p class="text-sm text-slate-300">Device: {{ lookup_result.device_summary }}</p>
-    <p class="text-sm text-slate-300">Status: {{ lookup_result.customer_status }}</p>
-    <p class="text-sm text-slate-300">Quote approval needed: {{ 'Yes' if lookup_result.quote_pending else 'No' }}</p>
-    <p class="text-sm text-slate-300">Estimated completion: {{ lookup_result.estimated_completion }}</p>
-    <p class="text-sm {% if lookup_result.ready_for_collection %}text-emerald-300{% else %}text-slate-300{% endif %}">
-      Ready for collection: {{ 'Yes' if lookup_result.ready_for_collection else 'Not yet' }}
-    </p>
+    <p class="text-sm text-slate-300">Repair status: {{ lookup_result.customer_status }}</p>
+    <p class="text-sm text-slate-300">Workflow: {{ lookup_result.internal_status|replace('_',' ')|title }}</p>
+    <p class="text-sm text-slate-300">Promised completion: {{ lookup_result.estimated_completion }}</p>
+    <p class="text-sm {% if lookup_result.ready_for_collection %}text-emerald-300{% else %}text-slate-300{% endif %}">Ready for collection: {{ 'Yes' if lookup_result.ready_for_collection else 'Not yet' }}</p>
+    {% if lookup_result.quote %}
+      <p class="text-sm text-slate-300">Quote approval needed: {{ 'Yes' if lookup_result.quote.status in ['sent','draft'] else 'No' }}</p>
+      <p class="text-sm text-slate-300">Quote status: {{ lookup_result.quote.status|replace('_',' ')|title }}</p>
+      {% if lookup_result.quote.status in ['sent','draft'] and lookup_result.quote.approvals %}<a class='text-indigo-300 text-sm' href='{{ url_for('public_portal.public_quote_approval', token=lookup_result.quote.approvals[0].token) }}'>Open quote approval</a>{% endif %}
+    {% endif %}
   </div>
+
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+    <h4 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Customer-facing updates</h4>
+    <div class="mt-2 space-y-2">
+      {% for note in lookup_result.customer_updates %}
+      <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-200">
+        <div class="text-xs text-slate-500">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ note.note_type|replace('_',' ') }}</div>
+        <div>{{ note.content }}</div>
+      </div>
+      {% else %}<p class="text-sm text-slate-500">No customer updates yet.</p>{% endfor %}
+    </div>
+  </div>
+
+  <form method="post" action="{{ url_for('public_portal.public_status_contact_update', ticket_id=lookup_result.ticket.id) }}" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-2">
+    {{ contact_form.hidden_tag() }}
+    <h4 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Update contact details</h4>
+    {{ contact_form.contact_person(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Contact person') }}
+    {{ contact_form.contact_phone(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Phone') }}
+    {{ contact_form.contact_email(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Email') }}
+    {{ contact_form.remarks(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='3', placeholder='Collection/contact remarks') }}
+    {{ contact_form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white') }}
+  </form>
   {% endif %}
 </section>
 {% endblock %}

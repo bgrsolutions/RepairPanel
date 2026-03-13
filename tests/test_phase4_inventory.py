@@ -56,7 +56,7 @@ def test_part_creation_stock_and_reservation(monkeypatch):
         db.session.add(customer); db.session.flush()
         device = Device(customer=customer, category='phones', brand='Nokia', model='N1', serial_number='INV1', imei='123')
         db.session.add(device); db.session.flush()
-        ticket = Ticket(ticket_number='HQ-20260312-4000', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='In Repair', customer_status='In progress', priority='normal')
+        ticket = Ticket(ticket_number='HQ-20260312-4000', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='in_repair', customer_status='In progress', priority='normal')
         db.session.add(ticket); db.session.commit()
         ticket_id = ticket.id
 

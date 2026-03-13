@@ -56,7 +56,7 @@ def test_order_creation_and_status_transitions(monkeypatch):
         db.session.add(customer); db.session.flush()
         device = Device(customer=customer, category='laptops', brand='Dell', model='XPS', serial_number='OR1', imei=None)
         db.session.add(device); db.session.flush()
-        ticket = Ticket(ticket_number='HQ-20260312-5000', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='Awaiting Parts', customer_status='Waiting for parts', priority='high')
+        ticket = Ticket(ticket_number='HQ-20260312-5000', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_parts', customer_status='Waiting for parts', priority='high')
         db.session.add(ticket)
         supplier = Supplier(name='Supplier A', is_active=True)
         db.session.add(supplier)
@@ -81,8 +81,10 @@ def test_order_creation_and_status_transitions(monkeypatch):
         'supplier_id': str(supplier.id),
         'branch_id': str(branch.id),
         'reference': 'PO-001',
-        'shipping_reference': 'SHIP-001',
-        'eta_date': '2026-12-31',
+        'status': 'ordered',
+        'supplier_reference': 'SUP-PO-001',
+        'tracking_number': 'TRK-001',
+        'estimated_arrival_at': '2026-12-31T10:00',
         'lines-0-part_id': str(part.id),
         'lines-0-quantity': '1',
         'lines-0-unit_cost': '80',
@@ -96,10 +98,10 @@ def test_order_creation_and_status_transitions(monkeypatch):
 
     detail_page = client.get(f'/orders/{order.id}')
     token2 = _csrf(detail_page.data)
-    status_resp = client.post(f'/orders/{order.id}', data={'csrf_token': token2, 'event_type': 'arrived', 'notes': 'Delivery received'}, follow_redirects=False)
+    status_resp = client.post(f'/orders/{order.id}', data={'csrf_token': token2, 'event_type': 'received', 'notes': 'Delivery received'}, follow_redirects=False)
     assert status_resp.status_code == 302
 
     with app.app_context():
         refreshed = db.session.get(PartOrder, order.id)
-        assert refreshed.status == 'arrived'
-        assert PartOrderEvent.query.filter_by(order_id=order.id, event_type='arrived').count() == 1
+        assert refreshed.status == 'received'
+        assert PartOrderEvent.query.filter_by(order_id=order.id, event_type='received').count() == 1

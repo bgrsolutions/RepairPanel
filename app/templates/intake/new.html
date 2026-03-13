@@ -4,7 +4,7 @@
 <section class="space-y-4">
   <div>
     <h1 class="text-2xl font-semibold text-white">Internal Intake / Check-In</h1>
-    <p class="text-sm text-slate-400">Capture customer/device intake details and create a pre-check-in record.</p>
+    <p class="text-sm text-slate-400">Search existing customer by name/email/phone or create a new one.</p>
   </div>
 
   <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel lg:grid-cols-2">
@@ -19,68 +19,65 @@
       {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
     </div>
 
+    <div class="lg:col-span-2">
+      {{ form.existing_customer_id(id='existing-customer-id') }}
+      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Find Existing Customer</label>
+      <input id="customer-search" type="text" placeholder="Search name, email, phone" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5" />
+      <div id="customer-results" class="mt-2 space-y-1"></div>
+    </div>
+
     <div>
       <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.customer_name.label }}</label>
-      {{ form.customer_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+      {{ form.customer_name(id='customer-name', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
     </div>
     <div>
       <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.customer_phone.label }}</label>
-      {{ form.customer_phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+      {{ form.customer_phone(id='customer-phone', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
     </div>
 
     <div class="lg:col-span-2">
       <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.customer_email.label }}</label>
-      {{ form.customer_email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
+      {{ form.customer_email(id='customer-email', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
     </div>
 
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.device_brand.label }}</label>
-      {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
-    </div>
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.device_model.label }}</label>
-      {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
-    </div>
+    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.device_brand.label }}</label>{{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}</div>
+    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.device_model.label }}</label>{{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}</div>
+    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.serial_number.label }}</label>{{ form.serial_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}</div>
+    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.imei.label }}</label>{{ form.imei(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}</div>
 
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.serial_number.label }}</label>
-      {{ form.serial_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
-    </div>
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.imei.label }}</label>
-      {{ form.imei(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
-    </div>
+    <div class="lg:col-span-2"><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.reported_fault.label }}</label>{{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-24') }}</div>
+    <div class="lg:col-span-2"><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.accessories.label }}</label>{{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-20') }}</div>
+    <div class="lg:col-span-2"><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.intake_notes.label }}</label>{{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-20') }}</div>
 
-    <div class="lg:col-span-2">
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.reported_fault.label }}</label>
-      {{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-24') }}
-    </div>
+    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.photo.label }}</label>{{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}</div>
+    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Signature (Optional)</label>{{ form.signature_data(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}</div>
 
-    <div class="lg:col-span-2">
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.accessories.label }}</label>
-      {{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-20') }}
-    </div>
-
-    <div class="lg:col-span-2">
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.intake_notes.label }}</label>
-      {{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 min-h-20') }}
-    </div>
-
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.photo.label }}</label>
-      {{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5') }}
-    </div>
-    <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Signature (Optional)</label>
-      {{ form.signature_data(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5', placeholder='Base64 signature payload placeholder') }}
-    </div>
-
-    <div class="lg:col-span-2 flex items-center gap-2">
-      {{ form.accepted_disclaimer(class='h-4 w-4 rounded border-slate-600 bg-slate-800') }}
-      <span class="text-sm text-slate-300">I confirm the customer accepted the intake disclaimer.</span>
-    </div>
-
+    <div class="lg:col-span-2 flex items-center gap-2">{{ form.accepted_disclaimer(class='h-4 w-4 rounded border-slate-600 bg-slate-800') }}<span class="text-sm text-slate-300">I confirm the customer accepted the intake disclaimer.</span></div>
     <div class="lg:col-span-2">{{ form.submit(class='inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
   </form>
 </section>
+<script>
+const search=document.getElementById('customer-search');
+const results=document.getElementById('customer-results');
+search?.addEventListener('input', async ()=>{
+  const q=search.value.trim();
+  results.innerHTML='';
+  if(q.length<2) return;
+  const res=await fetch(`/intake/customer-search?q=${encodeURIComponent(q)}`);
+  const data=await res.json();
+  for(const item of data.items){
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='block w-full text-left rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs hover:bg-slate-800';
+    btn.textContent=item.label;
+    btn.onclick=async()=>{
+      document.getElementById('existing-customer-id').value=item.id;
+      const d=await (await fetch(`/intake/customer/${item.id}`)).json();
+      if(d.ok){document.getElementById('customer-name').value=d.full_name;document.getElementById('customer-phone').value=d.phone;document.getElementById('customer-email').value=d.email;}
+      results.innerHTML='';
+    }
+    results.appendChild(btn);
+  }
+});
+</script>
 {% endblock %}

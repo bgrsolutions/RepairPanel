@@ -1,13 +1,15 @@
-import secrets
 import uuid
+import secrets
 from datetime import datetime
+from decimal import Decimal
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
+from sqlalchemy import inspect
 
 from app.extensions import db
 from app.forms.intake_forms import PublicIntakeForm
-from app.forms.public_forms import PublicQuoteApprovalForm, PublicStatusLookupForm
+from app.forms.public_forms import PublicContactUpdateForm, PublicQuoteApprovalForm, PublicStatusLookupForm
 from app.models import (
     Attachment,
     Branch,
@@ -16,13 +18,18 @@ from app.models import (
     IntakeDisclaimerAcceptance,
     IntakeSignature,
     IntakeSubmission,
+    Part,
     PortalToken,
     Quote,
     QuoteApproval,
     Ticket,
+    TicketNote,
 )
 from app.services.audit_service import log_action
+from app.services.payment_service import create_quote_checkout_session
+from app.services.quote_service import compute_quote_totals
 from app.utils.file_uploads import save_intake_file
+from app.utils.ticketing import normalize_ticket_status
 
 
 public_portal_bp = Blueprint("public_portal", __name__, url_prefix="/public")
@@ -30,6 +37,17 @@ public_portal_bp = Blueprint("public_portal", __name__, url_prefix="/public")
 
 def _new_intake_reference() -> str:
     return f"INT-{datetime.utcnow().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
+
+
+def _safe_exact_customer_match(email: str | None, phone: str | None):
+    email = (email or "").strip().lower()
+    phone = (phone or "").strip()
+    customer = None
+    if email and "@" in email and len(email) >= 6:
+        customer = Customer.query.filter_by(email=email).first()
+    if customer is None and phone and len(phone) >= 7:
+        customer = Customer.query.filter_by(phone=phone).first()
+    return customer
 
 
 @public_portal_bp.route("/check-in", methods=["GET", "POST"])
@@ -44,48 +62,41 @@ def kiosk_checkin():
 
 def _render_public_checkin(kiosk_mode: bool):
     form = PublicIntakeForm()
-    branches = Branch.query.filter(Branch.deleted_at.is_(None), Branch.is_active.is_(True)).order_by(Branch.code).all()
-    form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in branches]
+    branches = Branch.query.filter(Branch.deleted_at.is_(None), Branch.is_active.is_(True)).order_by(Branch.code.asc()).all()
+    form.branch_id.choices = [(str(branch.id), f"{branch.code} - {branch.name}") for branch in branches]
 
     if form.validate_on_submit():
         branch = db.session.get(Branch, uuid.UUID(str(form.branch_id.data)))
+        if not branch:
+            flash(_("Branch not found"), "error")
+            return render_template("public/check_in.html", form=form, kiosk_mode=kiosk_mode)
 
-        customer = None
-        if form.customer_email.data:
-            customer = Customer.query.filter_by(email=form.customer_email.data.lower().strip()).first()
-        if customer is None:
-            customer = Customer.query.filter_by(phone=form.customer_phone.data.strip()).first()
-        if customer is None:
-            customer = Customer(
-                full_name=form.customer_name.data,
-                phone=form.customer_phone.data,
-                email=form.customer_email.data.lower().strip() if form.customer_email.data else None,
-                preferred_language=form.preferred_language.data,
-                primary_branch=branch,
-            )
+        matched_customer = _safe_exact_customer_match(form.customer_email.data, form.customer_phone.data)
+        customer = matched_customer or Customer(
+            full_name=form.customer_name.data,
+            phone=form.customer_phone.data,
+            email=form.customer_email.data,
+            preferred_language=form.preferred_language.data,
+            primary_branch=branch,
+        )
+        if not matched_customer:
             db.session.add(customer)
             db.session.flush()
 
-        device = None
-        if form.serial_number.data:
-            device = Device.query.filter_by(serial_number=form.serial_number.data.strip()).first()
-        if device is None and form.imei.data:
-            device = Device.query.filter_by(imei=form.imei.data.strip()).first()
-        if device is None:
-            device = Device(
-                customer=customer,
-                category=form.category.data,
-                brand=form.device_brand.data,
-                model=form.device_model.data,
-                serial_number=form.serial_number.data.strip() if form.serial_number.data else None,
-                imei=form.imei.data.strip() if form.imei.data else None,
-            )
-            db.session.add(device)
-            db.session.flush()
+        device = Device(
+            customer_id=customer.id,
+            category=form.category.data,
+            brand=form.device_brand.data,
+            model=form.device_model.data,
+            serial_number=form.serial_number.data,
+            imei=form.imei.data,
+        )
+        db.session.add(device)
+        db.session.flush()
 
         intake = IntakeSubmission(
             reference=_new_intake_reference(),
-            source="kiosk" if kiosk_mode else "public",
+            source="public" if not kiosk_mode else "kiosk",
             status="pre_check_in",
             branch=branch,
             customer=customer,
@@ -142,13 +153,7 @@ def _render_public_checkin(kiosk_mode: bool):
             except ValueError:
                 flash(_("Unsupported attachment file type"), "error")
 
-        db.session.add(
-            PortalToken(
-                token=secrets.token_urlsafe(24),
-                token_type="public_intake_confirmation",
-                intake_submission_id=intake.id,
-            )
-        )
+        db.session.add(PortalToken(token=secrets.token_urlsafe(24), token_type="public_intake_confirmation", intake_submission_id=intake.id))
         db.session.commit()
 
         return redirect(url_for("public_portal.public_checkin_thank_you", reference=intake.reference, kiosk=int(kiosk_mode)))
@@ -166,8 +171,8 @@ def public_checkin_thank_you():
 @public_portal_bp.route("/status", methods=["GET", "POST"])
 def public_status_lookup():
     form = PublicStatusLookupForm()
+    contact_form = PublicContactUpdateForm()
     lookup_result = None
-    quote_pending = False
 
     if form.validate_on_submit():
         ticket_number = (form.ticket_number.data or "").strip()
@@ -175,24 +180,52 @@ def public_status_lookup():
 
         ticket = Ticket.query.filter(Ticket.ticket_number == ticket_number, Ticket.deleted_at.is_(None)).first()
         if ticket and verifier and verifier in {(ticket.customer.email or "").lower(), (ticket.customer.phone or "").lower()}:
-            active_quote = (
-                Quote.query.filter(Quote.ticket_id == ticket.id)
-                .order_by(Quote.version.desc(), Quote.created_at.desc())
-                .first()
-            )
-            quote_pending = bool(active_quote and active_quote.status in {"sent", "draft"})
+            active_quote = Quote.query.filter(Quote.ticket_id == ticket.id).order_by(Quote.version.desc(), Quote.created_at.desc()).first()
+            customer_updates = []
+            if inspect(db.engine).has_table("ticket_notes"):
+                notes = TicketNote.query.filter_by(ticket_id=ticket.id).order_by(TicketNote.created_at.desc()).all()
+                customer_updates = [n for n in notes if n.note_type in {"customer", "customer_update", "communication"}]
+
             lookup_result = {
+                "ticket": ticket,
                 "ticket_number": ticket.ticket_number,
                 "device_summary": f"{ticket.device.brand} {ticket.device.model}",
                 "customer_status": ticket.customer_status,
-                "ready_for_collection": ticket.customer_status.lower() == "ready for collection",
-                "quote_pending": quote_pending,
-                "estimated_completion": "TBD",
+                "internal_status": normalize_ticket_status(ticket.internal_status),
+                "ready_for_collection": normalize_ticket_status(ticket.internal_status) == Ticket.STATUS_READY_FOR_COLLECTION,
+                "quote": active_quote,
+                "estimated_completion": ticket.quoted_completion_at.strftime("%Y-%m-%d %H:%M") if ticket.quoted_completion_at else "TBD",
+                "customer_updates": customer_updates,
             }
+            contact_form.contact_person.data = ticket.customer.full_name
+            contact_form.contact_phone.data = ticket.customer.phone
+            contact_form.contact_email.data = ticket.customer.email
         else:
             flash(_("No repair record found for the provided details"), "error")
 
-    return render_template("public/status.html", form=form, lookup_result=lookup_result, quote_pending=quote_pending)
+    return render_template("public/status.html", form=form, lookup_result=lookup_result, contact_form=contact_form)
+
+
+@public_portal_bp.post("/status/<uuid:ticket_id>/contact")
+def public_status_contact_update(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("public_portal.public_status_lookup"))
+
+    form = PublicContactUpdateForm()
+    if form.validate_on_submit():
+        if form.contact_person.data:
+            ticket.customer.full_name = form.contact_person.data
+        ticket.customer.phone = form.contact_phone.data
+        ticket.customer.email = form.contact_email.data
+        if form.remarks.data and inspect(db.engine).has_table("ticket_notes"):
+            db.session.add(TicketNote(ticket_id=ticket.id, note_type="customer_update", content=f"Customer remarks: {form.remarks.data}"))
+        db.session.commit()
+        flash(_("Contact preferences updated"), "success")
+    else:
+        flash(_("Invalid contact update"), "error")
+    return redirect(url_for("public_portal.public_status_lookup"))
 
 
 @public_portal_bp.route("/quote/<token>", methods=["GET", "POST"])
@@ -205,6 +238,10 @@ def public_quote_approval(token):
     quote = approval.quote
     form = PublicQuoteApprovalForm()
     expired = approval.expires_at and approval.expires_at < datetime.utcnow()
+    option_totals, quote_total = compute_quote_totals(quote)
+    igic_rate = Decimal(str(current_app.config.get("DEFAULT_IGIC_RATE", 0.07)))
+    tax_total = quote_total * igic_rate
+    grand_total = quote_total + tax_total
 
     if form.validate_on_submit() and not expired:
         decision = form.decision.data
@@ -217,27 +254,46 @@ def public_quote_approval(token):
             approval.ip_address = request.remote_addr
             approval.approved_at = datetime.utcnow()
             approval.declined_reason = form.declined_reason.data if decision == "declined" else None
+            approval.payment_choice = form.payment_choice.data if decision == "approved" else None
 
-            quote.status = decision
-            quote.ticket.internal_status = "Quote Approved" if decision == "approved" else "On Hold"
+            if decision == "approved":
+                quote.status = "approved"
+                quote.ticket.internal_status = "in_repair"
+                if form.payment_choice.data == "pay_now":
+                    checkout = create_quote_checkout_session(
+                        quote_id=str(quote.id),
+                        amount_total=grand_total,
+                        currency=quote.currency,
+                        success_url=url_for("public_portal.public_quote_approval", token=token, _external=True),
+                        cancel_url=url_for("public_portal.public_quote_approval", token=token, _external=True),
+                        stripe_secret_key=current_app.config.get("STRIPE_SECRET_KEY"),
+                    )
+                    approval.payment_status = "pending_online"
+                    approval.stripe_session_id = checkout.get("session_id")
+                    approval.stripe_checkout_url = checkout.get("checkout_url")
+                else:
+                    approval.payment_status = "pay_in_store"
+            else:
+                quote.status = "declined"
+                quote.ticket.internal_status = "awaiting_quote_approval"
+                approval.payment_status = "not_applicable"
 
             db.session.commit()
             try:
-                log_action(
-                    "quote.public_decision",
-                    "QuoteApproval",
-                    str(approval.id),
-                    details={"quote_id": str(quote.id), "decision": decision},
-                )
+                log_action("quote.public_decision", "QuoteApproval", str(approval.id), details={"quote_id": str(quote.id), "decision": decision, "payment_choice": approval.payment_choice})
             except Exception:
-                db.session.rollback()
-
+                pass
             flash(_("Your quote decision has been recorded"), "success")
             return redirect(url_for("public_portal.public_quote_approval", token=token))
 
     if expired and quote.status == "sent":
         quote.status = "expired"
-        quote.ticket.internal_status = "On Hold"
+        quote.ticket.internal_status = "awaiting_quote_approval"
         db.session.commit()
 
-    return render_template("public/quote_approval.html", approval=approval, quote=quote, expired=expired, form=form)
+    return render_template("public/quote_approval.html", approval=approval, quote=quote, expired=expired, form=form, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total)
+
+
+@public_portal_bp.get('/quote-payment-placeholder')
+def quote_payment_placeholder():
+    return render_template('public/thank_you.html', reference='Payment session created. Continue in Stripe checkout.', kiosk_mode=False)
