@@ -131,12 +131,11 @@ def test_public_status_lookup_and_quote_approval(monkeypatch):
 
     approval_get = client.get(f"/public/quote/{token}")
     assert approval_get.status_code == 200
-    approval_csrf = _extract_csrf_token(approval_get.data)
+    # Public approval form uses token-based auth, CSRF is intentionally disabled
 
     approval_post = client.post(
         f"/public/quote/{token}",
         data={
-            "csrf_token": approval_csrf,
             "decision": "approved",
             "actor_name": "Status User",
             "actor_contact": "status.user@example.com",
