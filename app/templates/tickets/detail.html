@@ -159,121 +159,113 @@
           <p class="text-xs text-slate-500">Pre-repair and post-repair quality checks</p>
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {# -- Pre-Repair Checklist -- #}
-          <div class="rounded-xl border {% if pre_repair_checklist and pre_repair_checklist.is_complete %}border-emerald-700/40 bg-emerald-950/10{% elif pre_repair_checklist %}border-amber-700/40 bg-amber-950/10{% else %}border-slate-800{% endif %} bg-slate-900 p-4">
-            <div class="flex items-center justify-between mb-3">
-              <div>
-                <p class="text-xs font-bold uppercase tracking-widest {% if pre_repair_checklist and pre_repair_checklist.is_complete %}text-emerald-400{% elif pre_repair_checklist %}text-amber-400{% else %}text-slate-400{% endif %}">Pre-Repair</p>
-                {% if pre_repair_checklist %}
-                <p class="mt-0.5 text-[10px] text-slate-500">
-                  {% if pre_repair_checklist.is_complete %}Complete{% else %}In progress &mdash; {{ pre_repair_checklist.checked_count }}/{{ pre_repair_checklist.total_count }} checked{% endif %}
-                </p>
-                {% else %}
-                <p class="mt-0.5 text-[10px] text-slate-500">Not started</p>
+
+          {# -- Pre-Repair Checklists Column -- #}
+          <div class="space-y-3">
+            {% set active_pre = pre_repair_checklists|selectattr('is_complete', 'false')|list %}
+            {% for checklist in pre_repair_checklists %}
+            <div class="rounded-xl border {% if checklist.is_complete %}border-emerald-700/40 bg-emerald-950/10{% else %}border-amber-700/40 bg-amber-950/10{% endif %} bg-slate-900 p-4">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-widest {% if checklist.is_complete %}text-emerald-400{% else %}text-amber-400{% endif %}">Pre-Repair Check #{{ loop.index }}</p>
+                  <p class="mt-0.5 text-[10px] text-slate-500">
+                    {% if checklist.is_complete %}Completed {{ checklist.completed_at.strftime('%b %d, %H:%M') }}{% else %}In progress &mdash; {{ checklist.checked_count }}/{{ checklist.total_count }} checked{% endif %}
+                  </p>
+                </div>
+                {% if checklist.is_complete %}
+                <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Complete</span>
+                {% elif not active_pre or active_pre[0].id == checklist.id %}
+                <span class="rounded-full bg-amber-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-300 border border-amber-800/40">Active</span>
                 {% endif %}
               </div>
-              {% if pre_repair_checklist and pre_repair_checklist.is_complete %}
-              <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Complete</span>
-              {% endif %}
+              <form method="post" action="{{ url_for('checklists.update_checklist', checklist_id=checklist.id) }}" class="space-y-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                {% for item in checklist.items %}
+                <div class="flex items-start gap-2.5 rounded-lg border border-slate-800/60 bg-slate-950/40 px-3 py-2">
+                  <input type="checkbox" name="item_{{ item.id }}" id="pre_{{ checklist.id }}_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40" />
+                  <div class="flex-1 min-w-0">
+                    <label for="pre_{{ checklist.id }}_{{ item.id }}" class="block text-xs {% if item.is_checked %}text-slate-400{% else %}text-slate-200{% endif %}">{{ item.label }}</label>
+                    {% if not checklist.is_complete %}
+                    <input type="text" name="notes_{{ item.id }}" value="{{ item.notes or '' }}" placeholder="Notes (optional)" class="mt-1 w-full rounded border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-400 placeholder-slate-600 focus:border-indigo-600" />
+                    {% elif item.notes %}
+                    <p class="mt-0.5 text-[11px] text-slate-500">{{ item.notes }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+                {% if not checklist.is_complete %}
+                <div class="flex gap-2 pt-1">
+                  <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Save</button>
+                  {% if checklist.all_checked %}
+                  <button type="submit" formaction="{{ url_for('checklists.complete_checklist', checklist_id=checklist.id) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors">Mark Complete</button>
+                  {% endif %}
+                </div>
+                {% endif %}
+              </form>
             </div>
-            {% if not pre_repair_checklist %}
+            {% endfor %}
+            {% if not active_pre %}
             <form method="post" action="{{ url_for('checklists.create_checklist', ticket_id=ticket.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <input type="hidden" name="checklist_type" value="pre_repair" />
-              <button class="w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/30 px-3 py-3 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-300 transition-colors">+ Create Pre-Repair Checklist</button>
+              <button class="w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/30 px-3 py-3 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-300 transition-colors">+ Create Pre-Repair Check{% if pre_repair_checklists %} #{{ pre_repair_checklists|length + 1 }}{% endif %}</button>
             </form>
-            {% else %}
-            <form method="post" action="{{ url_for('checklists.update_checklist', checklist_id=pre_repair_checklist.id) }}" class="space-y-2">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              {% for item in pre_repair_checklist.items %}
-              <div class="flex items-start gap-2.5 rounded-lg border border-slate-800/60 bg-slate-950/40 px-3 py-2">
-                <input type="checkbox" name="item_{{ item.id }}" id="pre_item_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if pre_repair_checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40" />
-                <div class="flex-1 min-w-0">
-                  <label for="pre_item_{{ item.id }}" class="block text-xs {% if item.is_checked %}text-slate-400{% else %}text-slate-200{% endif %}">{{ item.label }}</label>
-                  {% if not pre_repair_checklist.is_complete %}
-                  <input type="text" name="notes_{{ item.id }}" value="{{ item.notes or '' }}" placeholder="Notes (optional)" class="mt-1 w-full rounded border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-400 placeholder-slate-600 focus:border-indigo-600" />
-                  {% elif item.notes %}
-                  <p class="mt-0.5 text-[11px] text-slate-500">{{ item.notes }}</p>
-                  {% endif %}
-                </div>
-              </div>
-              {% endfor %}
-              {% if not pre_repair_checklist.is_complete %}
-              <div class="flex gap-2 pt-1">
-                <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Save</button>
-                {% if pre_repair_checklist.all_checked %}
-                <button type="submit" formaction="{{ url_for('checklists.complete_checklist', checklist_id=pre_repair_checklist.id) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors">Mark Complete</button>
-                {% endif %}
-              </div>
-              {% endif %}
-            </form>
-            {% if pre_repair_checklist.is_complete %}
-            <form method="post" action="{{ url_for('checklists.create_checklist', ticket_id=ticket.id) }}" class="mt-2">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              <input type="hidden" name="checklist_type" value="pre_repair" />
-              <button class="w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/30 px-3 py-2 text-[11px] text-slate-500 hover:border-slate-500 hover:text-slate-400 transition-colors">+ Create New Pre-Repair Checklist</button>
-            </form>
-            {% endif %}
             {% endif %}
           </div>
 
-          {# -- Post-Repair Checklist -- #}
-          <div class="rounded-xl border {% if post_repair_checklist and post_repair_checklist.is_complete %}border-emerald-700/40 bg-emerald-950/10{% elif post_repair_checklist %}border-amber-700/40 bg-amber-950/10{% else %}border-slate-800{% endif %} bg-slate-900 p-4">
-            <div class="flex items-center justify-between mb-3">
-              <div>
-                <p class="text-xs font-bold uppercase tracking-widest {% if post_repair_checklist and post_repair_checklist.is_complete %}text-emerald-400{% elif post_repair_checklist %}text-amber-400{% else %}text-slate-400{% endif %}">Post-Repair</p>
-                {% if post_repair_checklist %}
-                <p class="mt-0.5 text-[10px] text-slate-500">
-                  {% if post_repair_checklist.is_complete %}Complete{% else %}In progress &mdash; {{ post_repair_checklist.checked_count }}/{{ post_repair_checklist.total_count }} checked{% endif %}
-                </p>
-                {% else %}
-                <p class="mt-0.5 text-[10px] text-slate-500">Not started</p>
+          {# -- Post-Repair Checklists Column -- #}
+          <div class="space-y-3">
+            {% set active_post = post_repair_checklists|selectattr('is_complete', 'false')|list %}
+            {% for checklist in post_repair_checklists %}
+            <div class="rounded-xl border {% if checklist.is_complete %}border-emerald-700/40 bg-emerald-950/10{% else %}border-amber-700/40 bg-amber-950/10{% endif %} bg-slate-900 p-4">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-widest {% if checklist.is_complete %}text-emerald-400{% else %}text-amber-400{% endif %}">Post-Repair Check #{{ loop.index }}</p>
+                  <p class="mt-0.5 text-[10px] text-slate-500">
+                    {% if checklist.is_complete %}Completed {{ checklist.completed_at.strftime('%b %d, %H:%M') }}{% else %}In progress &mdash; {{ checklist.checked_count }}/{{ checklist.total_count }} checked{% endif %}
+                  </p>
+                </div>
+                {% if checklist.is_complete %}
+                <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Complete</span>
+                {% elif not active_post or active_post[0].id == checklist.id %}
+                <span class="rounded-full bg-amber-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-300 border border-amber-800/40">Active</span>
                 {% endif %}
               </div>
-              {% if post_repair_checklist and post_repair_checklist.is_complete %}
-              <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Complete</span>
-              {% endif %}
+              <form method="post" action="{{ url_for('checklists.update_checklist', checklist_id=checklist.id) }}" class="space-y-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                {% for item in checklist.items %}
+                <div class="flex items-start gap-2.5 rounded-lg border border-slate-800/60 bg-slate-950/40 px-3 py-2">
+                  <input type="checkbox" name="item_{{ item.id }}" id="post_{{ checklist.id }}_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40" />
+                  <div class="flex-1 min-w-0">
+                    <label for="post_{{ checklist.id }}_{{ item.id }}" class="block text-xs {% if item.is_checked %}text-slate-400{% else %}text-slate-200{% endif %}">{{ item.label }}</label>
+                    {% if not checklist.is_complete %}
+                    <input type="text" name="notes_{{ item.id }}" value="{{ item.notes or '' }}" placeholder="Notes (optional)" class="mt-1 w-full rounded border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-400 placeholder-slate-600 focus:border-indigo-600" />
+                    {% elif item.notes %}
+                    <p class="mt-0.5 text-[11px] text-slate-500">{{ item.notes }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+                {% if not checklist.is_complete %}
+                <div class="flex gap-2 pt-1">
+                  <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Save</button>
+                  {% if checklist.all_checked %}
+                  <button type="submit" formaction="{{ url_for('checklists.complete_checklist', checklist_id=checklist.id) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors">Mark Complete</button>
+                  {% endif %}
+                </div>
+                {% endif %}
+              </form>
             </div>
-            {% if not post_repair_checklist %}
+            {% endfor %}
+            {% if not active_post %}
             <form method="post" action="{{ url_for('checklists.create_checklist', ticket_id=ticket.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <input type="hidden" name="checklist_type" value="post_repair" />
-              <button class="w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/30 px-3 py-3 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-300 transition-colors">+ Create Post-Repair Checklist</button>
+              <button class="w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/30 px-3 py-3 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-300 transition-colors">+ Create Post-Repair Check{% if post_repair_checklists %} #{{ post_repair_checklists|length + 1 }}{% endif %}</button>
             </form>
-            {% else %}
-            <form method="post" action="{{ url_for('checklists.update_checklist', checklist_id=post_repair_checklist.id) }}" class="space-y-2">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              {% for item in post_repair_checklist.items %}
-              <div class="flex items-start gap-2.5 rounded-lg border border-slate-800/60 bg-slate-950/40 px-3 py-2">
-                <input type="checkbox" name="item_{{ item.id }}" id="post_item_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if post_repair_checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40" />
-                <div class="flex-1 min-w-0">
-                  <label for="post_item_{{ item.id }}" class="block text-xs {% if item.is_checked %}text-slate-400{% else %}text-slate-200{% endif %}">{{ item.label }}</label>
-                  {% if not post_repair_checklist.is_complete %}
-                  <input type="text" name="notes_{{ item.id }}" value="{{ item.notes or '' }}" placeholder="Notes (optional)" class="mt-1 w-full rounded border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-400 placeholder-slate-600 focus:border-indigo-600" />
-                  {% elif item.notes %}
-                  <p class="mt-0.5 text-[11px] text-slate-500">{{ item.notes }}</p>
-                  {% endif %}
-                </div>
-              </div>
-              {% endfor %}
-              {% if not post_repair_checklist.is_complete %}
-              <div class="flex gap-2 pt-1">
-                <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Save</button>
-                {% if post_repair_checklist.all_checked %}
-                <button type="submit" formaction="{{ url_for('checklists.complete_checklist', checklist_id=post_repair_checklist.id) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors">Mark Complete</button>
-                {% endif %}
-              </div>
-              {% endif %}
-            </form>
-            {% if post_repair_checklist.is_complete %}
-            <form method="post" action="{{ url_for('checklists.create_checklist', ticket_id=ticket.id) }}" class="mt-2">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              <input type="hidden" name="checklist_type" value="post_repair" />
-              <button class="w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/30 px-3 py-2 text-[11px] text-slate-500 hover:border-slate-500 hover:text-slate-400 transition-colors">+ Create New Post-Repair Checklist</button>
-            </form>
-            {% endif %}
             {% endif %}
           </div>
+
         </div>
       </div>
 

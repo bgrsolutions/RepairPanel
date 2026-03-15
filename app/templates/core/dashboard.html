@@ -10,7 +10,7 @@
       <p class="mt-1 text-sm text-slate-400">Live queue health for reception and bench technicians.</p>
     </div>
     <div class="flex flex-wrap gap-2">
-      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ New Ticket</a>
+      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Fast Check-In</a>
       <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Open Bench Board</a>
       <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">My Queue</a>
       <a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Reports</a>
@@ -71,20 +71,27 @@
     <section class="space-y-5">
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Tickets Need Attention</h2>
+        <p class="mt-0.5 text-[10px] text-slate-500">Overdue, blocked, or stalled tickets requiring action</p>
         <div class="mt-3 space-y-2">
           {% if attention_tickets %}
-            {% for ticket in attention_tickets %}
+            {% for item in attention_tickets %}
+              {% set ticket = item.ticket %}
               <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="block rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 hover:border-slate-700 transition-colors">
                 <div class="flex items-center justify-between gap-2">
                   <p class="text-sm font-semibold text-white">{{ ticket.ticket_number }}</p>
                   {{ priority_badge(ticket.priority) }}
                 </div>
-                <p class="mt-1 text-xs text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
-                <div class="mt-2">{{ status_badge(ticket.internal_status) }}</div>
+                <p class="mt-1 text-xs text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  {{ status_badge(ticket.internal_status) }}
+                  {% for reason in item.reasons %}
+                  <span class="inline-flex items-center rounded-full border border-rose-800/40 bg-rose-950/40 px-2 py-0.5 text-[10px] font-semibold text-rose-300">{{ reason }}</span>
+                  {% endfor %}
+                </div>
               </a>
             {% endfor %}
           {% else %}
-            {{ empty_state('No exception tickets', 'No overdue or blocked tickets right now') }}
+            {{ empty_state('All clear', 'No overdue or blocked tickets right now') }}
           {% endif %}
         </div>
       </div>
@@ -94,14 +101,28 @@
         {% if activity_items %}
         <ul class="mt-3 space-y-2 text-sm">
           {% for item in activity_items %}
-          <li class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3">
-            <div class="flex items-start justify-between gap-2">
-              <p class="text-slate-300 leading-snug">{{ item.description }}</p>
-              {% if item.entity_ref and item.ticket_id %}
-                <a href="{{ url_for('tickets.ticket_detail', ticket_id=item.ticket_id) }}" class="shrink-0 text-xs font-medium text-indigo-400 hover:text-indigo-300">{{ item.entity_ref }}</a>
-              {% endif %}
+          {% set type_cls = 'border-slate-800/60' %}
+          {% set dot_cls = 'bg-slate-500' %}
+          {% if item.action_type == 'ticket' %}{% set type_cls = 'border-indigo-800/30' %}{% set dot_cls = 'bg-indigo-400' %}{% endif %}
+          {% if item.action_type == 'intake' %}{% set type_cls = 'border-cyan-800/30' %}{% set dot_cls = 'bg-cyan-400' %}{% endif %}
+          {% if item.action_type == 'quote' %}{% set type_cls = 'border-violet-800/30' %}{% set dot_cls = 'bg-violet-400' %}{% endif %}
+          {% if item.action_type == 'diagnostic' %}{% set type_cls = 'border-amber-800/30' %}{% set dot_cls = 'bg-amber-400' %}{% endif %}
+          <li class="rounded-xl border {{ type_cls }} bg-slate-800/40 p-3">
+            <div class="flex items-start gap-2.5">
+              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full {{ dot_cls }}"></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-slate-200 leading-snug">{{ item.description }}</p>
+                  {% if item.entity_ref and item.ticket_id %}
+                    <a href="{{ url_for('tickets.ticket_detail', ticket_id=item.ticket_id) }}" class="shrink-0 rounded-md bg-slate-700/60 px-2 py-0.5 text-[11px] font-medium text-indigo-300 hover:text-indigo-200 hover:bg-slate-700 transition-colors">{{ item.entity_ref }}</a>
+                  {% endif %}
+                </div>
+                <div class="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                  <span>{{ item.timestamp.strftime('%b %d, %H:%M') }}</span>
+                  {% if item.actor %}<span class="text-slate-600">·</span><span class="text-slate-400">{{ item.actor }}</span>{% endif %}
+                </div>
+              </div>
             </div>
-            <p class="mt-1 text-xs text-slate-500">{{ item.timestamp.strftime('%b %d, %Y %H:%M') }}</p>
           </li>
           {% endfor %}
         </ul>

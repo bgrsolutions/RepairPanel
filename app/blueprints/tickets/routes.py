@@ -94,7 +94,7 @@ def list_tickets():
             continue
         if status == "archived" and n != Ticket.STATUS_ARCHIVED:
             continue
-        if status == "overdue" and not is_ticket_overdue(t, now):
+        if status == "overdue" and not is_ticket_overdue(t, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)):
             continue
         if status == "awaiting_parts" and not _ticket_waiting_on_parts(t):
             continue
@@ -214,8 +214,8 @@ def ticket_detail(ticket_id):
     orders = PartOrder.query.filter_by(ticket_id=ticket_uuid).order_by(PartOrder.created_at.desc()).all()
 
     has_checklists = sa_inspect(db.engine).has_table("repair_checklists")
-    pre_repair_checklist = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="pre_repair").first() if has_checklists else None
-    post_repair_checklist = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="post_repair").first() if has_checklists else None
+    pre_repair_checklists = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="pre_repair").order_by(RepairChecklist.created_at.asc()).all() if has_checklists else []
+    post_repair_checklists = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="post_repair").order_by(RepairChecklist.created_at.asc()).all() if has_checklists else []
 
     return render_template(
         "tickets/detail.html",
@@ -236,8 +236,8 @@ def ticket_detail(ticket_id):
         is_overdue=is_ticket_overdue(ticket),
         age_days=ticket_age_days(ticket),
         now=datetime.utcnow(),
-        pre_repair_checklist=pre_repair_checklist,
-        post_repair_checklist=post_repair_checklist,
+        pre_repair_checklists=pre_repair_checklists,
+        post_repair_checklists=post_repair_checklists,
     )
 
 
@@ -280,10 +280,11 @@ def update_status(ticket_id):
 
         # Enforce post-repair checklist completion before marking as completed or ready for collection
         if new_status in (Ticket.STATUS_COMPLETED, Ticket.STATUS_READY_FOR_COLLECTION) and sa_inspect(db.engine).has_table("repair_checklists"):
-            post_checklist = RepairChecklist.query.filter_by(
+            post_checklists = RepairChecklist.query.filter_by(
                 ticket_id=ticket.id, checklist_type="post_repair"
-            ).first()
-            if not post_checklist or not post_checklist.is_complete:
+            ).all()
+            has_complete_post = any(cl.is_complete for cl in post_checklists)
+            if not has_complete_post:
                 flash(_("Cannot change status to %(status)s: the post-repair checklist must exist and be completed first.", status=new_status.replace("_", " ").title()), "error")
                 return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
@@ -494,7 +495,7 @@ def repair_board():
             continue
         if only_waiting_parts and not _ticket_waiting_on_parts(ticket):
             continue
-        if only_overdue and not is_ticket_overdue(ticket, now):
+        if only_overdue and not is_ticket_overdue(ticket, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)):
             continue
         if not in_range(ticket):
             continue
@@ -511,6 +512,7 @@ def repair_board():
 
     scoped.sort(key=sort_key)
 
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
     grouped = {"Unassigned": [], "Assigned": [], "Awaiting Diagnostics": [], "Awaiting Parts": [], "In Repair": [], "Ready for Collection": [], "Overdue": [], "Aging": []}
 
     for ticket in scoped:
@@ -527,7 +529,7 @@ def repair_board():
             grouped["In Repair"].append(ticket)
         if normalized == Ticket.STATUS_READY_FOR_COLLECTION:
             grouped["Ready for Collection"].append(ticket)
-        if is_ticket_overdue(ticket, now):
+        if is_ticket_overdue(ticket, now, sla_days=sla_days):
             grouped["Overdue"].append(ticket)
         if ticket_age_days(ticket, now) >= 3 and normalized not in Ticket.CLOSED_STATUSES:
             grouped["Aging"].append(ticket)
@@ -544,12 +546,13 @@ def my_queue():
     now = datetime.utcnow()
     assigned = Ticket.query.filter(Ticket.deleted_at.is_(None), Ticket.assigned_technician_id == current_user.id).order_by(Ticket.created_at.asc()).all()
 
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
     grouped = {
         "Awaiting Diagnostics": [t for t in assigned if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_DIAGNOSTICS],
         "In Repair": [t for t in assigned if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}],
         "Waiting on Parts": [t for t in assigned if _ticket_waiting_on_parts(t)],
         "Overdue Parts": [t for t in assigned if _ticket_has_overdue_parts(t, now)],
-        "Overdue Tickets": [t for t in assigned if is_ticket_overdue(t, now)],
+        "Overdue Tickets": [t for t in assigned if is_ticket_overdue(t, now, sla_days=sla_days)],
     }
 
     eta_by_ticket = {str(t.id): _ticket_next_parts_eta(t) for t in assigned}

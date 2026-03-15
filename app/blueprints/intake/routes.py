@@ -125,6 +125,33 @@ def new_intake():
             imei=form.imei.data,
         )
 
+        # Build enriched intake notes including pre-check results and diagnosis
+        notes_parts = []
+        if form.intake_notes.data:
+            notes_parts.append(form.intake_notes.data)
+        if form.device_condition.data:
+            notes_parts.append(f"Device condition: {form.device_condition.data}")
+        pre_checks = []
+        for field_name, label in [
+            ("check_powers_on", "Powers on"),
+            ("check_screen_condition", "Screen OK"),
+            ("check_charging", "Charging OK"),
+            ("check_buttons", "Buttons OK"),
+            ("check_water_damage", "No water damage"),
+        ]:
+            field = getattr(form, field_name)
+            if field.data:
+                pre_checks.append(f"[x] {label}")
+            else:
+                pre_checks.append(f"[ ] {label}")
+        if any(getattr(form, f).data for f in ["check_powers_on", "check_screen_condition", "check_charging", "check_buttons", "check_water_damage"]):
+            notes_parts.append("Pre-check: " + ", ".join(pre_checks))
+        if form.initial_diagnosis.data:
+            notes_parts.append(f"Initial diagnosis: {form.initial_diagnosis.data}")
+        if form.recommended_repair.data:
+            notes_parts.append(f"Recommended repair: {form.recommended_repair.data}")
+        combined_notes = "\n".join(notes_parts) if notes_parts else form.intake_notes.data
+
         intake = IntakeSubmission(
             reference=_new_intake_reference(),
             source="internal",
@@ -143,7 +170,7 @@ def new_intake():
             imei=form.imei.data,
             reported_fault=form.reported_fault.data,
             accessories=form.accessories.data,
-            intake_notes=form.intake_notes.data,
+            intake_notes=combined_notes,
             preferred_language=getattr(current_user, "preferred_language", "en") or "en",
             preferred_contact_method="phone",
         )
