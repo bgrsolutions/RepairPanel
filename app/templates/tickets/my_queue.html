@@ -7,7 +7,7 @@
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Technician Workspace</p>
       <h1 class="text-2xl font-semibold text-white">My Assigned Queue</h1>
-      <p class="text-sm text-slate-400">Only tickets currently assigned to you are shown here.</p>
+      <p class="text-sm text-slate-400">Assigned tickets, with overdue and parts blockers surfaced first.</p>
     </div>
     <a href="{{ url_for('tickets.repair_board') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Open Bench Board</a>
   </div>
@@ -29,7 +29,12 @@
             {{ priority_badge(ticket.priority) }}
           </div>
           <p class="mt-1 text-xs text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
-          <div class="mt-2">{{ status_badge(ticket.internal_status) }}</div>
+          <div class="mt-2 flex flex-wrap gap-2">{{ status_badge(ticket.internal_status) }}{% if is_ticket_overdue(ticket, now) %}<span class='rounded-full border border-rose-700/70 bg-rose-950/40 px-2 py-0.5 text-[11px] text-rose-200'>Overdue SLA</span>{% endif %}</div>
+          {% set eta = eta_by_ticket.get(ticket.id|string) %}
+          {% if eta %}
+            {% set eta_overdue = eta < now %}
+            <p class="mt-1 text-xs {% if eta_overdue %}text-rose-300{% else %}text-amber-300{% endif %}">Parts ETA: {{ eta.strftime('%Y-%m-%d %H:%M') }}{% if eta_overdue %} · ETA overdue{% endif %}</p>
+          {% endif %}
         </a>
         {% endfor %}
       </div>

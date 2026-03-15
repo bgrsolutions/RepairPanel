@@ -10,10 +10,11 @@ class QuoteLineForm(FlaskForm):
     class Meta:
         csrf = False
 
-    line_type = SelectField("Line Type", choices=LINE_TYPES, validators=[DataRequired()])
-    description = StringField("Description", validators=[DataRequired(), Length(max=255)])
-    quantity = DecimalField("Qty", validators=[DataRequired(), NumberRange(min=0)], places=2, default=1)
-    unit_price = DecimalField("Unit Price", validators=[DataRequired(), NumberRange(min=0)], places=2, default=0)
+    line_type = SelectField("Line Type", choices=LINE_TYPES, validators=[Optional()], default="labour")
+    linked_part_id = SelectField("Linked Part (optional)", validators=[Optional()], coerce=str)
+    description = StringField("Description", validators=[Optional(), Length(max=255)])
+    quantity = DecimalField("Qty", validators=[Optional(), NumberRange(min=0)], places=2, default=1)
+    unit_price = DecimalField("Unit Price", validators=[Optional(), NumberRange(min=0)], places=2, default=0)
 
 
 class QuoteOptionForm(FlaskForm):
@@ -21,7 +22,7 @@ class QuoteOptionForm(FlaskForm):
         csrf = False
 
     name = StringField("Option Name", validators=[DataRequired(), Length(max=120)])
-    lines = FieldList(FormField(QuoteLineForm), min_entries=1, max_entries=10)
+    lines = FieldList(FormField(QuoteLineForm), min_entries=1, max_entries=60)
 
 
 class QuoteCreateForm(FlaskForm):
@@ -30,5 +31,5 @@ class QuoteCreateForm(FlaskForm):
     expires_at = DateField("Expires At", validators=[Optional()], format="%Y-%m-%d")
     notes_snapshot = TextAreaField("Quote Notes", validators=[Optional(), Length(max=5000)])
     terms_snapshot = TextAreaField("Terms Snapshot", validators=[Optional(), Length(max=5000)])
-    options = FieldList(FormField(QuoteOptionForm), min_entries=1, max_entries=3)
-    submit = SubmitField("Create Quote")
+    options = FieldList(FormField(QuoteOptionForm), min_entries=1, max_entries=5)
+    submit = SubmitField("Save Quote")

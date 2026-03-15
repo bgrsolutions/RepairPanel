@@ -2,9 +2,10 @@ import uuid
 import secrets
 from datetime import datetime
 
-from flask import Blueprint, current_app, flash, redirect, render_template, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from app.extensions import db
 from app.forms.intake_forms import InternalIntakeForm
@@ -18,10 +19,11 @@ from app.models import (
     IntakeSubmission,
     PortalToken,
     Ticket,
+    User,
 )
 from app.services.audit_service import log_action
 from app.utils.file_uploads import save_intake_file
-from app.utils.ticketing import generate_ticket_number
+from app.utils.ticketing import default_sla_target, generate_ticket_number
 
 
 intake_bp = Blueprint("intake", __name__, url_prefix="/intake")
@@ -71,6 +73,31 @@ def list_intakes():
     return render_template("intake/list.html", intakes=intakes)
 
 
+
+
+@intake_bp.get('/customer-search')
+@login_required
+def customer_search():
+    q = (request.args.get('q') or '').strip()
+    if len(q) < 2:
+        return {"items": []}
+    like = f"%{q}%"
+    rows = Customer.query.filter(
+        Customer.deleted_at.is_(None),
+        or_(Customer.full_name.ilike(like), Customer.email.ilike(like), Customer.phone.ilike(like)),
+    ).order_by(Customer.full_name.asc()).limit(25).all()
+    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ''}"} for c in rows]}
+
+
+
+@intake_bp.get('/customer/<uuid:customer_id>')
+@login_required
+def customer_detail_json(customer_id):
+    customer = Customer.query.filter(Customer.id == customer_id, Customer.deleted_at.is_(None)).first()
+    if not customer:
+        return {"ok": False}, 404
+    return {"ok": True, "id": str(customer.id), "full_name": customer.full_name, "phone": customer.phone or "", "email": customer.email or ""}
+
 @intake_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def new_intake():
@@ -79,13 +106,16 @@ def new_intake():
 
     if form.validate_on_submit():
         branch = db.session.get(Branch, uuid.UUID(str(form.branch_id.data)))
-        customer = _find_or_create_customer(
-            name=form.customer_name.data,
-            phone=form.customer_phone.data,
-            email=form.customer_email.data,
-            language=getattr(current_user, "preferred_language", "en") or "en",
-            branch=branch,
-        )
+        existing_customer_id = form.existing_customer_id.data
+        customer = db.session.get(Customer, uuid.UUID(existing_customer_id)) if existing_customer_id else None
+        if customer is None:
+            customer = _find_or_create_customer(
+                name=form.customer_name.data,
+                phone=form.customer_phone.data,
+                email=form.customer_email.data,
+                language=getattr(current_user, "preferred_language", "en") or "en",
+                branch=branch,
+            )
         device = _find_or_create_device(
             customer=customer,
             category=form.category.data,
@@ -183,12 +213,15 @@ def intake_detail(intake_id):
     attachments = Attachment.query.filter_by(intake_submission_id=intake.id).all()
     disclaimers = IntakeDisclaimerAcceptance.query.filter_by(intake_submission_id=intake.id).all()
     signatures = IntakeSignature.query.filter_by(intake_submission_id=intake.id).all()
+    technicians = User.query.filter(User.deleted_at.is_(None), User.is_active.is_(True)).order_by(User.full_name.asc()).all()
+    technicians = [u for u in technicians if any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)]
     return render_template(
         "intake/detail.html",
         intake=intake,
         attachments=attachments,
         disclaimers=disclaimers,
         signatures=signatures,
+        technicians=technicians,
     )
 
 
@@ -205,14 +238,21 @@ def convert_intake(intake_id):
         return redirect(url_for("tickets.ticket_detail", ticket_id=intake.converted_ticket_id))
 
     sequence = Ticket.query.count() + 1
+    assigned_technician_id = request.form.get("assigned_technician_id")
+    quoted_completion_at = request.form.get("quoted_completion_at")
+    sla_target_at = request.form.get("sla_target_at")
     ticket = Ticket(
         ticket_number=generate_ticket_number(intake.branch.code, sequence),
         branch_id=intake.branch_id,
         customer_id=intake.customer_id,
         device_id=intake.device_id,
-        internal_status="New",
+        internal_status="assigned" if assigned_technician_id else "unassigned",
         customer_status="Received",
         priority="normal",
+        assigned_technician_id=uuid.UUID(str(assigned_technician_id)) if assigned_technician_id else None,
+        issue_summary=intake.reported_fault,
+        quoted_completion_at=datetime.fromisoformat(quoted_completion_at) if quoted_completion_at else None,
+        sla_target_at=datetime.fromisoformat(sla_target_at) if sla_target_at else default_sla_target(datetime.utcnow(), current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)),
     )
     db.session.add(ticket)
     db.session.flush()

@@ -102,3 +102,117 @@
 ### Changed
 - Internal navigation and dashboard quick actions now link to Reports, Notifications, Exports, and Settings.
 
+
+## [0.6.1] - 2026-03-12
+### Added
+- Staff user management module (`/users`) with list/create/edit flows for login-capable users, role assignment, branch access, and active/inactive control.
+- Ticket workflow status update endpoint/UI and SLA target foundation (`tickets.sla_target_at`) with overdue/aging calculations used across dashboard and bench board.
+- Ticket creation customer-device usability improvement via customer-scoped device filtering endpoint and dynamic form behavior.
+- Inventory parts operational improvements: multi-field search (name/SKU/barcode/supplier SKU) and safe activate/deactivate action instead of destructive delete behavior.
+- Refinement pass integration test coverage for user management, assignment/status lifecycle, customer-device filtering, and parts deactivate flow.
+
+### Changed
+- Bench board now groups operational buckets (Unassigned, Assigned, Awaiting Diagnostics, Awaiting Parts, In Repair, Ready for Collection, Overdue, Aging) using real status + assignment + SLA logic.
+- Dashboard metrics now expose distinct aging and overdue counters based on SLA foundations.
+- Internal navigation reorganized into grouped operations menus with persistent New Ticket CTA and added Users/Staff access.
+
+## [0.6.2] - 2026-03-12
+### Added
+- Ticket create/check-in workflow improvements: searchable customer finder pattern, create-time technician assignment, create-time operational status selection, issue summary capture, and promised completion datetime capture.
+- Ticket detail metadata edit flow for issue summary + promised completion, with continued SLA visibility side-by-side.
+- Quote workflow upgrades for practical multi-line quoting including optional part-linked quote lines and draft quote editing.
+- Part order workflow upgrades for multi-line orders with line-level metadata, supplier reference/tracking/ETA fields, optional ticket linkage for general stock orders, and order edit flow.
+- Receiving workflow for part orders that records inbound stock movements, supports partial receipts, and updates order/line statuses.
+- New integration coverage for Pass B+ (ticket create assignment/ETA, multi-line quote, stock order without ticket, and partial receiving behavior).
+
+### Changed
+- Global and ticket-context order creation now uses explicit ticket selection (optional) to prevent stale/incorrect ticket associations.
+- Order list/detail screens now expose repair-vs-stock context, ETA/tracking metadata, and overdue operational visibility.
+- Intake conversion now supports optional technician assignment and promised completion datetime propagation into created tickets.
+
+## [0.6.3] - 2026-03-13
+### Added
+- Unified internal searchable lookup endpoints for customers/tickets/parts to support intake, ticket creation, reservations, and order workflows without long static dropdown scrolling.
+- Internal intake existing-customer search/select flow with safe prefill and persisted `existing_customer_id` linking behavior.
+- Device ownership lifecycle actions in customer profile for transfer-to-another-customer and unlink operations while preserving historical ticket ownership context.
+- Pass C automated coverage for unified search endpoints, public exact-match intake linking behavior, and device transfer/unlink workflows.
+
+### Changed
+- Public check-in customer matching now uses explicit exact-match policy for email/phone before creating a new customer, without exposing customer directory data publicly.
+- Ticket create and part-order create screens now use server-backed search suggestion patterns for customer/ticket lookup consistency.
+- Ticket detail reserve-part workflow now includes searchable part lookup and improved ordered-part ETA/tracking visibility cues.
+- Parts catalog now surfaces operational supplier + lead-time + stock availability context for better procurement decisions.
+
+## [0.6.4] - 2026-03-13
+### Changed
+- Ticket detail hierarchy is now more operationally compact: assignment + workflow controls are surfaced near the top and common updates (ticket details, notes, diagnostics) are collapsed into quick-action panels to reduce scrolling.
+- Ticket ordered-parts visibility now highlights ETA/status scanability with clearer overdue cues for orders past ETA and not yet received/cancelled.
+- Part-order create/edit UI now supports practical dynamic line add/remove behavior (no fixed 3-line reveal limit) while keeping server-side blank-line ignore behavior intact.
+
+### Fixed
+- Ticket detail reserve-part search prompt now explicitly aligns with supported part matching fields (name/SKU/barcode/supplier SKU).
+
+## [0.7.0] - 2026-03-13
+### Added
+- Pass D ticket-detail modal workflow: read-only top summary with modal dialogs for ticket meta updates, note capture, and diagnostics entry.
+- Inventory product record expansion with dedicated part detail page, category management pages, multi-supplier linkage support, and richer parts filtering (category/supplier/stock state).
+- FIFO costing foundation via stock receipt layers (`stock_layers`) and oldest-layer consumption hooks in inventory movement service.
+- Quote workflow enhancements for dynamic line add/remove and part-price autofill endpoint (`/quotes/part-price/<id>`).
+
+### Changed
+- Quotes now display commercial totals with default 7% IGIC (subtotal, IGIC, grand total) and expose IGIC policy in quote builder UX.
+- Receiving workflow can now maintain/update part cost and sale prices at receive time.
+- Parts list and stock overview now surface clickable part records with expanded pricing/lead-time/supplier visibility.
+
+## [0.7.1] - 2026-03-13
+### Added
+- Bench board reworked into a tabbed workshop view (Unassigned, Assigned, Awaiting Diagnostics, Awaiting Parts, In Repair, Ready for Collection, Overdue, Aging) with lightweight in-page tab switching.
+- Supplier detail/edit flow with clickable supplier records from supplier and inventory screens.
+- Part edit page for operational product maintenance (pricing, lead time, suppliers, categories, metadata).
+
+### Changed
+- Ticket detail actions now include modal entry points for Create Quote and Reserve Part, with clearer ordered/reserved part visibility and restored note type color differentiation.
+- My Queue now highlights waiting-on-parts, overdue-parts, and overdue-ticket buckets for technician actionability.
+- Intake conversion now accepts both promised completion and explicit SLA target inputs, keeping customer-facing ETA and internal SLA distinct.
+- Dashboard attention list now focuses on exception tickets (overdue SLA and overdue part ETA blockers).
+- Quote builder adds searchable part lookup per line while preserving sale-price autofill and manual override behavior.
+- Parts list adds lead-time presence/range filtering and supplier links to supplier detail pages.
+
+## [0.8.0] - 2026-03-13
+### Added
+- Pass F bench board operational controls: technician/branch/date/sort filters and waiting-parts/overdue toggles.
+- Ticket operations list filters for status, branch, technician, date ranges, and due-date-oriented sorting.
+- Public customer update flow: ticket-side “Send Update” action creates customer-facing updates rendered in public status view.
+- Public portal contact update form on status page for contact person/phone/email and customer remarks.
+- Quote payment-choice foundation during public approval (pay now online vs pay in store) with Stripe session service scaffold and persisted payment metadata.
+- Persistent public portal settings foundation via `app_settings` table and editable portal settings page.
+
+### Changed
+- Quote builder line persistence/autofill hardened: part selection updates unit price from sale price unless manually overridden; blank/invalid lines ignored safely.
+- Quote detail and public quote approval pages now render professional line-item summaries with IGIC subtotal/tax/total context.
+- Reports now show human-friendly status labels, branch names, richer awaiting-arrival context, and real quote approval/turnaround metrics.
+- Ticket detail right-side operational context now groups quotes + reserved parts and keeps technician/workflow controls compact.
+
+## [0.8.1] - 2026-03-13
+### Added
+- Pass F.1 technician queue improvements: waiting-on-parts now captures tickets with open linked orders and My Queue surfaces earliest part ETA with overdue ETA cues.
+- Ticket detail Send Update flow now supports optional email intent logging through a new communication service hook while preserving customer-update note visibility.
+- Intake/ticket multi-device fast path links (create another ticket for same customer) from intake conversion and ticket detail contexts.
+
+### Changed
+- Ticket detail modal UX now includes explicit field labels/help text for Edit Ticket Details, Add Note, Add Diagnostics, Create Quote, Reserve Part, and Send Update dialogs.
+- Part create/edit forms now use clear labels and sectioned guidance for identity, suppliers, categories, pricing, lead time, stock behavior, and notes.
+- Quote builder line rows were cleaned up with clearer field labels and repaired dynamic line wiring so part-price autofill works reliably on newly-added lines.
+
+### Fixed
+- Bench board “waiting on parts” filtering now includes tickets blocked by non-received/non-cancelled linked part orders, not only explicit awaiting_parts status.
+- Quote dynamic add/remove rows now reset JS wiring correctly, fixing second+ row sale-price autofill behavior.
+
+## [0.8.2] - 2026-03-13
+### Changed
+- Pass F.2 ticket/quote UI cleanup only: ticket detail now keeps technician/workflow controls solely in the right operations panel and promotes quote summaries into the main content area.
+- Ticket quote cards now show richer summary context (status, subtotal, IGIC, total, expiry, note snippet, and latest approval/payment metadata) with a clear “View details” path to full quote detail.
+- Add Diagnostics modal now uses a wider layout (`max-w-4xl`) and a responsive two-column grid for better field sizing and alignment.
+
+### Fixed
+- Create Quote page now renders a single Terms Snapshot field (duplicate removed).
