@@ -88,6 +88,10 @@ def list_tickets():
     filtered = []
     for t in tickets:
         n = normalize_ticket_status(t.internal_status)
+        if status != "archived" and n == Ticket.STATUS_ARCHIVED:
+            continue
+        if status == "archived" and n != Ticket.STATUS_ARCHIVED:
+            continue
         if status == "overdue" and not is_ticket_overdue(t, now):
             continue
         if status == "awaiting_parts" and not _ticket_waiting_on_parts(t):
@@ -337,7 +341,50 @@ def send_customer_update(ticket_id):
         status_text = "queued" if queued else "intended"
         db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=uuid.UUID(str(current_user.id)), note_type="communication", content=f"Customer update email {status_text} to {ticket.customer.email}"))
     db.session.commit()
+    log_action("ticket.send_update", "Ticket", str(ticket.id), details={"send_email": send_email, "has_email": bool(ticket.customer and ticket.customer.email)})
     flash(_("Customer update recorded"), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/archive")
+@login_required
+def archive_ticket(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    if ticket.internal_status == Ticket.STATUS_ARCHIVED:
+        flash(_("Ticket is already archived"), "info")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    previous = ticket.internal_status
+    ticket.internal_status = Ticket.STATUS_ARCHIVED
+    db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content=f"Ticket archived (was: {previous})"))
+    db.session.commit()
+    log_action("ticket.archive", "Ticket", str(ticket.id), details={"previous_status": previous})
+    flash(_("Ticket archived"), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/reopen")
+@login_required
+def reopen_ticket(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    if ticket.internal_status not in Ticket.CLOSED_STATUSES:
+        flash(_("Only closed or archived tickets can be reopened"), "info")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    previous = ticket.internal_status
+    ticket.internal_status = Ticket.STATUS_UNASSIGNED if not ticket.assigned_technician_id else Ticket.STATUS_ASSIGNED
+    db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content=f"Ticket reopened (was: {previous})"))
+    db.session.commit()
+    log_action("ticket.reopen", "Ticket", str(ticket.id), details={"previous_status": previous})
+    flash(_("Ticket reopened"), "success")
     return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
 

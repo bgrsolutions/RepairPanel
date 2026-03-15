@@ -13,10 +13,11 @@
 ## 3. Approval Workflow
 - States: draft -> issued -> approved/declined/expired.
 - Approval methods:
-  - staff manual confirmation,
+  - staff manual confirmation (via Approve / Decline button on quote detail page),
   - in-store signature,
   - secure portal token link,
   - email approval link (future channel).
+- Staff can approve or decline quotes directly from the internal quote detail page using the staff approval modal. This records the decision, approver name, contact, and method as `in_store_manual`.
 - Approval writes timeline event and audit entry.
 
 ## 4. Expiry Logic

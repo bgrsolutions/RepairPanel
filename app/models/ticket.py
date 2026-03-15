@@ -20,6 +20,7 @@ class Ticket(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
     STATUS_READY_FOR_COLLECTION = "ready_for_collection"
     STATUS_COMPLETED = "completed"
     STATUS_CANCELLED = "cancelled"
+    STATUS_ARCHIVED = "archived"
 
     ACTIVE_STATUSES = {
         STATUS_UNASSIGNED,
@@ -31,7 +32,7 @@ class Ticket(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
         STATUS_TESTING_QA,
         STATUS_READY_FOR_COLLECTION,
     }
-    CLOSED_STATUSES = {STATUS_COMPLETED, STATUS_CANCELLED}
+    CLOSED_STATUSES = {STATUS_COMPLETED, STATUS_CANCELLED, STATUS_ARCHIVED}
 
     ticket_number: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
 

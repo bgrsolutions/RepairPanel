@@ -22,6 +22,8 @@
     {% set cls = 'border-green-700/60 bg-green-950/60 text-green-200' %}
   {% elif normalized in ['cancelled', 'unrepairable', 'on hold'] %}
     {% set cls = 'border-rose-700/60 bg-rose-950/60 text-rose-200' %}
+  {% elif normalized in ['archived'] %}
+    {% set cls = 'border-slate-600/60 bg-slate-900/60 text-slate-400' %}
   {% endif %}
   <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide {{ cls }}">{{ s|replace('_', ' ')|title }}</span>
 {%- endmacro %}

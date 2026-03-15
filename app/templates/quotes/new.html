@@ -9,39 +9,43 @@
 
   <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_quote', ticket_id=ticket.id) }}{% endif %}" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
     {{ form.hidden_tag() }}
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <div>{{ form.currency.label(class='text-xs text-slate-400') }}{{ form.currency(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
       <div>{{ form.language.label(class='text-xs text-slate-400') }}{{ form.language(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
       <div>{{ form.expires_at.label(class='text-xs text-slate-400') }}{{ form.expires_at(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
     </div>
-    <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
+    <div>{{ form.terms_snapshot.label(class='text-xs text-slate-400') }}{{ form.terms_snapshot(class='mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2', placeholder='Standard terms and conditions for the quote') }}</div>
 
     {% for option in form.options %}
     <section class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3">
-      <h2 class="text-sm font-semibold text-slate-300">Repair Option {{ loop.index }}</h2>
-      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Option name (e.g. Standard Repair)') }}
+      <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-slate-300">Repair Option {{ loop.index }}</h2>
+        <span class="text-xs text-slate-500">Give each option a clear name so customers can compare</span>
+      </div>
+      {{ option.form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Option name (e.g. Standard Repair, Premium Repair)') }}
 
       <div class="quote-lines space-y-2" data-option-index="{{ loop.index0 }}">
       {% for line in option.form.lines %}
-      <div class="quote-line rounded border border-slate-800 bg-slate-950 p-2">
+      <div class="quote-line rounded border border-slate-800 bg-slate-950 p-3">
         <div class="grid grid-cols-1 gap-2 md:grid-cols-12">
           <div class="md:col-span-2"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Type</label>{{ line.form.line_type(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-          <div class="md:col-span-3"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Part search</label><input type="text" class="quote-part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Search part" /></div>
-          <div class="md:col-span-3"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Part link (optional)</label>{{ line.form.linked_part_id(class='quote-part w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
-          <div class="md:col-span-4"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Description</label>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Line description') }}</div>
-          <div class="md:col-span-2"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Qty</label>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
-          <div class="md:col-span-3"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Unit price</label>{{ line.form.unit_price(class='quote-unit w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit price') }}</div>
-          <div class="md:col-span-2 flex items-end"><button type="button" class="remove-quote-line w-full rounded border border-rose-800 bg-rose-950 px-2 py-2 text-xs text-rose-200">Remove</button></div>
+          <div class="md:col-span-5"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Description</label>{{ line.form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='What this line covers') }}</div>
+          <div class="md:col-span-2"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Qty</label>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='1') }}</div>
+          <div class="md:col-span-2"><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Unit price</label>{{ line.form.unit_price(class='quote-unit w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='0.00') }}</div>
+          <div class="md:col-span-1 flex items-end"><button type="button" class="remove-quote-line w-full rounded border border-rose-800 bg-rose-950 px-2 py-2 text-xs text-rose-200" title="Remove line">&#10005;</button></div>
+        </div>
+        <div class="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Part search</label><input type="text" class="quote-part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Type to search inventory parts" /></div>
+          <div><label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Linked part (optional)</label>{{ line.form.linked_part_id(class='quote-part w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}</div>
         </div>
       </div>
       {% endfor %}
       </div>
-      <button type="button" class="add-quote-line rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">+ Add Line</button>
+      <button type="button" class="add-quote-line rounded-lg border border-indigo-700/60 bg-indigo-950/40 px-3 py-2 text-xs text-indigo-200 hover:bg-indigo-900/40">+ Add Line</button>
     </section>
     {% endfor %}
 
-    <div>{{ form.notes_snapshot.label(class='text-xs text-slate-400') }}{{ form.notes_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='3') }}</div>
+    <div>{{ form.notes_snapshot.label(class='text-xs text-slate-400') }}{{ form.notes_snapshot(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='3', placeholder='Internal notes about this quote (not shown to customers on the portal)') }}</div>
     <div class="rounded border border-slate-800 bg-slate-950 p-3 text-xs text-slate-400">Default tax policy: IGIC {{ '%.0f'|format(igic_rate * 100) }}% on commercial quote totals.</div>
     {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
   </form>

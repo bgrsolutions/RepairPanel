@@ -25,6 +25,7 @@
       <option value="unassigned" {% if filters.status=='unassigned' %}selected{% endif %}>Unassigned</option>
       <option value="in_repair" {% if filters.status=='in_repair' %}selected{% endif %}>In repair</option>
       <option value="ready_for_collection" {% if filters.status=='ready_for_collection' %}selected{% endif %}>Ready for collection</option>
+      <option value="archived" {% if filters.status=='archived' %}selected{% endif %}>Archived</option>
     </select>
     <select name="branch_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm"><option value="">All branches</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }} - {{ b.name }}</option>{% endfor %}</select>
     <select name="technician_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm"><option value="">All technicians</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>

@@ -11,10 +11,16 @@
         <p class="text-sm text-slate-400">Status: {{ status_badge(quote.status|replace('_',' ')|title) }}</p>
         <p class="text-xs text-slate-500">Device: {{ quote.ticket.device.brand }} {{ quote.ticket.device.model }} · Customer: {{ quote.ticket.customer.full_name }}</p>
       </div>
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
         {% if quote.status == 'draft' %}
         <a href="{{ url_for('quotes.edit_quote', quote_id=quote.id) }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Edit Quote</a>
         <form method="post" action="{{ url_for('quotes.send_quote', quote_id=quote.id) }}"><button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Send for Approval</button></form>
+        {% endif %}
+        {% if quote.status in ('sent', 'draft') %}
+        <button type="button" data-open-modal="staff-approval-modal" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500">Approve / Decline</button>
+        {% endif %}
+        {% if quote.status == 'sent' %}
+        <form method="post" action="{{ url_for('quotes.mark_expired', quote_id=quote.id) }}"><button class="rounded-lg border border-amber-700 bg-amber-950/40 px-3 py-2 text-sm text-amber-200 hover:bg-amber-900/40">Mark Expired</button></form>
         {% endif %}
       </div>
     </div>
@@ -76,4 +82,34 @@
     </aside>
   </div>
 </section>
+
+<dialog id="staff-approval-modal" class="w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+  <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Staff Quote Decision</h3><button class="text-slate-400">&#10005;</button></form>
+  <form method="post" action="{{ url_for('quotes.manual_approval', quote_id=quote.id) }}" class="space-y-3 p-4">
+    <p class="text-xs text-slate-500">Record an internal approval or decline decision for this quote. This is for in-store or phone-based confirmations.</p>
+    <div>
+      <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Decision</label>
+      <select name="decision" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200">
+        <option value="approved">Approve</option>
+        <option value="declined">Decline</option>
+      </select>
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Approver name</label>
+      <input type="text" name="actor_name" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" placeholder="Customer name or staff reference" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Contact (optional)</label>
+      <input type="text" name="actor_contact" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" placeholder="Phone or email" />
+    </div>
+    <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Record Decision</button>
+  </form>
+</dialog>
+
+<script>
+  document.querySelectorAll('[data-open-modal]').forEach((btn) => btn.addEventListener('click', () => {
+    const dlg = document.getElementById(btn.dataset.openModal);
+    if (dlg && dlg.showModal) dlg.showModal();
+  }));
+</script>
 {% endblock %}

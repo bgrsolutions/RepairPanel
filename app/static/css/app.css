@@ -25,6 +25,20 @@ select:-webkit-autofill {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Ensure dialog modals fill their max-width and have proper dark backdrop. */
+dialog {
+  margin: auto;
+  padding: 0;
+  border: none;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Subtle dark scrollbars for board/list usability on desktop/tablet. */
 *::-webkit-scrollbar {
   height: 10px;

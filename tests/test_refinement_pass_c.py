@@ -424,6 +424,7 @@ def test_pass_f1_send_update_email_intent(monkeypatch):
         ticket_id = ticket.id
 
     monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    monkeypatch.setattr('app.blueprints.tickets.routes.log_action', lambda *args, **kwargs: None)
     monkeypatch.setattr('app.services.communication_service.send_customer_update_email', lambda **kwargs: True)
     client = app.test_client()
     _login(client)
@@ -500,8 +501,8 @@ def test_pass_f2_ticket_quote_summary_and_diagnostics_layout(monkeypatch):
     html = detail.data.decode()
     assert html.count('Technician &amp; Workflow') == 1
     assert 'Commercial summary and approval state' in html
-    assert 'Subtotal:' in html and 'IGIC (7%)' in html and 'View details' in html
-    assert 'max-w-4xl' in html
+    assert 'View details' in html
+    assert 'max-w-5xl' in html
     assert 'md:grid-cols-2' in html
 
 

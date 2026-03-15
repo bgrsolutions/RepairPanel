@@ -14,6 +14,7 @@ STATUS_LABELS = {
     Ticket.STATUS_READY_FOR_COLLECTION: "Ready for Collection",
     Ticket.STATUS_COMPLETED: "Completed",
     Ticket.STATUS_CANCELLED: "Cancelled",
+    Ticket.STATUS_ARCHIVED: "Archived",
 }
 
 LEGACY_STATUS_MAP = {
