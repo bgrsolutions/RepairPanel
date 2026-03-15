@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.9.1] - 2026-03-15
+### Fixed
+- Quote part search now auto-fills description and unit price when a part is selected from search results (no extra fetch needed).
+- Removed redundant `inspect(db.engine)` calls in parts list route.
+- Added CSRF tokens to ticket archive, reopen, reservation release, supplier toggle, and category delete forms.
+- Made `csrf_token` globally available in Jinja2 template context via `generate_csrf`.
+
+### Added
+- Supplier toggle-active route (`/suppliers/<id>/toggle-active`) with admin role protection and confirmation dialog.
+- Category soft-delete route (`/inventory/categories/<id>/delete`) with admin role protection and confirmation dialog.
+- Reservation release route (`/tickets/<id>/release-reservation/<id>`) to free allocated stock back to available pool.
+- Reserved parts section on ticket detail now shows reservation status (Reserved/Released) with color-coded badges.
+- Stock overview navigation now includes Categories link.
+- Stock overview available column now uses per-part `low_stock_threshold` instead of hardcoded value.
+
+### Improved
+- Quote builder JS: `wirePartAutofill` now reads part name and sale price directly from search result data attributes, eliminating the separate `/quotes/part-price` fetch.
+- Reserved vs ordered parts sections on ticket detail have clearer descriptions and visual distinction.
+- Archive/reopen buttons now include confirmation dialogs to prevent accidental clicks.
+
 ## [0.9.0] - 2026-03-15
 ### Fixed
 - Removed duplicate technician/workflow controls from ticket detail top panel; controls remain in right sidebar only.

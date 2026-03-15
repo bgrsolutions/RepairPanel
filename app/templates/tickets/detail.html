@@ -31,10 +31,10 @@
         <button type="button" data-open-modal="reserve-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Reserve part</button>
         <button type="button" data-open-modal="update-modal" class="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs text-emerald-200">Send update</button>
         {% if ticket.internal_status not in ('archived', 'completed', 'cancelled') %}
-        <form method="post" action="{{ url_for('tickets.archive_ticket', ticket_id=ticket.id) }}" class="inline"><button class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-400 hover:text-rose-300">Archive</button></form>
+        <form method="post" action="{{ url_for('tickets.archive_ticket', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-400 hover:text-rose-300" onclick="return confirm('Archive this ticket?')">Archive</button></form>
         {% endif %}
         {% if ticket.internal_status in ('archived', 'completed', 'cancelled') %}
-        <form method="post" action="{{ url_for('tickets.reopen_ticket', ticket_id=ticket.id) }}" class="inline"><button class="rounded-lg border border-cyan-700 bg-cyan-950/40 px-3 py-2 text-xs text-cyan-200">Reopen</button></form>
+        <form method="post" action="{{ url_for('tickets.reopen_ticket', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-cyan-700 bg-cyan-950/40 px-3 py-2 text-xs text-cyan-200" onclick="return confirm('Reopen this ticket?')">Reopen</button></form>
         {% endif %}
       </div>
       {% endcall %}
@@ -102,10 +102,25 @@
       {% endcall %}
 
       {% call section_card('Reserved Parts', 'Allocated stock for this ticket') %}
-      <div class="space-y-2">{% for reservation in reservations %}<article class="rounded-lg border border-slate-800 bg-slate-900 p-3"><p class="text-sm font-semibold text-white">{{ reservation.part.sku }} · {{ reservation.part.name }}</p><p class="text-xs text-slate-400">Qty {{ reservation.quantity }} · {{ reservation.location.code if reservation.location else 'No location' }}</p></article>{% else %}<p class="text-sm text-slate-500">No reserved parts.</p>{% endfor %}</div>
+      <div class="space-y-2">{% for reservation in reservations %}
+        <article class="rounded-lg border {% if reservation.status == 'released' %}border-slate-700 opacity-60{% else %}border-emerald-800/50 bg-emerald-950/10{% endif %} bg-slate-900 p-3">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <p class="text-sm font-semibold text-white">{{ reservation.part.sku }} · {{ reservation.part.name }}</p>
+              <p class="text-xs text-slate-400">Qty {{ reservation.quantity }} · {{ reservation.location.code if reservation.location else 'No location' }} · <span class="{% if reservation.status == 'reserved' %}text-emerald-300{% else %}text-slate-500{% endif %}">{{ reservation.status|title }}</span></p>
+            </div>
+            {% if reservation.status == 'reserved' %}
+            <form method="post" action="{{ url_for('tickets.release_reservation', ticket_id=ticket.id, reservation_id=reservation.id) }}" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button class="rounded border border-rose-800 bg-rose-950/40 px-2 py-1 text-[10px] text-rose-200 hover:bg-rose-900/40" onclick="return confirm('Release this reservation? Stock will become available again.')">Release</button>
+            </form>
+            {% endif %}
+          </div>
+        </article>
+      {% else %}<p class="text-sm text-slate-500">No reserved parts.</p>{% endfor %}</div>
       {% endcall %}
 
-      {% call section_card('Ordered Parts', 'ETA and status visibility') %}
+      {% call section_card('Ordered Parts', 'Parts on order from suppliers — track ETA and delivery') %}
       <div class="space-y-2">{% for order in orders %}{% set overdue_order = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}<a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border {% if overdue_order %}border-rose-700/70{% else %}border-slate-800{% endif %} bg-slate-900 p-3 hover:border-slate-700"><div class="flex items-center justify-between gap-2"><p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p><span class="text-xs uppercase {% if order.status in ['received'] %}text-emerald-300{% elif overdue_order %}text-rose-300{% else %}text-slate-400{% endif %}">{{ order.status|replace('_',' ') }}</span></div><p class="mt-1 text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</p></a>{% else %}<p class="text-sm text-slate-500">No linked orders yet.</p>{% endfor %}</div>
       {% endcall %}
     </aside>
