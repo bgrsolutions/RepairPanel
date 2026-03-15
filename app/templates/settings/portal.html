@@ -1,26 +1,32 @@
 {% extends 'base.html' %}
 {% block title %}Portal Settings - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4 max-w-3xl">
-  <h1 class="text-2xl font-semibold text-white">Public Portal Settings</h1>
-  <form method="post" action="{{ url_for('settings.save_portal_settings') }}" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-300 space-y-3">
+<section class="space-y-6 max-w-3xl">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">Public Portal Settings</h1>
+    <p class="mt-1 text-sm text-slate-400">Configure branding, locales, and customer-facing text.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('settings.save_portal_settings') }}" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-5">
     <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Portal branding name</label>
-      <input name="branding_name" value="{{ branding_name }}" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" />
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">Portal branding name</label>
+      <input name="branding_name" value="{{ branding_name }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
     </div>
     <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Supported languages (comma separated)</label>
-      <input name="supported_locales" value="{{ supported_locales }}" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" />
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">Supported languages (comma separated)</label>
+      <input name="supported_locales" value="{{ supported_locales }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
     </div>
     <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Default disclaimer</label>
-      <textarea name="disclaimer" rows="4" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">{{ disclaimer }}</textarea>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">Default disclaimer</label>
+      <textarea name="disclaimer" rows="4" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">{{ disclaimer }}</textarea>
     </div>
     <div>
-      <label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">Portal footer/help text</label>
-      <textarea name="footer_help_text" rows="3" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">{{ footer_help_text }}</textarea>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">Portal footer/help text</label>
+      <textarea name="footer_help_text" rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">{{ footer_help_text }}</textarea>
     </div>
-    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">Save Portal Settings</button>
+    <div class="pt-1">
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Save Portal Settings</button>
+    </div>
   </form>
 </section>
 {% endblock %}

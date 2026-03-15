@@ -1,97 +1,177 @@
 {% extends 'public_base.html' %}
-{% block title %}{% if kiosk_mode %}Kiosk Check-In{% else %}Public Check-In{% endif %} - IRONCore{% endblock %}
+{% block title %}{% if kiosk_mode %}Kiosk Check-In{% else %}Device Check-In{% endif %} - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{% if kiosk_mode %}Kiosk Mode{% else %}Customer Portal{% endif %}</p>
-    <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">{% if kiosk_mode %}Start Device Check-In{% else %}Submit Your Device Check-In{% endif %}</h2>
-    <p class="mt-2 text-sm text-slate-400">Provide your details and device issue. Our reception team will review and confirm your intake.</p>
+
+{% set input_cls = 'w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30' %}
+{% set select_cls = 'w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30' %}
+
+<section class="space-y-8">
+  <!-- Page header -->
+  <div class="text-center sm:text-left">
+    <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-950/30 px-4 py-1.5 text-xs font-medium text-indigo-300">
+      <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+      Quick &amp; easy process
+    </div>
+    <h2 class="mt-4 text-3xl font-bold tracking-tight text-white {% if kiosk_mode %}sm:text-4xl{% endif %}">{% if kiosk_mode %}Welcome! Let's check in your device{% else %}Submit your device for repair{% endif %}</h2>
+    <p class="mt-2 text-base text-slate-400 max-w-2xl">Fill in the details below and our team will take it from there. It only takes a few minutes.</p>
   </div>
 
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5 {% if kiosk_mode %}text-base sm:text-lg{% endif %}">
-    <form method="post" enctype="multipart/form-data" class="space-y-4">
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel sm:p-8 {% if kiosk_mode %}text-base sm:text-lg{% endif %}">
+    <form method="post" enctype="multipart/form-data" class="space-y-10">
       {{ form.hidden_tag() }}
 
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <!-- Branch & Language preferences -->
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.branch_id.label.text }}</label>
-          {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.branch_id.label.text }}</label>
+          {{ form.branch_id(class=select_cls) }}
         </div>
         <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.preferred_language.label.text }}</label>
-          {{ form.preferred_language(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_name.label.text }}</label>
-          {{ form.customer_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_phone.label.text }}</label>
-          {{ form.customer_phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.customer_email.label.text }}</label>
-          {{ form.customer_email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.preferred_contact_method.label.text }}</label>
-          {{ form.preferred_contact_method(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.preferred_language.label.text }}</label>
+          {{ form.preferred_language(class=select_cls) }}
         </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.category.label.text }}</label>
-          {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+      <!-- Section 1: Your Details -->
+      <fieldset class="space-y-5">
+        <div class="border-b border-slate-800/60 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white">Your details</h3>
+              <p class="text-sm text-slate-500">So we know how to reach you with updates</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_brand.label.text }}</label>
-          {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_name.label.text }}</label>
+            {{ form.customer_name(class=input_cls, placeholder='e.g. Jane Smith') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_phone.label.text }}</label>
+            {{ form.customer_phone(class=input_cls, placeholder='e.g. +34 600 123 456') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_email.label.text }}</label>
+            {{ form.customer_email(class=input_cls, placeholder='e.g. jane@example.com') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.preferred_contact_method.label.text }}</label>
+            {{ form.preferred_contact_method(class=select_cls) }}
+          </div>
         </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.device_model.label.text }}</label>
-          {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.serial_number.label.text }}</label>
-          {{ form.serial_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.imei.label.text }}</label>
-          {{ form.imei(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30') }}
-        </div>
-      </div>
+      </fieldset>
 
-      <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.reported_fault.label.text }}</label>
-        {{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='4') }}
-      </div>
-      <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.accessories.label.text }}</label>
-        {{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='2') }}
-      </div>
-      <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.intake_notes.label.text }}</label>
-        {{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='2') }}
-      </div>
-      <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ form.photo.label.text }}</label>
-        {{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-500') }}
-      </div>
-      <div class="rounded-xl border border-slate-800 bg-slate-900 p-3">
-        <label class="inline-flex items-start gap-2 text-sm text-slate-300">
-          {{ form.accepted_disclaimer(class='mt-1 rounded border-slate-600 bg-slate-800 text-indigo-600 focus:ring-indigo-500') }}
-          <span>I accept the intake disclaimer and confirm the submitted details are accurate.</span>
-        </label>
-      </div>
+      <!-- Section 2: Your Device -->
+      <fieldset class="space-y-5">
+        <div class="border-b border-slate-800/60 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/20 text-violet-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white">Your device</h3>
+              <p class="text-sm text-slate-500">Tell us what you're bringing in for repair</p>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.category.label.text }}</label>
+            {{ form.category(class=select_cls) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_brand.label.text }}</label>
+            {{ form.device_brand(class=input_cls, placeholder='e.g. Apple, Samsung, HP') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_model.label.text }}</label>
+            {{ form.device_model(class=input_cls, placeholder='e.g. iPhone 15 Pro, Galaxy S24') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.serial_number.label.text }}</label>
+            {{ form.serial_number(class=input_cls, placeholder='Usually on the back or in device settings') }}
+          </div>
+          <div class="sm:col-span-2 sm:max-w-[calc(50%-0.625rem)]">
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.imei.label.text }}</label>
+            {{ form.imei(class=input_cls, placeholder='Dial *#06# on phones to find this') }}
+          </div>
+        </div>
+      </fieldset>
 
-      {{ form.signature_data(value='placeholder-signature') }}
-      <div>
-        {{ form.submit(class='inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500') }}
-      </div>
+      <!-- Section 3: What's Wrong? -->
+      <fieldset class="space-y-5">
+        <div class="border-b border-slate-800/60 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600/20 text-amber-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.049.58.024 1.194-.14 1.743" /></svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white">What's wrong?</h3>
+              <p class="text-sm text-slate-500">Tell us about the issue so our team can prepare</p>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-5">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.reported_fault.label.text }}</label>
+            {{ form.reported_fault(class=input_cls, rows='4', placeholder='Describe the problem in as much detail as you can...') }}
+          </div>
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.accessories.label.text }}</label>
+              {{ form.accessories(class=input_cls, rows='2', placeholder='e.g. charger, case, stylus') }}
+            </div>
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.intake_notes.label.text }}</label>
+              {{ form.intake_notes(class=input_cls, rows='2', placeholder="Any other details you'd like us to know") }}
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Section 4: Finish Up -->
+      <fieldset class="space-y-6">
+        <div class="border-b border-slate-800/60 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600/20 text-emerald-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white">Finish up</h3>
+              <p class="text-sm text-slate-500">Upload a photo and confirm your submission</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photo upload -->
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.photo.label.text }}</label>
+          <p class="mb-2.5 text-xs text-slate-500">A photo of your device helps us document its current condition</p>
+          {{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-500') }}
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="rounded-xl border border-indigo-500/25 bg-indigo-950/30 p-5">
+          <label class="inline-flex items-start gap-3 text-sm text-slate-200">
+            {{ form.accepted_disclaimer(class='mt-1 rounded border-slate-600 bg-slate-800 text-indigo-600 focus:ring-indigo-500') }}
+            <span>
+              <strong class="font-semibold text-white">Intake disclaimer</strong><br>
+              <span class="mt-1 block text-slate-400 leading-relaxed">I confirm that the details provided above are accurate and I accept the intake terms and conditions for this repair service.</span>
+            </span>
+          </label>
+        </div>
+
+        {{ form.signature_data(value='placeholder-signature') }}
+
+        <!-- Submit -->
+        <div class="pt-2">
+          {{ form.submit(class='w-full rounded-xl bg-indigo-600 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500 hover:shadow-indigo-500/30 sm:w-auto sm:min-w-[240px]') }}
+        </div>
+      </fieldset>
     </form>
   </div>
 </section>

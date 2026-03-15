@@ -1,13 +1,33 @@
-<form method="post" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel max-w-3xl">
+<form method="post" class="space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel max-w-3xl">
   {{ form.hidden_tag() }}
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.full_name.label.text }}</label>{{ form.full_name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.email.label.text }}</label>{{ form.email(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.password.label.text }}</label>{{ form.password(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.preferred_language.label.text }}</label>{{ form.preferred_language(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.role_ids.label.text }}</label>{{ form.role_ids(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', size=6) }}</div>
-    <div><label class="mb-1 block text-xs uppercase tracking-wide text-slate-400">{{ form.branch_ids.label.text }}</label>{{ form.branch_ids(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', size=6) }}</div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.full_name.label.text }}</label>
+      {{ form.full_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors') }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.email.label.text }}</label>
+      {{ form.email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors') }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.password.label.text }}</label>
+      {{ form.password(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors') }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.preferred_language.label.text }}</label>
+      {{ form.preferred_language(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors') }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.role_ids.label.text }}</label>
+      {{ form.role_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', size=6) }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.branch_ids.label.text }}</label>
+      {{ form.branch_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', size=6) }}
+    </div>
   </div>
-  <div class="flex items-center gap-2 text-sm text-slate-300">{{ form.is_active() }} {{ form.is_active.label.text }}</div>
-  {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
+  <div class="flex items-center gap-2.5 text-sm font-medium text-slate-300">{{ form.is_active() }} {{ form.is_active.label.text }}</div>
+  <div class="pt-1">
+    {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors') }}
+  </div>
 </form>

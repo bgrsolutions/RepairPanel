@@ -1,39 +1,91 @@
 {% extends 'base.html' %}
 {% block title %}Edit {{ part.sku }} - IRONCore{% endblock %}
 {% block content %}
-<section class="max-w-5xl rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel space-y-4">
-  <div>
-    <h1 class="text-2xl font-semibold text-white">Edit Part</h1>
-    <p class="text-sm text-slate-400">Maintain pricing, supplier links, and stock behavior for this part record.</p>
+<section class="mx-auto max-w-5xl space-y-5">
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Inventory</p>
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">Edit Part</h1>
+    <p class="mt-1 text-sm text-slate-400">Maintain pricing, supplier links, and stock behavior for this part record.</p>
   </div>
 
-  <form method="post" class="grid grid-cols-1 gap-3 md:grid-cols-2">
-    {{ form.hidden_tag() }}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {{ form.hidden_tag() }}
 
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Internal part name</label>{{ form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">SKU</label>{{ form.sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Barcode</label>{{ form.barcode(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Supplier SKU</label>{{ form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Internal part name</label>
+        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">SKU</label>
+        {{ form.sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Barcode</label>
+        {{ form.barcode(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Supplier SKU</label>
+        {{ form.supplier_sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
 
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Default supplier</label>{{ form.default_supplier_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Legacy category label (optional)</label>{{ form.category(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Default supplier</label>
+        {{ form.default_supplier_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Legacy category label (optional)</label>
+        {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
 
-    <div class="md:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Additional suppliers</label>{{ form.supplier_ids(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', multiple=true, size='4') }}</div>
-    <div class="md:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Categories</label>{{ form.category_ids(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', multiple=true, size='4') }}</div>
+      <div class="md:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Additional suppliers</label>
+        {{ form.supplier_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', multiple=true, size='4') }}
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Categories</label>
+        {{ form.category_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', multiple=true, size='4') }}
+      </div>
 
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Cost price</label>{{ form.cost_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Sale price</label>{{ form.sale_price(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Lead time (days)</label>{{ form.lead_time_days(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Low stock threshold</label>{{ form.low_stock_threshold(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Cost price</label>
+        {{ form.cost_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Sale price</label>
+        {{ form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Lead time (days)</label>
+        {{ form.lead_time_days(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Low stock threshold</label>
+        {{ form.low_stock_threshold(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
 
-    <div class="md:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Image URL</label>{{ form.image_url(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200') }}</div>
-    <div class="md:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Description</label>{{ form.description(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
-    <div class="md:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Internal notes</label>{{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3') }}</div>
+      <div class="md:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Image URL</label>
+        {{ form.image_url(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Description</label>
+        {{ form.description(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', rows='3') }}
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Internal notes</label>
+        {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', rows='3') }}
+      </div>
 
-    <label class="inline-flex items-center gap-2 text-sm text-slate-300">{{ form.serial_tracking() }} Serial tracking required</label>
-    <label class="inline-flex items-center gap-2 text-sm text-slate-300">{{ form.is_active() }} Active product</label>
+      <div class="flex items-center gap-6">
+        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.serial_tracking() }} Serial tracking required</label>
+        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} Active product</label>
+      </div>
 
-    <div class="md:col-span-2"><button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Save Part</button></div>
-  </form>
+      <div class="md:col-span-2 pt-2">
+        <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Save Part</button>
+      </div>
+    </form>
+  </div>
 </section>
 {% endblock %}

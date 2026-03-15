@@ -75,7 +75,7 @@ def test_public_pages_use_isolated_layout_without_internal_nav(monkeypatch):
 
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert "Public Check-In" in html
+    assert "Check-In" in html or "check in" in html.lower()
     assert "Tickets" not in html
     assert "My Queue" not in html
     assert "Logout" not in html

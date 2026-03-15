@@ -1,52 +1,87 @@
 {% extends 'base.html' %}
 {% block title %}{{ 'Edit' if mode == 'edit' else 'New' }} Part Order - IRONCore{% endblock %}
 {% block content %}
-<section class="max-w-6xl rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel space-y-4">
-  <h1 class="text-2xl font-semibold text-white">{{ 'Edit' if mode == 'edit' else 'Create' }} Part Order</h1>
-  <form method="post" class="space-y-3" id="order-form">
-    {{ form.hidden_tag() }}
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <div>
-        <label class='text-xs text-slate-400'>Search Ticket (optional)</label>
-        <input id="ticket-search" type="text" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" placeholder="Ticket #, customer name, email" />
-        <div id="ticket-results" class="mt-1 space-y-1"></div>
-        {{ form.ticket_id(class='mt-2 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}
-      </div>
-      <div>{{ form.supplier_id.label(class='text-xs text-slate-400') }}{{ form.supplier_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.branch_id.label(class='text-xs text-slate-400') }}{{ form.branch_id(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.status.label(class='text-xs text-slate-400') }}{{ form.status(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.reference.label(class='text-xs text-slate-400') }}{{ form.reference(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.supplier_reference.label(class='text-xs text-slate-400') }}{{ form.supplier_reference(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.tracking_number.label(class='text-xs text-slate-400') }}{{ form.tracking_number(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.ordered_at.label(class='text-xs text-slate-400') }}{{ form.ordered_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-      <div>{{ form.estimated_arrival_at.label(class='text-xs text-slate-400') }}{{ form.estimated_arrival_at(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>
-    </div>
-    <div>{{ form.notes.label(class='text-xs text-slate-400') }}{{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='2') }}</div>
+<section class="space-y-6">
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ 'Edit' if mode == 'edit' else 'New' }} Order</p>
+    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ 'Edit' if mode == 'edit' else 'Create' }} Part Order</h1>
+  </div>
 
-    <h2 class="text-sm font-semibold text-slate-300">Order Lines</h2>
-    <div id="order-lines" class="space-y-2">
-      {% for line in form.lines %}
-      <div class="order-line grid grid-cols-1 gap-2 md:grid-cols-5 rounded-xl border border-slate-800 bg-slate-900 p-3" data-index="{{ loop.index0 }}">
+  <div class="max-w-6xl rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <form method="post" class="space-y-6" id="order-form">
+      {{ form.hidden_tag() }}
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
-          <input type="text" class="part-search w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs" placeholder="Search part by name/SKU/barcode/supplier SKU" />
-          {{ line.form.part_id(class='part-select mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs') }}
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Search Ticket (optional)</label>
+          <input id="ticket-search" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="Ticket #, customer name, email" />
+          <div id="ticket-results" class="mt-1 space-y-1"></div>
+          {{ form.ticket_id(class='mt-2 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
         </div>
-        <div>{{ line.form.description_override(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Description override') }}</div>
-        <div>{{ line.form.supplier_sku(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Supplier SKU') }}</div>
-        <div>{{ line.form.quantity(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Qty') }}</div>
-        <div class="space-y-2">
-          {{ line.form.unit_cost(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs', placeholder='Unit cost') }}
-          <button type="button" class="remove-line w-full rounded border border-rose-800 bg-rose-950 px-2 py-1 text-[11px] text-rose-200 hover:bg-rose-900">Remove line</button>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.supplier_id.label.text }}</label>
+          {{ form.supplier_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.branch_id.label.text }}</label>
+          {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.status.label.text }}</label>
+          {{ form.status(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.reference.label.text }}</label>
+          {{ form.reference(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.supplier_reference.label.text }}</label>
+          {{ form.supplier_reference(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.tracking_number.label.text }}</label>
+          {{ form.tracking_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.ordered_at.label.text }}</label>
+          {{ form.ordered_at(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.estimated_arrival_at.label.text }}</label>
+          {{ form.estimated_arrival_at(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
         </div>
       </div>
-      {% endfor %}
-    </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.notes.label.text }}</label>
+        {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30', rows='2') }}
+      </div>
 
-    <div class="flex gap-2">
-      <button type="button" id="add-line" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">+ Add Line</button>
-      {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
-    </div>
-  </form>
+      <div>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Order Lines</h2>
+        <div id="order-lines" class="mt-4 space-y-3">
+          {% for line in form.lines %}
+          <div class="order-line grid grid-cols-1 gap-3 md:grid-cols-5 rounded-xl border border-slate-800/60 bg-slate-800/40 p-4" data-index="{{ loop.index0 }}">
+            <div>
+              <input type="text" class="part-search w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="Search part by name/SKU/barcode/supplier SKU" />
+              {{ line.form.part_id(class='part-select mt-2 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs') }}
+            </div>
+            <div>{{ line.form.description_override(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Description override') }}</div>
+            <div>{{ line.form.supplier_sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Supplier SKU') }}</div>
+            <div>{{ line.form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Qty') }}</div>
+            <div class="space-y-2">
+              {{ line.form.unit_cost(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Unit cost') }}
+              <button type="button" class="remove-line w-full rounded-lg border border-rose-800/60 bg-rose-950/60 px-2.5 py-1.5 text-[11px] font-medium text-rose-200 hover:bg-rose-900/60 transition-colors">Remove line</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 border-t border-slate-800/60 pt-5">
+        <button type="button" id="add-line" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">+ Add Line</button>
+        {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors') }}
+      </div>
+    </form>
+  </div>
 </section>
 <script>
 const ticketSearch=document.getElementById('ticket-search');
@@ -59,7 +94,7 @@ ticketSearch?.addEventListener('input', async ()=>{
   for(const item of data.items){
     const b=document.createElement('button');
     b.type='button';
-    b.className='block w-full text-left rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs';
+    b.className='block w-full text-left rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs hover:bg-slate-800 transition-colors';
     b.textContent=item.label;
     b.onclick=()=>{ticketSelect.value=item.id; ticketResults.innerHTML='';};
     ticketResults.appendChild(b);
@@ -78,7 +113,7 @@ function wirePartSearch(scope=document){
       const row=input.closest('.order-line'); const select=row.querySelector('.part-select');
       const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
       select.innerHTML='';
-      for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);} 
+      for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);}
     });
   });
 }

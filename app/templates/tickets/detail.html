@@ -2,40 +2,59 @@
 {% from 'components/ui_macros.html' import status_badge, priority_badge, section_card %}
 {% block title %}{{ ticket.ticket_number }} - Ticket Detail - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel sm:p-5">
-    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+<section class="space-y-6">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel sm:p-6">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Ticket Summary</p>
-        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ ticket.ticket_number }}</h1>
-        <p class="mt-1 text-sm text-slate-400"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
-        {% if ticket.issue_summary %}<p class="mt-2 text-sm text-slate-300">{{ ticket.issue_summary }}</p>{% endif %}
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">Ticket Summary</p>
+        <h1 class="mt-1.5 text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ ticket.ticket_number }}</h1>
+        <p class="mt-1.5 text-sm text-slate-400"><a class="hover:text-indigo-300 transition-colors" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+        {% if ticket.issue_summary %}<p class="mt-2.5 text-sm leading-relaxed text-slate-300">{{ ticket.issue_summary }}</p>{% endif %}
       </div>
-      <div class="flex flex-wrap gap-2 lg:justify-end">{{ status_badge(ticket.internal_status) }}{{ priority_badge(ticket.priority) }}</div>
+      <div class="flex flex-wrap items-center gap-2.5 lg:justify-end">{{ status_badge(ticket.internal_status) }}{{ priority_badge(ticket.priority) }}</div>
     </div>
 
-    <div class="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+    <div class="mt-4 flex flex-wrap items-center gap-4 border-t border-slate-800 pt-3 text-xs text-slate-400">
       <span>Technician: <strong class="text-slate-200">{{ ticket.assigned_technician.full_name if ticket.assigned_technician else 'Unassigned' }}</strong></span>
+      <span class="hidden sm:inline text-slate-700">|</span>
       <span>Status: <strong class="text-slate-200">{{ ticket.internal_status|replace('_', ' ')|title }}</strong></span>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-    <div class="space-y-4 xl:col-span-2">
+  <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <div class="space-y-6 xl:col-span-2">
       {% call section_card('Actions', 'Modal actions for updates') %}
-      <div class="flex flex-wrap gap-2">
-        <button type="button" data-open-modal="meta-modal" class="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white">Edit ticket details</button>
-        <button type="button" data-open-modal="note-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Add note</button>
-        <button type="button" data-open-modal="diag-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Add diagnostics</button>
-        <button type="button" data-open-modal="quote-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Create quote</button>
-        <button type="button" data-open-modal="reserve-modal" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200">Reserve part</button>
-        <button type="button" data-open-modal="update-modal" class="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs text-emerald-200">Send update</button>
-        {% if ticket.internal_status not in ('archived', 'completed', 'cancelled') %}
-        <form method="post" action="{{ url_for('tickets.archive_ticket', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-400 hover:text-rose-300" onclick="return confirm('Archive this ticket?')">Archive</button></form>
-        {% endif %}
-        {% if ticket.internal_status in ('archived', 'completed', 'cancelled') %}
-        <form method="post" action="{{ url_for('tickets.reopen_ticket', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-cyan-700 bg-cyan-950/40 px-3 py-2 text-xs text-cyan-200" onclick="return confirm('Reopen this ticket?')">Reopen</button></form>
-        {% endif %}
+      <div class="space-y-4">
+        {# -- Workflow actions -- #}
+        <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-indigo-400/80">Workflow</p>
+          <div class="flex flex-wrap gap-2.5">
+            <button type="button" data-open-modal="meta-modal" class="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition-colors">Edit ticket details</button>
+            <button type="button" data-open-modal="update-modal" class="rounded-lg border border-emerald-700 bg-emerald-950/40 px-4 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors">Send update</button>
+          </div>
+        </div>
+        {# -- Record actions -- #}
+        <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Records</p>
+          <div class="flex flex-wrap gap-2.5">
+            <button type="button" data-open-modal="note-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Add note</button>
+            <button type="button" data-open-modal="diag-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Add diagnostics</button>
+            <button type="button" data-open-modal="quote-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Create quote</button>
+            <button type="button" data-open-modal="reserve-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Reserve part</button>
+          </div>
+        </div>
+        {# -- Destructive / lifecycle actions -- #}
+        <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-400/70">Lifecycle</p>
+          <div class="flex flex-wrap gap-2.5">
+            {% if ticket.internal_status not in ('archived', 'completed', 'cancelled') %}
+            <form method="post" action="{{ url_for('tickets.archive_ticket', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-rose-700/60 bg-rose-950/40 px-4 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-900/50 hover:border-rose-600 transition-colors" onclick="return confirm('Archive this ticket?')">Archive</button></form>
+            {% endif %}
+            {% if ticket.internal_status in ('archived', 'completed', 'cancelled') %}
+            <form method="post" action="{{ url_for('tickets.reopen_ticket', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-cyan-700 bg-cyan-950/40 px-4 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/40 transition-colors" onclick="return confirm('Reopen this ticket?')">Reopen</button></form>
+            {% endif %}
+          </div>
+        </div>
       </div>
       {% endcall %}
 
@@ -77,51 +96,86 @@
       </div>
 
       {% call section_card('Notes', 'Internal and customer-facing timeline') %}
-      <div class="space-y-2">
+      <div class="relative space-y-4">
+        {# Timeline connector line #}
+        {% if notes %}<div class="absolute left-[11px] top-3 bottom-3 w-0.5 rounded-full bg-gradient-to-b from-slate-700 to-slate-800/50 hidden sm:block"></div>{% endif %}
         {% for note in notes %}
         {% set cls = 'border-slate-800 bg-slate-900 text-slate-200' %}
-        {% if note.note_type == 'internal' %}{% set cls = 'border-blue-800/70 bg-blue-950/30 text-blue-100' %}{% endif %}
-        {% if note.note_type in ['customer', 'customer_update'] %}{% set cls = 'border-emerald-800/70 bg-emerald-950/30 text-emerald-100' %}{% endif %}
-        {% if note.note_type == 'communication' %}{% set cls = 'border-amber-800/70 bg-amber-950/30 text-amber-100' %}{% endif %}
-        <article class="rounded-lg border p-3 {{ cls }}"><div class="flex items-center justify-between gap-2"><span class="text-xs uppercase tracking-wide">{{ note.note_type|replace('_', ' ') }}</span><span class="text-xs opacity-70">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span></div><p class="mt-1 text-sm">{{ note.content }}</p></article>
-        {% else %}<p class="text-sm text-slate-500">No notes yet.</p>{% endfor %}
+        {% set dot_cls = 'bg-slate-600' %}
+        {% set type_cls = 'text-slate-400 bg-slate-800/60' %}
+        {% if note.note_type == 'internal' %}{% set cls = 'border-blue-800/50 bg-blue-950/20 text-blue-100' %}{% set dot_cls = 'bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.5)]' %}{% set type_cls = 'text-blue-300 bg-blue-950/60 border border-blue-800/40' %}{% endif %}
+        {% if note.note_type in ['customer', 'customer_update'] %}{% set cls = 'border-emerald-800/50 bg-emerald-950/20 text-emerald-100' %}{% set dot_cls = 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]' %}{% set type_cls = 'text-emerald-300 bg-emerald-950/60 border border-emerald-800/40' %}{% endif %}
+        {% if note.note_type == 'communication' %}{% set cls = 'border-amber-800/50 bg-amber-950/20 text-amber-100' %}{% set dot_cls = 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.5)]' %}{% set type_cls = 'text-amber-300 bg-amber-950/60 border border-amber-800/40' %}{% endif %}
+        <article class="relative rounded-xl border p-4 {{ cls }} sm:ml-8">
+          <div class="absolute -left-[1.35rem] top-4 hidden h-3 w-3 rounded-full ring-[3px] ring-slate-900 {{ dot_cls }} sm:block"></div>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider {{ type_cls }}">{{ note.note_type|replace('_', ' ') }}</span>
+            <span class="text-[11px] font-medium text-slate-500">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+          </div>
+          <p class="mt-2 text-sm leading-relaxed">{{ note.content }}</p>
+        </article>
+        {% else %}<p class="py-4 text-center text-sm text-slate-500">No notes yet.</p>{% endfor %}
       </div>
       {% endcall %}
     </div>
 
-    <aside class="space-y-4">
+    <aside class="space-y-6">
       {% call section_card('Technician & Workflow') %}
-      <p class="mb-2 text-xs text-slate-500">Keep assignment and status updates in one compact panel.</p>
-      <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="space-y-2">{{ assignment_form.hidden_tag() }}<label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="assigned_technician_id">Assigned technician</label>{{ assignment_form.assigned_technician_id(id='assigned_technician_id', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ assignment_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white') }}</form>
-      <form method="post" action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" class="space-y-2 pt-2">{{ status_form.hidden_tag() }}<label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="internal_status">Workflow status</label>{{ status_form.internal_status(id='internal_status', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ status_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white') }}</form>
+      <p class="mb-3 text-xs text-slate-500">Keep assignment and status updates in one compact panel.</p>
+      <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="space-y-2.5">{{ assignment_form.hidden_tag() }}<label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="assigned_technician_id">Assigned technician</label>{{ assignment_form.assigned_technician_id(id='assigned_technician_id', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ assignment_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors') }}</form>
+      <div class="border-t border-slate-800 pt-3">
+      <form method="post" action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" class="space-y-2.5">{{ status_form.hidden_tag() }}<label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="internal_status">Workflow status</label>{{ status_form.internal_status(id='internal_status', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ status_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors') }}</form>
+      </div>
       {% endcall %}
 
       {% call section_card('SLA & Promise') %}
-      <dl class="space-y-2 text-sm"><div><dt class="text-slate-500">SLA target</dt><dd class="text-slate-200">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else 'Not set' }}</dd></div><div><dt class="text-slate-500">Promised completion</dt><dd class="text-slate-200">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else 'Not set' }}</dd></div><div><dt class="text-slate-500">Ticket age</dt><dd class="text-slate-200">{{ age_days }} days{% if is_overdue %} · <span class="text-rose-300">Overdue SLA</span>{% endif %}</dd></div></dl>
-      <a href="{{ url_for('tickets.create_ticket', customer_id=ticket.customer_id) }}" class="mt-3 inline-flex rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Create another ticket for this customer</a>
+      <dl class="space-y-3 text-sm">
+        <div class="flex items-center justify-between"><dt class="text-slate-500">SLA target</dt><dd class="font-medium text-slate-200">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') if ticket.sla_target_at else 'Not set' }}</dd></div>
+        <div class="flex items-center justify-between"><dt class="text-slate-500">Promised completion</dt><dd class="font-medium text-slate-200">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else 'Not set' }}</dd></div>
+        <div class="flex items-center justify-between"><dt class="text-slate-500">Ticket age</dt><dd class="font-medium text-slate-200">{{ age_days }} days{% if is_overdue %} <span class="ml-1 rounded-full bg-rose-950/60 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-300">Overdue</span>{% endif %}</dd></div>
+      </dl>
+      <a href="{{ url_for('tickets.create_ticket', customer_id=ticket.customer_id) }}" class="mt-4 inline-flex rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700/60 transition-colors">Create another ticket for this customer</a>
       {% endcall %}
 
       {% call section_card('Reserved Parts', 'Allocated stock for this ticket') %}
-      <div class="space-y-2">{% for reservation in reservations %}
-        <article class="rounded-lg border {% if reservation.status == 'released' %}border-slate-700 opacity-60{% else %}border-emerald-800/50 bg-emerald-950/10{% endif %} bg-slate-900 p-3">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <p class="text-sm font-semibold text-white">{{ reservation.part.sku }} · {{ reservation.part.name }}</p>
-              <p class="text-xs text-slate-400">Qty {{ reservation.quantity }} · {{ reservation.location.code if reservation.location else 'No location' }} · <span class="{% if reservation.status == 'reserved' %}text-emerald-300{% else %}text-slate-500{% endif %}">{{ reservation.status|title }}</span></p>
+      <div class="space-y-3">{% for reservation in reservations %}
+        <article class="rounded-xl border {% if reservation.status == 'released' %}border-slate-700/50 opacity-40{% else %}border-emerald-800/40 bg-emerald-950/10{% endif %} bg-slate-900 p-4 transition-opacity">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-white truncate">{{ reservation.part.sku }} <span class="font-normal text-slate-600">|</span> {{ reservation.part.name }}</p>
+              <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span class="rounded-md bg-slate-800 px-2 py-0.5 font-medium text-slate-300">Qty {{ reservation.quantity }}</span>
+                <span class="rounded-md bg-slate-800/60 px-2 py-0.5 text-slate-400">{{ reservation.location.code if reservation.location else 'No location' }}</span>
+                <span class="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase {% if reservation.status == 'reserved' %}bg-emerald-950/60 text-emerald-300 border border-emerald-800/40{% else %}bg-slate-800 text-slate-500{% endif %}">{{ reservation.status|title }}</span>
+              </div>
             </div>
             {% if reservation.status == 'reserved' %}
-            <form method="post" action="{{ url_for('tickets.release_reservation', ticket_id=ticket.id, reservation_id=reservation.id) }}" class="inline">
+            <form method="post" action="{{ url_for('tickets.release_reservation', ticket_id=ticket.id, reservation_id=reservation.id) }}" class="shrink-0">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              <button class="rounded border border-rose-800 bg-rose-950/40 px-2 py-1 text-[10px] text-rose-200 hover:bg-rose-900/40" onclick="return confirm('Release this reservation? Stock will become available again.')">Release</button>
+              <button class="rounded-lg border border-rose-700/60 bg-rose-950/40 px-3 py-1.5 text-[11px] font-semibold text-rose-300 hover:bg-rose-900/50 hover:border-rose-600 transition-colors" onclick="return confirm('Release this reservation? Stock will become available again.')">Release</button>
             </form>
             {% endif %}
           </div>
         </article>
-      {% else %}<p class="text-sm text-slate-500">No reserved parts.</p>{% endfor %}</div>
+      {% else %}<p class="py-3 text-center text-sm text-slate-500">No reserved parts.</p>{% endfor %}</div>
       {% endcall %}
 
       {% call section_card('Ordered Parts', 'Parts on order from suppliers — track ETA and delivery') %}
-      <div class="space-y-2">{% for order in orders %}{% set overdue_order = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}<a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border {% if overdue_order %}border-rose-700/70{% else %}border-slate-800{% endif %} bg-slate-900 p-3 hover:border-slate-700"><div class="flex items-center justify-between gap-2"><p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p><span class="text-xs uppercase {% if order.status in ['received'] %}text-emerald-300{% elif overdue_order %}text-rose-300{% else %}text-slate-400{% endif %}">{{ order.status|replace('_',' ') }}</span></div><p class="mt-1 text-xs text-slate-400">Supplier: {{ order.supplier.name }} · ETA: {{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</p></a>{% else %}<p class="text-sm text-slate-500">No linked orders yet.</p>{% endfor %}</div>
+      <div class="space-y-3">
+        {% for order in orders %}
+        {% set overdue_order = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}
+        <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-xl border {% if overdue_order %}border-rose-700/60 bg-rose-950/10{% else %}border-slate-800{% endif %} bg-slate-900 p-4 hover:border-slate-600 transition-colors">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-semibold text-white">{{ order.reference or order.id }}</p>
+            <span class="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase {% if order.status in ['received'] %}bg-emerald-950/60 text-emerald-300 border border-emerald-800/40{% elif overdue_order %}bg-rose-950/60 text-rose-300 border border-rose-800/40{% else %}bg-slate-800 text-slate-400{% endif %}">{{ order.status|replace('_',' ') }}</span>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+            <span>Supplier: <strong class="text-slate-300">{{ order.supplier.name }}</strong></span>
+            <span>ETA: <strong class="{% if overdue_order %}text-rose-300{% else %}text-slate-300{% endif %}">{{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</strong></span>
+          </div>
+        </a>
+        {% else %}<p class="py-3 text-center text-sm text-slate-500">No linked orders yet.</p>{% endfor %}
+      </div>
       {% endcall %}
     </aside>
   </div>

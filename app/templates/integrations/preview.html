@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}Export Preview - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <h1 class="text-2xl font-semibold text-white">Export Payload Preview · {{ ticket.ticket_number }}</h1>
-  <pre class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900 p-4 text-xs text-slate-200">{{ payload }}</pre>
+<section class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">Export Payload Preview</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ ticket.ticket_number }}</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
+    <pre class="overflow-x-auto p-5 text-xs leading-relaxed text-slate-200 font-mono">{{ payload }}</pre>
+  </div>
 </section>
 {% endblock %}

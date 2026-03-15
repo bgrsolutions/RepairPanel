@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.9.2] - 2026-03-15
+### Fixed
+- Quote part search/autocomplete fully reworked: global `partsData` JSON map replaces fragile data-attribute approach, ensuring autofill works for both initial dropdown selections and search results.
+- Quote search clears properly: restores full parts list when search input is emptied (< 2 chars).
+- Search results enrich global `partsData` so cloned/added lines can still reference part metadata.
+- Updated public status and check-in test assertions to match redesigned template text.
+
+### Added
+- Mobile hamburger navigation menu for small screens with grouped section labels.
+- Flash message icons (success/error/warning/info) with SVG indicators in base layout.
+- Dropdown chevron indicators on navigation menu items with auto-close on outside click.
+- Improved `empty_state` macro with placeholder icon for better visual empty states.
+- Stat card gradient accent glow based on color accent parameter.
+- Focus ring styles for keyboard accessibility on form inputs.
+- CSS `shadow-panel` utility class, smooth transitions on interactive elements.
+- Part badge display on quote lines showing selected part with clear button.
+
+### Improved
+- Comprehensive UI/UX polish pass across all 50+ templates for visual consistency.
+- Base layout: better logo sizing, dropdown menus with rounded-xl and shadow-xl, separator dividers in dropdown groups.
+- Public portal: redesigned check-in with step progress indicator, status page with visual progress tracker and timeline updates, quote approval with professional line-item display.
+- Ticket pages: list, board, queue, new ticket, and detail all use consistent card/table/button styling.
+- Quote builder: improved line layout, badge-based part selection feedback, consistent spacing.
+- Inventory pages: overview, parts list/detail/edit/new, categories, locations, movements all polished.
+- Customer, supplier, order pages: consistent table hover states, card layouts, form styling.
+- Dashboard, reports, settings, notifications, exports, integrations: unified design language.
+- Users/staff management: consistent form and list styling.
+- Intake pages: list, detail, new, receipt all updated with consistent card layouts.
+- Auth login page: improved dark theme form styling.
+- UI macros: `section_card` with better spacing, `ticket_card` with grouped layout and technician icon, `stat_card` with gradient accent.
+
 ## [0.9.1] - 2026-03-15
 ### Fixed
 - Quote part search now auto-fills description and unit price when a part is selected from search results (no extra fetch needed).

@@ -1,20 +1,54 @@
 {% extends 'base.html' %}
 {% block title %}New Supplier - IRONCore{% endblock %}
 {% block content %}
-<section class="max-w-3xl rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
-  <h1 class="text-2xl font-semibold text-white">Create Supplier</h1>
-  <form method="post" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-    {{ form.hidden_tag() }}
-    <div>{{ form.name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Supplier name') }}</div>
-    <div>{{ form.contact_name(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Contact name') }}</div>
-    <div>{{ form.email(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Email') }}</div>
-    <div>{{ form.phone(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Phone') }}</div>
-    <div>{{ form.website(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Website') }}</div>
-    <div>{{ form.account_reference(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Account reference') }}</div>
-    <div>{{ form.default_lead_time_days(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Lead time days') }}</div>
-    <div class="md:col-span-2">{{ form.notes(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', rows='3', placeholder='Notes') }}</div>
-    <label class="inline-flex items-center gap-2 text-sm text-slate-300">{{ form.is_active() }} Active</label>
-    <div class="md:col-span-2">{{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}</div>
-  </form>
+<section class="space-y-6 max-w-3xl">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">Create Supplier</h1>
+    <p class="mt-1 text-sm text-slate-400">Add a new supplier to the system.</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {{ form.hidden_tag() }}
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Name</label>
+        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Supplier name') }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Contact Name</label>
+        {{ form.contact_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Contact name') }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+        {{ form.email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Email') }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Phone</label>
+        {{ form.phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Phone') }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Website</label>
+        {{ form.website(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Website') }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Account Reference</label>
+        {{ form.account_reference(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Account reference') }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Lead Time (days)</label>
+        {{ form.default_lead_time_days(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Lead time days') }}
+      </div>
+      <div class="flex items-end pb-1">
+        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} Active</label>
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">Notes</label>
+        {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', rows='3', placeholder='Notes') }}
+      </div>
+      <div class="md:col-span-2 pt-1">
+        {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors') }}
+      </div>
+    </form>
+  </div>
 </section>
 {% endblock %}

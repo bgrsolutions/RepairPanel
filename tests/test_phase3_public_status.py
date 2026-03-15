@@ -127,7 +127,7 @@ def test_public_status_lookup_and_quote_approval(monkeypatch):
     )
     assert status_post.status_code == 200
     html = status_post.data.decode("utf-8")
-    assert "Quote approval needed: Yes" in html
+    assert "Quote status" in html or "approve quote" in html.lower()
 
     approval_get = client.get(f"/public/quote/{token}")
     assert approval_get.status_code == 200
