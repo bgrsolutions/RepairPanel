@@ -1,25 +1,46 @@
 {% extends 'base.html' %}
 {% block title %}Settings - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <h1 class="text-2xl font-semibold text-white">Admin / Settings</h1>
-  <div class="flex gap-2">
-    <a href="{{ url_for('settings.portal_settings') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200">Public Portal Settings</a>
-    <a href="{{ url_for('notifications.list_templates') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200">Notification Templates</a>
+<section class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">Admin / Settings</h1>
+    <p class="mt-1 text-sm text-slate-400">Manage branches and system configuration.</p>
   </div>
 
-  <form method="post" action="{{ url_for('settings.create_branch') }}" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 grid grid-cols-1 gap-2 md:grid-cols-3">
-    <input name="code" placeholder="Branch code" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" />
-    <input name="name" placeholder="Branch name" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" />
-    <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Create Branch</button>
-  </form>
+  <div class="flex gap-3">
+    <a href="{{ url_for('settings.portal_settings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Public Portal Settings</a>
+    <a href="{{ url_for('notifications.list_templates') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Notification Templates</a>
+  </div>
 
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-    {% for branch in branches %}
-    <div class="mt-2 rounded-lg border border-slate-800 bg-slate-900 p-2 text-sm text-slate-300">{{ branch.code }} · {{ branch.name }} · {{ 'Active' if branch.is_active else 'Inactive' }}</div>
-    {% else %}
-    <p class="text-sm text-slate-500">No branches configured.</p>
-    {% endfor %}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Create Branch</h2>
+    <form method="post" action="{{ url_for('settings.create_branch') }}" class="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <input name="code" placeholder="Branch code" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
+      <input name="name" placeholder="Branch name" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Create Branch</button>
+    </form>
+  </div>
+
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Branches</h2>
+    <div class="space-y-2">
+      {% for branch in branches %}
+      <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 flex items-center justify-between text-sm">
+        <div class="text-slate-200">
+          <span class="font-medium text-white">{{ branch.code }}</span>
+          <span class="mx-2 text-slate-600">·</span>
+          <span>{{ branch.name }}</span>
+        </div>
+        {% if branch.is_active %}
+        <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">Active</span>
+        {% else %}
+        <span class="inline-flex items-center rounded-full bg-slate-800/50 px-2.5 py-0.5 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-700/40">Inactive</span>
+        {% endif %}
+      </div>
+      {% else %}
+      <p class="text-sm text-slate-500 py-4 text-center">No branches configured.</p>
+      {% endfor %}
+    </div>
   </div>
 </section>
 {% endblock %}

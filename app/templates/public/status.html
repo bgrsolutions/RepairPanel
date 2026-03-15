@@ -1,55 +1,251 @@
 {% extends 'public_base.html' %}
-{% block title %}Repair Status Lookup - IRONCore{% endblock %}
+{% block title %}Track Your Repair - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-panel">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Repair Status</p>
-    <h2 class="mt-1 text-2xl font-semibold text-white">Lookup Your Repair</h2>
+
+{% set input_cls = 'w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30' %}
+
+<section class="space-y-8">
+  <!-- Page header -->
+  <div class="text-center sm:text-left">
+    <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-950/30 px-4 py-1.5 text-xs font-medium text-indigo-300">
+      <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+      Real-time tracking
+    </div>
+    <h2 class="mt-4 text-3xl font-bold tracking-tight text-white">Track your repair</h2>
+    <p class="mt-2 text-base text-slate-400 max-w-2xl">Enter your ticket number and the phone or email you used at check-in to see your repair status.</p>
   </div>
 
-  <form method="post" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-3">
-    {{ form.hidden_tag() }}
-    {{ form.ticket_number(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Ticket number') }}
-    {{ form.verifier(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200', placeholder='Phone or email used at check-in') }}
-    {{ form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500') }}
-  </form>
+  <!-- Lookup form -->
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel sm:p-8">
+    <form method="post" class="space-y-5">
+      {{ form.hidden_tag() }}
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Ticket number</label>
+          <p class="mb-2 text-xs text-slate-500">The reference you received when you checked in</p>
+          {{ form.ticket_number(class=input_cls, placeholder='e.g. TK-20260315-001') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Verification</label>
+          <p class="mb-2 text-xs text-slate-500">The phone number or email you gave us</p>
+          {{ form.verifier(class=input_cls, placeholder='Phone or email used at check-in') }}
+        </div>
+      </div>
+      <div class="pt-1">
+        {{ form.submit(class='w-full rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500 hover:shadow-indigo-500/30 sm:w-auto sm:min-w-[180px]') }}
+      </div>
+    </form>
+  </div>
 
   {% if lookup_result %}
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-2">
-    <h3 class="text-lg font-semibold text-white">{{ lookup_result.ticket_number }}</h3>
-    <p class="text-sm text-slate-300">Device: {{ lookup_result.device_summary }}</p>
-    <p class="text-sm text-slate-300">Repair status: {{ lookup_result.customer_status }}</p>
-    <p class="text-sm text-slate-300">Workflow: {{ lookup_result.internal_status|replace('_',' ')|title }}</p>
-    <p class="text-sm text-slate-300">Promised completion: {{ lookup_result.estimated_completion }}</p>
-    <p class="text-sm {% if lookup_result.ready_for_collection %}text-emerald-300{% else %}text-slate-300{% endif %}">Ready for collection: {{ 'Yes' if lookup_result.ready_for_collection else 'Not yet' }}</p>
-    {% if lookup_result.quote %}
-      <p class="text-sm text-slate-300">Quote approval needed: {{ 'Yes' if lookup_result.quote.status in ['sent','draft'] else 'No' }}</p>
-      <p class="text-sm text-slate-300">Quote status: {{ lookup_result.quote.status|replace('_',' ')|title }}</p>
-      {% if lookup_result.quote.status in ['sent','draft'] and lookup_result.quote.approvals %}<a class='text-indigo-300 text-sm' href='{{ url_for('public_portal.public_quote_approval', token=lookup_result.quote.approvals[0].token) }}'>Open quote approval</a>{% endif %}
-    {% endif %}
-  </div>
 
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
-    <h4 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Customer-facing updates</h4>
-    <div class="mt-2 space-y-2">
-      {% for note in lookup_result.customer_updates %}
-      <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-200">
-        <div class="text-xs text-slate-500">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ note.note_type|replace('_',' ') }}</div>
-        <div>{{ note.content }}</div>
+  {# Map internal statuses to friendly descriptions #}
+  {% set status_labels = {
+    'received': 'Received',
+    'in_repair': 'Being repaired',
+    'waiting_parts': 'Waiting for parts',
+    'waiting_quote_approval': 'Quote sent - awaiting your approval',
+    'repaired': 'Repair complete',
+    'ready_for_collection': 'Ready for collection',
+    'collected': 'Collected',
+    'cancelled': 'Cancelled'
+  } %}
+  {% set friendly_status = status_labels.get(lookup_result.internal_status, lookup_result.internal_status|replace('_',' ')|title) %}
+
+  {# Progress steps #}
+  {% set progress_steps = ['Received', 'Diagnosing', 'Repairing', 'Quality check', 'Ready'] %}
+  {% set status_to_step = {
+    'received': 0,
+    'in_repair': 2,
+    'waiting_parts': 2,
+    'waiting_quote_approval': 1,
+    'repaired': 3,
+    'ready_for_collection': 4,
+    'collected': 4,
+    'cancelled': -1
+  } %}
+  {% set current_step = status_to_step.get(lookup_result.internal_status, 0) %}
+
+  <!-- Ready for collection banner -->
+  {% if lookup_result.ready_for_collection %}
+  <div class="rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 via-emerald-900/40 to-emerald-950/70 p-6 shadow-lg shadow-emerald-900/20 sm:p-8">
+    <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+      <div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-500/10">
+        <svg class="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
-      {% else %}<p class="text-sm text-slate-500">No customer updates yet.</p>{% endfor %}
+      <div>
+        <h3 class="text-xl font-bold text-emerald-300 sm:text-2xl">Your device is ready for collection!</h3>
+        <p class="mt-1 text-sm text-emerald-400/80">Great news -- your repair is complete. Please visit the branch during opening hours to pick up your device.</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Repair details card -->
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel sm:p-8">
+    <!-- Ticket header -->
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <p class="text-xs font-medium tracking-widest text-indigo-400">TICKET</p>
+        <h3 class="mt-1 text-2xl font-bold text-white">{{ lookup_result.ticket_number }}</h3>
+        <p class="mt-1.5 text-sm text-slate-400">{{ lookup_result.device_summary }}</p>
+      </div>
+      <div class="text-left sm:text-right">
+        <span class="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium
+          {% if lookup_result.ready_for_collection %}border-emerald-600/40 bg-emerald-950/50 text-emerald-300
+          {% else %}border-slate-700 bg-slate-800 text-slate-200{% endif %}">
+          {% if lookup_result.ready_for_collection %}
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          {% else %}
+            <span class="h-2 w-2 rounded-full bg-indigo-400"></span>
+          {% endif %}
+          {{ friendly_status }}
+        </span>
+        {% if lookup_result.estimated_completion %}
+        <p class="mt-2.5 text-xs text-slate-500">Estimated completion: {{ lookup_result.estimated_completion }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Progress indicator -->
+    {% if current_step >= 0 %}
+    <div class="mt-8 pt-6 border-t border-slate-800/60">
+      <p class="mb-4 text-xs font-medium uppercase tracking-widest text-slate-500">Repair progress</p>
+      <div class="flex items-center justify-between">
+        {% for step_name in progress_steps %}
+        <div class="flex flex-col items-center flex-1">
+          <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition-all
+            {% if loop.index0 < current_step %}bg-indigo-600 text-white
+            {% elif loop.index0 == current_step %}bg-indigo-500 text-white ring-4 ring-indigo-500/20 shadow-lg shadow-indigo-500/20
+            {% else %}bg-slate-800 text-slate-500 border border-slate-700{% endif %}">
+            {% if loop.index0 < current_step %}
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            {% else %}
+              {{ loop.index }}
+            {% endif %}
+          </div>
+          <span class="mt-2 text-[10px] font-medium sm:text-xs {% if loop.index0 <= current_step %}text-slate-300{% else %}text-slate-600{% endif %}">{{ step_name }}</span>
+        </div>
+        {% if not loop.last %}
+        <div class="h-0.5 flex-1 -mt-5 rounded-full {% if loop.index0 < current_step %}bg-indigo-600{% else %}bg-slate-800{% endif %}"></div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Status details -->
+    <div class="mt-6 space-y-2.5 border-t border-slate-800/60 pt-6">
+      <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
+        <span class="text-sm text-slate-400">Status</span>
+        <span class="text-sm font-medium text-slate-200">{{ lookup_result.customer_status }}</span>
+      </div>
+      <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
+        <span class="text-sm text-slate-400">Current stage</span>
+        <span class="text-sm font-medium text-slate-200">{{ friendly_status }}</span>
+      </div>
+      {% if lookup_result.estimated_completion %}
+      <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
+        <span class="text-sm text-slate-400">Estimated completion</span>
+        <span class="text-sm font-medium text-slate-200">{{ lookup_result.estimated_completion }}</span>
+      </div>
+      {% endif %}
+
+      {% if lookup_result.quote %}
+      <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
+        <span class="text-sm text-slate-400">Quote status</span>
+        <span class="text-sm font-medium text-slate-200">{{ lookup_result.quote.status|replace('_',' ')|title }}</span>
+      </div>
+      {% if lookup_result.quote.status in ['sent','draft'] and lookup_result.quote.approvals %}
+      <div class="pt-2">
+        <a href="{{ url_for('public_portal.public_quote_approval', token=lookup_result.quote.approvals[0].token) }}"
+           class="flex items-center justify-center gap-2.5 rounded-xl bg-amber-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-500 hover:shadow-amber-500/30">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          Review &amp; approve quote
+        </a>
+      </div>
+      {% endif %}
+      {% endif %}
     </div>
   </div>
 
-  <form method="post" action="{{ url_for('public_portal.public_status_contact_update', ticket_id=lookup_result.ticket.id) }}" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel space-y-2">
-    {{ contact_form.hidden_tag() }}
-    <h4 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Update contact details</h4>
-    {{ contact_form.contact_person(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Contact person') }}
-    {{ contact_form.contact_phone(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Phone') }}
-    {{ contact_form.contact_email(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', placeholder='Email') }}
-    {{ contact_form.remarks(class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm', rows='3', placeholder='Collection/contact remarks') }}
-    {{ contact_form.submit(class='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white') }}
-  </form>
+  <!-- Customer updates timeline -->
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel sm:p-8">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-400">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </div>
+      <div>
+        <h4 class="text-base font-semibold text-white">Updates</h4>
+        <p class="text-sm text-slate-500">Messages and updates about your repair</p>
+      </div>
+    </div>
+
+    <div class="space-y-0">
+      {% for note in lookup_result.customer_updates %}
+      <div class="relative flex gap-4 pb-6 {% if not loop.last %}border-l-2 border-slate-800 ml-3{% else %}ml-3{% endif %}">
+        <div class="absolute -left-1.5 top-1 h-3 w-3 rounded-full border-2 border-slate-900 {% if loop.first %}bg-indigo-500 ring-4 ring-indigo-500/10{% else %}bg-slate-600{% endif %}"></div>
+        <div class="ml-5 flex-1 rounded-xl border border-slate-800/60 bg-slate-800/30 p-4">
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>{{ note.created_at.strftime('%b %d, %Y at %H:%M') }}</span>
+            <span class="rounded-full bg-slate-700/60 px-2 py-0.5 text-[10px] font-medium text-slate-400">{{ note.note_type|replace('_',' ')|title }}</span>
+          </div>
+          <p class="mt-2 text-sm leading-relaxed text-slate-200">{{ note.content }}</p>
+        </div>
+      </div>
+      {% else %}
+      <div class="rounded-xl border border-dashed border-slate-700/60 bg-slate-800/20 p-8 text-center">
+        <svg class="mx-auto h-8 w-8 text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
+        <p class="mt-3 text-sm text-slate-500">No updates yet. We'll post updates here as your repair progresses.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Contact update form (collapsible) -->
+  <details class="group rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
+    <summary class="cursor-pointer list-none p-6 sm:p-7">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700/40 text-slate-400">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+          </div>
+          <div>
+            <h4 class="text-base font-semibold text-white">Need to update your contact details?</h4>
+            <p class="mt-0.5 text-sm text-slate-500">Change your phone, email, or add collection instructions</p>
+          </div>
+        </div>
+        <svg class="h-5 w-5 flex-shrink-0 text-slate-500 transition group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+      </div>
+    </summary>
+    <form method="post" action="{{ url_for('public_portal.public_status_contact_update', ticket_id=lookup_result.ticket.id) }}" class="border-t border-slate-800/60 p-6 sm:p-7">
+      {{ contact_form.hidden_tag() }}
+      <div class="space-y-5">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">Contact person</label>
+            {{ contact_form.contact_person(class=input_cls, placeholder='Your name') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">Phone</label>
+            {{ contact_form.contact_phone(class=input_cls, placeholder='Phone number') }}
+          </div>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Email</label>
+          {{ contact_form.contact_email(class=input_cls, placeholder='Email address') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Collection or contact remarks</label>
+          {{ contact_form.remarks(class=input_cls, rows='3', placeholder='e.g. Please call before collection, someone else will collect...') }}
+        </div>
+        <div class="pt-1">
+          {{ contact_form.submit(class='rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500') }}
+        </div>
+      </div>
+    </form>
+  </details>
   {% endif %}
 </section>
 {% endblock %}

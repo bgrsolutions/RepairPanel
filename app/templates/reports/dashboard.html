@@ -2,7 +2,7 @@
 {% from 'components/ui_macros.html' import stat_card %}
 {% block title %}Reports - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
+<section class="space-y-6">
   <div class="flex items-end justify-between">
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Reporting</p>
@@ -21,59 +21,71 @@
     {{ stat_card('Average Turnaround', ('%.1f days'|format(kpis.average_turnaround_days)), 'Created to ready/completed', 'cyan') }}
   </div>
 
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 xl:col-span-2">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Tickets by Status</h2>
-      <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
+    <section class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel xl:col-span-2">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Tickets by Status</h2>
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {% for status, count in statuses.items() %}
-        <div class="rounded-lg border border-slate-800 bg-slate-900 p-3 flex justify-between"><span class="text-slate-300">{{ status }}</span><span class="text-white font-semibold">{{ count }}</span></div>
+        <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3.5 flex items-center justify-between">
+          <span class="text-sm text-slate-300">{{ status }}</span>
+          <span class="text-sm font-semibold text-white">{{ count }}</span>
+        </div>
         {% endfor %}
       </div>
     </section>
 
-    <section class="space-y-4">
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">By Branch</h2>
-        <div class="mt-3 space-y-2">
+    <section class="space-y-5">
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">By Branch</h2>
+        <div class="space-y-2">
           {% for branch_code, count in by_branch.items() %}
-          <div class="rounded-lg border border-slate-800 bg-slate-900 p-2 flex justify-between"><span class="text-slate-300">{{ branch_code }}</span><span class="text-white">{{ count }}</span></div>
+          <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 flex items-center justify-between">
+            <span class="text-sm text-slate-300">{{ branch_code }}</span>
+            <span class="text-sm font-semibold text-white">{{ count }}</span>
+          </div>
           {% endfor %}
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Technician Workload</h2>
-        <div class="mt-3 space-y-2">
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Technician Workload</h2>
+        <div class="space-y-2">
           {% for owner, count in workload.items() %}
-          <div class="rounded-lg border border-slate-800 bg-slate-900 p-2 flex justify-between"><span class="text-slate-300">{{ owner }}</span><span class="text-white">{{ count }}</span></div>
+          <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 flex items-center justify-between">
+            <span class="text-sm text-slate-300">{{ owner }}</span>
+            <span class="text-sm font-semibold text-white">{{ count }}</span>
+          </div>
           {% endfor %}
         </div>
       </div>
     </section>
   </div>
 
-  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Most-used Parts</h2>
-      <div class="mt-3 space-y-2">
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+    <section class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Most-used Parts</h2>
+      <div class="space-y-2">
         {% for sku, qty in most_used %}
-        <div class="rounded-lg border border-slate-800 bg-slate-900 p-2 flex justify-between"><span class="text-slate-300">{{ sku }}</span><span class="text-white">{{ '%.2f'|format(qty) }}</span></div>
+        <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 flex items-center justify-between">
+          <span class="text-sm text-slate-300">{{ sku }}</span>
+          <span class="text-sm font-semibold text-white">{{ '%.2f'|format(qty) }}</span>
+        </div>
         {% else %}
-        <p class="text-sm text-slate-500">No part reservations recorded yet.</p>
+        <p class="text-sm text-slate-500 py-4 text-center">No part reservations recorded yet.</p>
         {% endfor %}
       </div>
     </section>
 
-    <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Parts Awaiting Arrival</h2>
-      <div class="mt-3 space-y-2">
+    <section class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Parts Awaiting Arrival</h2>
+      <div class="space-y-2">
         {% for order in awaiting_arrival %}
-        <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-lg border border-slate-800 bg-slate-900 p-2 hover:border-slate-700 text-sm text-slate-300">
+        <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 hover:bg-slate-800/60 hover:border-slate-700 transition-colors text-sm text-slate-300">
           <div>{{ order.reference or order.id }} · {{ order.supplier.name if order.supplier else '—' }} · {{ order.status|replace('_',' ')|title }} · ETA {{ order.estimated_arrival_at.strftime('%Y-%m-%d') if order.estimated_arrival_at else '—' }}</div>
-          {% if order.ticket %}<div class='text-xs text-slate-500'>Ticket {{ order.ticket.ticket_number }} · {{ order.ticket.customer.full_name }} · {{ order.ticket.device.brand }} {{ order.ticket.device.model }}</div>{% endif %}
+          {% if order.ticket %}<div class="mt-1 text-xs text-slate-500">Ticket {{ order.ticket.ticket_number }} · {{ order.ticket.customer.full_name }} · {{ order.ticket.device.brand }} {{ order.ticket.device.model }}</div>{% endif %}
         </a>
         {% else %}
-        <p class="text-sm text-slate-500">No pending part orders.</p>
+        <p class="text-sm text-slate-500 py-4 text-center">No pending part orders.</p>
         {% endfor %}
       </div>
     </section>

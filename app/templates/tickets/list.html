@@ -2,86 +2,90 @@
 {% from 'components/ui_macros.html' import status_badge, priority_badge, empty_state %}
 {% block title %}Tickets - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Front Desk · Operations</p>
-      <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Ticket Operations</h1>
-      <p class="text-sm text-slate-400">Manage intake, assignment, and progress across the workshop.</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Front Desk · Operations</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Ticket Operations</h1>
+      <p class="mt-1 text-sm text-slate-400">Manage intake, assignment, and progress across the workshop.</p>
     </div>
-    <div class="flex gap-2">
-      <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Bench Board</a>
-      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ New Ticket</a>
+    <div class="flex gap-2.5">
+      <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors">Bench Board</a>
+      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ New Ticket</a>
     </div>
   </div>
 
-
-  <form method="get" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel grid grid-cols-1 md:grid-cols-6 gap-3">
-    <select name="status" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
-      <option value="">Any status</option>
-      <option value="overdue" {% if filters.status=='overdue' %}selected{% endif %}>Overdue</option>
-      <option value="awaiting_parts" {% if filters.status=='awaiting_parts' %}selected{% endif %}>Awaiting parts</option>
-      <option value="assigned" {% if filters.status=='assigned' %}selected{% endif %}>Assigned</option>
-      <option value="unassigned" {% if filters.status=='unassigned' %}selected{% endif %}>Unassigned</option>
-      <option value="in_repair" {% if filters.status=='in_repair' %}selected{% endif %}>In repair</option>
-      <option value="ready_for_collection" {% if filters.status=='ready_for_collection' %}selected{% endif %}>Ready for collection</option>
-      <option value="archived" {% if filters.status=='archived' %}selected{% endif %}>Archived</option>
-    </select>
-    <select name="branch_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm"><option value="">All branches</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }} - {{ b.name }}</option>{% endfor %}</select>
-    <select name="technician_id" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm"><option value="">All technicians</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>
-    <select name="date_range" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
-      <option value="">Any date</option>
-      <option value="today" {% if filters.date_range=='today' %}selected{% endif %}>Today</option>
-      <option value="last_week" {% if filters.date_range=='last_week' %}selected{% endif %}>Last week</option>
-      <option value="this_month" {% if filters.date_range=='this_month' %}selected{% endif %}>This month</option>
-    </select>
-    <select name="sort" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
-      <option value="newest" {% if filters.sort=='newest' %}selected{% endif %}>Newest first</option>
-      <option value="oldest" {% if filters.sort=='oldest' %}selected{% endif %}>Oldest first</option>
-      <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promised due soonest</option>
-      <option value="sla_due" {% if filters.sort=='sla_due' %}selected{% endif %}>SLA due soonest</option>
-    </select>
-    <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Apply</button>
+  <form method="get" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Filter & Sort</p>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <select name="status" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
+        <option value="">Any status</option>
+        <option value="overdue" {% if filters.status=='overdue' %}selected{% endif %}>Overdue</option>
+        <option value="awaiting_parts" {% if filters.status=='awaiting_parts' %}selected{% endif %}>Awaiting parts</option>
+        <option value="assigned" {% if filters.status=='assigned' %}selected{% endif %}>Assigned</option>
+        <option value="unassigned" {% if filters.status=='unassigned' %}selected{% endif %}>Unassigned</option>
+        <option value="in_repair" {% if filters.status=='in_repair' %}selected{% endif %}>In repair</option>
+        <option value="ready_for_collection" {% if filters.status=='ready_for_collection' %}selected{% endif %}>Ready for collection</option>
+        <option value="archived" {% if filters.status=='archived' %}selected{% endif %}>Archived</option>
+      </select>
+      <select name="branch_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200"><option value="">All branches</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }} - {{ b.name }}</option>{% endfor %}</select>
+      <select name="technician_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200"><option value="">All technicians</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>
+      <select name="date_range" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
+        <option value="">Any date</option>
+        <option value="today" {% if filters.date_range=='today' %}selected{% endif %}>Today</option>
+        <option value="last_week" {% if filters.date_range=='last_week' %}selected{% endif %}>Last week</option>
+        <option value="this_month" {% if filters.date_range=='this_month' %}selected{% endif %}>This month</option>
+      </select>
+      <select name="sort" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
+        <option value="newest" {% if filters.sort=='newest' %}selected{% endif %}>Newest first</option>
+        <option value="oldest" {% if filters.sort=='oldest' %}selected{% endif %}>Oldest first</option>
+        <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promised due soonest</option>
+        <option value="sla_due" {% if filters.sort=='sla_due' %}selected{% endif %}>SLA due soonest</option>
+      </select>
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Apply</button>
+    </div>
   </form>
 
-  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
+  <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     {% if tickets %}
     <div class="overflow-x-auto">
       <table class="min-w-full text-left text-sm text-slate-200">
-        <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
+        <thead class="border-b border-slate-800/60 bg-slate-900/80 text-xs uppercase tracking-wider text-slate-400">
           <tr>
-            <th class="px-4 py-3 font-semibold">Ticket</th>
-            <th class="px-4 py-3 font-semibold">Customer & Device</th>
-            <th class="px-4 py-3 font-semibold">Status</th>
-            <th class="px-4 py-3 font-semibold">Priority</th>
-            <th class="px-4 py-3 font-semibold">Technician</th>
-            <th class="px-4 py-3 font-semibold">Promised ETA</th><th class="px-4 py-3 font-semibold">Created</th>
-            <th class="px-4 py-3 font-semibold">Actions</th>
+            <th class="px-5 py-3.5 font-semibold">Ticket</th>
+            <th class="px-5 py-3.5 font-semibold">Customer & Device</th>
+            <th class="px-5 py-3.5 font-semibold">Status</th>
+            <th class="px-5 py-3.5 font-semibold">Priority</th>
+            <th class="px-5 py-3.5 font-semibold">Technician</th>
+            <th class="px-5 py-3.5 font-semibold">Promised ETA</th>
+            <th class="px-5 py-3.5 font-semibold">Created</th>
+            <th class="px-5 py-3.5 font-semibold">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-800/90">
+        <tbody class="divide-y divide-slate-800/60">
           {% for ticket in tickets %}
-          <tr class="transition hover:bg-slate-800/30">
-            <td class="px-4 py-3">
-              <a class="font-semibold text-white hover:text-indigo-300" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}">{{ ticket.ticket_number }}</a>
-              <p class="text-xs text-slate-500">{{ ticket.branch.code }}</p>
+          <tr class="transition-colors hover:bg-slate-800/40">
+            <td class="px-5 py-4">
+              <a class="font-semibold text-white hover:text-indigo-300 transition-colors" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}">{{ ticket.ticket_number }}</a>
+              <p class="mt-0.5 text-xs text-slate-500">{{ ticket.branch.code }}</p>
             </td>
-            <td class="px-4 py-3">
-              <p class="font-medium text-slate-200"><a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></p>
-              <p class="text-xs text-slate-500">{{ ticket.device.brand }} {{ ticket.device.model }}</p>
+            <td class="px-5 py-4">
+              <p class="font-medium text-slate-200"><a class="hover:text-indigo-300 transition-colors" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></p>
+              <p class="mt-0.5 text-xs text-slate-500">{{ ticket.device.brand }} {{ ticket.device.model }}</p>
             </td>
-            <td class="px-4 py-3">{{ status_badge(ticket.internal_status) }}</td>
-            <td class="px-4 py-3">{{ priority_badge(ticket.priority) }}</td>
-            <td class="px-4 py-3 text-xs">
+            <td class="px-5 py-4">{{ status_badge(ticket.internal_status) }}</td>
+            <td class="px-5 py-4">{{ priority_badge(ticket.priority) }}</td>
+            <td class="px-5 py-4 text-xs">
               {% if ticket.assigned_technician %}
-                <span class="rounded-full border border-cyan-700/60 bg-cyan-950/70 px-2 py-1 text-cyan-200">{{ ticket.assigned_technician.full_name }}</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-cyan-700/60 bg-cyan-950/70 px-2.5 py-1 font-medium text-cyan-200"><span class="h-2 w-2 rounded-full bg-cyan-400"></span>{{ ticket.assigned_technician.full_name }}</span>
               {% else %}
-                <span class="rounded-full border border-slate-700 px-2 py-1 text-slate-400">Unassigned</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-slate-400"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Unassigned</span>
               {% endif %}
             </td>
-            <td class="px-4 py-3 text-xs text-slate-400">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</td><td class="px-4 py-3 text-slate-400">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td class="px-4 py-3">
-              <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Open</a>
+            <td class="px-5 py-4 text-xs text-slate-400">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') if ticket.quoted_completion_at else '—' }}</td>
+            <td class="px-5 py-4 text-xs text-slate-400">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td class="px-5 py-4">
+              <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors">Open</a>
             </td>
           </tr>
           {% endfor %}
@@ -89,7 +93,12 @@
       </table>
     </div>
     {% else %}
-      <div class="p-4">{{ empty_state('No tickets yet', 'Create your first ticket to populate the operations queue.') }}</div>
+      <div class="px-6 py-16 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-slate-800 bg-slate-800/40">
+          <svg class="h-6 w-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        {{ empty_state('No tickets yet', 'Create your first ticket to populate the operations queue.') }}
+      </div>
     {% endif %}
   </div>
 </section>

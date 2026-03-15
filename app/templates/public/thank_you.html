@@ -1,17 +1,81 @@
 {% extends 'public_base.html' %}
 {% block title %}Check-In Received - IRONCore{% endblock %}
 {% block content %}
-<section class="mx-auto max-w-2xl rounded-2xl border border-slate-800 bg-slate-900/70 p-6 text-center shadow-panel">
-  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Submission Received</p>
-  <h2 class="mt-2 text-2xl font-semibold text-white">Thank you for your check-in</h2>
-  <p class="mt-2 text-sm text-slate-400">Reference: <span class="font-semibold text-slate-200">{{ reference }}</span></p>
-  <p class="mt-3 text-sm text-slate-400">Our reception team will review your submission and continue with intake confirmation.</p>
 
-  <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+<section class="mx-auto max-w-2xl space-y-6">
+
+  <!-- Success card -->
+  <div class="rounded-2xl border border-emerald-600/30 bg-gradient-to-br from-emerald-950/40 via-slate-900/60 to-slate-900/60 p-8 text-center shadow-panel sm:p-10">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-500/10">
+      <svg class="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    </div>
+    <p class="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Submission received</p>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Thank you for your check-in!</h2>
+    <p class="mt-3 text-base text-slate-400">Your device has been successfully registered in our system.</p>
+
+    <!-- Reference number -->
+    <div class="mt-6 inline-flex flex-col items-center rounded-xl border border-slate-700/60 bg-slate-800/60 px-8 py-4">
+      <span class="text-xs font-medium uppercase tracking-widest text-slate-500">Your reference number</span>
+      <span class="mt-1 text-2xl font-bold tracking-wider text-white">{{ reference }}</span>
+      <span class="mt-1 text-xs text-slate-500">Save this for tracking your repair</span>
+    </div>
+  </div>
+
+  <!-- What happens next -->
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel sm:p-8">
+    <h3 class="text-lg font-semibold text-white">What happens next?</h3>
+    <p class="mt-1 text-sm text-slate-500">Here's what to expect from here</p>
+
+    <div class="mt-6 space-y-0">
+      <!-- Step 1 -->
+      <div class="relative flex gap-4 pb-6 border-l-2 border-indigo-600/40 ml-3">
+        <div class="absolute -left-1.5 top-0.5 h-3 w-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/10"></div>
+        <div class="ml-5">
+          <p class="text-sm font-medium text-white">Review</p>
+          <p class="mt-0.5 text-sm text-slate-400">Our reception team will review your submission and confirm the intake details.</p>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div class="relative flex gap-4 pb-6 border-l-2 border-slate-800 ml-3">
+        <div class="absolute -left-1.5 top-0.5 h-3 w-3 rounded-full bg-slate-700 border-2 border-slate-900"></div>
+        <div class="ml-5">
+          <p class="text-sm font-medium text-white">Diagnosis</p>
+          <p class="mt-0.5 text-sm text-slate-400">A technician will diagnose the issue and we'll send you a quote if needed.</p>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div class="relative flex gap-4 pb-6 border-l-2 border-slate-800 ml-3">
+        <div class="absolute -left-1.5 top-0.5 h-3 w-3 rounded-full bg-slate-700 border-2 border-slate-900"></div>
+        <div class="ml-5">
+          <p class="text-sm font-medium text-white">Repair</p>
+          <p class="mt-0.5 text-sm text-slate-400">Once approved, we'll repair your device and run quality checks.</p>
+        </div>
+      </div>
+      <!-- Step 4 -->
+      <div class="relative flex gap-4 ml-3">
+        <div class="absolute -left-1.5 top-0.5 h-3 w-3 rounded-full bg-slate-700 border-2 border-slate-900"></div>
+        <div class="ml-5">
+          <p class="text-sm font-medium text-white">Collection</p>
+          <p class="mt-0.5 text-sm text-slate-400">We'll notify you when your device is ready to be picked up.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+    <a href="{{ url_for('public_portal.public_status') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 hover:text-white">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+      Track your repair
+    </a>
     {% if kiosk_mode %}
-      <a href="{{ url_for('public_portal.kiosk_checkin') }}" class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Start New Kiosk Check-In</a>
+      <a href="{{ url_for('public_portal.kiosk_checkin') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500">
+        Start new kiosk check-in
+      </a>
     {% else %}
-      <a href="{{ url_for('public_portal.public_checkin') }}" class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Submit Another Check-In</a>
+      <a href="{{ url_for('public_portal.public_checkin') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500">
+        Submit another check-in
+      </a>
     {% endif %}
   </div>
 </section>

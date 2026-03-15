@@ -17,12 +17,12 @@ quotes_bp = Blueprint("quotes", __name__, url_prefix="/quotes")
 
 
 def _populate_part_choices(form: QuoteCreateForm):
-    choices = [("", "-- No linked part --")] + [
-        (str(part.id), f"{part.sku} - {part.name}") for part in Part.query.filter(Part.is_active.is_(True)).order_by(Part.name.asc()).all()
-    ]
+    parts = Part.query.filter(Part.is_active.is_(True)).order_by(Part.name.asc()).all()
+    choices = [("", "-- No linked part --")] + [(str(p.id), f"{p.sku} - {p.name}") for p in parts]
     for option in form.options.entries:
         for line in option.form.lines.entries:
             line.form.linked_part_id.choices = choices
+    return {str(p.id): {"name": p.name, "sale_price": float(p.sale_price or 0)} for p in parts}
 
 
 def _ensure_default_entries(form: QuoteCreateForm):
@@ -101,9 +101,9 @@ def new_quote(ticket_id):
 
     form = QuoteCreateForm()
     _ensure_default_entries(form)
-    _populate_part_choices(form)
+    parts_data = _populate_part_choices(form)
 
-    return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
+    return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07), parts_data=parts_data)
 
 
 @quotes_bp.post("/ticket/<uuid:ticket_id>/create")
@@ -116,11 +116,11 @@ def create_quote(ticket_id):
 
     form = QuoteCreateForm()
     _ensure_default_entries(form)
-    _populate_part_choices(form)
+    parts_data = _populate_part_choices(form)
 
     if not form.validate_on_submit():
         flash(_("Invalid quote data"), "error")
-        return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
+        return render_template("quotes/new.html", ticket=ticket, form=form, mode="create", igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07), parts_data=parts_data)
 
     latest_version = db.session.query(db.func.max(Quote.version)).filter(Quote.ticket_id == ticket.id).scalar() or 0
     quote = Quote(ticket_id=ticket.id, version=int(latest_version) + 1, status="draft")
@@ -166,9 +166,9 @@ def edit_quote(quote_id):
         opt.form.lines.append_entry()
     if not form.options:
         _ensure_default_entries(form)
-    _populate_part_choices(form)
+    parts_data = _populate_part_choices(form)
 
-    return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
+    return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07), parts_data=parts_data)
 
 
 @quotes_bp.post("/<uuid:quote_id>/update")
@@ -180,10 +180,10 @@ def update_quote(quote_id):
         return redirect(url_for("tickets.list_tickets"))
 
     form = QuoteCreateForm()
-    _populate_part_choices(form)
+    parts_data = _populate_part_choices(form)
     if not form.validate_on_submit():
         flash(_("Invalid quote data"), "error")
-        return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07))
+        return render_template("quotes/new.html", ticket=quote.ticket, form=form, mode="edit", quote=quote, igic_rate=current_app.config.get("DEFAULT_IGIC_RATE", 0.07), parts_data=parts_data)
 
     _save_quote_from_form(quote, form)
     db.session.commit()

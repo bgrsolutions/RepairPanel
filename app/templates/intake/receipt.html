@@ -4,10 +4,19 @@
     <meta charset="utf-8" />
     <title>Intake Receipt {{ intake.reference }}</title>
     <style>
-      body { font-family: Arial, sans-serif; margin: 24px; }
-      .row { margin-bottom: 8px; }
-      .muted { color: #666; }
-      .box { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+      body { font-family: Arial, sans-serif; margin: 24px; background: #020617; color: #e2e8f0; }
+      h2 { color: #fff; margin-bottom: 16px; }
+      .box { border: 1px solid rgba(30, 41, 59, 0.6); border-radius: 16px; padding: 20px; background: rgba(15, 23, 42, 0.6); }
+      .row { margin-bottom: 10px; font-size: 14px; }
+      .row strong { color: #cbd5e1; }
+      .muted { color: #64748b; font-size: 12px; }
+      @media print {
+        body { background: #fff; color: #1e293b; }
+        h2 { color: #0f172a; }
+        .box { border-color: #e2e8f0; background: #fff; }
+        .row strong { color: #334155; }
+        .muted { color: #94a3b8; }
+      }
     </style>
   </head>
   <body>

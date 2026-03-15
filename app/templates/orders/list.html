@@ -1,31 +1,48 @@
 {% extends 'base.html' %}
 {% block title %}Part Orders - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="flex items-center justify-between">
-    <div><h1 class="text-2xl font-semibold text-white">Part Orders</h1><p class="text-sm text-slate-400">Repair-linked and general stock replenishment orders.</p></div>
-    <a href="{{ url_for('orders.new_order') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">+ New Part Order</a>
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Supply Chain</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Part Orders</h1>
+      <p class="mt-1 text-sm text-slate-400">Repair-linked and general stock replenishment orders.</p>
+    </div>
+    <a href="{{ url_for('orders.new_order') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ New Part Order</a>
   </div>
-  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
-    <table class="min-w-full text-left text-sm text-slate-200">
-      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-4 py-3">Order</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Supplier</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">ETA</th><th class="px-4 py-3">Tracking</th><th class="px-4 py-3">Actions</th></tr></thead>
-      <tbody class="divide-y divide-slate-800">
-      {% for order in orders %}
-        {% set overdue = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}
-        <tr>
-          <td class="px-4 py-3 text-white">{{ order.reference or order.id }}</td>
-          <td class="px-4 py-3 text-xs">{% if order.ticket %}Repair · {{ order.ticket.ticket_number }}{% else %}Stock{% endif %}</td>
-          <td class="px-4 py-3">{{ order.supplier.name }}</td>
-          <td class="px-4 py-3 {% if overdue %}text-rose-300{% endif %}">{{ order.status|replace('_', ' ') }}</td>
-          <td class="px-4 py-3 text-xs">{{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</td>
-          <td class="px-4 py-3 text-xs">{{ order.tracking_number or '—' }}</td>
-          <td class="px-4 py-3"><a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs">Open</a></td>
-        </tr>
-      {% else %}
-        <tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">No orders found.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm text-slate-200">
+        <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
+          <tr>
+            <th class="px-4 py-3">Order</th>
+            <th class="px-4 py-3">Type</th>
+            <th class="px-4 py-3">Supplier</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">ETA</th>
+            <th class="px-4 py-3">Tracking</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/60">
+        {% for order in orders %}
+          {% set overdue = order.estimated_arrival_at and order.estimated_arrival_at < now and order.status not in ['received', 'cancelled'] %}
+          <tr class="transition hover:bg-slate-800/40">
+            <td class="px-4 py-3 font-medium text-white">{{ order.reference or order.id }}</td>
+            <td class="px-4 py-3 text-xs text-slate-300">{% if order.ticket %}Repair · {{ order.ticket.ticket_number }}{% else %}Stock{% endif %}</td>
+            <td class="px-4 py-3 text-slate-300">{{ order.supplier.name }}</td>
+            <td class="px-4 py-3 {% if overdue %}text-rose-300 font-medium{% else %}text-slate-300{% endif %}">{{ order.status|replace('_', ' ')|title }}</td>
+            <td class="px-4 py-3 text-xs text-slate-400">{{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</td>
+            <td class="px-4 py-3 text-xs text-slate-400">{{ order.tracking_number or '—' }}</td>
+            <td class="px-4 py-3"><a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">Open</a></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">No orders found.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 {% endblock %}

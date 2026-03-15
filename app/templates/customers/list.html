@@ -1,28 +1,28 @@
 {% extends 'base.html' %}
 {% block title %}Customers - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
+<section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Customer Directory</p>
-      <h1 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Customers</h1>
-      <p class="text-sm text-slate-400">Search customers and open their full repair history.</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Customers</h1>
+      <p class="mt-1 text-sm text-slate-400">Search customers and open their full repair history.</p>
     </div>
   </div>
 
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 shadow-panel sm:p-4">
-    <form method="get" class="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
       <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Search</label>
-        <input name="q" value="{{ query }}" type="text" placeholder="Name, phone, or email" class="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Search</label>
+        <input name="q" value="{{ query }}" type="text" placeholder="Name, phone, or email" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
       </div>
       <div class="self-end">
-        <button type="submit" class="inline-flex h-11 items-center rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white hover:bg-indigo-500">Search</button>
+        <button type="submit" class="inline-flex h-[42px] items-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Search</button>
       </div>
     </form>
   </div>
 
-  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
+  <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     <div class="overflow-x-auto">
       <table class="min-w-full text-left text-sm text-slate-200">
         <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
@@ -35,9 +35,9 @@
             <th class="px-4 py-3">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-800/90">
+        <tbody class="divide-y divide-slate-800/60">
           {% for customer in customers %}
-          <tr class="transition hover:bg-slate-800/30">
+          <tr class="transition hover:bg-slate-800/40">
             <td class="px-4 py-3">
               <a class="font-medium text-white hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}">{{ customer.full_name }}</a>
             </td>
@@ -46,7 +46,7 @@
             <td class="px-4 py-3 text-slate-400">{{ customer.devices|length }}</td>
             <td class="px-4 py-3 text-slate-400">{{ customer.tickets|length }}</td>
             <td class="px-4 py-3">
-              <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="inline-flex rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">Open Profile</a>
+              <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">Open Profile</a>
             </td>
           </tr>
           {% else %}

@@ -1,41 +1,74 @@
 {% extends 'base.html' %}
 {% block title %}Inventory Overview - IRONCore{% endblock %}
 {% block content %}
-<section class="space-y-4">
-  <div class="flex flex-wrap items-center justify-between gap-2">
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-2xl font-semibold text-white">Stock Overview</h1>
-      <p class="text-sm text-slate-400">On hand, reserved, and available by location.</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Inventory</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">Stock Overview</h1>
+      <p class="mt-1 text-sm text-slate-400">On hand, reserved, and available by location.</p>
     </div>
-    <div class="flex gap-2">
-      <a href="{{ url_for('inventory.list_parts') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Parts</a>
-      <a href="{{ url_for('inventory.list_categories') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Categories</a>
-      <a href="{{ url_for('inventory.list_locations') }}" class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">Locations</a>
-      <a href="{{ url_for('inventory.new_movement') }}" class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Movement</a>
-    </div>
+    <nav class="flex flex-wrap gap-2">
+      <a href="{{ url_for('inventory.list_parts') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Parts</a>
+      <a href="{{ url_for('inventory.list_categories') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Categories</a>
+      <a href="{{ url_for('inventory.list_locations') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Locations</a>
+      <a href="{{ url_for('inventory.new_movement') }}" class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ Movement</a>
+    </nav>
   </div>
 
   <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-panel">
-    <table class="min-w-full text-left text-sm text-slate-200">
-      <thead class="bg-slate-900/90 text-xs uppercase tracking-wide text-slate-400">
-        <tr><th class="px-4 py-3">Part</th><th class="px-4 py-3">Branch/Location</th><th class="px-4 py-3">Lead Time</th><th class="px-4 py-3">Cost/Sale</th><th class="px-4 py-3">On Hand</th><th class="px-4 py-3">Reserved</th><th class="px-4 py-3">Available</th></tr>
-      </thead>
-      <tbody class="divide-y divide-slate-800">
-        {% for level in levels %}
-        <tr>
-          <td class="px-4 py-3 text-white"><a class="text-indigo-300 hover:text-indigo-200" href="{{ url_for('inventory.part_detail', part_id=level.part.id) }}">{{ level.part.sku }} · {{ level.part.name }}</a></td>
-          <td class="px-4 py-3 text-slate-300">{{ level.branch.code }} / {{ level.location.code }}</td>
-          <td class="px-4 py-3 text-xs">{{ level.part.lead_time_days ~ "d" if level.part.lead_time_days is not none else "—" }}</td><td class="px-4 py-3 text-xs">{{ level.part.cost_price or "—" }} / {{ level.part.sale_price or "—" }}</td><td class="px-4 py-3">{{ level.on_hand_qty }}</td>
-          <td class="px-4 py-3">{{ level.reserved_qty }}</td>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm text-slate-200">
+        <thead class="border-b border-slate-800 bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
+          <tr>
+            <th class="px-5 py-3.5 font-semibold">Part</th>
+            <th class="px-5 py-3.5 font-semibold">Branch/Location</th>
+            <th class="px-5 py-3.5 font-semibold">Lead Time</th>
+            <th class="px-5 py-3.5 font-semibold">Cost/Sale</th>
+            <th class="px-5 py-3.5 font-semibold text-right">On Hand</th>
+            <th class="px-5 py-3.5 font-semibold text-right">Reserved</th>
+            <th class="px-5 py-3.5 font-semibold text-right">Available</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80">
+          {% for level in levels %}
           {% set available = level.on_hand_qty - level.reserved_qty %}
           {% set threshold = level.part.low_stock_threshold or 3 %}
-          <td class="px-4 py-3 {% if available <= 0 %}text-rose-300{% elif available < threshold %}text-amber-300{% else %}text-emerald-300{% endif %}">{{ available }}</td>
-        </tr>
-        {% else %}
-        <tr><td class="px-4 py-8 text-center text-slate-500" colspan="7">No stock levels yet.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          <tr class="transition-colors hover:bg-slate-800/40">
+            <td class="px-5 py-4">
+              <a class="font-medium text-indigo-300 hover:text-indigo-200 transition-colors" href="{{ url_for('inventory.part_detail', part_id=level.part.id) }}">
+                <span class="font-mono text-xs text-slate-400">{{ level.part.sku }}</span>
+                <span class="mx-1 text-slate-700">|</span>
+                {{ level.part.name }}
+              </a>
+            </td>
+            <td class="px-5 py-4">
+              <span class="rounded-md bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-300">{{ level.branch.code }}</span>
+              <span class="ml-1 text-xs text-slate-400">/ {{ level.location.code }}</span>
+            </td>
+            <td class="px-5 py-4 text-xs tabular-nums text-slate-400">{{ level.part.lead_time_days ~ "d" if level.part.lead_time_days is not none else "—" }}</td>
+            <td class="px-5 py-4 text-xs tabular-nums">
+              <span class="text-slate-500">Cost</span> <span class="text-slate-300">{{ level.part.cost_price or "—" }}</span>
+              <span class="mx-1 text-slate-700">|</span>
+              <span class="text-slate-500">Sale</span> <span class="text-slate-300">{{ level.part.sale_price or "—" }}</span>
+            </td>
+            <td class="px-5 py-4 text-right tabular-nums font-medium">{{ level.on_hand_qty }}</td>
+            <td class="px-5 py-4 text-right tabular-nums text-slate-400">{{ level.reserved_qty }}</td>
+            <td class="px-5 py-4 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <span class="inline-flex h-2 w-2 rounded-full {% if available <= 0 %}bg-rose-400{% elif available < threshold %}bg-amber-400{% else %}bg-emerald-400{% endif %}"></span>
+                <span class="tabular-nums font-semibold {% if available <= 0 %}text-rose-300{% elif available < threshold %}text-amber-300{% else %}text-emerald-300{% endif %}">{{ available }}</span>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td class="px-6 py-12 text-center text-slate-500" colspan="7">No stock levels yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 {% endblock %}

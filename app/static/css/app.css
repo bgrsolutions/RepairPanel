@@ -30,13 +30,34 @@ dialog {
   margin: auto;
   padding: 0;
   border: none;
+  background: transparent;
 }
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
 }
 dialog[open] {
   display: flex;
   flex-direction: column;
+}
+
+/* Smooth transitions for interactive elements. */
+button, a, input, select, textarea {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Focus ring for keyboard accessibility. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Panel shadow utility used by cards. */
+.shadow-panel {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
 }
 
 /* Subtle dark scrollbars for board/list usability on desktop/tablet. */
@@ -53,4 +74,17 @@ dialog[open] {
   background: #334155;
   border-radius: 9999px;
   border: 2px solid #0f172a;
+}
+
+/* Details/summary dropdown menus in nav. */
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+
+/* Close details dropdowns when clicking elsewhere. */
+details[open] > summary::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  cursor: default;
 }
