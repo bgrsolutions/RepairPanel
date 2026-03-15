@@ -288,7 +288,8 @@ def test_ticket_intake_step_headers(monkeypatch):
     assert '1. Branch' in html
     assert '2. Device' in html
     assert '3. Issue Details' in html
-    assert '4. Promised Completion' in html
+    assert '4. Condition' in html
+    assert '5. Promised Completion' in html
 
 
 # --- 3E: Estimated completion UX ---

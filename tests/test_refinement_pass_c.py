@@ -333,9 +333,9 @@ def test_pass_f_quote_public_payment_choice_and_customer_update(monkeypatch):
     client = app.test_client()
 
     page = client.get(f'/public/quote/{token}')
-    csrf = _csrf(page.data)
+    assert page.status_code == 200
+    # Public approval form uses token-based auth, CSRF is intentionally disabled
     post = client.post(f'/public/quote/{token}', data={
-        'csrf_token': csrf,
         'actor_name': 'Portal Customer',
         'actor_contact': 'portal.customer@example.com',
         'language': 'en',
