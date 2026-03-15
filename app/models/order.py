@@ -40,6 +40,7 @@ class PartOrderLine(UUIDMixin, TimestampMixin, db.Model):
     quantity: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
     received_quantity: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False, default=0)
     unit_cost: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    sale_price: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="draft", index=True)
 
     order = relationship("PartOrder", back_populates="lines")

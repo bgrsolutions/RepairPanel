@@ -232,9 +232,9 @@ function updateOptionTotal(option) {
 function wireLine(line) {
   initPartSearch(line);
   const price = line.querySelector('.line-price');
-  if (price && !price.dataset.wiredManual) { price.dataset.wiredManual = '1'; price.addEventListener('input', () => { price.dataset.manual = '1'; updateLineTotal(line); }); }
+  if (price && !price.dataset.wiredManual) { price.dataset.wiredManual = '1'; const onPrice = () => { price.dataset.manual = '1'; updateLineTotal(line); }; price.addEventListener('input', onPrice); price.addEventListener('change', onPrice); }
   const qty = line.querySelector('.line-qty');
-  if (qty && !qty.dataset.wiredCalc) { qty.dataset.wiredCalc = '1'; qty.addEventListener('input', () => updateLineTotal(line)); }
+  if (qty && !qty.dataset.wiredCalc) { qty.dataset.wiredCalc = '1'; const onQty = () => updateLineTotal(line); qty.addEventListener('input', onQty); qty.addEventListener('change', onQty); }
   const removeBtn = line.querySelector('.remove-quote-line');
   if (removeBtn && !removeBtn.dataset.wired) {
     removeBtn.dataset.wired = '1';
@@ -285,7 +285,7 @@ document.querySelectorAll('.add-quote-line').forEach(btn => {
     const wrap = section.querySelector('.quote-lines');
     const rows = wrap.querySelectorAll('.quote-line');
     const clone = rows[rows.length - 1].cloneNode(true);
-    clone.querySelectorAll('input:not([type=hidden]), textarea').forEach(el => { el.value = ''; delete el.dataset.searchBound; delete el.dataset.manual; delete el.dataset.wiredManual; delete el.dataset.wiredCalc; delete el.dataset.userTyping; });
+    clone.querySelectorAll('input:not([type=hidden]), textarea').forEach(el => { el.value = el.classList.contains('line-qty') ? '1' : ''; delete el.dataset.searchBound; delete el.dataset.manual; delete el.dataset.wiredManual; delete el.dataset.wiredCalc; delete el.dataset.userTyping; });
     clone.querySelectorAll('[type=hidden]').forEach(el => { el.value = ''; });
     clone.querySelectorAll('select').forEach(el => { el.selectedIndex = 0; });
     clone.querySelectorAll('.remove-quote-line').forEach(el => { delete el.dataset.wired; });

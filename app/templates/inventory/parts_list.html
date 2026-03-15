@@ -83,7 +83,7 @@
             </div>
           </td>
           <td class="px-4 py-3 text-xs">{% if part.is_active %}<span class="inline-flex rounded-full bg-emerald-950/60 px-2 py-0.5 text-xs font-medium text-emerald-300">Active</span>{% else %}<span class="inline-flex rounded-full bg-amber-950/60 px-2 py-0.5 text-xs font-medium text-amber-300">Inactive</span>{% endif %}</td>
-          <td class="px-4 py-3"><form method="post" action="{{ url_for('inventory.toggle_part_active', part_id=part.id) }}"><button class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-700">{% if part.is_active %}Deactivate{% else %}Reactivate{% endif %}</button></form></td>
+          <td class="px-4 py-3"><form method="post" action="{{ url_for('inventory.toggle_part_active', part_id=part.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-700">{% if part.is_active %}Deactivate{% else %}Reactivate{% endif %}</button></form></td>
         </tr>
       {% else %}
         <tr>

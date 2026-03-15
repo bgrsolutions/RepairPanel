@@ -6,7 +6,7 @@
     <div>
       <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Inventory</p>
       <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">Stock Overview</h1>
-      <p class="mt-1 text-sm text-slate-400">On hand, reserved, and available by location.</p>
+      <p class="mt-1 text-sm text-slate-400">Aggregated stock by product. Click a row to see branch/location breakdown.</p>
     </div>
     <nav class="flex flex-wrap gap-2">
       <a href="{{ url_for('inventory.list_parts') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Parts</a>
@@ -22,48 +22,59 @@
         <thead class="border-b border-slate-800 bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
           <tr>
             <th class="px-5 py-3.5 font-semibold">Part</th>
-            <th class="px-5 py-3.5 font-semibold">Branch/Location</th>
-            <th class="px-5 py-3.5 font-semibold">Lead Time</th>
-            <th class="px-5 py-3.5 font-semibold">Cost/Sale</th>
+            <th class="px-5 py-3.5 font-semibold">Cost / Sale</th>
             <th class="px-5 py-3.5 font-semibold text-right">On Hand</th>
             <th class="px-5 py-3.5 font-semibold text-right">Reserved</th>
             <th class="px-5 py-3.5 font-semibold text-right">Available</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-800/80">
-          {% for level in levels %}
-          {% set available = level.on_hand_qty - level.reserved_qty %}
-          {% set threshold = level.part.low_stock_threshold or 3 %}
-          <tr class="transition-colors hover:bg-slate-800/40">
+          {% for pid in sorted_part_ids %}
+          {% set part = parts_map[pid] %}
+          {% set on_hand, reserved, available = part_totals[pid] %}
+          {% set threshold = part.low_stock_threshold or 3 %}
+          {# Main part row #}
+          <tr class="transition-colors hover:bg-slate-800/40 cursor-pointer stock-part-row" data-part="{{ pid }}">
             <td class="px-5 py-4">
-              <a class="font-medium text-indigo-300 hover:text-indigo-200 transition-colors" href="{{ url_for('inventory.part_detail', part_id=level.part.id) }}">
-                <span class="font-mono text-xs text-slate-400">{{ level.part.sku }}</span>
-                <span class="mx-1 text-slate-700">|</span>
-                {{ level.part.name }}
-              </a>
+              <div class="flex items-center gap-2">
+                <svg class="stock-chevron h-4 w-4 text-slate-600 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                <a class="font-medium text-indigo-300 hover:text-indigo-200 transition-colors" href="{{ url_for('inventory.part_detail', part_id=part.id) }}">
+                  <span class="font-mono text-xs text-slate-400">{{ part.sku }}</span>
+                  <span class="mx-1 text-slate-700">|</span>
+                  {{ part.name }}
+                </a>
+              </div>
             </td>
-            <td class="px-5 py-4">
-              <span class="rounded-md bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-300">{{ level.branch.code }}</span>
-              <span class="ml-1 text-xs text-slate-400">/ {{ level.location.code }}</span>
-            </td>
-            <td class="px-5 py-4 text-xs tabular-nums text-slate-400">{{ level.part.lead_time_days ~ "d" if level.part.lead_time_days is not none else "—" }}</td>
             <td class="px-5 py-4 text-xs tabular-nums">
-              <span class="text-slate-500">Cost</span> <span class="text-slate-300">{{ level.part.cost_price or "—" }}</span>
+              <span class="text-slate-500">Cost</span> <span class="text-slate-300">{{ part.cost_price or '—' }}</span>
               <span class="mx-1 text-slate-700">|</span>
-              <span class="text-slate-500">Sale</span> <span class="text-slate-300">{{ level.part.sale_price or "—" }}</span>
+              <span class="text-slate-500">Sale</span> <span class="text-slate-300">{{ part.sale_price or '—' }}</span>
             </td>
-            <td class="px-5 py-4 text-right tabular-nums font-medium">{{ level.on_hand_qty }}</td>
-            <td class="px-5 py-4 text-right tabular-nums text-slate-400">{{ level.reserved_qty }}</td>
+            <td class="px-5 py-4 text-right tabular-nums font-medium">{{ '%.0f'|format(on_hand) }}</td>
+            <td class="px-5 py-4 text-right tabular-nums text-slate-400">{{ '%.0f'|format(reserved) }}</td>
             <td class="px-5 py-4 text-right">
               <div class="inline-flex items-center gap-1.5">
                 <span class="inline-flex h-2 w-2 rounded-full {% if available <= 0 %}bg-rose-400{% elif available < threshold %}bg-amber-400{% else %}bg-emerald-400{% endif %}"></span>
-                <span class="tabular-nums font-semibold {% if available <= 0 %}text-rose-300{% elif available < threshold %}text-amber-300{% else %}text-emerald-300{% endif %}">{{ available }}</span>
+                <span class="tabular-nums font-semibold {% if available <= 0 %}text-rose-300{% elif available < threshold %}text-amber-300{% else %}text-emerald-300{% endif %}">{{ '%.0f'|format(available) }}</span>
               </div>
             </td>
           </tr>
+          {# Expandable sub-rows per branch/location #}
+          {% for level in part_levels[pid] %}
+          <tr class="stock-detail-row hidden bg-slate-950/40 transition-colors hover:bg-slate-800/30" data-parent="{{ pid }}">
+            <td class="pl-14 pr-5 py-2.5 text-xs text-slate-400">
+              <span class="rounded-md bg-slate-800 px-2 py-0.5 font-medium text-slate-300">{{ level.branch.code }}</span>
+              <span class="ml-1">/ {{ level.location.code }}</span>
+            </td>
+            <td class="px-5 py-2.5 text-xs text-slate-500">{{ level.part.lead_time_days ~ 'd lead' if level.part.lead_time_days is not none else '' }}</td>
+            <td class="px-5 py-2.5 text-right tabular-nums text-xs text-slate-300">{{ level.on_hand_qty }}</td>
+            <td class="px-5 py-2.5 text-right tabular-nums text-xs text-slate-500">{{ level.reserved_qty }}</td>
+            <td class="px-5 py-2.5 text-right tabular-nums text-xs font-medium {% if (level.on_hand_qty - level.reserved_qty) <= 0 %}text-rose-300{% else %}text-emerald-300{% endif %}">{{ level.on_hand_qty - level.reserved_qty }}</td>
+          </tr>
+          {% endfor %}
           {% else %}
           <tr>
-            <td class="px-6 py-12 text-center text-slate-500" colspan="7">No stock levels yet.</td>
+            <td class="px-6 py-12 text-center text-slate-500" colspan="5">No stock levels yet.</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -71,4 +82,18 @@
     </div>
   </div>
 </section>
+
+<script>
+document.querySelectorAll('.stock-part-row').forEach(row => {
+  row.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    const pid = row.dataset.part;
+    const details = document.querySelectorAll(`.stock-detail-row[data-parent="${pid}"]`);
+    const chevron = row.querySelector('.stock-chevron');
+    const isOpen = !details[0]?.classList.contains('hidden');
+    details.forEach(d => d.classList.toggle('hidden', isOpen));
+    if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(90deg)';
+  });
+});
+</script>
 {% endblock %}

@@ -282,18 +282,22 @@ function updateOptionTotal(option) {
 function wireLine(line) {
   initPartSearch(line);
 
-  // Price manual override tracking
+  // Price manual override tracking + live recalc
   const price = line.querySelector('.line-price');
   if (price && !price.dataset.wiredManual) {
     price.dataset.wiredManual = '1';
-    price.addEventListener('input', () => { price.dataset.manual = '1'; updateLineTotal(line); });
+    const onPrice = () => { price.dataset.manual = '1'; updateLineTotal(line); };
+    price.addEventListener('input', onPrice);
+    price.addEventListener('change', onPrice);
   }
 
-  // Qty change
+  // Qty change — recalc on input, change, and paste
   const qty = line.querySelector('.line-qty');
   if (qty && !qty.dataset.wiredCalc) {
     qty.dataset.wiredCalc = '1';
-    qty.addEventListener('input', () => updateLineTotal(line));
+    const onQty = () => updateLineTotal(line);
+    qty.addEventListener('input', onQty);
+    qty.addEventListener('change', onQty);
   }
 
   // Remove button
@@ -362,7 +366,8 @@ document.querySelectorAll('.add-quote-line').forEach(btn => {
 
     // Reset all fields
     clone.querySelectorAll('input:not([type=hidden]), textarea').forEach(el => {
-      el.value = '';
+      // Default qty to 1 for new lines so typing just a price shows a total
+      el.value = el.classList.contains('line-qty') ? '1' : '';
       delete el.dataset.searchBound;
       delete el.dataset.manual;
       delete el.dataset.wiredManual;

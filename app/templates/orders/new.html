@@ -59,17 +59,30 @@
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Order Lines</h2>
         <div id="order-lines" class="mt-4 space-y-3">
           {% for line in form.lines %}
-          <div class="order-line grid grid-cols-1 gap-3 md:grid-cols-5 rounded-xl border border-slate-800/60 bg-slate-800/40 p-4" data-index="{{ loop.index0 }}">
+          <div class="order-line grid grid-cols-1 gap-3 md:grid-cols-6 rounded-xl border border-slate-800/60 bg-slate-800/40 p-4" data-index="{{ loop.index0 }}">
             <div>
-              <input type="text" class="part-search w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="Search part by name/SKU/barcode/supplier SKU" />
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Part</label>
+              <input type="text" class="part-search w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="Search part..." />
               {{ line.form.part_id(class='part-select mt-2 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs') }}
             </div>
-            <div>{{ line.form.description_override(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Description override') }}</div>
-            <div>{{ line.form.supplier_sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Supplier SKU') }}</div>
-            <div>{{ line.form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Qty') }}</div>
-            <div class="space-y-2">
-              {{ line.form.unit_cost(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Unit cost') }}
-              <button type="button" class="remove-line w-full rounded-lg border border-rose-800/60 bg-rose-950/60 px-2.5 py-1.5 text-[11px] font-medium text-rose-200 hover:bg-rose-900/60 transition-colors">Remove line</button>
+            <div>
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Description</label>
+              {{ line.form.description_override(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Override') }}
+            </div>
+            <div>
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Qty</label>
+              {{ line.form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Qty') }}
+            </div>
+            <div>
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Unit Cost</label>
+              {{ line.form.unit_cost(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Cost') }}
+            </div>
+            <div>
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Sale Price</label>
+              {{ line.form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Sale price') }}
+            </div>
+            <div class="flex items-end">
+              <button type="button" class="remove-line w-full rounded-lg border border-rose-800/60 bg-rose-950/60 px-2.5 py-1.5 text-[11px] font-medium text-rose-200 hover:bg-rose-900/60 transition-colors">Remove</button>
             </div>
           </div>
           {% endfor %}

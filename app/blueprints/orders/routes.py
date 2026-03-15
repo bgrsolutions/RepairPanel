@@ -76,6 +76,7 @@ def _save_order_from_form(order: PartOrder, form: PartOrderCreateForm):
                 supplier_sku=line_entry.form.supplier_sku.data,
                 quantity=qty,
                 unit_cost=line_entry.form.unit_cost.data,
+                sale_price=line_entry.form.sale_price.data,
                 status=order.status,
             )
         )
@@ -146,6 +147,7 @@ def edit_order(order_id):
                     "supplier_sku": line.supplier_sku,
                     "quantity": line.quantity,
                     "unit_cost": line.unit_cost,
+                    "sale_price": line.sale_price,
                 }
             )
         form.lines.append_entry()
@@ -189,8 +191,10 @@ def receive_order_line(order_id):
 
         if form.cost_price.data is not None:
             line.part.cost_price = form.cost_price.data
-        if form.sale_price.data is not None:
-            line.part.sale_price = form.sale_price.data
+        # Use receive form sale_price, or fall back to order line sale_price
+        effective_sale_price = form.sale_price.data if form.sale_price.data is not None else line.sale_price
+        if effective_sale_price is not None:
+            line.part.sale_price = effective_sale_price
 
         apply_stock_movement(
             part_id=line.part_id,
@@ -216,6 +220,58 @@ def receive_order_line(order_id):
     else:
         flash(_("Invalid receiving request"), "error")
 
+    return redirect(url_for("orders.order_detail", order_id=order.id))
+
+
+@orders_bp.post("/<uuid:order_id>/receive-all")
+@login_required
+def receive_all_lines(order_id):
+    """Bulk-receive all remaining quantities on an order."""
+    order = db.session.get(PartOrder, order_id)
+    if not order:
+        flash(_("Order not found"), "error")
+        return redirect(url_for("orders.list_orders"))
+
+    location_id_str = request.form.get("location_id", "").strip()
+    bulk_note = request.form.get("bulk_note", "").strip() or "Bulk receive"
+
+    if not location_id_str:
+        flash(_("Please select a location"), "error")
+        return redirect(url_for("orders.order_detail", order_id=order.id))
+
+    location_id = uuid.UUID(location_id_str)
+    received_count = 0
+
+    for line in order.lines:
+        remaining = line_remaining_qty(line)
+        if remaining <= 0:
+            continue
+        receive_qty = Decimal(str(remaining))
+        line.received_quantity = Decimal(str(line.received_quantity or 0)) + receive_qty
+        line.status = "received"
+
+        # Update part cost/sale prices from line if set
+        if line.unit_cost is not None:
+            line.part.cost_price = line.unit_cost
+        if line.sale_price is not None:
+            line.part.sale_price = line.sale_price
+
+        apply_stock_movement(
+            part_id=line.part_id,
+            branch_id=order.branch_id,
+            location_id=location_id,
+            movement_type="inbound",
+            quantity=receive_qty,
+            notes=f"Bulk receive {order.reference or order.id}: {bulk_note}",
+            ticket_id=order.ticket_id,
+            unit_cost=line.unit_cost,
+        )
+        received_count += 1
+
+    order.status = "received"
+    append_order_event(order, "received", notes=f"Bulk received {received_count} lines: {bulk_note}")
+    db.session.commit()
+    flash(_("All stock received (%(count)s lines)", count=received_count), "success")
     return redirect(url_for("orders.order_detail", order_id=order.id))
 
 
