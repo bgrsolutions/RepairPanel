@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
-from flask import Blueprint, render_template
+from flask import Blueprint, current_app, render_template
 from flask_login import login_required
 
 from app.models import PartOrder, Quote, StockReservation, Ticket
-from app.utils.ticketing import normalize_ticket_status
+from app.utils.ticketing import is_ticket_overdue, normalize_ticket_status
 
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
@@ -31,7 +31,8 @@ def kpi_dashboard():
         workload[owner] = workload.get(owner, 0) + 1
 
     now = datetime.utcnow()
-    overdue = [t for t in tickets if t.sla_target_at and t.sla_target_at < now and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES]
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
+    overdue = [t for t in tickets if is_ticket_overdue(t, now, sla_days=sla_days)]
 
     usage = {}
     for r in StockReservation.query.all():

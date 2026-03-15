@@ -4,12 +4,28 @@ from datetime import datetime
 from flask import Blueprint, current_app, render_template
 from flask_login import login_required
 
+from app.extensions import db
 from app.models import AuditLog, PartOrder, Ticket, TicketNote
 from app.utils.ticketing import is_ticket_overdue, normalize_ticket_status, ticket_age_days
 
 log = logging.getLogger(__name__)
 
 core_bp = Blueprint("core", __name__)
+
+
+_ACTION_LABELS = {
+    "ticket.create": "New ticket created",
+    "ticket.archive": "Ticket archived",
+    "ticket.reopen": "Ticket reopened",
+    "ticket.send_update": "Customer update sent",
+    "diagnostic.save": "Diagnostics recorded",
+    "intake.create": "New intake submitted",
+    "intake.convert": "Intake converted to ticket",
+    "quote.create": "Quote created",
+    "quote.send": "Quote sent for approval",
+    "quote.approve": "Quote approved",
+    "quote.decline": "Quote declined",
+}
 
 
 def _fetch_activity_items(limit: int = 12) -> list[dict]:
@@ -25,20 +41,45 @@ def _fetch_activity_items(limit: int = 12) -> list[dict]:
             .all()
         )
         for entry in logs:
-            description = entry.message or f"{entry.action} on {entry.entity_type}"
-            entity_ref = None
+            # Build a human-friendly description
+            action_label = _ACTION_LABELS.get(entry.action, entry.action.replace(".", " ").replace("_", " ").title())
+            details = entry.details if isinstance(entry.details, dict) else {}
+            ticket_number = details.get("ticket_number", "")
             ticket_id = None
+            entity_ref = None
+
             if entry.entity_type == "Ticket" and entry.entity_id:
                 ticket_id = entry.entity_id
-                entity_ref = entry.entity_id
-            elif entry.details and isinstance(entry.details, dict):
-                ticket_id = entry.details.get("ticket_id")
-                entity_ref = entry.details.get("ticket_number") or ticket_id
+                entity_ref = ticket_number or entry.entity_id
+            elif details.get("ticket_id"):
+                ticket_id = details["ticket_id"]
+                entity_ref = ticket_number or ticket_id
+
+            # Build context string with ticket number
+            description = action_label
+            if ticket_number:
+                description = f"{action_label} — {ticket_number}"
+            elif entry.message:
+                description = entry.message
+
+            # Add actor name if available
+            actor_name = None
+            if entry.actor_user_id:
+                try:
+                    from app.models import User
+                    actor = db.session.get(User, entry.actor_user_id)
+                    if actor:
+                        actor_name = actor.full_name
+                except Exception:
+                    pass
+
             items.append({
                 "timestamp": entry.created_at,
                 "description": description,
                 "entity_ref": entity_ref,
                 "ticket_id": ticket_id,
+                "actor": actor_name,
+                "action_type": entry.action.split(".")[0] if entry.action else "other",
             })
         if items:
             return items
@@ -59,16 +100,30 @@ def _fetch_activity_items(limit: int = 12) -> list[dict]:
             "communication": "Communication logged",
             "diagnostic": "Diagnostic note added",
         }
+        note_type_icons = {
+            "internal": "ticket",
+            "customer_update": "ticket",
+            "communication": "ticket",
+            "diagnostic": "diagnostic",
+        }
         for note in notes:
             label = note_type_labels.get(note.note_type, f"Note ({note.note_type}) added")
             ticket = note.ticket
             ticket_number = getattr(ticket, "ticket_number", None) if ticket else None
-            content_preview = (note.content[:80] + "...") if len(note.content) > 80 else note.content
+            customer_name = ticket.customer.full_name if ticket and ticket.customer else None
+            content_preview = (note.content[:60] + "...") if note.content and len(note.content) > 60 else (note.content or "")
+            description = f"{label}: {content_preview}"
+            if ticket_number:
+                description = f"{label} on {ticket_number}"
+                if customer_name:
+                    description += f" ({customer_name})"
             items.append({
                 "timestamp": note.created_at,
-                "description": f"{label}: {content_preview}",
+                "description": description,
                 "entity_ref": ticket_number,
                 "ticket_id": str(ticket.id) if ticket else None,
+                "actor": note.author.full_name if note.author_user_id and hasattr(note, 'author') and note.author else None,
+                "action_type": note_type_icons.get(note.note_type, "other"),
             })
     except Exception:
         log.debug("TicketNote query also failed; returning empty activity list")
@@ -101,17 +156,29 @@ def dashboard():
         if order.status not in {"received", "cancelled"} and order.estimated_arrival_at < now
     }
 
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
     attention_tickets = []
     for ticket in active_tickets:
         normalized = normalize_ticket_status(ticket.internal_status)
         if normalized in Ticket.CLOSED_STATUSES:
             continue
-        overdue = is_ticket_overdue(ticket, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5))
-        overdue_parts = str(ticket.id) in overdue_part_ticket_ids
-        blocked = overdue_parts and normalized == Ticket.STATUS_AWAITING_PARTS
-        if overdue or overdue_parts or blocked:
-            attention_tickets.append(ticket)
-    attention_tickets = attention_tickets[:8]
+        reasons = []
+        if is_ticket_overdue(ticket, now, sla_days=sla_days):
+            reasons.append("Overdue SLA")
+        if str(ticket.id) in overdue_part_ticket_ids:
+            reasons.append("Parts overdue")
+        age = ticket_age_days(ticket, now)
+        if normalized == Ticket.STATUS_UNASSIGNED and age >= 1:
+            reasons.append("Unassigned")
+        if normalized == Ticket.STATUS_AWAITING_DIAGNOSTICS and age >= 2:
+            reasons.append("Awaiting diagnosis 2+ days")
+        if normalized == Ticket.STATUS_AWAITING_QUOTE_APPROVAL and age >= 3:
+            reasons.append("Awaiting quote response")
+        if normalized == Ticket.STATUS_AWAITING_PARTS and age >= 5:
+            reasons.append("Waiting on parts 5+ days")
+        if reasons:
+            attention_tickets.append({"ticket": ticket, "reasons": reasons})
+    attention_tickets = attention_tickets[:10]
 
     technician_workload = {
         "assigned": sum(1 for t in active_tickets if t.assigned_technician_id and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES),

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.9.6] - 2026-03-15
+### Added
+- **Intake form redesign (6A)**: Reworked `/intake/new` with 6 numbered step sections — Branch & Customer, Device Details, Fault & Condition, Pre-Repair Quick Check (5 checkboxes), Initial Diagnosis, and Attachments & Disclaimer. Sidebar intake checklist guide for staff reference.
+- **Pre-repair quick checks on intake**: Five toggle checks (powers on, screen condition, charging, buttons, water damage) captured at intake and stored as structured notes.
+- **Initial diagnosis fields on intake**: Optional diagnosis and recommended repair fields for technician use during check-in.
+- **Checklist numbering and multi-display (6B)**: Ticket detail now shows all pre-repair and post-repair checklists (not just the first), numbered as "Pre-Repair Check #1", "#2", etc., with Active/Complete badges and completion timestamps.
+- **Attention widget reason tags (6E)**: "Tickets Need Attention" widget now shows explicit reason badges (Overdue SLA, Parts overdue, Unassigned, Awaiting diagnosis 2+ days, Awaiting quote response, Waiting on parts 5+ days).
+- **Human-friendly activity feed (6D)**: Recent Activity widget now shows action descriptions, actor names, action-type color coding, and ticket number link badges instead of raw audit tokens.
+- **Navigation updates (6F)**: "New Ticket" nav button renamed to "Fast Check-In"; added "Intakes" button in both desktop and mobile navigation.
+- 11 new Phase 6 tests covering intake form structure, pre-check submission, multiple checklists display, overdue consistency, activity feed format, attention widget reasons, and navigation labels.
+
+### Fixed
+- **Overdue logic consistency (6C)**: Dashboard, bench board, my queue, ticket list, and reports now all use the shared `is_ticket_overdue()` helper with `sla_days` from `DEFAULT_TICKET_SLA_DAYS` config. Previously, reports used inline date arithmetic and bench board omitted the `sla_days` parameter.
+- **Checklist display bug (6B)**: Fixed `.first()` queries that returned only one checklist per type; changed to `.all()` with ordering by `created_at`. Completed checklists are now always visible.
+- **Checklist creation guard**: "Create new" button only appears when no active (incomplete) checklist exists for that type.
+
 ## [0.9.5] - 2026-03-15
 ### Fixed
 - **Quote total calculation**: Added `change` event listeners alongside `input` for broader browser compatibility (paste, autofill). New lines default quantity to 1 instead of empty, so typing a price immediately shows a total.

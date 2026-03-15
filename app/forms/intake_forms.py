@@ -29,8 +29,20 @@ class InternalIntakeForm(FlaskForm):
     imei = StringField("IMEI", validators=[Optional(), Length(max=60)])
 
     reported_fault = TextAreaField("Reported Fault", validators=[DataRequired(), Length(max=5000)])
+    device_condition = TextAreaField("Device Condition at Intake", validators=[Optional(), Length(max=2000)])
     accessories = TextAreaField("Accessories Included", validators=[Optional(), Length(max=2000)])
     intake_notes = TextAreaField("Intake Notes", validators=[Optional(), Length(max=5000)])
+
+    # Quick diagnostics (optional at check-in)
+    initial_diagnosis = TextAreaField("Initial Diagnosis", validators=[Optional(), Length(max=5000)])
+    recommended_repair = TextAreaField("Recommended Repair", validators=[Optional(), Length(max=5000)])
+
+    # Pre-repair check items (common quick checks at intake)
+    check_powers_on = BooleanField("Device powers on")
+    check_screen_condition = BooleanField("Screen displays correctly")
+    check_charging = BooleanField("Charging port functional")
+    check_buttons = BooleanField("Physical buttons work")
+    check_water_damage = BooleanField("No visible water damage")
 
     accepted_disclaimer = BooleanField("Customer accepted intake disclaimer", validators=[DataRequired()])
     signature_data = HiddenField("Signature Data", validators=[Optional()])
