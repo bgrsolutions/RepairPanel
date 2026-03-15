@@ -207,3 +207,12 @@
 ### Fixed
 - Bench board “waiting on parts” filtering now includes tickets blocked by non-received/non-cancelled linked part orders, not only explicit awaiting_parts status.
 - Quote dynamic add/remove rows now reset JS wiring correctly, fixing second+ row sale-price autofill behavior.
+
+## [0.8.2] - 2026-03-13
+### Changed
+- Pass F.2 ticket/quote UI cleanup only: ticket detail now keeps technician/workflow controls solely in the right operations panel and promotes quote summaries into the main content area.
+- Ticket quote cards now show richer summary context (status, subtotal, IGIC, total, expiry, note snippet, and latest approval/payment metadata) with a clear “View details” path to full quote detail.
+- Add Diagnostics modal now uses a wider layout (`max-w-4xl`) and a responsive two-column grid for better field sizing and alignment.
+
+### Fixed
+- Create Quote page now renders a single Terms Snapshot field (duplicate removed).

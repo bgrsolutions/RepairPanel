@@ -469,3 +469,60 @@ def test_pass_f1_ticket_modal_labels_and_quote_script_present(monkeypatch):
     quote_html = quote_page.data.decode()
     assert 'Repair Option 1' in quote_html
     assert 'delete el.dataset.wired' in quote_html
+
+
+def test_pass_f2_ticket_quote_summary_and_diagnostics_layout(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Quote Summary', phone='+34000444', email='quote.summary@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer); db.session.flush()
+        device = Device(customer=customer, category='phones', brand='HP', model='H', serial_number='QSUM-1', imei='QSUM-IMEI')
+        db.session.add(device); db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-6644', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_quote_approval', customer_status='Waiting quote', priority='normal')
+        db.session.add(ticket); db.session.flush()
+        quote = Quote(ticket_id=ticket.id, version=2, status='sent', notes_snapshot='Customer approved once payment clears')
+        db.session.add(quote); db.session.flush()
+        option = QuoteOption(quote_id=quote.id, name='Standard', position=1)
+        db.session.add(option); db.session.flush()
+        db.session.add(QuoteLine(option_id=option.id, line_type='part', description='Display', quantity=1, unit_price=150))
+        db.session.add(QuoteApproval(quote_id=quote.id, status='approved', payment_choice='pay_in_store', payment_status='pending'))
+        db.session.commit()
+        ticket_id = ticket.id
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    detail = client.get(f'/tickets/{ticket_id}')
+    html = detail.data.decode()
+    assert html.count('Technician &amp; Workflow') == 1
+    assert 'Commercial summary and approval state' in html
+    assert 'Subtotal:' in html and 'IGIC (7%)' in html and 'View details' in html
+    assert 'max-w-4xl' in html
+    assert 'md:grid-cols-2' in html
+
+
+def test_pass_f2_terms_snapshot_single_field(monkeypatch):
+    app = create_app(TestConfig)
+    with app.app_context():
+        _create_tables()
+        seed_phase1_data()
+        branch = Branch.query.filter_by(code='HQ').first()
+        customer = Customer(full_name='Terms Single', phone='+34000555', email='terms.single@example.com', preferred_language='en', primary_branch=branch)
+        db.session.add(customer); db.session.flush()
+        device = Device(customer=customer, category='phones', brand='Acer', model='A', serial_number='TERM-1', imei='TERM-IMEI')
+        db.session.add(device); db.session.flush()
+        ticket = Ticket(ticket_number='HQ-20260313-6633', branch_id=branch.id, customer_id=customer.id, device_id=device.id, internal_status='awaiting_diagnostics', customer_status='Received', priority='normal')
+        db.session.add(ticket); db.session.commit()
+        ticket_id = ticket.id
+
+    monkeypatch.setattr('app.services.auth_service.log_action', lambda *args, **kwargs: None)
+    client = app.test_client()
+    _login(client)
+
+    quote_page = client.get(f'/quotes/ticket/{ticket_id}/new')
+    html = quote_page.data.decode()
+    assert html.count('Terms Snapshot') == 1

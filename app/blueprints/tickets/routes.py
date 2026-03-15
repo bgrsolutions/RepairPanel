@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
@@ -166,9 +167,22 @@ def ticket_detail(ticket_id):
 
     quotes = Quote.query.filter_by(ticket_id=ticket_uuid).order_by(Quote.version.desc(), Quote.created_at.desc()).all()
     quote_summaries = []
+    igic_rate = Decimal(str(current_app.config.get("DEFAULT_IGIC_RATE", 0.07) or 0.07))
     for quote in quotes:
         option_totals, quote_total = compute_quote_totals(quote)
-        quote_summaries.append({"quote": quote, "option_totals": option_totals, "quote_total": quote_total})
+        tax_total = quote_total * igic_rate
+        grand_total = quote_total + tax_total
+        latest_approval = sorted(list(quote.approvals), key=lambda a: a.created_at or datetime.min, reverse=True)[0] if quote.approvals else None
+        quote_summaries.append(
+            {
+                "quote": quote,
+                "option_totals": option_totals,
+                "quote_total": quote_total,
+                "tax_total": tax_total,
+                "grand_total": grand_total,
+                "latest_approval": latest_approval,
+            }
+        )
 
     assignment_form = TicketAssignmentForm()
     assignment_form.assigned_technician_id.choices = _technician_choices(ticket.branch_id)
@@ -200,6 +214,7 @@ def ticket_detail(ticket_id):
         latest_diagnosis=latest_diagnosis,
         diagnostic_form=diagnostic_form,
         quote_summaries=quote_summaries,
+        igic_rate=igic_rate,
         assignment_form=assignment_form,
         status_form=status_form,
         meta_form=meta_form,
