@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.5] - 2026-03-15
+### Fixed
+- **Quote total calculation**: Added `change` event listeners alongside `input` for broader browser compatibility (paste, autofill). New lines default quantity to 1 instead of empty, so typing a price immediately shows a total.
+
+### Added
+- **Purchase order line sale price**: `PartOrderLine` now has a `sale_price` column. When receiving stock, the part's sale price is updated from the line if set.
+- **Receive All Stock**: Bulk receive button on order detail page receives all remaining quantities in one action, updating stock levels and part prices.
+- **Stock overview grouping**: Inventory overview groups stock levels by part with expandable sub-rows showing per-branch/location breakdown.
+- **Part creation UX**: Numbered section headers (Identity, Pricing, Suppliers, Categories, Details) with live gross margin preview on both new and edit forms.
+- **CSRF on toggle-active**: Parts list deactivate/reactivate forms now include CSRF token.
+- Migration `a4b6c8d0e2f4` adds `sale_price` column to `part_order_lines`.
+- 11 new Phase 4 tests covering quote JS events, part form UX, order line sale price, bulk receive, stock overview grouping, and migration coverage.
+
 ## [0.9.4] - 2026-03-15
 ### Fixed (Critical Regression)
 - **Missing migration for standalone quote columns**: Added migration `f3a5b7c9d1e2` that adds `customer_id`, `customer_name`, `device_description` columns to `quotes` table and makes `ticket_id` nullable. Without this migration, PostgreSQL crashed with `column quotes.customer_id does not exist` on any route that queried the quotes table.

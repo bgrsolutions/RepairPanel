@@ -4,88 +4,138 @@
 <section class="mx-auto max-w-5xl space-y-5">
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Inventory</p>
-    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">Edit Part</h1>
-    <p class="mt-1 text-sm text-slate-400">Maintain pricing, supplier links, and stock behavior for this part record.</p>
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">Edit Part <span class="text-slate-400">({{ part.sku }})</span></h1>
   </div>
 
-  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {{ form.hidden_tag() }}
+  <form method="post" class="space-y-5">
+    {{ form.hidden_tag() }}
 
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Internal part name</label>
-        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+    {# ── 1. Identity ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400"><span class="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">1</span>Identity</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Part Name <span class="text-rose-400">*</span></label>
+          {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">SKU <span class="text-rose-400">*</span></label>
+          {{ form.sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Barcode</label>
+          {{ form.barcode(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Supplier SKU</label>
+          {{ form.supplier_sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
       </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">SKU</label>
-        {{ form.sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Barcode</label>
-        {{ form.barcode(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Supplier SKU</label>
-        {{ form.supplier_sku(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
+    </div>
 
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Default supplier</label>
-        {{ form.default_supplier_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+    {# ── 2. Pricing ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400"><span class="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">2</span>Pricing</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Cost Price</label>
+          {{ form.cost_price(id='cost-price', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 tabular-nums') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Sale Price</label>
+          {{ form.sale_price(id='sale-price', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 tabular-nums') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Gross Margin</label>
+          <div id="margin-preview" class="flex h-[42px] items-center rounded-xl border border-slate-700 bg-slate-950/60 px-3 text-sm font-medium tabular-nums text-slate-400">—</div>
+        </div>
       </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Legacy category label (optional)</label>
-        {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
+    </div>
 
-      <div class="md:col-span-2">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Additional suppliers</label>
-        {{ form.supplier_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', multiple=true, size='4') }}
+    {# ── 3. Suppliers ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400"><span class="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">3</span>Suppliers</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Default Supplier</label>
+          {{ form.default_supplier_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Lead Time (days)</label>
+          {{ form.lead_time_days(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
       </div>
-      <div class="md:col-span-2">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Categories</label>
-        {{ form.category_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', multiple=true, size='4') }}
+      <div class="mt-4">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Additional Suppliers</label>
+        {{ form.supplier_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', multiple=true, size='3') }}
+        <p class="mt-1.5 text-xs text-slate-500">Ctrl/Cmd+click to select multiple.</p>
       </div>
+    </div>
 
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Cost price</label>
-        {{ form.cost_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+    {# ── 4. Categories & Stock ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400"><span class="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">4</span>Categories &amp; Stock</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Categories</label>
+          {{ form.category_ids(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', multiple=true, size='3') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Legacy Category Label</label>
+          {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Low Stock Threshold</label>
+          {{ form.low_stock_threshold(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div class="flex items-end gap-6 pb-1">
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.serial_tracking(class='rounded border-slate-600 bg-slate-700 text-indigo-500') }} Serial tracking</label>
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active(class='rounded border-slate-600 bg-slate-700 text-indigo-500') }} Active</label>
+        </div>
       </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Sale price</label>
-        {{ form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Lead time (days)</label>
-        {{ form.lead_time_days(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Low stock threshold</label>
-        {{ form.low_stock_threshold(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
-      </div>
+    </div>
 
-      <div class="md:col-span-2">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Image URL</label>
-        {{ form.image_url(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+    {# ── 5. Details ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400"><span class="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">5</span>Details</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Image URL</label>
+          {{ form.image_url(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Description</label>
+          {{ form.description(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', rows='2') }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Internal Notes</label>
+          {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', rows='2') }}
+        </div>
       </div>
-      <div class="md:col-span-2">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Description</label>
-        {{ form.description(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', rows='3') }}
-      </div>
-      <div class="md:col-span-2">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Internal notes</label>
-        {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200', rows='3') }}
-      </div>
+    </div>
 
-      <div class="flex items-center gap-6">
-        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.serial_tracking() }} Serial tracking required</label>
-        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} Active product</label>
-      </div>
-
-      <div class="md:col-span-2 pt-2">
-        <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Save Part</button>
-      </div>
-    </form>
-  </div>
+    <div class="flex items-center justify-end gap-4 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <a href="{{ url_for('inventory.part_detail', part_id=part.id) }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</a>
+      <button class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">Save Part</button>
+    </div>
+  </form>
 </section>
+
+<script>
+function updateMargin() {
+  const cost = parseFloat(document.getElementById('cost-price')?.value) || 0;
+  const sale = parseFloat(document.getElementById('sale-price')?.value) || 0;
+  const el = document.getElementById('margin-preview');
+  if (!el) return;
+  if (sale <= 0 && cost <= 0) { el.textContent = '—'; el.className = el.className.replace(/text-\w+-\d+/g, '') + ' text-slate-400'; return; }
+  const margin = sale - cost;
+  const pct = sale > 0 ? (margin / sale * 100) : 0;
+  el.textContent = margin.toFixed(2) + ' (' + pct.toFixed(1) + '%)';
+  el.className = el.className.replace(/text-\w+-\d+/g, '');
+  el.classList.add(margin >= 0 ? 'text-emerald-300' : 'text-rose-300');
+}
+document.getElementById('cost-price')?.addEventListener('input', updateMargin);
+document.getElementById('sale-price')?.addEventListener('input', updateMargin);
+updateMargin();
+</script>
 {% endblock %}

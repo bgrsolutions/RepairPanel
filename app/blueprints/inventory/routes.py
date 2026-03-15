@@ -21,7 +21,34 @@ inventory_bp = Blueprint("inventory", __name__, url_prefix="/inventory")
 @login_required
 def stock_overview():
     levels = StockLevel.query.order_by(StockLevel.updated_at.desc()).all()
-    return render_template("inventory/overview.html", levels=levels)
+
+    # Group stock levels by part for the aggregated view
+    from collections import defaultdict
+    parts_map = {}      # part_id -> Part object
+    part_levels = defaultdict(list)  # part_id -> [StockLevel, ...]
+    part_totals = {}    # part_id -> (on_hand, reserved, available)
+
+    for level in levels:
+        pid = str(level.part_id)
+        parts_map[pid] = level.part
+        part_levels[pid].append(level)
+
+    for pid, lvls in part_levels.items():
+        on_hand = sum(float(l.on_hand_qty or 0) for l in lvls)
+        reserved = sum(float(l.reserved_qty or 0) for l in lvls)
+        part_totals[pid] = (on_hand, reserved, on_hand - reserved)
+
+    # Sort by part name
+    sorted_part_ids = sorted(parts_map.keys(), key=lambda pid: parts_map[pid].name.lower())
+
+    return render_template(
+        "inventory/overview.html",
+        levels=levels,
+        parts_map=parts_map,
+        part_levels=part_levels,
+        part_totals=part_totals,
+        sorted_part_ids=sorted_part_ids,
+    )
 
 
 @inventory_bp.get("/parts")

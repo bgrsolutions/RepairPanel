@@ -22,6 +22,7 @@ class PartOrderLineForm(FlaskForm):
     supplier_sku = StringField("Supplier SKU", validators=[Optional(), Length(max=120)])
     quantity = DecimalField("Quantity", validators=[Optional(), NumberRange(min=0.01)], places=2)
     unit_cost = DecimalField("Unit Cost", validators=[Optional(), NumberRange(min=0)], places=2)
+    sale_price = DecimalField("Sale Price", validators=[Optional(), NumberRange(min=0)], places=2)
 
 
 class PartOrderCreateForm(FlaskForm):
