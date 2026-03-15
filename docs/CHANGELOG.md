@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.4] - 2026-03-15
+### Fixed (Critical Regression)
+- **Missing migration for standalone quote columns**: Added migration `f3a5b7c9d1e2` that adds `customer_id`, `customer_name`, `device_description` columns to `quotes` table and makes `ticket_id` nullable. Without this migration, PostgreSQL crashed with `column quotes.customer_id does not exist` on any route that queried the quotes table.
+- **Missing migration for checklist tables**: Same migration creates `repair_checklists` and `checklist_items` tables required by the Phase 3 checklist feature.
+- **Routes restored**: `/quotes/list`, ticket detail (when loading quotes), `/reports/` KPI dashboard, and quote detail pages all crashed due to the missing columns. Fixed by the migration.
+- **Checklist table guard**: Ticket detail and status update routes now check for `repair_checklists` table existence before querying, preventing crashes when the migration hasn't been applied yet.
+
+### Added
+- **Schema/migration consistency tests**: New `test_regression_schema_routes.py` with 13 tests that validate migration files cover all model columns, migration chain integrity, route availability for critical pages, and standalone quote rendering.
+- Migration chain validator test catches orphan or disconnected migration revisions.
+- Route smoke tests for `/quotes/list`, `/tickets/<id>`, `/intake/new`, `/reports/`, `/tickets/new`, and standalone quote detail.
+
+### Why Previous Tests Missed This
+SQLite-based tests create tables directly from the SQLAlchemy model definition (which includes all columns), so missing migrations are invisible. The new schema consistency tests parse migration files to verify every model column appears in a migration, catching this class of bug regardless of test database engine.
+
 ## [0.9.3] - 2026-03-15
 ### Added
 - **Standalone quotes**: Quotes can now be created without a linked ticket (for WhatsApp, phone, walk-in enquiries). New `/quotes/standalone/new` route and quotes list page at `/quotes/list`.
