@@ -60,9 +60,12 @@ def create_app(config_class=Config):
 
     @app.context_processor
     def utility_processor():
+        from flask_wtf.csrf import generate_csrf
+
         return {
             "current_locale": str(get_locale()),
             "supported_locales": app.config["SUPPORTED_LOCALES"],
+            "csrf_token": generate_csrf,
         }
 
     @app.get("/set-language/<locale>")

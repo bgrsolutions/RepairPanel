@@ -415,6 +415,34 @@ def reserve_part(ticket_id):
     return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
 
+@tickets_bp.post("/<uuid:ticket_id>/release-reservation/<uuid:reservation_id>")
+@login_required
+def release_reservation(ticket_id, reservation_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    reservation = db.session.get(StockReservation, reservation_id)
+    if not reservation or str(reservation.ticket_id) != str(ticket_id):
+        flash(_("Reservation not found"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    reservation.status = "released"
+    from app.models import StockLevel
+
+    level = StockLevel.query.filter_by(
+        part_id=reservation.part_id,
+        branch_id=reservation.branch_id,
+        location_id=reservation.location_id,
+    ).first()
+    if level:
+        level.reserved_qty = max(0, float(level.reserved_qty or 0) - float(reservation.quantity))
+    db.session.commit()
+    flash(_("Reservation released"), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
 @tickets_bp.get("/board")
 @login_required
 def repair_board():

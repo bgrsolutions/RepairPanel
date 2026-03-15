@@ -78,6 +78,8 @@ function bindPartSearch(scope=document){
         const option = document.createElement('option');
         option.value = item.id;
         option.textContent = item.label;
+        option.dataset.partName = item.name || '';
+        option.dataset.salePrice = item.sale_price || 0;
         select.appendChild(option);
       }
       if (current) select.value = current;
@@ -107,14 +109,20 @@ function wirePartAutofill(scope=document){
   scope.querySelectorAll('.quote-part').forEach((select)=>{
     if (select.dataset.wired === '1') return;
     select.dataset.wired = '1';
-    select.addEventListener('change', async ()=>{
+    select.addEventListener('change', ()=>{
       const partId = select.value;
       if (!partId) return;
       const line = select.closest('.quote-line');
+      const chosen = select.options[select.selectedIndex];
+      const descField = line.querySelector('[name$="-description"]');
+      if (descField && !descField.value.trim() && chosen.dataset.partName) {
+        descField.value = chosen.dataset.partName;
+      }
       const unit = line.querySelector('.quote-unit');
-      if (unit.dataset.manual === '1') return;
-      const data = await (await fetch(`/quotes/part-price/${partId}`)).json();
-      if (data.ok) unit.value = data.sale_price;
+      if (unit && unit.dataset.manual !== '1') {
+        const price = parseFloat(chosen.dataset.salePrice);
+        if (price > 0) unit.value = price.toFixed(2);
+      }
     });
   });
   scope.querySelectorAll('.quote-unit').forEach((input)=>{

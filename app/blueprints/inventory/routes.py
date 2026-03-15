@@ -11,6 +11,8 @@ from app.models import Branch, Part, PartCategory, PartOrderLine, PartSupplier, 
 from app.services.inventory_service import apply_stock_movement
 from app.utils.permissions import roles_required
 
+from datetime import datetime, timezone
+
 
 inventory_bp = Blueprint("inventory", __name__, url_prefix="/inventory")
 
@@ -78,8 +80,6 @@ def list_parts():
             return "in"
         parts = [p for p in parts if state_for(p) == stock_state]
 
-    has_categories = inspect(db.engine).has_table("part_categories") and inspect(db.engine).has_table("part_category_links")
-    has_part_suppliers = inspect(db.engine).has_table("part_suppliers")
     categories = PartCategory.query.filter(PartCategory.deleted_at.is_(None)).order_by(PartCategory.name.asc()).all() if has_categories else []
     suppliers = Supplier.query.filter_by(is_active=True).order_by(Supplier.name.asc()).all()
     return render_template(
@@ -109,7 +109,7 @@ def search_parts():
         Part.is_active.is_(True),
         or_(Part.name.ilike(like), Part.sku.ilike(like), Part.barcode.ilike(like), Part.supplier_sku.ilike(like)),
     ).order_by(Part.name.asc()).limit(25).all()
-    return {"items": [{"id": str(p.id), "label": f"{p.sku} - {p.name}"} for p in rows]}
+    return {"items": [{"id": str(p.id), "label": f"{p.sku} - {p.name}", "name": p.name, "sale_price": float(p.sale_price or 0)} for p in rows]}
 
 
 @inventory_bp.post("/parts/<uuid:part_id>/toggle-active")
@@ -294,6 +294,21 @@ def new_category():
         flash(_("Category saved"), "success")
         return redirect(url_for("inventory.list_categories"))
     return render_template("inventory/category_new.html", form=form)
+
+
+@inventory_bp.post("/categories/<uuid:category_id>/delete")
+@login_required
+@roles_required("Super Admin", "Admin", "Manager")
+def delete_category(category_id):
+    category = db.session.get(PartCategory, category_id)
+    if not category or category.deleted_at is not None:
+        flash(_("Category not found"), "error")
+        return redirect(url_for("inventory.list_categories"))
+
+    category.deleted_at = datetime.now(timezone.utc)
+    db.session.commit()
+    flash(_("Category deleted"), "success")
+    return redirect(url_for("inventory.list_categories"))
 
 
 @inventory_bp.get("/locations")

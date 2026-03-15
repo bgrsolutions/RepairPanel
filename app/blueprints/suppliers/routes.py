@@ -5,6 +5,7 @@ from flask_login import login_required
 from app.extensions import db
 from app.forms.supplier_forms import SupplierForm
 from app.models import Supplier
+from app.utils.permissions import roles_required
 
 
 suppliers_bp = Blueprint("suppliers", __name__, url_prefix="/suppliers")
@@ -74,3 +75,18 @@ def update_supplier(supplier_id):
         flash(_("Supplier updated"), "success")
         return redirect(url_for("suppliers.supplier_detail", supplier_id=supplier.id))
     return render_template("suppliers/detail.html", supplier=supplier, form=form)
+
+
+@suppliers_bp.post("/<uuid:supplier_id>/toggle-active")
+@login_required
+@roles_required("Super Admin", "Admin", "Manager")
+def toggle_supplier_active(supplier_id):
+    supplier = db.session.get(Supplier, supplier_id)
+    if not supplier or supplier.deleted_at is not None:
+        flash(_("Supplier not found"), "error")
+        return redirect(url_for("suppliers.list_suppliers"))
+
+    supplier.is_active = not supplier.is_active
+    db.session.commit()
+    flash(_("Supplier status updated"), "success")
+    return redirect(url_for("suppliers.supplier_detail", supplier_id=supplier.id))
