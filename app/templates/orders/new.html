@@ -91,10 +91,39 @@
 
       <div class="flex items-center gap-3 border-t border-slate-800/60 pt-5">
         <button type="button" id="add-line" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">+ Add Line</button>
+        <button type="button" id="add-new-part-btn" class="rounded-xl border border-indigo-700/40 bg-indigo-950/20 px-4 py-2.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/30 transition-colors">+ New Part</button>
         {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors') }}
       </div>
     </form>
   </div>
+  <dialog id="new-part-dialog" class="rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl backdrop:bg-black/60 max-w-md w-full">
+    <h3 class="text-lg font-bold text-white mb-4">Add New Part</h3>
+    <div class="space-y-3">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-300">SKU *</label>
+        <input type="text" id="new-part-sku" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-300">Name *</label>
+        <input type="text" id="new-part-name" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Cost Price</label>
+          <input type="number" step="0.01" id="new-part-cost" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Sale Price</label>
+          <input type="number" step="0.01" id="new-part-sale" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" />
+        </div>
+      </div>
+      <div id="new-part-error" class="hidden text-xs text-rose-400"></div>
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" id="new-part-cancel" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</button>
+        <button type="button" id="new-part-save" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Create Part</button>
+      </div>
+    </div>
+  </dialog>
 </section>
 <script>
 const ticketSearch=document.getElementById('ticket-search');
@@ -117,6 +146,8 @@ ticketSearch?.addEventListener('input', async ()=>{
 const linesContainer = document.getElementById('order-lines');
 const addBtn=document.getElementById('add-line');
 
+const partPriceCache = {};
+
 function wirePartSearch(scope=document){
   scope.querySelectorAll('.part-search').forEach(input=>{
     if (input.dataset.wired === '1') return;
@@ -126,9 +157,33 @@ function wirePartSearch(scope=document){
       const row=input.closest('.order-line'); const select=row.querySelector('.part-select');
       const data=await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
       select.innerHTML='';
-      for(const item of data.items){const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);}
+      for(const item of data.items){
+        partPriceCache[item.id] = {cost_price: item.cost_price, sale_price: item.sale_price};
+        const o=document.createElement('option'); o.value=item.id; o.text=item.label; select.appendChild(o);
+      }
+      // Auto-fill prices for first result
+      if(data.items.length > 0) autoFillPrices(row, data.items[0].id);
     });
   });
+
+  // Also wire change events on part-select dropdowns
+  scope.querySelectorAll('.part-select').forEach(select=>{
+    if (select.dataset.priceWired === '1') return;
+    select.dataset.priceWired = '1';
+    select.addEventListener('change', ()=>{
+      const row = select.closest('.order-line');
+      autoFillPrices(row, select.value);
+    });
+  });
+}
+
+function autoFillPrices(row, partId){
+  const prices = partPriceCache[partId];
+  if (!prices) return;
+  const costInput = row.querySelector('[name$="-unit_cost"]');
+  const saleInput = row.querySelector('[name$="-sale_price"]');
+  if (costInput && !costInput.value && prices.cost_price > 0) costInput.value = prices.cost_price.toFixed(2);
+  if (saleInput && !saleInput.value && prices.sale_price > 0) saleInput.value = prices.sale_price.toFixed(2);
 }
 
 function reindexLines(){
@@ -177,5 +232,49 @@ addBtn?.addEventListener('click', ()=>{
 
 wirePartSearch(document);
 wireRemoveButtons();
+
+// ── New Part Modal ──
+(function() {
+  const dialog = document.getElementById('new-part-dialog');
+  document.getElementById('add-new-part-btn').addEventListener('click', () => dialog.showModal());
+  document.getElementById('new-part-cancel').addEventListener('click', () => dialog.close());
+  document.getElementById('new-part-save').addEventListener('click', async () => {
+    const errorEl = document.getElementById('new-part-error');
+    errorEl.classList.add('hidden');
+    const sku = document.getElementById('new-part-sku').value.trim();
+    const name = document.getElementById('new-part-name').value.trim();
+    const costPrice = parseFloat(document.getElementById('new-part-cost').value) || null;
+    const salePrice = parseFloat(document.getElementById('new-part-sale').value) || null;
+    if (!sku || !name) { errorEl.textContent = 'SKU and name are required'; errorEl.classList.remove('hidden'); return; }
+    try {
+      const resp = await fetch('/inventory/parts/create-json', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrf_token]').value},
+        body: JSON.stringify({sku, name, cost_price: costPrice, sale_price: salePrice}),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        // Add to last active order line's part select
+        const lines = linesContainer.querySelectorAll('.order-line');
+        const lastLine = lines[lines.length - 1];
+        const select = lastLine.querySelector('.part-select');
+        const opt = document.createElement('option');
+        opt.value = data.id; opt.text = data.label; opt.selected = true;
+        select.appendChild(opt);
+        dialog.close();
+        document.getElementById('new-part-sku').value = '';
+        document.getElementById('new-part-name').value = '';
+        document.getElementById('new-part-cost').value = '';
+        document.getElementById('new-part-sale').value = '';
+      } else {
+        errorEl.textContent = data.error || 'Failed to create part';
+        errorEl.classList.remove('hidden');
+      }
+    } catch (err) {
+      errorEl.textContent = 'Network error';
+      errorEl.classList.remove('hidden');
+    }
+  });
+})();
 </script>
 {% endblock %}

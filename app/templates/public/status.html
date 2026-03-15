@@ -169,6 +169,47 @@
     </div>
   </div>
 
+  <!-- Repair Checklists -->
+  {% if lookup_result.checklists %}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel sm:p-8">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-400">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </div>
+      <div>
+        <h4 class="text-base font-semibold text-white">Quality Checklists</h4>
+        <p class="text-sm text-slate-500">Pre-repair and post-repair quality checks performed on your device</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {% for cl in lookup_result.checklists %}
+      <div class="rounded-xl border {% if cl.is_complete %}border-emerald-700/40 bg-emerald-950/10{% else %}border-amber-700/40 bg-amber-950/10{% endif %} p-4">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-bold uppercase tracking-widest {% if cl.is_complete %}text-emerald-400{% else %}text-amber-400{% endif %}">{{ cl.checklist_type|replace('_',' ')|title }}</p>
+          {% if cl.is_complete %}
+          <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Complete</span>
+          {% else %}
+          <span class="rounded-full bg-amber-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-300 border border-amber-800/40">In Progress</span>
+          {% endif %}
+        </div>
+        <div class="space-y-1.5">
+          {% for item in cl.items %}
+          <div class="flex items-center gap-2 text-xs">
+            {% if item.is_checked %}
+            <svg class="h-4 w-4 flex-shrink-0 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            {% else %}
+            <svg class="h-4 w-4 flex-shrink-0 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="12" cy="12" r="9" /></svg>
+            {% endif %}
+            <span class="{% if item.is_checked %}text-slate-400{% else %}text-slate-300{% endif %}">{{ item.label }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Customer updates timeline -->
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel sm:p-8">
     <div class="flex items-center gap-3 mb-5">

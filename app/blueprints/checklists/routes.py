@@ -25,11 +25,11 @@ def create_checklist(ticket_id):
         flash(_("Invalid checklist type"), "error")
         return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
-    # Check if checklist of this type already exists for the ticket
+    # Check if an active (non-completed) checklist of this type already exists
     existing = RepairChecklist.query.filter_by(
         ticket_id=ticket.id, checklist_type=checklist_type
     ).first()
-    if existing:
+    if existing and not existing.is_complete:
         flash(_("A %(type)s checklist already exists for this ticket", type=checklist_type.replace("_", " ")), "info")
         return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 

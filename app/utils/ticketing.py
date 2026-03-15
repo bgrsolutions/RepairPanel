@@ -50,12 +50,13 @@ def status_label(status: str | None) -> str:
     return STATUS_LABELS.get(normalize_ticket_status(status), "Unassigned")
 
 
-def is_ticket_overdue(ticket: Ticket, now: datetime | None = None) -> bool:
+def is_ticket_overdue(ticket: Ticket, now: datetime | None = None, sla_days: int = 5) -> bool:
     current = now or datetime.utcnow()
     normalized = normalize_ticket_status(ticket.internal_status)
-    if normalized in Ticket.CLOSED_STATUSES or not ticket.sla_target_at:
+    if normalized in Ticket.CLOSED_STATUSES:
         return False
-    return ticket.sla_target_at < current
+    target = ticket.sla_target_at or default_sla_target(ticket.created_at, sla_days)
+    return target < current
 
 
 def ticket_age_days(ticket: Ticket, now: datetime | None = None) -> int:

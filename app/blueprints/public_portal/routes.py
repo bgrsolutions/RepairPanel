@@ -22,6 +22,7 @@ from app.models import (
     PortalToken,
     Quote,
     QuoteApproval,
+    RepairChecklist,
     Ticket,
     TicketNote,
 )
@@ -186,6 +187,10 @@ def public_status_lookup():
                 notes = TicketNote.query.filter_by(ticket_id=ticket.id).order_by(TicketNote.created_at.desc()).all()
                 customer_updates = [n for n in notes if n.note_type in {"customer", "customer_update", "communication"}]
 
+            checklists = []
+            if inspect(db.engine).has_table("repair_checklists"):
+                checklists = RepairChecklist.query.filter_by(ticket_id=ticket.id).order_by(RepairChecklist.created_at.desc()).all()
+
             lookup_result = {
                 "ticket": ticket,
                 "ticket_number": ticket.ticket_number,
@@ -196,6 +201,7 @@ def public_status_lookup():
                 "quote": active_quote,
                 "estimated_completion": ticket.quoted_completion_at.strftime("%Y-%m-%d %H:%M") if ticket.quoted_completion_at else "TBD",
                 "customer_updates": customer_updates,
+                "checklists": checklists,
             }
             contact_form.contact_person.data = ticket.customer.full_name
             contact_form.contact_phone.data = ticket.customer.phone

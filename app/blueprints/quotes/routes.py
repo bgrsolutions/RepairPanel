@@ -8,9 +8,21 @@ from flask_login import login_required
 
 from app.extensions import db
 from app.forms.quote_forms import QuoteCreateForm
-from app.models import Customer, Diagnostic, Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
+from app.models import AppSetting, Branch, Customer, Device, Diagnostic, Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
 from app.services.audit_service import log_action
 from app.services.quote_service import compute_quote_totals, set_quote_status
+from app.utils.ticketing import default_sla_target, generate_ticket_number
+
+
+def _default_quote_terms() -> str:
+    try:
+        from sqlalchemy import inspect as sa_inspect
+        if not sa_inspect(db.engine).has_table("app_settings"):
+            return ""
+        row = AppSetting.query.filter_by(key="quote_default_terms", branch_id=None).first()
+        return row.value if row and row.value else ""
+    except Exception:
+        return ""
 
 
 quotes_bp = Blueprint("quotes", __name__, url_prefix="/quotes")
@@ -116,6 +128,7 @@ def new_quote(ticket_id):
         return redirect(url_for("tickets.list_tickets"))
 
     form = QuoteCreateForm()
+    form.terms_snapshot.data = _default_quote_terms()
     _ensure_default_entries(form)
     parts_data = _get_parts_data()
 
@@ -160,6 +173,7 @@ def create_quote(ticket_id):
 @login_required
 def new_standalone_quote():
     form = QuoteCreateForm()
+    form.terms_snapshot.data = _default_quote_terms()
     _ensure_default_entries(form)
     parts_data = _get_parts_data()
     customers = Customer.query.order_by(Customer.full_name.asc()).all()
@@ -414,3 +428,51 @@ def manual_approval(quote_id):
     log_action("quote.manual_decision", "QuoteApproval", str(approval.id), details={"quote_id": str(quote.id), "decision": decision})
     flash(_("Manual quote decision recorded"), "success")
     return redirect(url_for("quotes.quote_detail", quote_id=quote.id))
+
+
+@quotes_bp.post("/<uuid:quote_id>/create-ticket")
+@login_required
+def create_ticket_from_quote(quote_id):
+    quote = db.session.get(Quote, quote_id)
+    if not quote:
+        flash(_("Quote not found"), "error")
+        return redirect(url_for("quotes.list_quotes"))
+    if quote.ticket_id:
+        flash(_("This quote already has a ticket"), "info")
+        return redirect(url_for("quotes.quote_detail", quote_id=quote.id))
+
+    branch = Branch.query.first()
+    customer = db.session.get(Customer, quote.customer_id) if quote.customer_id else None
+
+    # Find or create device based on quote device_description
+    device = None
+    if customer and quote.device_description:
+        device = Device.query.filter_by(customer_id=customer.id).first()
+    if not device and customer:
+        device = Device(customer=customer, category="other", brand=quote.device_description or "Unknown", model="From Quote")
+        db.session.add(device)
+        db.session.flush()
+
+    now = datetime.utcnow()
+    seq = Ticket.query.count() + 1
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
+
+    ticket = Ticket(
+        ticket_number=generate_ticket_number(branch.code if branch else "HQ", seq),
+        branch_id=branch.id if branch else None,
+        customer_id=customer.id if customer else None,
+        device_id=device.id if device else None,
+        internal_status="in_repair",
+        customer_status="In Progress",
+        priority="normal",
+        sla_target_at=default_sla_target(now, sla_days),
+    )
+    db.session.add(ticket)
+    db.session.flush()
+
+    quote.ticket_id = ticket.id
+    db.session.commit()
+
+    log_action("ticket.create_from_quote", "Ticket", str(ticket.id), details={"quote_id": str(quote.id)})
+    flash(_("Ticket %(number)s created from quote", number=ticket.ticket_number), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))

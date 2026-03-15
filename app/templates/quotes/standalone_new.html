@@ -17,17 +17,19 @@
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">Customer</label>
-          <select name="customer_id" id="customer-select" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100">
-            <option value="">-- Select existing customer --</option>
-            {% for c in customers %}
-            <option value="{{ c.id }}" {% if mode == 'edit' and quote and quote.customer_id and c.id|string == quote.customer_id|string %}selected{% endif %}>{{ c.full_name }} ({{ c.email or c.phone or '' }})</option>
-            {% endfor %}
-          </select>
-          <p class="mt-1.5 text-xs text-slate-500">Or enter a name below for walk-in customers</p>
+          <div class="relative">
+            <input type="hidden" name="customer_id" id="customer-id" value="{% if mode == 'edit' and quote and quote.customer_id %}{{ quote.customer_id }}{% endif %}" />
+            <input type="text" id="customer-search" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Search by name, email, or phone..." value="{% if mode == 'edit' and quote and quote.customer_name %}{{ quote.customer_name }}{% endif %}" autocomplete="off" />
+            <div id="customer-results" class="absolute left-0 right-0 top-full z-30 mt-1 hidden max-h-48 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl"></div>
+          </div>
+          <div class="mt-1.5 flex items-center gap-2">
+            <p class="text-xs text-slate-500">Or</p>
+            <button type="button" id="add-customer-btn" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">+ Add new customer</button>
+          </div>
         </div>
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">Customer Name</label>
-          <input type="text" name="customer_name" value="{% if mode == 'edit' and quote %}{{ quote.customer_name or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Name for walk-in / phone enquiry" />
+          <input type="text" name="customer_name" id="customer-name-input" value="{% if mode == 'edit' and quote %}{{ quote.customer_name or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Name for walk-in / phone enquiry" />
         </div>
       </div>
       <div class="mt-4">
@@ -36,14 +38,35 @@
       </div>
     </div>
 
+    {# ── Add New Customer Modal ── #}
+    <dialog id="new-customer-dialog" class="rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl backdrop:bg-black/60 max-w-md w-full">
+      <h3 class="text-lg font-bold text-white mb-4">Add New Customer</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Full Name *</label>
+          <input type="text" id="new-cust-name" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Phone *</label>
+          <input type="text" id="new-cust-phone" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Email</label>
+          <input type="email" id="new-cust-email" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" />
+        </div>
+        <div id="new-cust-error" class="hidden text-xs text-rose-400"></div>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" id="new-cust-cancel" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</button>
+          <button type="button" id="new-cust-save" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Create Customer</button>
+        </div>
+      </div>
+    </dialog>
+
     {# ── Quote settings ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
       <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Quote Settings</h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Currency</label>
-          {{ form.currency(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
-        </div>
+      <input type="hidden" name="currency" value="EUR" />
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">Language</label>
           {{ form.language(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
@@ -63,7 +86,7 @@
     {% for option in form.options %}
     <section class="quote-option rounded-2xl border border-indigo-800/30 bg-slate-900/60 p-5 shadow-panel space-y-4">
       <div class="flex items-center gap-3">
-        <h2 class="text-base font-bold text-indigo-300">Option {{ loop.index }}</h2>
+        <h2 class="text-base font-bold text-indigo-300">Repair Option {{ loop.index }}</h2>
       </div>
       {{ option.form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='e.g. Standard Repair, Premium Repair') }}
 
@@ -302,5 +325,84 @@ document.querySelectorAll('.add-quote-line').forEach(btn => {
 });
 
 document.querySelectorAll('.quote-line').forEach(wireLine);
+
+// ── Customer search autocomplete ──
+(function() {
+  const searchInput = document.getElementById('customer-search');
+  const hiddenId = document.getElementById('customer-id');
+  const nameInput = document.getElementById('customer-name-input');
+  const results = document.getElementById('customer-results');
+  let debounce = null;
+
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounce);
+    hiddenId.value = '';
+    debounce = setTimeout(async () => {
+      const q = searchInput.value.trim();
+      if (q.length < 2) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+      try {
+        const data = await (await fetch(`/customers/search?q=${encodeURIComponent(q)}`)).json();
+        results.innerHTML = '';
+        if (data.items && data.items.length > 0) {
+          for (const item of data.items) {
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'w-full text-left px-3 py-2 text-xs hover:bg-slate-800 transition-colors text-slate-200';
+            row.textContent = item.label;
+            row.addEventListener('click', (e) => {
+              e.preventDefault();
+              hiddenId.value = item.id;
+              searchInput.value = item.label;
+              nameInput.value = item.label.split(' · ')[0];
+              results.classList.add('hidden');
+            });
+            results.appendChild(row);
+          }
+          results.classList.remove('hidden');
+        } else {
+          results.innerHTML = '<div class="px-3 py-2 text-xs text-slate-500">No customers found</div>';
+          results.classList.remove('hidden');
+        }
+      } catch (err) { results.classList.add('hidden'); }
+    }, 200);
+  });
+  searchInput.addEventListener('blur', () => setTimeout(() => results.classList.add('hidden'), 200));
+
+  // ── New customer modal ──
+  const dialog = document.getElementById('new-customer-dialog');
+  document.getElementById('add-customer-btn').addEventListener('click', () => dialog.showModal());
+  document.getElementById('new-cust-cancel').addEventListener('click', () => dialog.close());
+  document.getElementById('new-cust-save').addEventListener('click', async () => {
+    const errorEl = document.getElementById('new-cust-error');
+    errorEl.classList.add('hidden');
+    const name = document.getElementById('new-cust-name').value.trim();
+    const phone = document.getElementById('new-cust-phone').value.trim();
+    const email = document.getElementById('new-cust-email').value.trim();
+    if (!name || !phone) { errorEl.textContent = 'Name and phone are required'; errorEl.classList.remove('hidden'); return; }
+    try {
+      const resp = await fetch('/customers/create-json', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrf_token]').value},
+        body: JSON.stringify({full_name: name, phone: phone, email: email}),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        hiddenId.value = data.id;
+        searchInput.value = data.label;
+        nameInput.value = name;
+        dialog.close();
+        document.getElementById('new-cust-name').value = '';
+        document.getElementById('new-cust-phone').value = '';
+        document.getElementById('new-cust-email').value = '';
+      } else {
+        errorEl.textContent = data.error || 'Failed to create customer';
+        errorEl.classList.remove('hidden');
+      }
+    } catch (err) {
+      errorEl.textContent = 'Network error';
+      errorEl.classList.remove('hidden');
+    }
+  });
+})();
 </script>
 {% endblock %}

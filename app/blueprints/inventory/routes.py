@@ -1,6 +1,6 @@
 import uuid
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
 from sqlalchemy import func, inspect, or_
@@ -136,7 +136,26 @@ def search_parts():
         Part.is_active.is_(True),
         or_(Part.name.ilike(like), Part.sku.ilike(like), Part.barcode.ilike(like), Part.supplier_sku.ilike(like)),
     ).order_by(Part.name.asc()).limit(25).all()
-    return {"items": [{"id": str(p.id), "label": f"{p.sku} - {p.name}", "name": p.name, "sku": p.sku or "", "sale_price": float(p.sale_price or 0)} for p in rows]}
+    return {"items": [{"id": str(p.id), "label": f"{p.sku} - {p.name}", "name": p.name, "sku": p.sku or "", "sale_price": float(p.sale_price or 0), "cost_price": float(p.cost_price or 0)} for p in rows]}
+
+
+@inventory_bp.post("/parts/create-json")
+@login_required
+def create_part_json():
+    data = request.get_json(silent=True) or {}
+    sku = (data.get("sku") or "").strip()
+    name = (data.get("name") or "").strip()
+    cost_price = data.get("cost_price")
+    sale_price = data.get("sale_price")
+    if not sku or not name:
+        return jsonify({"ok": False, "error": "SKU and name are required"}), 400
+    existing = Part.query.filter_by(sku=sku).first()
+    if existing:
+        return jsonify({"ok": False, "error": "A part with this SKU already exists"}), 400
+    part = Part(sku=sku, name=name, is_active=True, cost_price=cost_price, sale_price=sale_price)
+    db.session.add(part)
+    db.session.commit()
+    return jsonify({"ok": True, "id": str(part.id), "label": f"{part.sku} - {part.name}", "name": part.name, "sku": part.sku, "sale_price": float(part.sale_price or 0), "cost_price": float(part.cost_price or 0)})
 
 
 @inventory_bp.post("/parts/<uuid:part_id>/toggle-active")
@@ -364,7 +383,6 @@ def new_location():
 @login_required
 def new_movement():
     form = StockAdjustmentForm()
-    form.part_id.choices = [(str(p.id), f"{p.sku} - {p.name}") for p in Part.query.filter(Part.is_active.is_(True)).order_by(Part.name).all()]
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]
     form.location_id.choices = [(str(l.id), f"{l.code} - {l.name}") for l in StockLocation.query.order_by(StockLocation.name).all()]
 

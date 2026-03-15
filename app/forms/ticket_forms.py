@@ -27,5 +27,8 @@ class TicketCreateForm(FlaskForm):
         default="normal",
     )
     issue_summary = TextAreaField("Issue / Summary", validators=[Optional(), Length(max=5000)])
+    device_condition = TextAreaField("Device Condition", validators=[Optional(), Length(max=2000)])
+    accessories = StringField("Accessories Received", validators=[Optional(), Length(max=500)])
+    customer_notes = TextAreaField("Customer Notes", validators=[Optional(), Length(max=2000)])
     quoted_completion_at = DateTimeLocalField("Promised Completion", validators=[Optional()], format="%Y-%m-%dT%H:%M")
-    submit = SubmitField("Create Ticket")
+    submit = SubmitField("Check In Device")

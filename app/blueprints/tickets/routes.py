@@ -598,8 +598,17 @@ def create_ticket():
         )
         db.session.add(ticket)
         db.session.flush()
+        intake_parts = []
         if form.issue_summary.data:
-            db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content=f"Intake summary: {form.issue_summary.data}"))
+            intake_parts.append(f"Issue: {form.issue_summary.data}")
+        if form.device_condition.data:
+            intake_parts.append(f"Device condition: {form.device_condition.data}")
+        if form.accessories.data:
+            intake_parts.append(f"Accessories: {form.accessories.data}")
+        if form.customer_notes.data:
+            intake_parts.append(f"Customer notes: {form.customer_notes.data}")
+        if intake_parts:
+            db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content="\n".join(intake_parts)))
         db.session.commit()
         log_action("ticket.create", "Ticket", str(ticket.id), details={"ticket_number": ticket.ticket_number})
         flash(_("Ticket created"), "success")

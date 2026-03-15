@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from flask import Blueprint, render_template
+from flask import Blueprint, current_app, render_template
 from flask_login import login_required
 
 from app.models import AuditLog, PartOrder, Ticket, TicketNote
@@ -90,7 +90,7 @@ def dashboard():
         "in_repair": sum(1 for t in active_tickets if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}),
         "ready_for_collection": sum(1 for t in active_tickets if normalize_ticket_status(t.internal_status) == Ticket.STATUS_READY_FOR_COLLECTION),
         "aging_tickets": sum(1 for t in active_tickets if ticket_age_days(t, now) >= 3 and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES),
-        "overdue_tickets": sum(1 for t in active_tickets if is_ticket_overdue(t, now)),
+        "overdue_tickets": sum(1 for t in active_tickets if is_ticket_overdue(t, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5))),
         "new_today": sum(1 for t in active_tickets if t.created_at.date() == today),
     }
 
@@ -106,7 +106,7 @@ def dashboard():
         normalized = normalize_ticket_status(ticket.internal_status)
         if normalized in Ticket.CLOSED_STATUSES:
             continue
-        overdue = is_ticket_overdue(ticket, now)
+        overdue = is_ticket_overdue(ticket, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5))
         overdue_parts = str(ticket.id) in overdue_part_ticket_ids
         blocked = overdue_parts and normalized == Ticket.STATUS_AWAITING_PARTS
         if overdue or overdue_parts or blocked:
