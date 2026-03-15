@@ -228,6 +228,12 @@ def public_status_contact_update(ticket_id):
     return redirect(url_for("public_portal.public_status_lookup"))
 
 
+@public_portal_bp.get("/quote/Q-<int:version>/<token>")
+def public_quote_approval_friendly(version, token):
+    """Friendly URL that includes human-readable quote reference; delegates to the same logic."""
+    return public_quote_approval(token)
+
+
 @public_portal_bp.route("/quote/<token>", methods=["GET", "POST"])
 def public_quote_approval(token):
     approval = QuoteApproval.query.filter_by(token=token).first()
@@ -236,6 +242,14 @@ def public_quote_approval(token):
         return redirect(url_for("public_portal.public_status_lookup"))
 
     quote = approval.quote
+
+    # Build a human-readable quote reference
+    quote_ref = f"Q-{quote.version}"
+    if quote.ticket:
+        quote_ref_full = f"{quote.ticket.ticket_number} / {quote_ref}"
+    else:
+        quote_ref_full = quote_ref
+
     form = PublicQuoteApprovalForm()
     expired = approval.expires_at and approval.expires_at < datetime.utcnow()
     option_totals, quote_total = compute_quote_totals(quote)
@@ -258,7 +272,8 @@ def public_quote_approval(token):
 
             if decision == "approved":
                 quote.status = "approved"
-                quote.ticket.internal_status = "in_repair"
+                if quote.ticket:
+                    quote.ticket.internal_status = "in_repair"
                 if form.payment_choice.data == "pay_now":
                     checkout = create_quote_checkout_session(
                         quote_id=str(quote.id),
@@ -275,7 +290,8 @@ def public_quote_approval(token):
                     approval.payment_status = "pay_in_store"
             else:
                 quote.status = "declined"
-                quote.ticket.internal_status = "awaiting_quote_approval"
+                if quote.ticket:
+                    quote.ticket.internal_status = "awaiting_quote_approval"
                 approval.payment_status = "not_applicable"
 
             db.session.commit()
@@ -288,10 +304,11 @@ def public_quote_approval(token):
 
     if expired and quote.status == "sent":
         quote.status = "expired"
-        quote.ticket.internal_status = "awaiting_quote_approval"
+        if quote.ticket:
+            quote.ticket.internal_status = "awaiting_quote_approval"
         db.session.commit()
 
-    return render_template("public/quote_approval.html", approval=approval, quote=quote, expired=expired, form=form, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total)
+    return render_template("public/quote_approval.html", approval=approval, quote=quote, expired=expired, form=form, option_totals=option_totals, quote_total=quote_total, igic_rate=igic_rate, tax_total=tax_total, grand_total=grand_total, quote_ref=quote_ref, quote_ref_full=quote_ref_full)
 
 
 @public_portal_bp.get('/quote-payment-placeholder')

@@ -14,12 +14,20 @@
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Quote for your review
         </div>
-        <h2 class="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Repair quote</h2>
+        <h2 class="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Repair quote · {{ quote_ref_full }}</h2>
+        {% if quote.ticket %}
         <p class="mt-1.5 text-sm text-slate-400">Ticket <span class="font-semibold text-slate-300">{{ quote.ticket.ticket_number }}</span></p>
+        {% else %}
+        <p class="mt-1.5 text-sm text-slate-400">Standalone Quote <span class="font-semibold text-slate-300">{{ quote_ref }}</span></p>
+        {% endif %}
       </div>
       <div class="rounded-xl border border-slate-700/60 bg-slate-800/50 px-4 py-3 text-left sm:text-right">
         <p class="text-xs font-medium uppercase tracking-widest text-slate-500">Device</p>
-        <p class="mt-1 text-sm font-semibold text-white">{{ quote.ticket.device.brand }} {{ quote.ticket.device.model }}</p>
+        <p class="mt-1 text-sm font-semibold text-white">{{ quote.display_device or 'N/A' }}</p>
+        {% if quote.display_customer_name %}
+        <p class="text-xs font-medium uppercase tracking-widest text-slate-500 mt-2">Customer</p>
+        <p class="mt-0.5 text-sm font-semibold text-white">{{ quote.display_customer_name }}</p>
+        {% endif %}
       </div>
     </div>
     <!-- Trust indicators -->

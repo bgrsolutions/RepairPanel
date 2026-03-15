@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import DateField, DecimalField, FieldList, FormField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import DateField, DecimalField, FieldList, FormField, HiddenField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
 
@@ -11,7 +11,7 @@ class QuoteLineForm(FlaskForm):
         csrf = False
 
     line_type = SelectField("Line Type", choices=LINE_TYPES, validators=[Optional()], default="labour")
-    linked_part_id = SelectField("Linked Part (optional)", validators=[Optional()], coerce=str)
+    linked_part_id = HiddenField("Linked Part ID", validators=[Optional()])
     description = StringField("Description", validators=[Optional(), Length(max=255)])
     quantity = DecimalField("Qty", validators=[Optional(), NumberRange(min=0)], places=2, default=1)
     unit_price = DecimalField("Unit Price", validators=[Optional(), NumberRange(min=0)], places=2, default=0)

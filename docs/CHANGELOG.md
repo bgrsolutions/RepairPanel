@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.9.3] - 2026-03-15
+### Added
+- **Standalone quotes**: Quotes can now be created without a linked ticket (for WhatsApp, phone, walk-in enquiries). New `/quotes/standalone/new` route and quotes list page at `/quotes/list`.
+- **Pre-repair and post-repair checklists**: Device-category-aware checklist templates (phones, tablets, laptops, desktops, game consoles) auto-populate when creating a checklist for a ticket. Checklists track individual item checks with timestamps and user attribution.
+- **Friendly public quote URLs**: `/public/quote/Q-<version>/<token>` provides human-readable quote approval links alongside the existing token-only URL.
+- **Dashboard real activity feed**: Replaced hardcoded placeholder with live activity from AuditLog (PostgreSQL) or TicketNote (SQLite fallback).
+- **Inline diagnostics on ticket detail**: Diagnostic entries now display directly on the ticket detail page, not only via modal.
+- **ETA preset buttons on ticket intake**: Quick "Today", "Tomorrow", "3 Days", "1 Week" buttons for setting promised completion at 18:00.
+- **Customer search card UX**: Ticket intake now shows selected customer as a visual card with "Change" button instead of a raw dropdown.
+- **Numbered step sections in ticket intake**: Form divided into clear steps (Branch & Customer, Device, Issue Details, Promised Completion).
+- **Quote builder inline part autocomplete**: Typing in the description field triggers async part search; selecting a part auto-fills description, price, and line type.
+- New `RepairChecklist` and `ChecklistItem` models with cascade delete.
+- New `/checklists/` blueprint with create, update, and complete routes.
+- 19 new tests covering standalone quotes, quote builder UX, intake UX, checklists, dashboard activity, diagnostics visibility, and public quote URLs.
+
+### Changed
+- `Quote.ticket_id` is now nullable to support standalone quotes. Added `customer_id`, `customer_name`, `device_description` fields.
+- `Quote` model gains `is_standalone`, `display_customer_name`, `display_device` properties.
+- `QuoteLineForm.linked_part_id` changed from `SelectField` to `HiddenField` (eliminates choices overhead).
+- `TicketCreateForm.customer_id` changed from `SelectField` to `HiddenField` (JS-driven search replaces dropdown).
+- Ticket detail SLA & Promise section now shows "Past due" / "Overdue" badges with color indicators.
+- Checklist enforcement on ticket status changes is guarded by table existence check (graceful degradation).
+- Base navigation includes "Quotes" link in both desktop dropdown and mobile nav.
+- Parts search API (`/inventory/parts/search`) now returns `sku` field in response.
+
+### Fixed
+- Checklist queries in ticket detail guarded behind `has_table()` check to prevent SQLite test failures.
+- Dashboard activity feed gracefully falls back when AuditLog JSONB is unsupported (SQLite).
+
 ## [0.9.2] - 2026-03-15
 ### Fixed
 - Quote part search/autocomplete fully reworked: global `partsData` JSON map replaces fragile data-attribute approach, ensuring autofill works for both initial dropdown selections and search results.

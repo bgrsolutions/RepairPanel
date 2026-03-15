@@ -1,23 +1,40 @@
 {% extends 'base.html' %}
-{% block title %}{% if mode == 'edit' %}Edit Quote{% else %}Create Quote{% endif %} - IRONCore{% endblock %}
+{% block title %}{% if mode == 'edit' %}Edit Quote{% else %}New Standalone Quote{% endif %} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6 max-w-6xl">
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <p class="text-xs font-bold uppercase tracking-widest text-indigo-400">{% if mode == 'edit' %}Edit Quote{% else %}New Quote{% endif %}</p>
-    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{% if mode == 'edit' %}Edit Repair Quote{% else %}Create Repair Quote{% endif %}</h1>
-    {% if ticket %}
-    <p class="mt-1.5 text-sm text-slate-400">
-      Ticket <strong class="text-slate-300">{{ ticket.ticket_number }}</strong>
-      <span class="mx-1 text-slate-700">|</span>
-      {{ ticket.customer.full_name }}
-      <span class="mx-1 text-slate-700">|</span>
-      {{ ticket.device.brand }} {{ ticket.device.model }}
-    </p>
-    {% endif %}
+    <p class="text-xs font-bold uppercase tracking-widest text-indigo-400">{% if mode == 'edit' %}Edit Quote{% else %}Standalone Quote{% endif %}</p>
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{% if mode == 'edit' %}Edit Quote{% else %}Create Quote (No Ticket){% endif %}</h1>
+    <p class="mt-1.5 text-sm text-slate-400">For enquiries via WhatsApp, phone, walk-in, or other channels before a ticket is created.</p>
   </div>
 
-  <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_quote', ticket_id=ticket.id) }}{% endif %}" class="space-y-6">
+  <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_standalone_quote') }}{% endif %}" class="space-y-6">
     {{ form.hidden_tag() }}
+
+    {# ── Customer & device info ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Customer &amp; Device</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Customer</label>
+          <select name="customer_id" id="customer-select" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100">
+            <option value="">-- Select existing customer --</option>
+            {% for c in customers %}
+            <option value="{{ c.id }}" {% if mode == 'edit' and quote and quote.customer_id and c.id|string == quote.customer_id|string %}selected{% endif %}>{{ c.full_name }} ({{ c.email or c.phone or '' }})</option>
+            {% endfor %}
+          </select>
+          <p class="mt-1.5 text-xs text-slate-500">Or enter a name below for walk-in customers</p>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">Customer Name</label>
+          <input type="text" name="customer_name" value="{% if mode == 'edit' and quote %}{{ quote.customer_name or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Name for walk-in / phone enquiry" />
+        </div>
+      </div>
+      <div class="mt-4">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Device Description</label>
+        <input type="text" name="device_description" value="{% if mode == 'edit' and quote %}{{ quote.device_description or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="e.g. iPhone 15 Pro, Samsung Galaxy S24, MacBook Air M2" />
+      </div>
+    </div>
 
     {# ── Quote settings ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
@@ -38,24 +55,19 @@
       </div>
       <div class="mt-4">
         <label class="mb-1.5 block text-sm font-medium text-slate-300">Terms &amp; Conditions</label>
-        {{ form.terms_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder='Standard terms and conditions for the quote') }}
+        {{ form.terms_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder='Standard terms and conditions') }}
       </div>
     </div>
 
-    {# ── Repair options with inline line items ── #}
+    {# ── Line items (reuse same pattern as ticket-linked quotes) ── #}
     {% for option in form.options %}
     <section class="quote-option rounded-2xl border border-indigo-800/30 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-3">
-          <h2 class="text-base font-bold text-indigo-300">Option {{ loop.index }}</h2>
-          <span class="text-xs text-slate-500">Name this option clearly for the customer</span>
-        </div>
+      <div class="flex items-center gap-3">
+        <h2 class="text-base font-bold text-indigo-300">Option {{ loop.index }}</h2>
       </div>
-      {{ option.form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='e.g. Standard Repair, Premium with OEM Parts') }}
+      {{ option.form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='e.g. Standard Repair, Premium Repair') }}
 
-      {# ── Line items table ── #}
       <div class="quote-lines space-y-2" data-option-index="{{ loop.index0 }}">
-        {# Column headers #}
         <div class="hidden md:grid md:grid-cols-12 gap-2 px-1 text-[10px] font-bold uppercase tracking-widest text-slate-600">
           <div class="col-span-2">Type</div>
           <div class="col-span-5">Description / Part</div>
@@ -68,17 +80,12 @@
         {% for line in option.form.lines %}
         <div class="quote-line group rounded-xl border border-slate-800/60 bg-slate-950/60 p-3 hover:border-slate-700/60 transition-colors">
           <div class="grid grid-cols-1 gap-2 md:grid-cols-12 md:items-center">
-            {# Type #}
             <div class="md:col-span-2">
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600 md:hidden">Type</label>
               {{ line.form.line_type(class='line-type w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs text-slate-200') }}
             </div>
-            {# Description with inline part search #}
             <div class="md:col-span-5 relative">
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600 md:hidden">Description</label>
               {{ line.form.description(class='line-desc w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs text-slate-200', placeholder='Type to search parts or enter description...', autocomplete='off') }}
               {{ line.form.linked_part_id() }}
-              {# Part badge - shown when a part is linked #}
               <div class="part-indicator mt-1 hidden">
                 <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-700/50 bg-indigo-950/40 px-2 py-0.5 text-[10px] font-medium text-indigo-300">
                   <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
@@ -86,24 +93,17 @@
                   <button type="button" class="part-clear text-slate-500 hover:text-white ml-0.5">&times;</button>
                 </span>
               </div>
-              {# Autocomplete dropdown #}
               <div class="part-results absolute left-0 right-0 top-full z-30 mt-1 hidden max-h-48 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl"></div>
             </div>
-            {# Qty #}
             <div class="md:col-span-1">
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600 md:hidden">Qty</label>
               {{ line.form.quantity(class='line-qty w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs text-slate-200 text-right tabular-nums', placeholder='1') }}
             </div>
-            {# Unit price #}
             <div class="md:col-span-2">
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600 md:hidden">Price</label>
               {{ line.form.unit_price(class='line-price w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-xs text-slate-200 text-right tabular-nums', placeholder='0.00') }}
             </div>
-            {# Line total (computed) #}
             <div class="md:col-span-1 flex items-center justify-end">
               <span class="line-total text-xs font-semibold text-slate-300 tabular-nums">0.00</span>
             </div>
-            {# Remove #}
             <div class="md:col-span-1 flex items-center justify-end">
               <button type="button" class="remove-quote-line rounded-lg p-1.5 text-slate-600 hover:bg-rose-950/40 hover:text-rose-400 transition-colors" title="Remove line">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -114,9 +114,8 @@
         {% endfor %}
       </div>
 
-      {# Add line + option total #}
       <div class="flex items-center justify-between pt-2">
-        <button type="button" class="add-quote-line inline-flex items-center gap-1.5 rounded-lg border border-dashed border-indigo-700/40 bg-indigo-950/20 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-900/30 hover:border-indigo-600/50 transition-colors">
+        <button type="button" class="add-quote-line inline-flex items-center gap-1.5 rounded-lg border border-dashed border-indigo-700/40 bg-indigo-950/20 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-900/30 transition-colors">
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
           Add line
         </button>
@@ -128,53 +127,42 @@
     </section>
     {% endfor %}
 
-    {# ── Internal notes ── #}
+    {# ── Notes + submit ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
       <label class="mb-2 block text-sm font-medium text-slate-300">Internal Notes</label>
       {{ form.notes_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder='Internal notes (not shown to customers)') }}
     </div>
 
-    {# ── Tax info + submit ── #}
     <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
       <div class="text-xs text-slate-500">Tax: IGIC {{ '%.0f'|format(igic_rate * 100) }}% applied to quote totals</div>
       <div class="flex items-center gap-4">
-        {% if ticket %}
-        <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</a>
-        {% endif %}
+        <a href="{{ url_for('quotes.list_quotes') }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</a>
         {{ form.submit(class='rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors') }}
       </div>
     </div>
   </form>
 </section>
 
+{# Reuse the same JS from the ticket-linked quote builder #}
 <script>
 const partsData = {{ parts_data | tojson }};
 let searchDebounce = {};
 
-// ── Part autocomplete search ──
 function initPartSearch(line) {
   const desc = line.querySelector('.line-desc');
   const partId = line.querySelector('[name$="-linked_part_id"]');
   const results = line.querySelector('.part-results');
   const indicator = line.querySelector('.part-indicator');
-  const lineType = line.querySelector('.line-type');
   if (!desc || desc.dataset.searchBound) return;
   desc.dataset.searchBound = '1';
-
   let debounce = null;
-
   desc.addEventListener('input', () => {
     clearTimeout(debounce);
-    // If user is typing and a part was linked, clear the link (they're overriding)
-    if (partId.value && desc.dataset.userTyping === '1') {
-      clearPartLink(line);
-    }
+    if (partId.value && desc.dataset.userTyping === '1') clearPartLink(line);
     desc.dataset.userTyping = '1';
-
     debounce = setTimeout(async () => {
       const q = desc.value.trim();
       if (q.length < 2) { results.classList.add('hidden'); results.innerHTML = ''; return; }
-
       try {
         const data = await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
         results.innerHTML = '';
@@ -185,11 +173,7 @@ function initPartSearch(line) {
             row.type = 'button';
             row.className = 'w-full text-left px-3 py-2 text-xs hover:bg-slate-800 transition-colors flex items-center justify-between gap-2';
             row.innerHTML = `<span class="truncate"><strong class="text-slate-200">${item.name}</strong> <span class="text-slate-500">${item.sku || ''}</span></span><span class="text-indigo-400 font-medium tabular-nums flex-shrink-0">${item.sale_price > 0 ? '€' + item.sale_price.toFixed(2) : ''}</span>`;
-            row.addEventListener('click', (e) => {
-              e.preventDefault();
-              selectPart(line, item.id);
-              results.classList.add('hidden');
-            });
+            row.addEventListener('click', (e) => { e.preventDefault(); selectPart(line, item.id); results.classList.add('hidden'); });
             results.appendChild(row);
           }
           results.classList.remove('hidden');
@@ -197,54 +181,24 @@ function initPartSearch(line) {
           results.innerHTML = '<div class="px-3 py-2 text-xs text-slate-500">No parts found</div>';
           results.classList.remove('hidden');
         }
-      } catch (err) {
-        results.classList.add('hidden');
-      }
+      } catch (err) { results.classList.add('hidden'); }
     }, 200);
   });
-
-  // Close dropdown on blur (with delay for click handling)
   desc.addEventListener('blur', () => { setTimeout(() => results.classList.add('hidden'), 200); });
-
-  // Clear part link button
-  const clearBtn = indicator?.querySelector('.part-clear');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => clearPartLink(line));
-  }
 }
 
 function selectPart(line, id) {
-  const info = partsData[id];
-  if (!info) return;
-
+  const info = partsData[id]; if (!info) return;
   const desc = line.querySelector('.line-desc');
   const partId = line.querySelector('[name$="-linked_part_id"]');
   const price = line.querySelector('.line-price');
   const lineType = line.querySelector('.line-type');
   const indicator = line.querySelector('.part-indicator');
   const partName = indicator?.querySelector('.part-name');
-
-  // Set values
-  partId.value = id;
-  desc.value = info.name;
-  desc.dataset.userTyping = '';
-
-  // Auto-fill price if not manually set
-  if (price && price.dataset.manual !== '1' && info.sale_price > 0) {
-    price.value = info.sale_price.toFixed(2);
-  }
-
-  // Set type to "part" if it was on default
-  if (lineType && lineType.value === 'labour') {
-    lineType.value = 'part';
-  }
-
-  // Show part badge
-  if (indicator && partName) {
-    partName.textContent = (info.sku ? info.sku + ' — ' : '') + info.name;
-    indicator.classList.remove('hidden');
-  }
-
+  partId.value = id; desc.value = info.name; desc.dataset.userTyping = '';
+  if (price && price.dataset.manual !== '1' && info.sale_price > 0) price.value = info.sale_price.toFixed(2);
+  if (lineType && lineType.value === 'labour') lineType.value = 'part';
+  if (indicator && partName) { partName.textContent = (info.sku ? info.sku + ' — ' : '') + info.name; indicator.classList.remove('hidden'); }
   updateLineTotal(line);
 }
 
@@ -255,14 +209,11 @@ function clearPartLink(line) {
   if (indicator) indicator.classList.add('hidden');
 }
 
-// ── Line totals ──
 function updateLineTotal(line) {
   const qty = parseFloat(line.querySelector('.line-qty')?.value) || 0;
   const price = parseFloat(line.querySelector('.line-price')?.value) || 0;
   const total = line.querySelector('.line-total');
   if (total) total.textContent = (qty * price).toFixed(2);
-
-  // Update option total
   const option = line.closest('.quote-option');
   if (option) updateOptionTotal(option);
 }
@@ -278,25 +229,12 @@ function updateOptionTotal(option) {
   if (el) el.textContent = sum.toFixed(2);
 }
 
-// ── Wire all event listeners for a line ──
 function wireLine(line) {
   initPartSearch(line);
-
-  // Price manual override tracking
   const price = line.querySelector('.line-price');
-  if (price && !price.dataset.wiredManual) {
-    price.dataset.wiredManual = '1';
-    price.addEventListener('input', () => { price.dataset.manual = '1'; updateLineTotal(line); });
-  }
-
-  // Qty change
+  if (price && !price.dataset.wiredManual) { price.dataset.wiredManual = '1'; price.addEventListener('input', () => { price.dataset.manual = '1'; updateLineTotal(line); }); }
   const qty = line.querySelector('.line-qty');
-  if (qty && !qty.dataset.wiredCalc) {
-    qty.dataset.wiredCalc = '1';
-    qty.addEventListener('input', () => updateLineTotal(line));
-  }
-
-  // Remove button
+  if (qty && !qty.dataset.wiredCalc) { qty.dataset.wiredCalc = '1'; qty.addEventListener('input', () => updateLineTotal(line)); }
   const removeBtn = line.querySelector('.remove-quote-line');
   if (removeBtn && !removeBtn.dataset.wired) {
     removeBtn.dataset.wired = '1';
@@ -304,7 +242,6 @@ function wireLine(line) {
       const wrap = line.closest('.quote-lines');
       const rows = wrap.querySelectorAll('.quote-line');
       if (rows.length === 1) {
-        // Clear instead of remove
         line.querySelectorAll('input:not([type=hidden]), textarea').forEach(i => i.value = '');
         line.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
         line.querySelector('[name$="-linked_part_id"]').value = '';
@@ -313,14 +250,11 @@ function wireLine(line) {
         updateLineTotal(line);
         return;
       }
-      line.remove();
-      reindexOptionLines(wrap);
+      line.remove(); reindexOptionLines(wrap);
       const option = wrap.closest('.quote-option');
       if (option) updateOptionTotal(option);
     });
   }
-
-  // Initialize part indicator for pre-loaded data (edit mode)
   const partId = line.querySelector('[name$="-linked_part_id"]');
   const indicator = line.querySelector('.part-indicator');
   const partName = indicator?.querySelector('.part-name');
@@ -328,19 +262,12 @@ function wireLine(line) {
     const info = partsData[partId.value];
     partName.textContent = (info.sku ? info.sku + ' — ' : '') + info.name;
     indicator.classList.remove('hidden');
-
-    // Wire clear button
     const clearBtn = indicator.querySelector('.part-clear');
-    if (clearBtn && !clearBtn.dataset.wired) {
-      clearBtn.dataset.wired = '1';
-      clearBtn.addEventListener('click', () => clearPartLink(line));
-    }
+    if (clearBtn && !clearBtn.dataset.wired) { clearBtn.dataset.wired = '1'; clearBtn.addEventListener('click', () => clearPartLink(line)); }
   }
-
   updateLineTotal(line);
 }
 
-// ── Reindex line form fields after add/remove ──
 function reindexOptionLines(optionWrap) {
   const optionIndex = Number(optionWrap.dataset.optionIndex);
   const lines = [...optionWrap.querySelectorAll('.quote-line')];
@@ -352,23 +279,13 @@ function reindexOptionLines(optionWrap) {
   });
 }
 
-// ── Add line button ──
 document.querySelectorAll('.add-quote-line').forEach(btn => {
   btn.addEventListener('click', () => {
     const section = btn.closest('.quote-option');
     const wrap = section.querySelector('.quote-lines');
     const rows = wrap.querySelectorAll('.quote-line');
     const clone = rows[rows.length - 1].cloneNode(true);
-
-    // Reset all fields
-    clone.querySelectorAll('input:not([type=hidden]), textarea').forEach(el => {
-      el.value = '';
-      delete el.dataset.searchBound;
-      delete el.dataset.manual;
-      delete el.dataset.wiredManual;
-      delete el.dataset.wiredCalc;
-      delete el.dataset.userTyping;
-    });
+    clone.querySelectorAll('input:not([type=hidden]), textarea').forEach(el => { el.value = ''; delete el.dataset.searchBound; delete el.dataset.manual; delete el.dataset.wiredManual; delete el.dataset.wiredCalc; delete el.dataset.userTyping; });
     clone.querySelectorAll('[type=hidden]').forEach(el => { el.value = ''; });
     clone.querySelectorAll('select').forEach(el => { el.selectedIndex = 0; });
     clone.querySelectorAll('.remove-quote-line').forEach(el => { delete el.dataset.wired; });
@@ -378,14 +295,12 @@ document.querySelectorAll('.add-quote-line').forEach(btn => {
     if (results) { results.classList.add('hidden'); results.innerHTML = ''; }
     const lineTotal = clone.querySelector('.line-total');
     if (lineTotal) lineTotal.textContent = '0.00';
-
     wrap.appendChild(clone);
     reindexOptionLines(wrap);
     wireLine(clone);
   });
 });
 
-// ── Initialize all existing lines ──
 document.querySelectorAll('.quote-line').forEach(wireLine);
 </script>
 {% endblock %}
