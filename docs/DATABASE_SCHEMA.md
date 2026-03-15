@@ -34,11 +34,15 @@
 - `collections`
 
 ## 4. Quotes
-- `quotes` (header, versioning metadata)
+- `quotes` (header, versioning metadata; `ticket_id` nullable for standalone quotes; optional `customer_id`, `customer_name`, `device_description` for standalone)
 - `quote_options` (option A/B paths)
-- `quote_lines` (labour/part/fixed)
-- `quote_approvals` (method, token, actor, timestamp)
+- `quote_lines` (labour/part/fixed; optional `part_id` FK)
+- `quote_approvals` (method, token, actor, timestamp, payment fields)
 - `quote_terms_snapshots`
+
+## 4a. Repair Checklists
+- `repair_checklists` (per-ticket, `checklist_type`: pre_repair / post_repair, device category)
+- `checklist_items` (individual check items with position, label, checked state, notes)
 
 ## 5. Parts, Inventory, Suppliers
 - `suppliers`

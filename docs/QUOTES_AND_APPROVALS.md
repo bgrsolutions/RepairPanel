@@ -2,6 +2,8 @@
 
 ## 1. Quote Structure
 - Quote header linked to ticket, customer, device, branch, currency, language.
+- `ticket_id` is nullable — quotes can be **standalone** (not linked to a ticket) for WhatsApp, phone, or walk-in enquiries.
+- Standalone quotes store `customer_id` (optional FK), `customer_name`, and `device_description` directly.
 - One quote can contain multiple options (e.g., compatible vs OEM part).
 - Quote lines support `labour`, `part`, `fixed`, `discount`, `fee`.
 
