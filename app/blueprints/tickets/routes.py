@@ -6,12 +6,14 @@ from flask import Blueprint, current_app, flash, jsonify, redirect, render_templ
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
+from sqlalchemy import inspect as sa_inspect
+
 from app.extensions import db
 from app.forms.diagnostic_forms import DiagnosticForm
 from app.forms.inventory_forms import StockReservationForm
 from app.forms.ticket_forms import TicketCreateForm
 from app.forms.ticket_note_forms import TicketAssignmentForm, TicketMetaForm, TicketNoteForm, TicketStatusForm
-from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, Quote, StockReservation, Ticket, TicketNote, User
+from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, Quote, RepairChecklist, StockReservation, Ticket, TicketNote, User
 from app.services.audit_service import log_action
 from app.services.inventory_service import reserve_stock_for_ticket
 from app.services.quote_service import compute_quote_totals
@@ -211,6 +213,10 @@ def ticket_detail(ticket_id):
     reservations = StockReservation.query.filter_by(ticket_id=ticket_uuid).order_by(StockReservation.created_at.desc()).all()
     orders = PartOrder.query.filter_by(ticket_id=ticket_uuid).order_by(PartOrder.created_at.desc()).all()
 
+    has_checklists = sa_inspect(db.engine).has_table("repair_checklists")
+    pre_repair_checklist = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="pre_repair").first() if has_checklists else None
+    post_repair_checklist = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="post_repair").first() if has_checklists else None
+
     return render_template(
         "tickets/detail.html",
         ticket=ticket,
@@ -230,6 +236,8 @@ def ticket_detail(ticket_id):
         is_overdue=is_ticket_overdue(ticket),
         age_days=ticket_age_days(ticket),
         now=datetime.utcnow(),
+        pre_repair_checklist=pre_repair_checklist,
+        post_repair_checklist=post_repair_checklist,
     )
 
 
@@ -268,8 +276,19 @@ def update_status(ticket_id):
 
     form = TicketStatusForm()
     if form.validate_on_submit():
+        new_status = normalize_ticket_status(form.internal_status.data)
+
+        # Enforce post-repair checklist completion before marking as completed or ready for collection
+        if new_status in (Ticket.STATUS_COMPLETED, Ticket.STATUS_READY_FOR_COLLECTION) and sa_inspect(db.engine).has_table("repair_checklists"):
+            post_checklist = RepairChecklist.query.filter_by(
+                ticket_id=ticket.id, checklist_type="post_repair"
+            ).first()
+            if not post_checklist or not post_checklist.is_complete:
+                flash(_("Cannot change status to %(status)s: the post-repair checklist must exist and be completed first.", status=new_status.replace("_", " ").title()), "error")
+                return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
         previous = ticket.internal_status
-        ticket.internal_status = normalize_ticket_status(form.internal_status.data)
+        ticket.internal_status = new_status
         db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content=f"Status changed: {previous} → {ticket.internal_status}"))
         db.session.commit()
         flash(_("Ticket status updated"), "success")
@@ -542,10 +561,7 @@ def my_queue():
 @login_required
 def create_ticket():
     form = TicketCreateForm()
-    selected_customer = (request.form.get("customer_id") or request.args.get("customer_id") or "").strip()
-
-    customers = Customer.query.filter(Customer.deleted_at.is_(None)).order_by(Customer.full_name).all()
-    form.customer_id.choices = [(str(c.id), f"{c.full_name} · {c.phone or c.email or 'No contact'}") for c in customers]
+    selected_customer = (form.customer_id.data or request.args.get("customer_id") or "").strip()
 
     devices_query = Device.query.filter(Device.deleted_at.is_(None))
     if selected_customer:

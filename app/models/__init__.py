@@ -1,5 +1,6 @@
 from app.models.audit_log import AuditLog
 from app.models.branch import Branch
+from app.models.checklist import ChecklistItem, RepairChecklist
 from app.models.customer import Customer
 from app.models.device import Device
 from app.models.diagnostic import Diagnostic
@@ -19,6 +20,7 @@ from app.models.user import User
 __all__ = [
     "AuditLog",
     "Branch",
+    "ChecklistItem",
     "Customer",
     "Device",
     "Diagnostic",
@@ -31,6 +33,7 @@ __all__ = [
     "NotificationEvent",
     "NotificationDelivery",
     "ExportQueueItem",
+    "RepairChecklist",
     "TicketNote",
     "Supplier",
     "Part",

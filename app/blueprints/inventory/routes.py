@@ -109,7 +109,7 @@ def search_parts():
         Part.is_active.is_(True),
         or_(Part.name.ilike(like), Part.sku.ilike(like), Part.barcode.ilike(like), Part.supplier_sku.ilike(like)),
     ).order_by(Part.name.asc()).limit(25).all()
-    return {"items": [{"id": str(p.id), "label": f"{p.sku} - {p.name}", "name": p.name, "sale_price": float(p.sale_price or 0)} for p in rows]}
+    return {"items": [{"id": str(p.id), "label": f"{p.sku} - {p.name}", "name": p.name, "sku": p.sku or "", "sale_price": float(p.sale_price or 0)} for p in rows]}
 
 
 @inventory_bp.post("/parts/<uuid:part_id>/toggle-active")

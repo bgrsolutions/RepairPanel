@@ -11,7 +11,10 @@ from app.models.base import TimestampMixin, UUIDMixin
 class Quote(UUIDMixin, TimestampMixin, db.Model):
     __tablename__ = "quotes"
 
-    ticket_id: Mapped[str] = mapped_column(ForeignKey("tickets.id"), nullable=False, index=True)
+    ticket_id: Mapped[str | None] = mapped_column(ForeignKey("tickets.id"), nullable=True, index=True)
+    customer_id: Mapped[str | None] = mapped_column(ForeignKey("customers.id"), nullable=True, index=True)
+    customer_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    device_description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="draft", index=True)
     currency: Mapped[str] = mapped_column(String(10), nullable=False, default="EUR")
@@ -21,9 +24,28 @@ class Quote(UUIDMixin, TimestampMixin, db.Model):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    ticket = relationship("Ticket")
+    ticket = relationship("Ticket", foreign_keys=[ticket_id])
+    customer = relationship("Customer", foreign_keys=[customer_id])
     options = relationship("QuoteOption", back_populates="quote", cascade="all, delete-orphan", lazy="selectin")
     approvals = relationship("QuoteApproval", back_populates="quote", cascade="all, delete-orphan", lazy="selectin")
+
+    @property
+    def is_standalone(self) -> bool:
+        return self.ticket_id is None
+
+    @property
+    def display_customer_name(self) -> str:
+        if self.ticket and self.ticket.customer:
+            return self.ticket.customer.full_name
+        if self.customer:
+            return self.customer.full_name
+        return self.customer_name or "Unknown"
+
+    @property
+    def display_device(self) -> str:
+        if self.ticket and self.ticket.device:
+            return f"{self.ticket.device.brand} {self.ticket.device.model}"
+        return self.device_description or ""
 
 
 class QuoteOption(UUIDMixin, TimestampMixin, db.Model):
