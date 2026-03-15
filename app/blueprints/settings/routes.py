@@ -75,3 +75,30 @@ def save_portal_settings():
     db.session.commit()
     flash(_("Portal settings saved"), "success")
     return redirect(url_for("settings.portal_settings"))
+
+
+@settings_bp.get("/quotes")
+@login_required
+def quote_settings():
+    return render_template(
+        "settings/quotes.html",
+        quote_terms=_get_setting("quote_default_terms", ""),
+    )
+
+
+@settings_bp.post("/quotes")
+@login_required
+def save_quote_settings():
+    if not inspect(db.engine).has_table("app_settings"):
+        flash(_("Settings persistence unavailable until migrations are applied"), "warning")
+        return redirect(url_for("settings.quote_settings"))
+    key = "quote_default_terms"
+    value = (request.form.get("quote_terms") or "").strip()
+    row = AppSetting.query.filter_by(key=key, branch_id=None).first()
+    if not row:
+        row = AppSetting(key=key, branch_id=None)
+        db.session.add(row)
+    row.value = value
+    db.session.commit()
+    flash(_("Quote settings saved"), "success")
+    return redirect(url_for("settings.quote_settings"))

@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import inspect, or_
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from app.extensions import db
@@ -69,6 +69,21 @@ def customer_search_json():
         or_(Customer.full_name.ilike(like), Customer.phone.ilike(like), Customer.email.ilike(like))
     ).order_by(Customer.full_name.asc()).limit(25).all()
     return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ''}"} for c in rows]}
+
+
+@customers_bp.post("/create-json")
+@login_required
+def create_customer_json():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("full_name") or "").strip()
+    phone = (data.get("phone") or "").strip()
+    email = (data.get("email") or "").strip()
+    if not name or not phone:
+        return jsonify({"ok": False, "error": "Name and phone are required"}), 400
+    customer = Customer(full_name=name, phone=phone, email=email or None, preferred_language="en")
+    db.session.add(customer)
+    db.session.commit()
+    return jsonify({"ok": True, "id": str(customer.id), "label": f"{customer.full_name} · {phone}"})
 
 
 @customers_bp.get("/<uuid:customer_id>")

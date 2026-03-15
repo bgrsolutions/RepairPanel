@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, DecimalField, HiddenField, IntegerField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
 
@@ -45,7 +45,7 @@ class StockLocationForm(FlaskForm):
 
 
 class StockAdjustmentForm(FlaskForm):
-    part_id = SelectField("Part", validators=[DataRequired()], coerce=str)
+    part_id = HiddenField("Part", validators=[DataRequired()])
     branch_id = SelectField("Branch", validators=[DataRequired()], coerce=str)
     location_id = SelectField("Location", validators=[DataRequired()], coerce=str)
     movement_type = SelectField(

@@ -22,11 +22,8 @@
     {# ── Quote settings ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
       <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Quote Settings</h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Currency</label>
-          {{ form.currency(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
-        </div>
+      <input type="hidden" name="currency" value="EUR" />
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">Language</label>
           {{ form.language(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
@@ -47,7 +44,7 @@
     <section class="quote-option rounded-2xl border border-indigo-800/30 bg-slate-900/60 p-5 shadow-panel space-y-4">
       <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3">
-          <h2 class="text-base font-bold text-indigo-300">Option {{ loop.index }}</h2>
+          <h2 class="text-base font-bold text-indigo-300">Repair Option {{ loop.index }}</h2>
           <span class="text-xs text-slate-500">Name this option clearly for the customer</span>
         </div>
       </div>

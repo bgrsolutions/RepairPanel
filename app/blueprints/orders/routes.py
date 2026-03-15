@@ -99,7 +99,18 @@ def ticket_search():
 @orders_bp.get("/")
 @login_required
 def list_orders():
-    orders = PartOrder.query.order_by(PartOrder.created_at.desc()).all()
+    from sqlalchemy import or_
+    query = PartOrder.query
+    status_filter = (request.args.get("status") or "").strip()
+    q = (request.args.get("q") or "").strip()
+    if status_filter:
+        query = query.filter(PartOrder.status == status_filter)
+    if q:
+        like = f"%{q}%"
+        query = query.join(Supplier, PartOrder.supplier_id == Supplier.id).filter(
+            or_(PartOrder.reference.ilike(like), PartOrder.supplier_reference.ilike(like), Supplier.name.ilike(like))
+        )
+    orders = query.order_by(PartOrder.created_at.desc()).all()
     now = datetime.utcnow()
     return render_template("orders/list.html", orders=orders, now=now, order_total_cost=order_total_cost)
 

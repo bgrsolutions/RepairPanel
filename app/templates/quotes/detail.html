@@ -35,6 +35,12 @@
         {% if quote.status == 'sent' %}
         <form method="post" action="{{ url_for('quotes.mark_expired', quote_id=quote.id) }}"><button class="rounded-xl border border-amber-700 bg-amber-950/40 px-4 py-2.5 text-sm font-medium text-amber-200 transition hover:bg-amber-900/40">Mark Expired</button></form>
         {% endif %}
+        {% if quote.status == 'approved' and not quote.ticket_id %}
+        <form method="post" action="{{ url_for('quotes.create_ticket_from_quote', quote_id=quote.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button class="rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-500">Create Ticket from Quote</button>
+        </form>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -72,6 +78,7 @@
                 <th class="px-3 py-2.5 font-semibold">Description</th>
                 <th class="px-3 py-2.5 font-semibold text-right">Qty</th>
                 <th class="px-3 py-2.5 font-semibold text-right">Unit</th>
+                <th class="px-3 py-2.5 font-semibold text-right">IGIC</th>
                 <th class="px-3 py-2.5 font-semibold text-right">Line Total</th>
               </tr>
             </thead>
@@ -83,8 +90,9 @@
                 </td>
                 <td class="px-3 py-3">{{ line.description }}{% if line.part %}<div class="mt-0.5 text-xs text-slate-500">Part: {{ line.part.sku }}</div>{% endif %}</td>
                 <td class="px-3 py-3 text-right tabular-nums">{{ line.quantity }}</td>
-                <td class="px-3 py-3 text-right tabular-nums">{{ quote.currency }} {{ '%.2f'|format(line.unit_price) }}</td>
-                <td class="px-3 py-3 text-right font-medium tabular-nums text-white">{{ quote.currency }} {{ '%.2f'|format((line.quantity * line.unit_price)) }}</td>
+                <td class="px-3 py-3 text-right tabular-nums">EUR {{ '%.2f'|format(line.unit_price) }}</td>
+                <td class="px-3 py-3 text-right tabular-nums text-slate-400">EUR {{ '%.2f'|format((line.quantity * line.unit_price * igic_rate)) }}</td>
+                <td class="px-3 py-3 text-right font-medium tabular-nums text-white">EUR {{ '%.2f'|format((line.quantity * line.unit_price)) }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -100,16 +108,16 @@
         <dl class="space-y-3 text-sm">
           <div class="flex items-center justify-between">
             <dt class="text-slate-400">Subtotal</dt>
-            <dd class="font-medium tabular-nums text-slate-200">{{ quote.currency }} {{ '%.2f'|format(quote_total) }}</dd>
+            <dd class="font-medium tabular-nums text-slate-200">EUR {{ '%.2f'|format(quote_total) }}</dd>
           </div>
           <div class="flex items-center justify-between">
             <dt class="text-slate-400">IGIC ({{ '%.0f'|format(igic_rate * 100) }}%)</dt>
-            <dd class="font-medium tabular-nums text-slate-200">{{ quote.currency }} {{ '%.2f'|format(tax_total) }}</dd>
+            <dd class="font-medium tabular-nums text-slate-200">EUR {{ '%.2f'|format(tax_total) }}</dd>
           </div>
           <div class="border-t border-slate-800/60 pt-3">
             <div class="flex items-center justify-between">
               <dt class="text-base font-bold text-white">Total</dt>
-              <dd class="text-lg font-bold tabular-nums text-white">{{ quote.currency }} {{ '%.2f'|format(grand_total) }}</dd>
+              <dd class="text-lg font-bold tabular-nums text-white">EUR {{ '%.2f'|format(grand_total) }}</dd>
             </div>
           </div>
         </dl>

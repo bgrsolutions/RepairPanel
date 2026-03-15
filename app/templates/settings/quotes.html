@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Quote Settings - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6 max-w-3xl">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">Quote Settings</h1>
+    <p class="mt-1 text-sm text-slate-400">Configure default terms &amp; conditions for new quotes.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('settings.save_quote_settings') }}" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-5">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div>
+      <label class="mb-1.5 block text-sm font-medium text-slate-300">Default Terms &amp; Conditions</label>
+      <p class="mb-2 text-xs text-slate-500">This text will be auto-populated when creating new quotes. Staff can edit it per-quote.</p>
+      <textarea name="quote_terms" rows="6" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500" placeholder="Enter default terms and conditions...">{{ quote_terms }}</textarea>
+    </div>
+    <div class="flex justify-end">
+      <button type="submit" class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Save</button>
+    </div>
+  </form>
+
+  <div class="flex gap-3">
+    <a href="{{ url_for('settings.index') }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">&larr; Back to Settings</a>
+    <a href="{{ url_for('settings.portal_settings') }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Portal Settings</a>
+  </div>
+</section>
+{% endblock %}

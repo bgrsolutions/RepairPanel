@@ -18,6 +18,9 @@ class PublicContactUpdateForm(FlaskForm):
 
 
 class PublicQuoteApprovalForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     actor_name = StringField("Your Name", validators=[DataRequired(), Length(max=120)])
     actor_contact = StringField("Phone/Email", validators=[DataRequired(), Length(max=255)])
     language = SelectField("Language", choices=[("en", "English"), ("es", "Español")], default="en")

@@ -10,9 +10,17 @@
   <form method="post" class="max-w-4xl space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     {{ form.hidden_tag() }}
     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-      <div>
+      <div class="relative">
         <label class="mb-1.5 block text-sm font-medium text-slate-300">Part</label>
-        {{ form.part_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+        <input type="text" id="part-search" autocomplete="off" placeholder="Search by SKU, name, or barcode..." class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+        <div id="part-results" class="absolute left-0 right-0 top-full z-30 mt-1 hidden max-h-48 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl"></div>
+        {{ form.part_id(type='hidden', id='part-id-field') }}
+        <div id="part-badge" class="mt-1.5 hidden">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-700/50 bg-indigo-950/40 px-2.5 py-1 text-xs font-medium text-indigo-300">
+            <span id="part-badge-text"></span>
+            <button type="button" id="part-clear" class="text-slate-500 hover:text-white ml-0.5">&times;</button>
+          </span>
+        </div>
       </div>
       <div>
         <label class="mb-1.5 block text-sm font-medium text-slate-300">Branch</label>
@@ -40,4 +48,55 @@
     </div>
   </form>
 </section>
+<script>
+(function() {
+  const search = document.getElementById('part-search');
+  const results = document.getElementById('part-results');
+  const hiddenId = document.getElementById('part-id-field');
+  const badge = document.getElementById('part-badge');
+  const badgeText = document.getElementById('part-badge-text');
+  let debounce = null;
+
+  search.addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(async () => {
+      const q = search.value.trim();
+      if (q.length < 2) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+      try {
+        const data = await (await fetch(`/inventory/parts/search?q=${encodeURIComponent(q)}`)).json();
+        results.innerHTML = '';
+        if (data.items && data.items.length > 0) {
+          for (const item of data.items) {
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'w-full text-left px-3 py-2 text-xs hover:bg-slate-800 transition-colors flex items-center justify-between gap-2';
+            row.innerHTML = `<span class="truncate"><strong class="text-slate-200">${item.name}</strong> <span class="text-slate-500">${item.sku || ''}</span></span>`;
+            row.addEventListener('click', (e) => {
+              e.preventDefault();
+              hiddenId.value = item.id;
+              badgeText.textContent = `${item.sku} — ${item.name}`;
+              badge.classList.remove('hidden');
+              search.value = '';
+              results.classList.add('hidden');
+            });
+            results.appendChild(row);
+          }
+          results.classList.remove('hidden');
+        } else {
+          results.innerHTML = '<div class="px-3 py-2 text-xs text-slate-500">No parts found</div>';
+          results.classList.remove('hidden');
+        }
+      } catch (err) { results.classList.add('hidden'); }
+    }, 200);
+  });
+  search.addEventListener('blur', () => setTimeout(() => results.classList.add('hidden'), 200));
+
+  document.getElementById('part-clear').addEventListener('click', () => {
+    hiddenId.value = '';
+    badge.classList.add('hidden');
+    search.value = '';
+    search.focus();
+  });
+})();
+</script>
 {% endblock %}
