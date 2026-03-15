@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.9.0] - 2026-03-15
+### Fixed
+- Removed duplicate technician/workflow controls from ticket detail top panel; controls remain in right sidebar only.
+- Removed duplicate Terms Snapshot field from quote create/edit form.
+- Fixed diagnostics modal layout to fill available width properly (max-w-5xl, improved field arrangement).
+- Fixed quotes section placement on ticket detail page (was outside grid column).
+
+### Added
+- Staff quote approve/decline workflow: Approve/Decline button and modal on quote detail page for internal decisions.
+- Mark Expired button on quote detail page for sent quotes.
+- Ticket archive and reopen actions: Archive button on active tickets, Reopen button on closed/archived tickets.
+- Archived ticket status with badge styling, list filter, and proper exclusion from default ticket list.
+- Audit logging for ticket send-update, archive, and reopen actions.
+- Prominent quotes section on ticket detail with status-colored borders, inline totals, and quick New Quote button.
+
+### Improved
+- Quote builder UX: separated terms field to full-width row, improved line layout with description given more space, better placeholders and helper text, part search moved to secondary row, improved add-line button styling.
+- Send Update modal already supported optional email; added audit logging for consistency.
+
 ## [0.1.0] - 2026-03-11
 ### Added
 - Initial governance documentation set for IRONCore.

@@ -36,6 +36,7 @@ class TicketStatusForm(FlaskForm):
             ("ready_for_collection", "Ready for Collection"),
             ("completed", "Completed"),
             ("cancelled", "Cancelled"),
+            ("archived", "Archived"),
         ],
         validators=[DataRequired()],
     )

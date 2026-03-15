@@ -9,7 +9,8 @@ Alternative branches:
 - Referred Externally
 - Warranty Return
 - On Hold
-- Reopened -> returns to appropriate active status
+- Archived -> closed state, hidden from default ticket list, can be reopened
+- Reopened -> returns to appropriate active status (assigned/unassigned based on technician)
 
 ## 2. Device Check-In Workflow
 1. Identify/create customer.
@@ -25,7 +26,7 @@ Alternative branches:
 2. Generate quote version with one or multiple options.
 3. Set expiry and terms snapshot.
 4. Send for approval (portal link/email/in-store).
-5. Record outcome: approved/declined/expired.
+5. Record outcome: approved/declined/expired. Staff can manually approve or decline from the quote detail page via the staff approval modal.
 6. On approval, lock accepted lines and proceed workflow.
 
 ## 4. Repair Workflow
