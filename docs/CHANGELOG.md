@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.10] - 2026-03-16
+### Fixed
+- **QR code dependency (7I fix)**: Added `qrcode` and `Pillow` to `requirements.txt`. These were installed at development time but missing from the dependency manifest, causing `generate_qr_data_uri()` to silently return `None` on fresh deployments and rendering device labels without QR codes.
+
+### Validated
+- **Phase 8 workshop workflow review**: Verified transition map, blocker detection, bench board column groupings, dashboard metrics, and ticket detail workflow panel all match the documented specification in `WORKSHOP_OPERATIONS.md`.
+- **Full test suite**: All 201 tests pass (172 existing + 29 Phase 8) with zero regressions.
+
 ## [0.9.9] - 2026-03-16
 ### Added
 - **Bench Board overhaul (8A)**: Redesigned bench board with workflow-oriented columns — Awaiting Diagnosis, Awaiting Quote Approval, Awaiting Parts, Ready For Repair, Testing/QA, Ready For Collection. Compact ticket cards show customer, device, issue summary, technician, SLA dates, and blocker badges.
