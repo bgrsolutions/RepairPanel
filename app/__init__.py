@@ -22,6 +22,7 @@ from app.blueprints.checklists.routes import checklists_bp
 from app.blueprints.companies.routes import companies_bp
 from app.blueprints.services.routes import services_bp
 from app.blueprints.bookings.routes import bookings_bp
+from app.blueprints.printing.routes import printing_bp
 from app.config import Config
 from app.extensions import babel, db, login_manager, migrate
 from app import models  # noqa: F401
@@ -61,6 +62,7 @@ def create_app(config_class=Config):
     app.register_blueprint(companies_bp)
     app.register_blueprint(services_bp)
     app.register_blueprint(bookings_bp)
+    app.register_blueprint(printing_bp)
 
     @app.before_request
     def inject_locale():

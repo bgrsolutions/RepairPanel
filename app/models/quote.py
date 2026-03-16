@@ -36,10 +36,17 @@ class Quote(UUIDMixin, TimestampMixin, db.Model):
     @property
     def display_customer_name(self) -> str:
         if self.ticket and self.ticket.customer:
-            return self.ticket.customer.full_name
+            return self.ticket.customer.display_name
         if self.customer:
-            return self.customer.full_name
+            return self.customer.display_name
         return self.customer_name or "Unknown"
+
+    @property
+    def resolved_customer(self):
+        """Return the customer object, whether from ticket or direct link."""
+        if self.ticket and self.ticket.customer:
+            return self.ticket.customer
+        return self.customer
 
     @property
     def display_device(self) -> str:

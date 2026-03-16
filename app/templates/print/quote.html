@@ -1,0 +1,153 @@
+{% extends 'print/base_print.html' %}
+{% block title %}Quote {{ quote.ticket.ticket_number if quote.ticket else 'Q' }}-v{{ quote.version }}{% endblock %}
+{% block document %}
+
+{# Header: Company + Quote Reference #}
+<div class="doc-header">
+  <div>
+    <div class="company">{{ identity.company_name }}</div>
+    {% if identity.legal_name and identity.legal_name != identity.company_name %}
+    <div class="company-detail">{{ identity.legal_name }}</div>
+    {% endif %}
+    {% if identity.cif_nif %}<div class="company-detail">CIF/NIF: {{ identity.cif_nif }}</div>{% endif %}
+    {% if identity.address %}<div class="company-detail">{{ identity.address }}</div>{% endif %}
+    {% if identity.phone %}<div class="company-detail">Tel: {{ identity.phone }}</div>{% endif %}
+    {% if identity.email %}<div class="company-detail">{{ identity.email }}</div>{% endif %}
+    {% if identity.website %}<div class="company-detail">{{ identity.website }}</div>{% endif %}
+  </div>
+  <div class="doc-ref">
+    <div class="ref-number">
+      {% if quote.ticket %}{{ quote.ticket.ticket_number }} · v{{ quote.version }}{% else %}Quote v{{ quote.version }}{% endif %}
+    </div>
+    <div class="ref-date">Date: {{ quote.created_at.strftime('%d/%m/%Y') }}</div>
+    {% if quote.expires_at %}<div class="ref-date">Valid until: {{ quote.expires_at.strftime('%d/%m/%Y') }}</div>{% endif %}
+    <div class="ref-date">Status: {{ quote.status|replace('_',' ')|title }}</div>
+    {% if qr_data_uri %}
+    <div class="qr-code" style="margin-top: 8px;">
+      <img src="{{ qr_data_uri }}" alt="QR" />
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{# Customer + Device Info #}
+<div class="info-row">
+  <div class="info-block">
+    <h3>Customer</h3>
+    {% if customer_info.is_business %}
+    <p class="value">{{ customer_info.company_name }}</p>
+    <p>Contact: {{ customer_info.name }}</p>
+    {% if customer_info.cif_vat %}<p>CIF/VAT: {{ customer_info.cif_vat }}</p>{% endif %}
+    {% if customer_info.billing_address %}<p>{{ customer_info.billing_address }}</p>{% endif %}
+    <p>{{ customer_info.billing_phone or customer_info.phone }}</p>
+    <p>{{ customer_info.billing_email or customer_info.email }}</p>
+    {% else %}
+    <p class="value">{{ customer_info.display_name }}</p>
+    {% if customer_info.phone %}<p>Tel: {{ customer_info.phone }}</p>{% endif %}
+    {% if customer_info.email %}<p>{{ customer_info.email }}</p>{% endif %}
+    {% endif %}
+  </div>
+  <div class="info-block">
+    <h3>Device</h3>
+    <p class="value">{{ quote.display_device or 'N/A' }}</p>
+    {% if quote.ticket and quote.ticket.device %}
+    {% set dev = quote.ticket.device %}
+    {% if dev.serial_number %}<p>Serial: {{ dev.serial_number }}</p>{% endif %}
+    {% if dev.imei %}<p>IMEI: {{ dev.imei }}</p>{% endif %}
+    {% endif %}
+    {% if quote.device_description %}<p>{{ quote.device_description }}</p>{% endif %}
+  </div>
+</div>
+
+{# Diagnostic summary if available #}
+{% if latest_diag %}
+<div class="info-row">
+  <div class="info-block" style="flex: 1;">
+    <h3>Diagnostic Summary</h3>
+    {% if latest_diag.customer_reported_fault %}<p><strong>Fault:</strong> {{ latest_diag.customer_reported_fault }}</p>{% endif %}
+    {% if latest_diag.technician_diagnosis %}<p><strong>Diagnosis:</strong> {{ latest_diag.technician_diagnosis }}</p>{% endif %}
+    {% if latest_diag.recommended_repair %}<p><strong>Recommended:</strong> {{ latest_diag.recommended_repair }}</p>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+{# Quote Line Items #}
+{% for item in option_totals %}
+<p class="section-header">{{ item.option.name }}</p>
+<table class="doc-table">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+      <th class="text-center">Qty</th>
+      <th class="text-right">Unit Price</th>
+      <th class="text-right">IGIC ({{ '%.0f'|format(igic_rate * 100) }}%)</th>
+      <th class="text-right">Line Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in item.option.lines %}
+    <tr>
+      <td>{{ line.line_type|title }}</td>
+      <td>{{ line.description }}{% if line.part %} <span style="font-size:8pt;color:#888">({{ line.part.sku }})</span>{% endif %}</td>
+      <td class="text-center">{{ line.quantity }}</td>
+      <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(line.unit_price) }}</td>
+      <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(line.quantity * line.unit_price * igic_rate) }}</td>
+      <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(line.quantity * line.unit_price) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+
+{# Totals #}
+<div class="totals-block">
+  <table>
+    <tr>
+      <td>Subtotal</td>
+      <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(quote_total) }}</td>
+    </tr>
+    <tr>
+      <td>IGIC ({{ '%.0f'|format(igic_rate * 100) }}%)</td>
+      <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(tax_total) }}</td>
+    </tr>
+    <tr class="total-row">
+      <td>Total</td>
+      <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(grand_total) }}</td>
+    </tr>
+  </table>
+</div>
+
+{# Terms #}
+{% if quote.terms_snapshot %}
+<div class="doc-terms">
+  <h3>Terms & Conditions</h3>
+  <p>{{ quote.terms_snapshot }}</p>
+</div>
+{% endif %}
+
+{% if quote.notes_snapshot %}
+<div class="doc-terms">
+  <h3>Notes</h3>
+  <p>{{ quote.notes_snapshot }}</p>
+</div>
+{% endif %}
+
+{# Signature #}
+<div class="signature-block">
+  <div class="signature-line">
+    <div class="sig-label">Customer Signature</div>
+    <div class="sig-line">Name: ______________________ Date: __________</div>
+  </div>
+  <div class="signature-line">
+    <div class="sig-label">Store Representative</div>
+    <div class="sig-line">Name: ______________________ Date: __________</div>
+  </div>
+</div>
+
+{# Footer #}
+{% if identity.document_footer %}
+<div class="doc-footer">{{ identity.document_footer }}</div>
+{% endif %}
+
+{% endblock %}

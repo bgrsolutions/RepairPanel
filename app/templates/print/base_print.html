@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Print{% endblock %} - IRONCore</title>
+  <style>
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11pt; color: #1a1a1a; line-height: 1.5; padding: 10mm; }
+
+    /* Print-specific */
+    @media print {
+      body { padding: 0; }
+      .no-print { display: none !important; }
+      @page { margin: 12mm 15mm; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; }
+    }
+
+    /* Screen preview toolbar */
+    .print-toolbar { background: #1e293b; color: #e2e8f0; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-radius: 8px; margin-bottom: 20px; }
+    .print-toolbar button { background: #4f46e5; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .print-toolbar button:hover { background: #4338ca; }
+    .print-toolbar a { color: #94a3b8; text-decoration: none; font-size: 13px; }
+    .print-toolbar a:hover { color: #e2e8f0; }
+
+    /* Document layout */
+    .document { max-width: 210mm; margin: 0 auto; }
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 16px; }
+    .doc-header .company { font-size: 16pt; font-weight: 700; }
+    .doc-header .company-detail { font-size: 8pt; color: #666; margin-top: 2px; }
+    .doc-header .doc-ref { text-align: right; }
+    .doc-header .doc-ref .ref-number { font-size: 14pt; font-weight: 700; }
+    .doc-header .doc-ref .ref-date { font-size: 9pt; color: #666; }
+
+    /* Two-column info blocks */
+    .info-row { display: flex; gap: 20px; margin-bottom: 16px; }
+    .info-block { flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 10px; }
+    .info-block h3 { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.1em; color: #666; margin-bottom: 6px; font-weight: 600; }
+    .info-block p { font-size: 10pt; margin-bottom: 2px; }
+    .info-block .value { font-weight: 600; }
+
+    /* Tables */
+    .doc-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    .doc-table th { background: #f1f5f9; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; text-align: left; border-bottom: 2px solid #1a1a1a; font-weight: 700; }
+    .doc-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 10pt; }
+    .doc-table .text-right { text-align: right; }
+    .doc-table .text-center { text-align: center; }
+
+    /* Totals */
+    .totals-block { width: 50%; margin-left: auto; }
+    .totals-block table { width: 100%; border-collapse: collapse; }
+    .totals-block td { padding: 4px 10px; font-size: 10pt; }
+    .totals-block .total-row td { font-weight: 700; font-size: 12pt; border-top: 2px solid #1a1a1a; padding-top: 8px; }
+
+    /* Terms / footer */
+    .doc-terms { border-top: 1px solid #ddd; padding-top: 12px; margin-top: 20px; }
+    .doc-terms h3 { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.1em; color: #666; margin-bottom: 6px; font-weight: 600; }
+    .doc-terms p { font-size: 9pt; color: #444; white-space: pre-line; }
+    .doc-footer { text-align: center; font-size: 8pt; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
+
+    /* Signature block */
+    .signature-block { margin-top: 30px; display: flex; gap: 40px; }
+    .signature-line { flex: 1; }
+    .signature-line .sig-label { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.1em; color: #666; margin-bottom: 30px; }
+    .signature-line .sig-line { border-top: 1px solid #1a1a1a; padding-top: 4px; font-size: 9pt; color: #666; }
+
+    /* QR code */
+    .qr-code { text-align: center; }
+    .qr-code img { width: 80px; height: 80px; }
+    .qr-code p { font-size: 8pt; color: #666; margin-top: 4px; }
+
+    /* Section headers */
+    .section-header { font-size: 10pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #374151; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; }
+
+    {% block extra_style %}{% endblock %}
+  </style>
+</head>
+<body>
+  <div class="no-print print-toolbar">
+    <button onclick="window.print()">Print</button>
+    <a href="javascript:history.back()">Back</a>
+    <span style="flex:1"></span>
+    <span style="font-size:12px; color:#64748b;">Print preview — use Ctrl+P or the button</span>
+  </div>
+  <div class="document">
+    {% block document %}{% endblock %}
+  </div>
+</body>
+</html>
