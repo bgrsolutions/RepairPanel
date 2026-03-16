@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.12.0] - 2026-03-16
+### Added
+- **Public Repair Status Page (11.1)**: Customer-facing repair status page at `/public/repair/<token>` with secure tokenized URL access — no login or verifier needed. Displays device summary, customer-friendly status label, visual 6-step progress indicator, contextual communication summary, and customer-safe notes timeline.
+- **Customer-Friendly Status Mapping (11.2)**: Presentation-layer mapping service (`customer_status_service.py`) translating all 11 internal workflow states into 6 customer-friendly labels (Checked In, Diagnosing, Approved, Repairing, Quality Check, Ready). Includes progress step index mapping and contextual communication message generation.
+- **Public Quote Visibility Integration (11.3)**: Pending quote approval shown on the public status page with amber "Your approval is needed" banner and direct link to quote approval page when a quote is in sent/draft status.
+- **Repair Progress Timeline (11.4)**: Visual 6-step progress indicator (Checked In → Diagnosing → Approved → Repairing → Quality Check → Ready) with completed/active/pending step styling. Cancelled/archived tickets show a special cancelled state.
+- **Public Portal Entry Path (11.5)**: Automatic `PortalToken` generation (URL-safe 24-char via `secrets.token_urlsafe(24)`) when tickets are created. Tokens stored in `portal_tokens` table with `token_type="public_status_lookup"` and `ticket_id` foreign key. Staff ticket detail page shows "Customer Portal" section with copyable public URL.
+- **Customer Communication Summary (11.6)**: Context-aware status banners — emerald for ready-for-collection, amber for pending quote approval, indigo for all other states. Each includes a plain-language explanation of what is happening with the repair.
+- **Customer-Safe Last Update Text (11.7)**: Only `customer`, `customer_update`, and `communication` note types are shown on the public status page. Internal notes, technician names, assignment data, and inventory details are never exposed.
+- Migration `d8e0f2a4b6c8` adds `ticket_id` column to `portal_tokens` table with foreign key and index.
+- 26 new Phase 11 tests covering status mapping (all states, specific values, progress steps, step indices, communication messages), token access (success, invalid, no login), verifier lookup (email, phone, wrong verifier), security (internal notes hidden, customer notes visible, deleted ticket blocked), UI (banners, progress steps, communication summary), token generation on ticket creation, and Phase 10 regression.
+
 ## [0.11.0] - 2026-03-16
 ### Added
 - **Parts consumption on tickets (10.1)**: Technicians can now install/consume reserved parts directly from the ticket detail sidebar. The "Install" button on reserved parts triggers `POST /tickets/<id>/consume-reservation/<reservation_id>`, which marks the reservation as consumed, deducts on-hand stock via `apply_stock_movement("install")`, releases the reserved quantity, and creates an audit note.

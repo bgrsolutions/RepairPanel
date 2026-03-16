@@ -27,6 +27,13 @@ from app.models import (
     TicketNote,
 )
 from app.services.audit_service import log_action
+from app.services.customer_status_service import (
+    CUSTOMER_SAFE_NOTE_TYPES,
+    PROGRESS_STEPS,
+    communication_summary,
+    customer_friendly_status,
+    progress_step_index,
+)
 from app.services.payment_service import create_quote_checkout_session
 from app.services.quote_service import compute_quote_totals
 from app.utils.file_uploads import save_intake_file
@@ -169,6 +176,54 @@ def public_checkin_thank_you():
     return render_template("public/thank_you.html", reference=reference, kiosk_mode=kiosk_mode)
 
 
+def _build_lookup_result(ticket):
+    """Build the customer-safe lookup result dict for a ticket."""
+    internal_status = normalize_ticket_status(ticket.internal_status)
+    active_quote = Quote.query.filter(Quote.ticket_id == ticket.id).order_by(Quote.version.desc(), Quote.created_at.desc()).first()
+
+    customer_updates = []
+    if inspect(db.engine).has_table("ticket_notes"):
+        notes = TicketNote.query.filter_by(ticket_id=ticket.id).order_by(TicketNote.created_at.desc()).all()
+        customer_updates = [n for n in notes if n.note_type in CUSTOMER_SAFE_NOTE_TYPES]
+
+    checklists = []
+    if inspect(db.engine).has_table("repair_checklists"):
+        checklists = RepairChecklist.query.filter_by(ticket_id=ticket.id).order_by(RepairChecklist.created_at.desc()).all()
+
+    has_pending_quote = active_quote is not None and active_quote.status in ("draft", "sent")
+    has_pending_parts = internal_status == Ticket.STATUS_AWAITING_PARTS
+
+    return {
+        "ticket": ticket,
+        "ticket_number": ticket.ticket_number,
+        "device_summary": f"{ticket.device.brand} {ticket.device.model}",
+        "customer_status": ticket.customer_status,
+        "internal_status": internal_status,
+        "friendly_status": customer_friendly_status(internal_status),
+        "ready_for_collection": internal_status == Ticket.STATUS_READY_FOR_COLLECTION,
+        "quote": active_quote,
+        "has_pending_quote": has_pending_quote,
+        "estimated_completion": ticket.quoted_completion_at.strftime("%Y-%m-%d %H:%M") if ticket.quoted_completion_at else None,
+        "customer_updates": customer_updates,
+        "checklists": checklists,
+        "communication_summary": communication_summary(internal_status, has_pending_quote=has_pending_quote, has_pending_parts=has_pending_parts),
+        "progress_steps": PROGRESS_STEPS,
+        "current_step": progress_step_index(internal_status),
+        "created_at": ticket.created_at.strftime("%b %d, %Y") if ticket.created_at else None,
+    }
+
+
+def _get_or_create_status_token(ticket) -> str:
+    """Get or create a public status lookup token for a ticket."""
+    existing = PortalToken.query.filter_by(ticket_id=ticket.id, token_type="public_status_lookup").first()
+    if existing:
+        return existing.token
+    token = secrets.token_urlsafe(24)
+    db.session.add(PortalToken(token=token, token_type="public_status_lookup", ticket_id=ticket.id))
+    db.session.flush()
+    return token
+
+
 @public_portal_bp.route("/status", methods=["GET", "POST"])
 def public_status_lookup():
     form = PublicStatusLookupForm()
@@ -181,28 +236,7 @@ def public_status_lookup():
 
         ticket = Ticket.query.filter(Ticket.ticket_number == ticket_number, Ticket.deleted_at.is_(None)).first()
         if ticket and verifier and verifier in {(ticket.customer.email or "").lower(), (ticket.customer.phone or "").lower()}:
-            active_quote = Quote.query.filter(Quote.ticket_id == ticket.id).order_by(Quote.version.desc(), Quote.created_at.desc()).first()
-            customer_updates = []
-            if inspect(db.engine).has_table("ticket_notes"):
-                notes = TicketNote.query.filter_by(ticket_id=ticket.id).order_by(TicketNote.created_at.desc()).all()
-                customer_updates = [n for n in notes if n.note_type in {"customer", "customer_update", "communication"}]
-
-            checklists = []
-            if inspect(db.engine).has_table("repair_checklists"):
-                checklists = RepairChecklist.query.filter_by(ticket_id=ticket.id).order_by(RepairChecklist.created_at.desc()).all()
-
-            lookup_result = {
-                "ticket": ticket,
-                "ticket_number": ticket.ticket_number,
-                "device_summary": f"{ticket.device.brand} {ticket.device.model}",
-                "customer_status": ticket.customer_status,
-                "internal_status": normalize_ticket_status(ticket.internal_status),
-                "ready_for_collection": normalize_ticket_status(ticket.internal_status) == Ticket.STATUS_READY_FOR_COLLECTION,
-                "quote": active_quote,
-                "estimated_completion": ticket.quoted_completion_at.strftime("%Y-%m-%d %H:%M") if ticket.quoted_completion_at else "TBD",
-                "customer_updates": customer_updates,
-                "checklists": checklists,
-            }
+            lookup_result = _build_lookup_result(ticket)
             contact_form.contact_person.data = ticket.customer.full_name
             contact_form.contact_phone.data = ticket.customer.phone
             contact_form.contact_email.data = ticket.customer.email
@@ -210,6 +244,28 @@ def public_status_lookup():
             flash(_("No repair record found for the provided details"), "error")
 
     return render_template("public/status.html", form=form, lookup_result=lookup_result, contact_form=contact_form)
+
+
+@public_portal_bp.get("/repair/<token>")
+def public_repair_status(token):
+    """Direct token-based access to repair status — no login or verifier needed."""
+    portal_token = PortalToken.query.filter_by(token=token, token_type="public_status_lookup").first()
+    if not portal_token or not portal_token.ticket_id:
+        flash(_("Invalid or expired repair status link"), "error")
+        return redirect(url_for("public_portal.public_status_lookup"))
+
+    ticket = db.session.get(Ticket, portal_token.ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Repair record not found"), "error")
+        return redirect(url_for("public_portal.public_status_lookup"))
+
+    lookup_result = _build_lookup_result(ticket)
+    contact_form = PublicContactUpdateForm()
+    contact_form.contact_person.data = ticket.customer.full_name
+    contact_form.contact_phone.data = ticket.customer.phone
+    contact_form.contact_email.data = ticket.customer.email
+
+    return render_template("public/status.html", form=None, lookup_result=lookup_result, contact_form=contact_form, token_access=True)
 
 
 @public_portal_bp.post("/status/<uuid:ticket_id>/contact")

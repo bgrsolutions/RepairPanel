@@ -1,3 +1,4 @@
+import secrets
 import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -13,7 +14,7 @@ from app.forms.diagnostic_forms import DiagnosticForm
 from app.forms.inventory_forms import StockReservationForm
 from app.forms.ticket_forms import TicketCreateForm
 from app.forms.ticket_note_forms import TicketAssignmentForm, TicketMetaForm, TicketNoteForm, TicketStatusForm
-from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, Quote, RepairChecklist, RepairService, StockLevel, StockReservation, Ticket, TicketNote, User
+from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, PortalToken, Quote, RepairChecklist, RepairService, StockLevel, StockReservation, Ticket, TicketNote, User
 from app.services.audit_service import log_action
 from app.services.inventory_service import consume_reservation, reserve_stock_for_ticket
 from app.services.quote_service import compute_quote_totals
@@ -274,6 +275,13 @@ def ticket_detail(ticket_id):
     blockers = detect_blockers(ticket, now=datetime.utcnow(), sla_days=sla_days)
     next_action = next_recommended_action(ticket, blockers)
 
+    # Public status URL for sharing with customer
+    try:
+        status_token = PortalToken.query.filter_by(ticket_id=ticket_uuid, token_type="public_status_lookup").first()
+        public_status_url = url_for("public_portal.public_repair_status", token=status_token.token, _external=True) if status_token else None
+    except Exception:
+        public_status_url = None
+
     return render_template(
         "tickets/detail.html",
         ticket=ticket,
@@ -297,6 +305,7 @@ def ticket_detail(ticket_id):
         post_repair_checklists=post_repair_checklists,
         blockers=blockers,
         next_action=next_action,
+        public_status_url=public_status_url,
     )
 
 
@@ -992,6 +1001,12 @@ def create_ticket():
         if intake_parts:
             db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content="\n".join(intake_parts)))
         db.session.commit()
+        # Create public status token for customer access
+        try:
+            db.session.add(PortalToken(token=secrets.token_urlsafe(24), token_type="public_status_lookup", ticket_id=ticket.id))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         log_action("ticket.create", "Ticket", str(ticket.id), details={"ticket_number": ticket.ticket_number})
         flash(_("Ticket created"), "success")
         return redirect(url_for("tickets.list_tickets"))
