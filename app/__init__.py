@@ -71,12 +71,15 @@ def create_app(config_class=Config):
     @app.context_processor
     def utility_processor():
         from flask_wtf.csrf import generate_csrf
+        from app.services.permission_service import permission_context
 
-        return {
+        ctx = {
             "current_locale": str(get_locale()),
             "supported_locales": app.config["SUPPORTED_LOCALES"],
             "csrf_token": generate_csrf,
         }
+        ctx.update(permission_context())
+        return ctx
 
     @app.get("/set-language/<locale>")
     def set_language(locale: str):

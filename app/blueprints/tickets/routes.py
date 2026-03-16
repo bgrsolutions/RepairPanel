@@ -16,6 +16,14 @@ from app.forms.ticket_forms import TicketCreateForm
 from app.forms.ticket_note_forms import TicketAssignmentForm, TicketMetaForm, TicketNoteForm, TicketStatusForm
 from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, PortalToken, Quote, RepairChecklist, RepairService, StockLevel, StockReservation, Ticket, TicketNote, User
 from app.services.audit_service import log_action
+from app.services.permission_service import (
+    can_consume_reservation,
+    can_create_ticket,
+    can_manage_customer_portal,
+    can_progress_workflow,
+    can_send_customer_updates,
+)
+from app.utils.permissions import permission_required
 from app.services.customer_communication_service import (
     available_templates,
     generate_message,
@@ -572,6 +580,7 @@ def release_reservation(ticket_id, reservation_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/consume-reservation/<uuid:reservation_id>")
 @login_required
+@permission_required(can_consume_reservation)
 def consume_part(ticket_id, reservation_id):
     """Consume a reserved part — mark as installed and deduct stock."""
     ticket = db.session.get(Ticket, ticket_id)
@@ -606,6 +615,7 @@ def consume_part(ticket_id, reservation_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/assign-to-me")
 @login_required
+@permission_required(can_progress_workflow)
 def assign_to_me(ticket_id):
     """Quick action: assign ticket to current user."""
     ticket = db.session.get(Ticket, ticket_id)
@@ -628,6 +638,7 @@ def assign_to_me(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/quick-status")
 @login_required
+@permission_required(can_progress_workflow)
 def quick_status(ticket_id):
     """Quick action: transition to a pre-defined status shortcut."""
     from app.services.workflow_service import is_valid_transition
@@ -683,6 +694,7 @@ def quick_status(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/quick-note")
 @login_required
+@permission_required(can_progress_workflow)
 def quick_note(ticket_id):
     """Quick action: add an internal bench note without the full modal."""
     ticket = db.session.get(Ticket, ticket_id)
@@ -972,6 +984,7 @@ def service_availability():
 
 @tickets_bp.route("/new", methods=["GET", "POST"])
 @login_required
+@permission_required(can_create_ticket)
 def create_ticket():
     form = TicketCreateForm()
     selected_customer = (form.customer_id.data or request.args.get("customer_id") or "").strip()
@@ -1050,6 +1063,7 @@ def create_ticket():
 
 @tickets_bp.post("/<uuid:ticket_id>/regenerate-portal-token")
 @login_required
+@permission_required(can_manage_customer_portal)
 def regenerate_token(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -1071,6 +1085,7 @@ def regenerate_token(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/revoke-portal-token")
 @login_required
+@permission_required(can_manage_customer_portal)
 def revoke_token(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -1096,6 +1111,7 @@ def revoke_token(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/generate-message")
 @login_required
+@permission_required(can_send_customer_updates)
 def generate_customer_message(ticket_id):
     """Generate a customer communication message from a template. Returns JSON."""
     ticket = db.session.get(Ticket, ticket_id)
@@ -1138,6 +1154,7 @@ def generate_customer_message(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/log-communication")
 @login_required
+@permission_required(can_send_customer_updates)
 def log_communication_action(ticket_id):
     """Log a communication action (link copied, message prepared, etc.)."""
     ticket = db.session.get(Ticket, ticket_id)

@@ -8,12 +8,15 @@ from flask_login import current_user, login_required
 from app.extensions import db
 from app.models import RepairChecklist, Ticket
 from app.models.checklist import ChecklistItem, DEFAULT_CHECKLISTS
+from app.services.permission_service import can_manage_checklists
+from app.utils.permissions import permission_required
 
 checklists_bp = Blueprint("checklists", __name__)
 
 
 @checklists_bp.post("/tickets/<uuid:ticket_id>/checklists/create")
 @login_required
+@permission_required(can_manage_checklists)
 def create_checklist(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -63,6 +66,7 @@ def create_checklist(ticket_id):
 
 @checklists_bp.post("/checklists/<uuid:checklist_id>/update")
 @login_required
+@permission_required(can_manage_checklists)
 def update_checklist(checklist_id):
     checklist = db.session.get(RepairChecklist, checklist_id)
     if not checklist:
@@ -99,6 +103,7 @@ def update_checklist(checklist_id):
 
 @checklists_bp.post("/checklists/<uuid:checklist_id>/complete")
 @login_required
+@permission_required(can_manage_checklists)
 def complete_checklist(checklist_id):
     checklist = db.session.get(RepairChecklist, checklist_id)
     if not checklist:
@@ -122,6 +127,7 @@ def complete_checklist(checklist_id):
 
 @checklists_bp.post("/checklists/item/<uuid:item_id>/toggle")
 @login_required
+@permission_required(can_manage_checklists)
 def toggle_checklist_item(item_id):
     """AJAX endpoint: toggle a single checklist item without full form submit."""
     item = db.session.get(ChecklistItem, item_id)

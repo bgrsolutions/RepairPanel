@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.14.0] - 2026-03-16
+### Added
+- **Permission Service Layer (13.1)**: Centralized `app/services/permission_service.py` with role constants, role groupings (`_ADMIN_ROLES`, `_MANAGEMENT_ROLES`, `_WORKSHOP_ROLES`, `_FRONTDESK_ROLES`, `_INVENTORY_ROLES`, `_ALL_STAFF_ROLES`), and 14+ permission check functions (`can_manage_settings`, `can_create_ticket`, `can_progress_workflow`, etc.).
+- **Route Protection (13.2)**: Server-side enforcement via `@permission_required(check_fn)` decorator on all sensitive routes across tickets, settings, quotes, checklists, and inventory blueprints. Returns 403 for unauthorized users. 30+ routes protected.
+- **UI Visibility by Role (13.3)**: Template-level conditional rendering using `perms` proxy. Admin dropdown, Settings link, Users link, Fast Check-In button, New Ticket button, Quick Actions panel, Customer Communication panel, Token management controls, New Part button, and Delete/Deactivate buttons all conditionally hidden based on role.
+- **Permission Proxy (13.4)**: `_PermissionProxy` class injected via `permission_context()` into all templates as `perms`. Lazy evaluation of permission checks against `current_user`.
+- **Safe Defaults (13.5)**: Unknown or missing roles get no privileged access. `_user_roles()` returns empty set for unauthenticated or None users. All checks require explicit role membership.
+- **`permission_required` Decorator (13.6)**: New decorator in `app/utils/permissions.py` that takes a permission check function and gates route access. Complements existing `roles_required` decorator.
+- Updated `docs/ROLES_AND_PERMISSIONS.md` with complete permission matrix, enforcement model, and architecture documentation.
+- 46 new Phase 13 tests covering permission service functions, route protection (403 for unauthorized, 200/302 for authorized), UI visibility (nav elements hidden/shown by role), safe defaults, permission proxy, and regression.
+
 ## [0.13.0] - 2026-03-16
 ### Added
 - **Staff Communication Panel (12.1)**: Enhanced "Customer Communication" panel on ticket detail replacing the simple portal link display. Includes portal URL copy, quote approval URL copy (when pending), Message Builder button, Ready Notification shortcut (when ready for collection), and Quote Notification shortcut (when pending quote exists).
