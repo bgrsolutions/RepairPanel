@@ -148,6 +148,57 @@ def customer_devices(customer_id):
     return jsonify([{"id": str(device.id), "label": f"{device.brand} {device.model} ({device.serial_number or 'N/A'})"} for device in devices])
 
 
+@tickets_bp.get("/device-search")
+@login_required
+def device_search():
+    """AJAX endpoint: search devices by brand, model, serial, or IMEI."""
+    q = (request.args.get("q") or "").strip()
+    customer_id = (request.args.get("customer_id") or "").strip()
+    if len(q) < 2:
+        return {"items": []}
+    from sqlalchemy import or_
+    like = f"%{q}%"
+    query = Device.query.filter(
+        Device.deleted_at.is_(None),
+        or_(Device.brand.ilike(like), Device.model.ilike(like),
+            Device.serial_number.ilike(like), Device.imei.ilike(like)),
+    )
+    if customer_id:
+        query = query.filter(Device.customer_id == uuid.UUID(customer_id))
+    rows = query.order_by(Device.brand.asc()).limit(25).all()
+    return {"items": [
+        {"id": str(d.id), "label": f"{d.brand} {d.model} ({d.serial_number or 'N/A'})",
+         "brand": d.brand, "model": d.model, "serial_number": d.serial_number or "",
+         "customer_name": d.customer.full_name if d.customer else ""}
+        for d in rows
+    ]}
+
+
+@tickets_bp.post("/device-create-json")
+@login_required
+def device_create_json():
+    """AJAX endpoint: create a new device for a customer during ticket creation."""
+    data = request.get_json(silent=True) or {}
+    customer_id = (data.get("customer_id") or "").strip()
+    brand = (data.get("brand") or "").strip()
+    model = (data.get("model") or "").strip()
+    category = (data.get("category") or "phones").strip()
+    serial_number = (data.get("serial_number") or "").strip() or None
+    imei = (data.get("imei") or "").strip() or None
+    if not customer_id or not brand or not model:
+        return jsonify({"ok": False, "error": "Customer, brand, and model are required"}), 400
+    device = Device(
+        customer_id=uuid.UUID(customer_id), category=category,
+        brand=brand, model=model, serial_number=serial_number, imei=imei,
+    )
+    db.session.add(device)
+    db.session.commit()
+    return jsonify({
+        "ok": True, "id": str(device.id),
+        "label": f"{device.brand} {device.model} ({device.serial_number or 'N/A'})",
+    })
+
+
 @tickets_bp.get("/<uuid:ticket_id>")
 @login_required
 def ticket_detail(ticket_id):

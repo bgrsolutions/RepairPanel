@@ -14,7 +14,7 @@
     <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
       <div>
         <label class="mb-1.5 block text-sm font-medium text-slate-300">Search</label>
-        <input name="q" value="{{ query }}" type="text" placeholder="Name, phone, or email" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+        <input name="q" id="customer-live-search" value="{{ query }}" type="text" placeholder="Name, phone, or email — results filter as you type" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
       </div>
       <div class="self-end">
         <button type="submit" class="inline-flex h-[42px] items-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Search</button>
@@ -58,4 +58,19 @@
     </div>
   </div>
 </section>
+<script>
+(function() {
+  const input = document.getElementById('customer-live-search');
+  const rows = document.querySelectorAll('tbody tr[class]');
+  if (!input || !rows.length) return;
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { rows.forEach(r => r.style.display = ''); return; }
+    rows.forEach(r => {
+      const text = r.textContent.toLowerCase();
+      r.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+})();
+</script>
 {% endblock %}
