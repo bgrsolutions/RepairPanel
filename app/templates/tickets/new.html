@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}New Ticket - IRONCore{% endblock %}
+{% block title %}Fast Check-In - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Quick Check-In</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Fast Check-In</p>
       <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Device Check-In &amp; Intake</h1>
-      <p class="mt-1 text-sm text-slate-400">Search customer, select device, capture condition and issue details.</p>
+      <p class="mt-1 text-sm text-slate-400">Search customer, select device, pick service, and check in.</p>
     </div>
     <a href="{{ url_for('tickets.list_tickets') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">Back to Tickets</a>
   </div>
@@ -21,7 +21,7 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.branch_id.label }}</label>
-            {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+            {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', id='branch-select') }}
           </div>
           <div class="relative">
             <label class="mb-1.5 block text-sm font-medium text-slate-300">Find Customer</label>
@@ -30,7 +30,6 @@
             {{ form.customer_id(type='hidden', id='customer-id-field') }}
           </div>
         </div>
-        {# Selected customer card #}
         <div id="customer-card" class="hidden rounded-xl border border-indigo-800/60 bg-indigo-950/20 px-4 py-3">
           <div class="flex items-center justify-between">
             <div>
@@ -53,9 +52,24 @@
         </div>
       </div>
 
-      {# Step 3: Issue + Priority #}
+      {# Step 3: Repair Service + Issue #}
       <div class="space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">3. Issue Details</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">3. Service &amp; Issue</h2>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.repair_service_id.label }}</label>
+          {{ form.repair_service_id(id='service-select', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+        </div>
+
+        {# Part availability panel (populated via JS) #}
+        <div id="part-availability" class="hidden rounded-xl border border-slate-800/60 bg-slate-800/30 p-4 space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">Part Availability</span>
+            <span id="pa-part-name" class="text-xs text-slate-300"></span>
+          </div>
+          <div id="pa-badges" class="flex flex-wrap gap-2"></div>
+          <div id="pa-lead-time" class="hidden text-xs text-slate-400"></div>
+        </div>
+
         <div>
           {{ form.issue_summary.label(class='mb-1.5 block text-sm font-medium text-slate-300') }}
           {{ form.issue_summary(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='3', placeholder='Describe what the customer reported…') }}
@@ -95,6 +109,12 @@
             <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="7">1 Week</button>
             <button type="button" id="eta-clear" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-700 hover:text-slate-300 transition-colors">Clear</button>
           </div>
+          {# ETA suggestion from service #}
+          <div id="eta-suggestion" class="hidden mb-2 rounded-lg border border-indigo-800/40 bg-indigo-950/20 px-3 py-2 text-xs">
+            <span class="text-indigo-400">Suggested:</span>
+            <span id="eta-suggestion-text" class="text-indigo-300 font-medium ml-1"></span>
+            <button type="button" id="eta-use-suggestion" class="ml-2 text-indigo-400 hover:text-indigo-200 underline">Use this</button>
+          </div>
           {{ form.quoted_completion_at(id='eta-input', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
           <p class="mt-1 text-xs text-slate-500">Or pick a custom date/time above.</p>
         </div>
@@ -108,15 +128,30 @@
 
     <aside class="space-y-6">
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-lg font-semibold text-white">Quick Check-In Guide</h2>
+        <h2 class="text-lg font-semibold text-white">Fast Check-In Guide</h2>
         <p class="mt-1 text-sm text-slate-400">Follow these steps for a fast device intake.</p>
         <ul class="mt-4 space-y-3 text-sm text-slate-400">
           <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">1</span><span>Search and select customer.</span></li>
           <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>Confirm customer device.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>Capture issue, condition &amp; accessories.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">4</span><span>Note device condition and accessories received.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">5</span><span>Set promised completion (use quick presets).</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>Select repair service — see part stock instantly.</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">4</span><span>Note device condition and accessories.</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">5</span><span>Review suggested ETA or set custom promise.</span></li>
         </ul>
+      </div>
+
+      {# Service info card (populated by JS) #}
+      <div id="service-info" class="hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Service Summary</h3>
+        <dl class="mt-3 space-y-2 text-sm">
+          <div class="flex justify-between"><dt class="text-slate-400">Labour</dt><dd id="si-labour" class="text-white font-medium">—</dd></div>
+          <div class="flex justify-between"><dt class="text-slate-400">Price</dt><dd id="si-price" class="text-white font-medium">—</dd></div>
+        </dl>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h3 class="text-sm font-semibold text-slate-400">Need full intake?</h3>
+        <p class="mt-1 text-xs text-slate-500">For new customers, new devices, or detailed diagnostics use the full intake form.</p>
+        <a href="{{ url_for('intake.new_intake') }}" class="mt-2 inline-block text-xs text-indigo-400 hover:text-indigo-300">Go to Full Intake</a>
       </div>
     </aside>
   </div>
@@ -131,6 +166,8 @@
   const clearCustomerBtn = document.getElementById('clear-customer');
   const deviceSelect = document.getElementById('device-select');
   const noCustomerHint = document.getElementById('no-customer-hint');
+  const serviceSelect = document.getElementById('service-select');
+  const branchSelect = document.getElementById('branch-select');
 
   let searchTimeout = null;
 
@@ -183,7 +220,6 @@
     }, 250);
   });
 
-  // Close results on click outside
   document.addEventListener('click', (e) => {
     if (!customerResults.contains(e.target) && e.target !== customerSearch) {
       customerResults.classList.add('hidden');
@@ -213,6 +249,75 @@
       deviceSelect.appendChild(option);
     }
   }
+
+  // --- Service selection: part availability + ETA suggestion ---
+  async function loadServiceAvailability() {
+    const serviceId = serviceSelect.value;
+    const branchId = branchSelect.value;
+    const paPanel = document.getElementById('part-availability');
+    const etaSuggestion = document.getElementById('eta-suggestion');
+    const serviceInfo = document.getElementById('service-info');
+
+    if (!serviceId) {
+      paPanel.classList.add('hidden');
+      etaSuggestion.classList.add('hidden');
+      serviceInfo.classList.add('hidden');
+      return;
+    }
+
+    const resp = await fetch(`/tickets/service-availability?service_id=${serviceId}&branch_id=${branchId}`);
+    const data = await resp.json();
+
+    // Service info card
+    serviceInfo.classList.remove('hidden');
+    document.getElementById('si-labour').textContent = data.labour_minutes ? `${data.labour_minutes} min` : '—';
+    document.getElementById('si-price').textContent = data.suggested_price ? `€${data.suggested_price.toFixed(2)}` : '—';
+
+    // Part availability
+    if (data.part_name) {
+      paPanel.classList.remove('hidden');
+      document.getElementById('pa-part-name').textContent = data.part_name;
+      const badges = document.getElementById('pa-badges');
+      badges.innerHTML = '';
+
+      if (data.stock_this_store > 0) {
+        badges.innerHTML += `<span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">In stock: ${data.stock_this_store}</span>`;
+      } else {
+        badges.innerHTML += `<span class="inline-flex items-center rounded-full bg-amber-950/50 px-2.5 py-0.5 text-xs font-medium text-amber-300 ring-1 ring-inset ring-amber-800/40">Not in this store</span>`;
+      }
+      if (data.stock_other_stores > 0) {
+        badges.innerHTML += `<span class="inline-flex items-center rounded-full bg-blue-950/50 px-2.5 py-0.5 text-xs font-medium text-blue-300 ring-1 ring-inset ring-blue-800/40">Other stores: ${data.stock_other_stores}</span>`;
+      }
+      if (data.needs_ordering) {
+        badges.innerHTML += `<span class="inline-flex items-center rounded-full bg-rose-950/50 px-2.5 py-0.5 text-xs font-medium text-rose-300 ring-1 ring-inset ring-rose-800/40">Needs ordering</span>`;
+      }
+
+      const leadDiv = document.getElementById('pa-lead-time');
+      if (data.lead_time_days) {
+        leadDiv.textContent = `Supplier lead time: ~${data.lead_time_days} day${data.lead_time_days !== 1 ? 's' : ''}`;
+        leadDiv.classList.remove('hidden');
+      } else {
+        leadDiv.classList.add('hidden');
+      }
+    } else {
+      paPanel.classList.add('hidden');
+    }
+
+    // ETA suggestion
+    if (data.suggested_eta) {
+      etaSuggestion.classList.remove('hidden');
+      document.getElementById('eta-suggestion-text').textContent = data.eta_display;
+      document.getElementById('eta-use-suggestion').onclick = () => {
+        document.getElementById('eta-input').value = data.suggested_eta;
+        document.querySelectorAll('.eta-preset').forEach(b => b.classList.remove('border-indigo-500', 'text-indigo-300'));
+      };
+    } else {
+      etaSuggestion.classList.add('hidden');
+    }
+  }
+
+  serviceSelect?.addEventListener('change', loadServiceAvailability);
+  branchSelect?.addEventListener('change', loadServiceAvailability);
 
   // ETA preset buttons
   document.querySelectorAll('.eta-preset').forEach(btn => {

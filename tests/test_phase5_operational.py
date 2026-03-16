@@ -287,7 +287,7 @@ def test_intake_page_shows_quick_checkin(monkeypatch):
     resp = client.get('/tickets/new')
     assert resp.status_code == 200
     html = resp.data.decode()
-    assert 'Quick Check-In' in html
+    assert 'Fast Check-In' in html
     assert 'Device Condition' in html or 'device_condition' in html
 
 

@@ -1,10 +1,13 @@
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+import uuid as _uuid
+
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import login_required
 from sqlalchemy import inspect
 
 from app.extensions import db
-from app.models import AppSetting, Branch
+from app.forms.branch_forms import BranchEditForm
+from app.models import AppSetting, Branch, Company
 
 
 settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
@@ -15,6 +18,18 @@ def _get_setting(key: str, default: str = "") -> str:
         return default
     row = AppSetting.query.filter_by(key=key, branch_id=None).order_by(AppSetting.created_at.desc()).first()
     return row.value if row and row.value is not None else default
+
+
+def _company_choices():
+    try:
+        if not inspect(db.engine).has_table("companies"):
+            return [("", "-- None --")]
+    except Exception:
+        return [("", "-- None --")]
+    companies = Company.query.filter(Company.deleted_at.is_(None)).order_by(Company.legal_name).all()
+    choices = [("", "-- None --")]
+    choices.extend((str(c.id), c.display_name) for c in companies)
+    return choices
 
 
 @settings_bp.get("/")
@@ -38,6 +53,44 @@ def create_branch():
     db.session.commit()
     flash(_("Branch created"), "success")
     return redirect(url_for("settings.index"))
+
+
+@settings_bp.route("/branches/<branch_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_branch(branch_id):
+    import uuid as _uuid
+    try:
+        _bid = _uuid.UUID(str(branch_id))
+    except (ValueError, TypeError):
+        from flask import abort
+        abort(404)
+    branch = db.session.get(Branch, _bid)
+    if not branch:
+        from flask import abort
+        abort(404)
+    form = BranchEditForm(obj=branch)
+    form.company_id.choices = _company_choices()
+    if request.method == "GET":
+        form.company_id.data = str(branch.company_id) if branch.company_id else ""
+    if form.validate_on_submit():
+        branch.code = form.code.data.strip().upper()
+        branch.name = form.name.data.strip()
+        branch.company_id = _uuid.UUID(form.company_id.data) if form.company_id.data else None
+        branch.address_line_1 = (form.address_line_1.data or "").strip() or None
+        branch.address_line_2 = (form.address_line_2.data or "").strip() or None
+        branch.postcode = (form.postcode.data or "").strip() or None
+        branch.city = (form.city.data or "").strip() or None
+        branch.island_or_region = (form.island_or_region.data or "").strip() or None
+        branch.country = (form.country.data or "").strip() or None
+        branch.phone = (form.phone.data or "").strip() or None
+        branch.email = (form.email.data or "").strip() or None
+        branch.opening_hours = (form.opening_hours.data or "").strip() or None
+        branch.ticket_prefix = (form.ticket_prefix.data or "").strip() or None
+        branch.quote_prefix = (form.quote_prefix.data or "").strip() or None
+        db.session.commit()
+        flash(_("Branch updated"), "success")
+        return redirect(url_for("settings.index"))
+    return render_template("settings/branch_edit.html", form=form, branch=branch)
 
 
 @settings_bp.get("/portal")

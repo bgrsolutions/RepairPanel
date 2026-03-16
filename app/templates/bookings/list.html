@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Bookings - {{ view_date.strftime('%d %b %Y') }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-white">Bookings</h1>
+      <p class="mt-1 text-sm text-slate-400">View and manage repair bookings by date and location.</p>
+    </div>
+    <a href="{{ url_for('bookings.create_booking') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">+ New Booking</a>
+  </div>
+
+  {# Date navigation & filters #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-4 shadow-panel">
+    <div class="flex flex-wrap items-center gap-4">
+      {# Date picker #}
+      <form method="get" class="flex items-center gap-2">
+        <input type="date" name="date" value="{{ view_date.strftime('%Y-%m-%d') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" onchange="this.form.submit()" />
+        {% if selected_location %}
+        <input type="hidden" name="location_id" value="{{ selected_location }}" />
+        {% endif %}
+      </form>
+
+      {# Quick date links #}
+      <div class="flex gap-1">
+        {% set today = view_date.__class__.today() %}
+        <a href="{{ url_for('bookings.list_bookings', date=today.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == today %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">Today</a>
+        {% for wd in week_dates %}
+        <a href="{{ url_for('bookings.list_bookings', date=wd.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == wd %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ wd.strftime('%a %d') }}</a>
+        {% endfor %}
+      </div>
+
+      {# Location filter #}
+      <form method="get" class="ml-auto flex items-center gap-2">
+        <input type="hidden" name="date" value="{{ view_date.strftime('%Y-%m-%d') }}" />
+        <select name="location_id" onchange="this.form.submit()" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+          <option value="">All locations</option>
+          {% for b in branches %}
+          <option value="{{ b.id }}" {% if selected_location == b.id|string %}selected{% endif %}>{{ b.name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
+  {# Day schedule #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel overflow-hidden">
+    <div class="border-b border-slate-800/60 bg-slate-800/30 px-4 py-3">
+      <h2 class="text-sm font-semibold text-white">{{ view_date.strftime('%A, %d %B %Y') }}</h2>
+      <p class="text-xs text-slate-400">{{ bookings | length }} booking{{ 's' if bookings | length != 1 else '' }}</p>
+    </div>
+
+    {% if bookings %}
+    <div class="divide-y divide-slate-800/40">
+      {% for booking in bookings %}
+      <div class="px-4 py-3 flex items-center gap-4 hover:bg-slate-800/30 transition-colors">
+        {# Time #}
+        <div class="w-28 flex-shrink-0 text-center">
+          <span class="text-sm font-medium text-white">{{ booking.start_time.strftime('%H:%M') }}</span>
+          <span class="text-slate-500 mx-1">-</span>
+          <span class="text-sm text-slate-400">{{ booking.end_time.strftime('%H:%M') }}</span>
+        </div>
+
+        {# Details #}
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            {% if booking.customer %}
+            <span class="text-sm text-slate-200 font-medium">{{ booking.customer.full_name }}</span>
+            {% else %}
+            <span class="text-sm text-slate-500 italic">No customer</span>
+            {% endif %}
+            {% if booking.repair_service %}
+            <span class="inline-flex items-center rounded-full bg-cyan-950/40 px-2 py-0.5 text-xs text-cyan-300 ring-1 ring-inset ring-cyan-800/40">{{ booking.repair_service.name }}</span>
+            {% endif %}
+          </div>
+          {% if booking.notes %}
+          <p class="text-xs text-slate-500 mt-0.5 truncate">{{ booking.notes }}</p>
+          {% endif %}
+        </div>
+
+        {# Location #}
+        <div class="flex-shrink-0">
+          <span class="text-xs text-slate-400">{{ booking.location.name }}</span>
+        </div>
+
+        {# Status #}
+        <div class="flex-shrink-0">
+          {% set status_colors = {'scheduled': 'bg-blue-950/40 text-blue-300 ring-blue-800/40', 'confirmed': 'bg-emerald-950/40 text-emerald-300 ring-emerald-800/40', 'in_progress': 'bg-amber-950/40 text-amber-300 ring-amber-800/40', 'completed': 'bg-slate-800/50 text-slate-400 ring-slate-700/40', 'cancelled': 'bg-red-950/40 text-red-300 ring-red-800/40', 'no_show': 'bg-red-950/40 text-red-300 ring-red-800/40'} %}
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset {{ status_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ booking.status | replace('_', ' ') | title }}</span>
+        </div>
+
+        {# Actions #}
+        <a href="{{ url_for('bookings.edit_booking', booking_id=booking.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium flex-shrink-0">Edit</a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="py-12 text-center">
+      <p class="text-sm text-slate-500">No bookings for this date.</p>
+      <a href="{{ url_for('bookings.create_booking') }}" class="mt-2 inline-block text-sm text-indigo-400 hover:text-indigo-300">Create a booking</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

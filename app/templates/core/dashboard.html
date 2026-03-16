@@ -96,6 +96,38 @@
         </div>
       </div>
 
+      {% if todays_bookings is defined %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Today's Bookings</h2>
+          <a href="{{ url_for('bookings.list_bookings') }}" class="text-xs text-indigo-300 hover:text-indigo-200">View all</a>
+        </div>
+        {% if todays_bookings %}
+        <div class="space-y-2">
+          {% for booking in todays_bookings[:5] %}
+          <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-white">{{ booking.start_time.strftime('%H:%M') }}</span>
+                <span class="text-slate-500">-</span>
+                <span class="text-sm text-slate-400">{{ booking.end_time.strftime('%H:%M') }}</span>
+              </div>
+              {% set bk_colors = {'scheduled': 'bg-blue-950/40 text-blue-300 ring-blue-800/40', 'confirmed': 'bg-emerald-950/40 text-emerald-300 ring-emerald-800/40', 'in_progress': 'bg-amber-950/40 text-amber-300 ring-amber-800/40'} %}
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset {{ bk_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ booking.status | replace('_', ' ') | title }}</span>
+            </div>
+            <div class="mt-1 text-xs text-slate-400">
+              {% if booking.customer %}{{ booking.customer.full_name }}{% endif %}
+              {% if booking.repair_service %}<span class="text-slate-600 mx-1">&middot;</span>{{ booking.repair_service.name }}{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+          {{ empty_state('No bookings today', 'Schedule bookings from the Bookings page') }}
+        {% endif %}
+      </div>
+      {% endif %}
+
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Activity</h2>
         {% if activity_items %}

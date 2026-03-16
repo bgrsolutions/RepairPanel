@@ -340,7 +340,7 @@ def test_ticket_new_route(monkeypatch):
     app, client, ids = _setup_app_and_login(monkeypatch)
     resp = client.get('/tickets/new')
     assert resp.status_code == 200
-    assert b'Quick Check-In' in resp.data
+    assert b'Fast Check-In' in resp.data
 
 
 def test_reports_with_quotes_in_db(monkeypatch):
