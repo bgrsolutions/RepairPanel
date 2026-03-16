@@ -94,7 +94,9 @@ class PortalToken(UUIDMixin, TimestampMixin, db.Model):
     token: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
     token_type: Mapped[str] = mapped_column(String(50), nullable=False)
     intake_submission_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("intake_submissions.id"), nullable=True, index=True)
+    ticket_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("tickets.id"), nullable=True, index=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     intake_submission = relationship("IntakeSubmission")
+    ticket = relationship("Ticket")
