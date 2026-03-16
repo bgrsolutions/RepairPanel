@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from flask import Blueprint, flash, redirect, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
@@ -118,3 +118,38 @@ def complete_checklist(checklist_id):
     db.session.commit()
     flash(_("Checklist marked as complete"), "success")
     return redirect(url_for("tickets.ticket_detail", ticket_id=checklist.ticket_id))
+
+
+@checklists_bp.post("/checklists/item/<uuid:item_id>/toggle")
+@login_required
+def toggle_checklist_item(item_id):
+    """AJAX endpoint: toggle a single checklist item without full form submit."""
+    item = db.session.get(ChecklistItem, item_id)
+    if not item:
+        return jsonify({"ok": False, "error": "Item not found"}), 404
+
+    checklist = db.session.get(RepairChecklist, item.checklist_id)
+    if not checklist or checklist.is_complete:
+        return jsonify({"ok": False, "error": "Checklist is completed"}), 400
+
+    data = request.get_json(silent=True) or {}
+    is_checked = data.get("is_checked", not item.is_checked)
+    now = datetime.utcnow()
+
+    if is_checked and not item.is_checked:
+        item.is_checked = True
+        item.checked_at = now
+        item.checked_by_user_id = current_user.id
+    elif not is_checked and item.is_checked:
+        item.is_checked = False
+        item.checked_at = None
+        item.checked_by_user_id = None
+
+    db.session.commit()
+    return jsonify({
+        "ok": True,
+        "is_checked": item.is_checked,
+        "checked_count": checklist.checked_count,
+        "total_count": checklist.total_count,
+        "all_checked": checklist.all_checked,
+    })

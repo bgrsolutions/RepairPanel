@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.0] - 2026-03-16
+### Added
+- **Parts consumption on tickets (10.1)**: Technicians can now install/consume reserved parts directly from the ticket detail sidebar. The "Install" button on reserved parts triggers `POST /tickets/<id>/consume-reservation/<reservation_id>`, which marks the reservation as consumed, deducts on-hand stock via `apply_stock_movement("install")`, releases the reserved quantity, and creates an audit note.
+- **Technician quick actions (10.2)**: New quick-action buttons on the ticket detail page — "Assign to me" (`POST /tickets/<id>/assign-to-me`), plus context-aware workflow shortcuts: "Diagnosis complete", "Waiting for parts", "Start repair", "Repair complete", "Ready for collection". Each validates the transition and creates an audit note.
+- **Quick status transitions (10.3)**: `POST /tickets/<id>/quick-status` endpoint accepts an `action` parameter mapping to pre-defined workflow transitions. Enforces the same transition validation and post-repair checklist rules as the standard status form.
+- **Inline bench notes (10.4)**: Quick Bench Note form on the ticket detail page lets technicians add internal notes without opening the full modal. `POST /tickets/<id>/quick-note` creates an internal note instantly.
+- **AJAX checklist item toggle (10.5)**: `POST /checklists/item/<id>/toggle` endpoint for toggling individual checklist items without a full form submit. Returns updated progress (checked_count, total_count, all_checked) for live UI updates. Checkboxes on the ticket detail page use this for faster interaction.
+- **Inventory service: consume_reservation()**: New service function that atomically consumes a reserved part — sets status to "consumed", releases reserved qty from StockLevel, and creates an "install" stock movement.
+- **24 new Phase 10 tests**: Consume reservation (success, already consumed, creates install movement, creates note), assign-to-me, quick status (start repair, invalid transition, unknown action, diagnosis complete, repair complete, waiting parts, creates note), quick bench note (success, empty rejected), checklist toggle (check, uncheck, all checked, completed rejected), UI presence (quick actions panel, install button, bench note form), inventory service (consume_reservation, invalid qty), Phase 9 regression (search endpoints).
+
 ## [0.10.0] - 2026-03-16
 ### Added
 - **Improved ticket creation flow (9.1)**: Inline "Quick Add Device" form during ticket creation — staff can add a new device (brand, model, serial, IMEI, category) without leaving the check-in page. New device is immediately selectable in the device dropdown.

@@ -119,3 +119,31 @@ def reserve_stock_for_ticket(ticket_id, part_id, branch_id, location_id, quantit
     db.session.add(reservation)
     apply_stock_movement(part_id, branch_id, location_id, "reservation", qty, notes="Reserved for ticket", ticket_id=ticket_id)
     return reservation
+
+
+def consume_reservation(reservation, *, quantity=None):
+    """Consume a reserved part (install it on the ticket).
+
+    Marks the reservation as consumed, releases the reserved qty from StockLevel,
+    and creates an 'install' stock movement to deduct on-hand stock.
+    If *quantity* is None the full reservation quantity is consumed.
+    """
+    qty = _as_decimal(quantity) if quantity is not None else _as_decimal(reservation.quantity)
+    res_qty = _as_decimal(reservation.quantity)
+    if qty <= 0 or qty > res_qty:
+        raise ValueError("Invalid consume quantity")
+
+    reservation.status = "consumed"
+
+    level = get_or_create_stock_level(reservation.part_id, reservation.branch_id, reservation.location_id)
+    # Release the reserved qty
+    level.reserved_qty = max(_as_decimal(0), _as_decimal(level.reserved_qty) - res_qty)
+
+    # Install movement deducts on-hand
+    apply_stock_movement(
+        reservation.part_id, reservation.branch_id, reservation.location_id,
+        "install", qty,
+        notes="Part installed on ticket",
+        ticket_id=reservation.ticket_id,
+    )
+    return reservation
