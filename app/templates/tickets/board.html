@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from 'components/ui_macros.html' import ticket_card, empty_state %}
+{% from 'components/ui_macros.html' import status_badge, priority_badge, empty_state %}
 {% block title %}Bench Board - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6" data-board>
@@ -7,7 +7,7 @@
     <div>
       <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Technician Workflow</p>
       <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Repair Bench Board</h1>
-      <p class="mt-1 text-sm text-slate-400">Tabbed workshop view for fast triage and bench execution.</p>
+      <p class="mt-1 text-sm text-slate-400">Workshop view — tickets grouped by workflow stage with blocker detection.</p>
     </div>
     <div class="flex gap-2.5">
       <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">My Queue</a>
@@ -15,46 +15,116 @@
     </div>
   </div>
 
+  {# ── Filter Bar ── #}
   <form method="get" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Filter & Sort</p>
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-7">
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
       <select name="sort" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
         <option value="oldest" {% if filters.sort=='oldest' %}selected{% endif %}>Oldest first</option>
         <option value="newest" {% if filters.sort=='newest' %}selected{% endif %}>Newest first</option>
-        <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promised due soonest</option>
+        <option value="promise_due" {% if filters.sort=='promise_due' %}selected{% endif %}>Promise due soonest</option>
         <option value="sla_due" {% if filters.sort=='sla_due' %}selected{% endif %}>SLA due soonest</option>
       </select>
-      <select name="technician_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200"><option value="">Any technician</option>{% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}</select>
-      <select name="branch_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200"><option value="">Any branch</option>{% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }}</option>{% endfor %}</select>
+      <select name="technician_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
+        <option value="">Any technician</option>
+        {% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id==t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}
+      </select>
+      <select name="branch_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
+        <option value="">Any branch</option>
+        {% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id==b.id|string %}selected{% endif %}>{{ b.code }} - {{ b.name }}</option>{% endfor %}
+      </select>
       <select name="date_range" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
         <option value="">Any date</option>
         <option value="today" {% if filters.date_range=='today' %}selected{% endif %}>Today</option>
         <option value="this_week" {% if filters.date_range=='this_week' %}selected{% endif %}>This week</option>
         <option value="this_month" {% if filters.date_range=='this_month' %}selected{% endif %}>This month</option>
       </select>
-      <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-300"><input type="checkbox" name="waiting_parts" value="1" class="rounded border-slate-600 bg-slate-700 text-indigo-500" {% if filters.waiting_parts %}checked{% endif %}/> Waiting on parts</label>
-      <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-300"><input type="checkbox" name="only_overdue" value="1" class="rounded border-slate-600 bg-slate-700 text-indigo-500" {% if filters.only_overdue %}checked{% endif %}/> Overdue only</label>
+      <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-300 cursor-pointer">
+        <input type="checkbox" name="waiting_parts" value="1" class="rounded border-slate-600 bg-slate-700 text-indigo-500" {% if filters.waiting_parts %}checked{% endif %} /> Parts
+      </label>
+      <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-300 cursor-pointer">
+        <input type="checkbox" name="waiting_quote" value="1" class="rounded border-slate-600 bg-slate-700 text-indigo-500" {% if filters.waiting_quote %}checked{% endif %} /> Quote
+      </label>
+      <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-300 cursor-pointer">
+        <input type="checkbox" name="only_overdue" value="1" class="rounded border-slate-600 bg-slate-700 text-indigo-500" {% if filters.only_overdue %}checked{% endif %} /> Overdue
+      </label>
       <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Apply</button>
     </div>
   </form>
 
+  {# ── Column Tabs ── #}
   <div class="flex flex-wrap gap-2">
+    {% set column_colors = {
+      'Awaiting Diagnosis': 'amber',
+      'Awaiting Quote Approval': 'violet',
+      'Awaiting Parts': 'fuchsia',
+      'Ready For Repair': 'indigo',
+      'Testing / QA': 'cyan',
+      'Ready For Collection': 'emerald'
+    } %}
     {% for column, items in grouped.items() %}
-    <button type="button" data-tab="{{ loop.index0 }}" class="board-tab rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors {% if loop.first %}ring-2 ring-indigo-500 border-indigo-500/40{% endif %}">{{ column }} <span class="ml-1 text-slate-500">({{ items|length }})</span></button>
+    {% set accent = column_colors.get(column, 'slate') %}
+    <button type="button" data-tab="{{ loop.index0 }}" class="board-tab rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors {% if loop.first %}ring-2 ring-indigo-500 border-indigo-500/40{% endif %}">
+      {{ column }} <span class="ml-1 rounded-full bg-{{ accent }}-950/60 px-2 py-0.5 text-[10px] font-bold text-{{ accent }}-300">{{ items|length }}</span>
+    </button>
     {% endfor %}
   </div>
 
+  {# ── Column Panels ── #}
   {% for column, items in grouped.items() %}
   <section data-panel="{{ loop.index0 }}" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel {% if not loop.first %}hidden{% endif %}">
     <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-300">{{ column }}</h2>
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
       {% if items %}
         {% for ticket in items %}
-          <article class="rounded-xl border border-slate-800/60 bg-slate-900 p-4 transition-colors hover:border-slate-700">
-            {{ ticket_card(ticket) }}
-            <p class="mt-2.5 text-xs text-slate-400">Technician: <span class="{% if ticket.assigned_technician %}font-medium text-cyan-300{% else %}text-slate-500{% endif %}">{{ ticket.assigned_technician.full_name if ticket.assigned_technician else 'Unassigned' }}</span></p>
-            <p class="mt-1 text-xs {% if is_ticket_overdue(ticket, now) %}font-medium text-rose-300{% else %}text-slate-500{% endif %}">Age: {{ ticket_age_days(ticket, now) }}d{% if is_ticket_overdue(ticket, now) %} · Overdue{% endif %}</p>
-          </article>
+          {% set blockers = ticket_blockers.get(ticket.id|string, []) %}
+          <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="block rounded-xl border border-slate-800/60 bg-slate-900 p-4 transition-colors hover:border-slate-700 hover:bg-slate-800/40">
+            {# -- Header: ticket number + priority -- #}
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-white">{{ ticket.ticket_number }}</p>
+                <p class="mt-1 text-sm text-slate-200 truncate">{{ ticket.customer.display_name }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ ticket.device.brand }} {{ ticket.device.model }}</p>
+              </div>
+              {{ priority_badge(ticket.priority) }}
+            </div>
+
+            {# -- Issue summary (truncated) -- #}
+            {% if ticket.issue_summary %}
+            <p class="mt-2 text-xs text-slate-400 line-clamp-2">{{ ticket.issue_summary[:80] }}{% if ticket.issue_summary|length > 80 %}...{% endif %}</p>
+            {% endif %}
+
+            {# -- Technician -- #}
+            <div class="mt-2.5 flex items-center gap-1.5 text-xs">
+              <svg class="h-3.5 w-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" /></svg>
+              <span class="{% if ticket.assigned_technician %}font-medium text-cyan-300{% else %}text-slate-500{% endif %}">{{ ticket.assigned_technician.full_name if ticket.assigned_technician else 'Unassigned' }}</span>
+            </div>
+
+            {# -- SLA / Promise -- #}
+            <div class="mt-1.5 flex items-center gap-3 text-[11px] text-slate-500">
+              {% if ticket.sla_target_at %}
+              <span class="{% if ticket.sla_target_at < now %}text-rose-400{% endif %}">SLA: {{ ticket.sla_target_at.strftime('%b %d') }}</span>
+              {% endif %}
+              {% if ticket.quoted_completion_at %}
+              <span class="{% if ticket.quoted_completion_at < now %}text-amber-400{% endif %}">Promise: {{ ticket.quoted_completion_at.strftime('%b %d') }}</span>
+              {% endif %}
+              <span>Age: {{ ticket_age_days(ticket, now) }}d</span>
+            </div>
+
+            {# -- Blocker Badges -- #}
+            {% if blockers %}
+            <div class="mt-2.5 flex flex-wrap gap-1.5">
+              {% for b in blockers %}
+              {% set badge_cls = 'border-slate-700 bg-slate-800 text-slate-300' %}
+              {% if b.kind == 'sla' %}{% set badge_cls = 'border-rose-800/40 bg-rose-950/40 text-rose-300' %}{% endif %}
+              {% if b.kind == 'parts' %}{% set badge_cls = 'border-fuchsia-800/40 bg-fuchsia-950/40 text-fuchsia-300' %}{% endif %}
+              {% if b.kind == 'quote' %}{% set badge_cls = 'border-violet-800/40 bg-violet-950/40 text-violet-300' %}{% endif %}
+              {% if b.kind == 'checklist' %}{% set badge_cls = 'border-amber-800/40 bg-amber-950/40 text-amber-300' %}{% endif %}
+              <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase {{ badge_cls }}" title="{{ b.detail }}">{{ b.label }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </a>
         {% endfor %}
       {% else %}
         <div class="lg:col-span-2 xl:col-span-3 rounded-xl border border-dashed border-slate-800 p-6 text-center">{{ empty_state('No tickets', 'Queue is clear for this stage.') }}</div>
@@ -63,6 +133,7 @@
   </section>
   {% endfor %}
 </section>
+
 <script>
 (() => {
   const root = document.querySelector('[data-board]');

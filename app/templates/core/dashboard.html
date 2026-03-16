@@ -18,60 +18,117 @@
     </div>
   </div>
 
+  {# ── Primary Stats Row ── #}
   <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
     {{ stat_card('Total Open Tickets', stats.open_tickets, 'Current active repairs', 'indigo') }}
-    {{ stat_card('Awaiting Diagnosis', stats.awaiting_diagnosis, 'Needs technician triage', 'amber') }}
-    {{ stat_card('In Repair', stats.in_repair, 'Currently on bench', 'cyan') }}
-    {{ stat_card('Ready for Collection', stats.ready_for_collection, 'Awaiting customer pickup', 'emerald') }}
-    {{ stat_card('Aging', stats.aging_tickets, '3+ days old and still active', 'amber') }}
     {{ stat_card('Overdue', stats.overdue_tickets, 'Past SLA target date', 'rose') }}
+    {{ stat_card('Ready for Collection', stats.ready_for_collection, 'Awaiting customer pickup', 'emerald') }}
     {{ stat_card("Today's New", stats.new_today, 'Intakes registered today', 'indigo') }}
-    {{ stat_card('Assigned to Techs', technician_workload.assigned, 'Work actively owned', 'cyan') }}
-    {{ stat_card('Unassigned', technician_workload.unassigned, 'Needs assignment', 'amber') }}
   </div>
 
+  {# ── Workshop Metrics Row (Phase 8I) ── #}
+  {% if metrics is defined %}
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div class="rounded-xl border border-amber-800/30 bg-amber-950/10 p-3 text-center">
+      <p class="text-2xl font-bold text-amber-300">{{ metrics.in_diagnosis }}</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">In Diagnosis</p>
+    </div>
+    <div class="rounded-xl border border-violet-800/30 bg-violet-950/10 p-3 text-center">
+      <p class="text-2xl font-bold text-violet-300">{{ metrics.awaiting_quote }}</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Quote</p>
+    </div>
+    <div class="rounded-xl border border-fuchsia-800/30 bg-fuchsia-950/10 p-3 text-center">
+      <p class="text-2xl font-bold text-fuchsia-300">{{ metrics.awaiting_parts }}</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Parts</p>
+    </div>
+    <div class="rounded-xl border border-indigo-800/30 bg-indigo-950/10 p-3 text-center">
+      <p class="text-2xl font-bold text-indigo-300">{{ metrics.in_repair }}</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">In Repair</p>
+    </div>
+    <div class="rounded-xl border border-cyan-800/30 bg-cyan-950/10 p-3 text-center">
+      <p class="text-2xl font-bold text-cyan-300">{{ metrics.in_testing }}</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Testing / QA</p>
+    </div>
+    <div class="rounded-xl border border-amber-800/30 bg-amber-950/10 p-3 text-center">
+      <p class="text-2xl font-bold text-amber-300">{{ metrics.unassigned }}</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Unassigned</p>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
-    <section class="xl:col-span-2 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Tickets</h2>
-        <a href="{{ url_for('tickets.list_tickets') }}" class="text-xs text-indigo-300 hover:text-indigo-200">View all</a>
+    <section class="xl:col-span-2 space-y-5">
+      {# ── Recent Tickets ── #}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Tickets</h2>
+          <a href="{{ url_for('tickets.list_tickets') }}" class="text-xs text-indigo-300 hover:text-indigo-200">View all</a>
+        </div>
+        {% if recent_tickets %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm text-slate-200">
+            <thead class="border-b border-slate-700/50 text-xs uppercase tracking-wider text-slate-400">
+              <tr>
+                <th class="px-3 py-2.5">Ticket</th>
+                <th class="px-3 py-2.5">Customer</th>
+                <th class="px-3 py-2.5">Device</th>
+                <th class="px-3 py-2.5">Status</th>
+                <th class="px-3 py-2.5">Priority</th>
+                <th class="px-3 py-2.5">Created</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              {% for ticket in recent_tickets %}
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="px-3 py-3"><a class="font-medium text-white hover:text-indigo-300 transition-colors" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}">{{ ticket.ticket_number }}</a></td>
+                <td class="px-3 py-3 text-slate-300"><a class="hover:text-indigo-300 transition-colors" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.display_name }}</a></td>
+                <td class="px-3 py-3 text-slate-400">{{ ticket.device.brand }} {{ ticket.device.model }}</td>
+                <td class="px-3 py-3">{{ status_badge(ticket.internal_status) }}</td>
+                <td class="px-3 py-3">{{ priority_badge(ticket.priority) }}</td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">{{ ticket.created_at.strftime('%b %d, %H:%M') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          {{ empty_state('No recent tickets yet', 'Create a new intake to start operations') }}
+        {% endif %}
       </div>
-      {% if recent_tickets %}
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-left text-sm text-slate-200">
-          <thead class="border-b border-slate-700/50 text-xs uppercase tracking-wider text-slate-400">
-            <tr>
-              <th class="px-3 py-2.5">Ticket</th>
-              <th class="px-3 py-2.5">Customer</th>
-              <th class="px-3 py-2.5">Device</th>
-              <th class="px-3 py-2.5">Status</th>
-              <th class="px-3 py-2.5">Priority</th>
-              <th class="px-3 py-2.5">Created</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/60">
-            {% for ticket in recent_tickets %}
-            <tr class="hover:bg-slate-800/40 transition-colors">
-              <td class="px-3 py-3"><a class="font-medium text-white hover:text-indigo-300 transition-colors" href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}">{{ ticket.ticket_number }}</a></td>
-              <td class="px-3 py-3 text-slate-300"><a class="hover:text-indigo-300 transition-colors" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></td>
-              <td class="px-3 py-3 text-slate-400">{{ ticket.device.brand }} {{ ticket.device.model }}</td>
-              <td class="px-3 py-3">{{ status_badge(ticket.internal_status) }}</td>
-              <td class="px-3 py-3">{{ priority_badge(ticket.priority) }}</td>
-              <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">{{ ticket.created_at.strftime('%b %d, %H:%M') }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+      {# ── Overdue Tickets (Phase 8F) ── #}
+      {% if overdue_tickets %}
+      <div class="rounded-2xl border border-rose-800/40 bg-rose-950/10 p-5 shadow-panel">
+        <div class="mb-3 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-rose-300">Overdue Tickets</h2>
+            <p class="text-[10px] text-slate-500">{{ overdue_tickets|length }} ticket{{ 's' if overdue_tickets|length != 1 }} past SLA target</p>
+          </div>
+          <a href="{{ url_for('tickets.repair_board', only_overdue='1') }}" class="text-xs text-rose-300 hover:text-rose-200">View on Board</a>
+        </div>
+        <div class="space-y-2">
+          {% for ticket in overdue_tickets[:6] %}
+          <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="flex items-center justify-between rounded-xl border border-rose-800/30 bg-slate-900/60 p-3 hover:border-rose-700/40 transition-colors">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-white">{{ ticket.ticket_number }}</p>
+              <p class="text-xs text-slate-400 truncate">{{ ticket.customer.display_name }} &middot; {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              {{ status_badge(ticket.internal_status) }}
+              <span class="rounded-full bg-rose-950/60 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-300">OVERDUE</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
       </div>
-      {% else %}
-        {{ empty_state('No recent tickets yet', 'Create a new intake to start operations') }}
       {% endif %}
     </section>
 
     <section class="space-y-5">
+      {# ── Tickets Need Attention (Phase 8G improved) ── #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Tickets Need Attention</h2>
-        <p class="mt-0.5 text-[10px] text-slate-500">Overdue, blocked, or stalled tickets requiring action</p>
+        <p class="mt-0.5 text-[10px] text-slate-500">Blocked, overdue, or stalled tickets requiring action</p>
         <div class="mt-3 space-y-2">
           {% if attention_tickets %}
             {% for item in attention_tickets %}
@@ -81,7 +138,7 @@
                   <p class="text-sm font-semibold text-white">{{ ticket.ticket_number }}</p>
                   {{ priority_badge(ticket.priority) }}
                 </div>
-                <p class="mt-1 text-xs text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+                <p class="mt-1 text-xs text-slate-400">{{ ticket.customer.display_name }} &middot; {{ ticket.device.brand }} {{ ticket.device.model }}</p>
                 <div class="mt-2 flex flex-wrap gap-1.5">
                   {{ status_badge(ticket.internal_status) }}
                   {% for reason in item.reasons %}
@@ -128,6 +185,7 @@
       </div>
       {% endif %}
 
+      {# ── Recent Activity (Phase 8G improved) ── #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Activity</h2>
         {% if activity_items %}
@@ -151,7 +209,7 @@
                 </div>
                 <div class="mt-1 flex items-center gap-2 text-xs text-slate-500">
                   <span>{{ item.timestamp.strftime('%b %d, %H:%M') }}</span>
-                  {% if item.actor %}<span class="text-slate-600">·</span><span class="text-slate-400">{{ item.actor }}</span>{% endif %}
+                  {% if item.actor %}<span class="text-slate-600">&middot;</span><span class="text-slate-400">{{ item.actor }}</span>{% endif %}
                 </div>
               </div>
             </div>
