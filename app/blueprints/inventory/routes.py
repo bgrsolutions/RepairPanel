@@ -9,7 +9,8 @@ from app.extensions import db
 from app.forms.inventory_forms import PartCategoryForm, PartForm, StockAdjustmentForm, StockLocationForm
 from app.models import Branch, Part, PartCategory, PartOrderLine, PartSupplier, QuoteLine, RepairService, StockLayer, StockLevel, StockLocation, StockMovement, StockReservation, Supplier
 from app.services.inventory_service import apply_stock_movement
-from app.utils.permissions import roles_required
+from app.services.permission_service import can_manage_inventory
+from app.utils.permissions import permission_required, roles_required
 
 from datetime import datetime, timezone
 
@@ -141,6 +142,7 @@ def search_parts():
 
 @inventory_bp.post("/parts/create-json")
 @login_required
+@permission_required(can_manage_inventory)
 def create_part_json():
     data = request.get_json(silent=True) or {}
     sku = (data.get("sku") or "").strip()
@@ -217,6 +219,7 @@ def delete_part(part_id):
 
 @inventory_bp.route("/parts/new", methods=["GET", "POST"])
 @login_required
+@permission_required(can_manage_inventory)
 def new_part():
     form = PartForm()
     suppliers = Supplier.query.filter_by(is_active=True).order_by(Supplier.name).all()
@@ -270,6 +273,7 @@ def new_part():
 
 @inventory_bp.route("/parts/<uuid:part_id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required(can_manage_inventory)
 def edit_part(part_id):
     part = db.session.get(Part, part_id)
     if not part or part.deleted_at is not None:
@@ -370,6 +374,7 @@ def list_categories():
 
 @inventory_bp.route("/categories/new", methods=["GET", "POST"])
 @login_required
+@permission_required(can_manage_inventory)
 def new_category():
     if not inspect(db.engine).has_table("part_categories"):
         flash(_("Categories unavailable until migrations are applied"), "warning")
@@ -408,6 +413,7 @@ def list_locations():
 
 @inventory_bp.route("/locations/new", methods=["GET", "POST"])
 @login_required
+@permission_required(can_manage_inventory)
 def new_location():
     form = StockLocationForm()
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]
@@ -423,6 +429,7 @@ def new_location():
 
 @inventory_bp.route("/movements/new", methods=["GET", "POST"])
 @login_required
+@permission_required(can_manage_inventory)
 def new_movement():
     form = StockAdjustmentForm()
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]

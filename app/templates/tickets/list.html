@@ -11,7 +11,7 @@
     </div>
     <div class="flex gap-2.5">
       <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors">Bench Board</a>
-      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ New Ticket</a>
+      {% if perms.can_create_ticket %}<a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ New Ticket</a>{% endif %}
     </div>
   </div>
 

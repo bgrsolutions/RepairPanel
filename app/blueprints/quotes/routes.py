@@ -10,7 +10,9 @@ from app.extensions import db
 from app.forms.quote_forms import QuoteCreateForm
 from app.models import AppSetting, Branch, Customer, Device, Diagnostic, Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
 from app.services.audit_service import log_action
+from app.services.permission_service import can_create_quote, can_create_ticket, can_manage_quote
 from app.services.quote_service import compute_quote_totals, set_quote_status
+from app.utils.permissions import permission_required
 from app.utils.ticketing import default_sla_target, generate_ticket_number
 
 
@@ -121,6 +123,7 @@ def part_price(part_id):
 
 @quotes_bp.get("/ticket/<uuid:ticket_id>/new")
 @login_required
+@permission_required(can_create_quote)
 def new_quote(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -137,6 +140,7 @@ def new_quote(ticket_id):
 
 @quotes_bp.post("/ticket/<uuid:ticket_id>/create")
 @login_required
+@permission_required(can_create_quote)
 def create_quote(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -171,6 +175,7 @@ def create_quote(ticket_id):
 
 @quotes_bp.get("/standalone/new")
 @login_required
+@permission_required(can_create_quote)
 def new_standalone_quote():
     form = QuoteCreateForm()
     form.terms_snapshot.data = _default_quote_terms()
@@ -190,6 +195,7 @@ def new_standalone_quote():
 
 @quotes_bp.post("/standalone/create")
 @login_required
+@permission_required(can_create_quote)
 def create_standalone_quote():
     form = QuoteCreateForm()
     _ensure_default_entries(form)
@@ -254,6 +260,7 @@ def list_quotes():
 
 @quotes_bp.get("/<uuid:quote_id>/edit")
 @login_required
+@permission_required(can_create_quote)
 def edit_quote(quote_id):
     quote = db.session.get(Quote, quote_id)
     if not quote:
@@ -296,6 +303,7 @@ def edit_quote(quote_id):
 
 @quotes_bp.post("/<uuid:quote_id>/update")
 @login_required
+@permission_required(can_create_quote)
 def update_quote(quote_id):
     quote = db.session.get(Quote, quote_id)
     if not quote:
@@ -362,6 +370,7 @@ def quote_detail(quote_id):
 
 @quotes_bp.post("/<uuid:quote_id>/send")
 @login_required
+@permission_required(can_manage_quote)
 def send_quote(quote_id):
     quote = db.session.get(Quote, quote_id)
     if not quote:
@@ -380,6 +389,7 @@ def send_quote(quote_id):
 
 @quotes_bp.post("/<uuid:quote_id>/mark-expired")
 @login_required
+@permission_required(can_manage_quote)
 def mark_expired(quote_id):
     quote = db.session.get(Quote, quote_id)
     if not quote:
@@ -397,6 +407,7 @@ def mark_expired(quote_id):
 
 @quotes_bp.post("/<uuid:quote_id>/manual-approval")
 @login_required
+@permission_required(can_manage_quote)
 def manual_approval(quote_id):
     quote = db.session.get(Quote, quote_id)
     if not quote:
@@ -432,6 +443,7 @@ def manual_approval(quote_id):
 
 @quotes_bp.post("/<uuid:quote_id>/create-ticket")
 @login_required
+@permission_required(can_create_ticket)
 def create_ticket_from_quote(quote_id):
     quote = db.session.get(Quote, quote_id)
     if not quote:

@@ -8,6 +8,8 @@ from sqlalchemy import inspect
 from app.extensions import db
 from app.forms.branch_forms import BranchEditForm
 from app.models import AppSetting, Branch, Company
+from app.services.permission_service import can_manage_settings
+from app.utils.permissions import permission_required
 
 
 settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
@@ -34,6 +36,7 @@ def _company_choices():
 
 @settings_bp.get("/")
 @login_required
+@permission_required(can_manage_settings)
 def index():
     branches = Branch.query.filter(Branch.deleted_at.is_(None)).order_by(Branch.code).all()
     return render_template("settings/index.html", branches=branches)
@@ -41,6 +44,7 @@ def index():
 
 @settings_bp.post("/branches")
 @login_required
+@permission_required(can_manage_settings)
 def create_branch():
     code = (request.form.get("code") or "").strip().upper()
     name = (request.form.get("name") or "").strip()
@@ -57,6 +61,7 @@ def create_branch():
 
 @settings_bp.route("/branches/<branch_id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required(can_manage_settings)
 def edit_branch(branch_id):
     import uuid as _uuid
     try:
@@ -95,6 +100,7 @@ def edit_branch(branch_id):
 
 @settings_bp.get("/portal")
 @login_required
+@permission_required(can_manage_settings)
 def portal_settings():
     default_disclaimer = current_app.config.get("DEFAULT_INTAKE_DISCLAIMER_TEXT", "")
     return render_template(
@@ -108,6 +114,7 @@ def portal_settings():
 
 @settings_bp.post("/portal")
 @login_required
+@permission_required(can_manage_settings)
 def save_portal_settings():
     if not inspect(db.engine).has_table("app_settings"):
         flash(_("Portal settings persistence unavailable until migrations are applied"), "warning")
@@ -132,6 +139,7 @@ def save_portal_settings():
 
 @settings_bp.get("/quotes")
 @login_required
+@permission_required(can_manage_settings)
 def quote_settings():
     return render_template(
         "settings/quotes.html",
@@ -141,6 +149,7 @@ def quote_settings():
 
 @settings_bp.post("/quotes")
 @login_required
+@permission_required(can_manage_settings)
 def save_quote_settings():
     if not inspect(db.engine).has_table("app_settings"):
         flash(_("Settings persistence unavailable until migrations are applied"), "warning")

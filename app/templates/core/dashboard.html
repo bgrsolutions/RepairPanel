@@ -10,10 +10,10 @@
       <p class="mt-1 text-sm text-slate-400">Live queue health for reception and bench technicians.</p>
     </div>
     <div class="flex flex-wrap gap-2">
-      <a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Fast Check-In</a>
+      {% if perms.can_create_ticket %}<a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Fast Check-In</a>{% endif %}
       <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Open Bench Board</a>
       <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">My Queue</a>
-      <a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Reports</a>
+      {% if perms.can_view_reports %}<a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Reports</a>{% endif %}
       <a href="{{ url_for('integrations.export_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Exports</a>
     </div>
   </div>
