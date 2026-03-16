@@ -135,39 +135,39 @@ def _fetch_activity_items(limit: int = 12) -> list[dict]:
 @core_bp.get("/")
 @login_required
 def dashboard():
+    from app.services.workflow_service import detect_blockers, workshop_metrics
+
     active_tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
 
     now = datetime.utcnow()
     today = now.date()
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
+
+    # Phase 8I: workshop metrics
+    metrics = workshop_metrics(active_tickets, now=now, sla_days=sla_days)
 
     stats = {
         "open_tickets": len([t for t in active_tickets if normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES]),
-        "awaiting_diagnosis": sum(1 for t in active_tickets if normalize_ticket_status(t.internal_status) == Ticket.STATUS_AWAITING_DIAGNOSTICS),
-        "in_repair": sum(1 for t in active_tickets if normalize_ticket_status(t.internal_status) in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}),
-        "ready_for_collection": sum(1 for t in active_tickets if normalize_ticket_status(t.internal_status) == Ticket.STATUS_READY_FOR_COLLECTION),
+        "awaiting_diagnosis": metrics["in_diagnosis"],
+        "awaiting_quote": metrics["awaiting_quote"],
+        "awaiting_parts": metrics["awaiting_parts"],
+        "in_repair": metrics["in_repair"] + metrics["in_testing"],
+        "ready_for_collection": metrics["ready_for_collection"],
         "aging_tickets": sum(1 for t in active_tickets if ticket_age_days(t, now) >= 3 and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES),
-        "overdue_tickets": sum(1 for t in active_tickets if is_ticket_overdue(t, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5))),
+        "overdue_tickets": metrics["overdue"],
         "new_today": sum(1 for t in active_tickets if t.created_at.date() == today),
     }
 
     recent_tickets = sorted(active_tickets, key=lambda t: t.created_at, reverse=True)[:6]
-    overdue_part_ticket_ids = {
-        str(order.ticket_id)
-        for order in PartOrder.query.filter(PartOrder.ticket_id.is_not(None), PartOrder.estimated_arrival_at.is_not(None)).all()
-        if order.status not in {"received", "cancelled"} and order.estimated_arrival_at < now
-    }
 
-    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
+    # Phase 8G: Improved attention tickets using blocker detection
     attention_tickets = []
     for ticket in active_tickets:
         normalized = normalize_ticket_status(ticket.internal_status)
         if normalized in Ticket.CLOSED_STATUSES:
             continue
-        reasons = []
-        if is_ticket_overdue(ticket, now, sla_days=sla_days):
-            reasons.append("Overdue SLA")
-        if str(ticket.id) in overdue_part_ticket_ids:
-            reasons.append("Parts overdue")
+        blockers = detect_blockers(ticket, now=now, sla_days=sla_days)
+        reasons = [b.label for b in blockers]
         age = ticket_age_days(ticket, now)
         if normalized == Ticket.STATUS_UNASSIGNED and age >= 1:
             reasons.append("Unassigned")
@@ -179,11 +179,21 @@ def dashboard():
             reasons.append("Waiting on parts 5+ days")
         if reasons:
             attention_tickets.append({"ticket": ticket, "reasons": reasons})
+    # Sort by number of reasons (most blocked first), limit to 10
+    attention_tickets.sort(key=lambda x: len(x["reasons"]), reverse=True)
     attention_tickets = attention_tickets[:10]
+
+    # All overdue tickets for dedicated widget
+    overdue_tickets = [
+        t for t in active_tickets
+        if normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES
+        and is_ticket_overdue(t, now, sla_days=sla_days)
+    ]
+    overdue_tickets.sort(key=lambda t: t.sla_target_at or t.created_at)
 
     technician_workload = {
         "assigned": sum(1 for t in active_tickets if t.assigned_technician_id and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES),
-        "unassigned": sum(1 for t in active_tickets if not t.assigned_technician_id and normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES),
+        "unassigned": metrics["unassigned"],
     }
 
     activity_items = _fetch_activity_items(limit=12)
@@ -206,8 +216,10 @@ def dashboard():
     return render_template(
         "core/dashboard.html",
         stats=stats,
+        metrics=metrics,
         recent_tickets=recent_tickets,
         attention_tickets=attention_tickets,
+        overdue_tickets=overdue_tickets,
         technician_workload=technician_workload,
         activity_items=activity_items,
         todays_bookings=todays_bookings,

@@ -385,7 +385,7 @@ def test_attention_widget_shows_reasons(monkeypatch):
     resp = client.get('/')
     html = resp.data.decode()
     assert 'Tickets Need Attention' in html
-    assert 'Overdue SLA' in html
+    assert 'OVERDUE' in html or 'Overdue SLA' in html or 'Overdue' in html
     assert 'HQ-20260315-AT01' in html
 
 

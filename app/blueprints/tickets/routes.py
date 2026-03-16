@@ -151,6 +151,8 @@ def customer_devices(customer_id):
 @tickets_bp.get("/<uuid:ticket_id>")
 @login_required
 def ticket_detail(ticket_id):
+    from app.services.workflow_service import detect_blockers, next_recommended_action
+
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
         flash(_("Ticket not found"), "error")
@@ -217,6 +219,10 @@ def ticket_detail(ticket_id):
     pre_repair_checklists = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="pre_repair").order_by(RepairChecklist.created_at.asc()).all() if has_checklists else []
     post_repair_checklists = RepairChecklist.query.filter_by(ticket_id=ticket_uuid, checklist_type="post_repair").order_by(RepairChecklist.created_at.asc()).all() if has_checklists else []
 
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
+    blockers = detect_blockers(ticket, now=datetime.utcnow(), sla_days=sla_days)
+    next_action = next_recommended_action(ticket, blockers)
+
     return render_template(
         "tickets/detail.html",
         ticket=ticket,
@@ -238,6 +244,8 @@ def ticket_detail(ticket_id):
         now=datetime.utcnow(),
         pre_repair_checklists=pre_repair_checklists,
         post_repair_checklists=post_repair_checklists,
+        blockers=blockers,
+        next_action=next_action,
     )
 
 
@@ -269,6 +277,8 @@ def assign_ticket(ticket_id):
 @tickets_bp.post("/<uuid:ticket_id>/status")
 @login_required
 def update_status(ticket_id):
+    from app.services.workflow_service import is_valid_transition
+
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
         flash(_("Ticket not found"), "error")
@@ -277,6 +287,14 @@ def update_status(ticket_id):
     form = TicketStatusForm()
     if form.validate_on_submit():
         new_status = normalize_ticket_status(form.internal_status.data)
+        current_status = normalize_ticket_status(ticket.internal_status)
+
+        # Validate transition (allow same-status no-op)
+        if new_status != current_status and not is_valid_transition(current_status, new_status):
+            flash(_("Invalid status transition from %(from_s)s to %(to_s)s",
+                     from_s=current_status.replace("_", " ").title(),
+                     to_s=new_status.replace("_", " ").title()), "error")
+            return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
         # Enforce post-repair checklist completion before marking as completed or ready for collection
         if new_status in (Ticket.STATUS_COMPLETED, Ticket.STATUS_READY_FOR_COLLECTION) and sa_inspect(db.engine).has_table("repair_checklists"):
@@ -466,6 +484,8 @@ def release_reservation(ticket_id, reservation_id):
 @tickets_bp.get("/board")
 @login_required
 def repair_board():
+    from app.services.workflow_service import detect_blockers
+
     now = datetime.utcnow()
     sort = (request.args.get("sort") or "oldest")
     technician_id = (request.args.get("technician_id") or "").strip()
@@ -473,7 +493,10 @@ def repair_board():
     date_range = (request.args.get("date_range") or "").strip()
     only_waiting_parts = request.args.get("waiting_parts") == "1"
     only_overdue = request.args.get("only_overdue") == "1"
+    only_waiting_quote = request.args.get("waiting_quote") == "1"
+    status_filter = (request.args.get("status") or "").strip()
 
+    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
     tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
 
     def in_range(ticket):
@@ -489,17 +512,30 @@ def repair_board():
     for ticket in tickets:
         normalized = normalize_ticket_status(ticket.internal_status)
         ticket.internal_status = normalized
+        if normalized in Ticket.CLOSED_STATUSES:
+            continue
         if technician_id and str(ticket.assigned_technician_id or "") != technician_id:
             continue
         if branch_id and str(ticket.branch_id) != branch_id:
             continue
-        if only_waiting_parts and not _ticket_waiting_on_parts(ticket):
-            continue
-        if only_overdue and not is_ticket_overdue(ticket, now, sla_days=current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)):
+        if status_filter and normalized != status_filter:
             continue
         if not in_range(ticket):
             continue
         scoped.append(ticket)
+
+    # Compute blockers for each ticket
+    ticket_blockers: dict[str, list] = {}
+    for ticket in scoped:
+        ticket_blockers[str(ticket.id)] = detect_blockers(ticket, now=now, sla_days=sla_days)
+
+    # Apply blocker-based filters
+    if only_waiting_parts:
+        scoped = [t for t in scoped if any(b.kind == "parts" for b in ticket_blockers[str(t.id)])]
+    if only_overdue:
+        scoped = [t for t in scoped if is_ticket_overdue(t, now, sla_days=sla_days)]
+    if only_waiting_quote:
+        scoped = [t for t in scoped if any(b.kind == "quote" for b in ticket_blockers[str(t.id)])]
 
     def sort_key(ticket):
         if sort == "newest":
@@ -512,32 +548,82 @@ def repair_board():
 
     scoped.sort(key=sort_key)
 
-    sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
-    grouped = {"Unassigned": [], "Assigned": [], "Awaiting Diagnostics": [], "Awaiting Parts": [], "In Repair": [], "Ready for Collection": [], "Overdue": [], "Aging": []}
+    # Phase 8A: workflow-oriented columns
+    BOARD_COLUMNS = [
+        ("Awaiting Diagnosis", {Ticket.STATUS_UNASSIGNED, Ticket.STATUS_ASSIGNED, Ticket.STATUS_AWAITING_DIAGNOSTICS}),
+        ("Awaiting Quote Approval", {Ticket.STATUS_AWAITING_QUOTE_APPROVAL}),
+        ("Awaiting Parts", {Ticket.STATUS_AWAITING_PARTS}),
+        ("Ready For Repair", {Ticket.STATUS_IN_REPAIR}),
+        ("Testing / QA", {Ticket.STATUS_TESTING_QA}),
+        ("Ready For Collection", {Ticket.STATUS_READY_FOR_COLLECTION}),
+    ]
+
+    from collections import OrderedDict
+    grouped: dict[str, list] = OrderedDict()
+    for col_name, _ in BOARD_COLUMNS:
+        grouped[col_name] = []
 
     for ticket in scoped:
         normalized = normalize_ticket_status(ticket.internal_status)
-        if normalized == Ticket.STATUS_UNASSIGNED or not ticket.assigned_technician_id:
-            grouped["Unassigned"].append(ticket)
-        if normalized == Ticket.STATUS_ASSIGNED:
-            grouped["Assigned"].append(ticket)
-        if normalized == Ticket.STATUS_AWAITING_DIAGNOSTICS:
-            grouped["Awaiting Diagnostics"].append(ticket)
-        if _ticket_waiting_on_parts(ticket):
-            grouped["Awaiting Parts"].append(ticket)
-        if normalized in {Ticket.STATUS_IN_REPAIR, Ticket.STATUS_TESTING_QA}:
-            grouped["In Repair"].append(ticket)
-        if normalized == Ticket.STATUS_READY_FOR_COLLECTION:
-            grouped["Ready for Collection"].append(ticket)
-        if is_ticket_overdue(ticket, now, sla_days=sla_days):
-            grouped["Overdue"].append(ticket)
-        if ticket_age_days(ticket, now) >= 3 and normalized not in Ticket.CLOSED_STATUSES:
-            grouped["Aging"].append(ticket)
+        for col_name, statuses in BOARD_COLUMNS:
+            if normalized in statuses:
+                grouped[col_name].append(ticket)
+                break
 
     technicians = [u for u in User.query.filter(User.deleted_at.is_(None), User.is_active.is_(True)).order_by(User.full_name.asc()).all() if any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)]
     branches = Branch.query.order_by(Branch.code.asc()).all()
 
-    return render_template("tickets/board.html", grouped=grouped, now=now, ticket_age_days=ticket_age_days, is_ticket_overdue=is_ticket_overdue, technicians=technicians, branches=branches, filters={"sort":sort,"technician_id":technician_id,"branch_id":branch_id,"date_range":date_range,"waiting_parts":only_waiting_parts,"only_overdue":only_overdue})
+    return render_template(
+        "tickets/board.html",
+        grouped=grouped,
+        now=now,
+        ticket_age_days=ticket_age_days,
+        is_ticket_overdue=is_ticket_overdue,
+        ticket_blockers=ticket_blockers,
+        technicians=technicians,
+        branches=branches,
+        filters={
+            "sort": sort,
+            "technician_id": technician_id,
+            "branch_id": branch_id,
+            "date_range": date_range,
+            "waiting_parts": only_waiting_parts,
+            "only_overdue": only_overdue,
+            "waiting_quote": only_waiting_quote,
+            "status": status_filter,
+        },
+    )
+
+
+@tickets_bp.post("/<uuid:ticket_id>/quick-assign")
+@login_required
+def quick_assign(ticket_id):
+    """AJAX endpoint for assigning a technician from the bench board."""
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        return jsonify({"ok": False, "error": "Ticket not found"}), 404
+
+    tech_id = (request.form.get("technician_id") or "").strip()
+    previous = ticket.assigned_technician.full_name if ticket.assigned_technician else "Unassigned"
+
+    if tech_id:
+        technician = db.session.get(User, uuid.UUID(tech_id))
+        if not technician:
+            return jsonify({"ok": False, "error": "Technician not found"}), 404
+        ticket.assigned_technician_id = uuid.UUID(tech_id)
+        new_name = technician.full_name
+    else:
+        ticket.assigned_technician_id = None
+        new_name = "Unassigned"
+
+    _sync_assignment_status(ticket)
+    db.session.add(TicketNote(
+        ticket_id=ticket.id, author_user_id=current_user.id,
+        note_type="internal",
+        content=f"Assignment changed: {previous} → {new_name}",
+    ))
+    db.session.commit()
+    return jsonify({"ok": True, "technician": new_name})
 
 
 @tickets_bp.get("/my-queue")

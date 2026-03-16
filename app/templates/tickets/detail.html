@@ -309,6 +309,42 @@
     </div>
 
     <aside class="space-y-6">
+      {# ── Phase 8H: Workflow Panel ── #}
+      {% if blockers or next_action %}
+      <section class="rounded-2xl border {% if blockers %}border-amber-700/40{% else %}border-emerald-700/40{% endif %} bg-slate-900/60 p-5 shadow-panel">
+        <div class="mb-3 border-b border-slate-800/60 pb-3">
+          <h3 class="text-sm font-semibold uppercase tracking-wider {% if blockers %}text-amber-300{% else %}text-emerald-300{% endif %}">Workflow Status</h3>
+          <p class="mt-0.5 text-xs text-slate-500">Current stage, next step, and blockers</p>
+        </div>
+        <dl class="space-y-3 text-sm">
+          <div class="flex items-center justify-between">
+            <dt class="text-slate-500">Current Status</dt>
+            <dd>{{ status_badge(ticket.internal_status) }}</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500 mb-1">Next Recommended Action</dt>
+            <dd class="text-sm text-slate-200">{{ next_action }}</dd>
+          </div>
+        </dl>
+        {% if blockers %}
+        <div class="mt-3 space-y-2">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-rose-400/70">Blockers</p>
+          {% for b in blockers %}
+          {% set badge_cls = 'border-slate-700 bg-slate-800/60 text-slate-300' %}
+          {% if b.kind == 'sla' %}{% set badge_cls = 'border-rose-800/40 bg-rose-950/30 text-rose-200' %}{% endif %}
+          {% if b.kind == 'parts' %}{% set badge_cls = 'border-fuchsia-800/40 bg-fuchsia-950/30 text-fuchsia-200' %}{% endif %}
+          {% if b.kind == 'quote' %}{% set badge_cls = 'border-violet-800/40 bg-violet-950/30 text-violet-200' %}{% endif %}
+          {% if b.kind == 'checklist' %}{% set badge_cls = 'border-amber-800/40 bg-amber-950/30 text-amber-200' %}{% endif %}
+          <div class="rounded-lg border {{ badge_cls }} p-2.5">
+            <p class="text-xs font-bold uppercase">{{ b.label }}</p>
+            <p class="mt-0.5 text-[11px] opacity-80">{{ b.detail }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </section>
+      {% endif %}
+
       {% call section_card('Technician & Workflow') %}
       <p class="mb-3 text-xs text-slate-500">Keep assignment and status updates in one compact panel.</p>
       <form method="post" action="{{ url_for('tickets.assign_ticket', ticket_id=ticket.id) }}" class="space-y-2.5">{{ assignment_form.hidden_tag() }}<label class="block text-xs font-semibold uppercase tracking-wide text-slate-400" for="assigned_technician_id">Assigned technician</label>{{ assignment_form.assigned_technician_id(id='assigned_technician_id', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200') }}{{ assignment_form.submit(class='w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors') }}</form>

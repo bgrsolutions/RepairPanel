@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.9] - 2026-03-16
+### Added
+- **Bench Board overhaul (8A)**: Redesigned bench board with workflow-oriented columns — Awaiting Diagnosis, Awaiting Quote Approval, Awaiting Parts, Ready For Repair, Testing/QA, Ready For Collection. Compact ticket cards show customer, device, issue summary, technician, SLA dates, and blocker badges.
+- **Workflow status transitions (8B)**: Formal transition validation via `workflow_service.py`. Invalid transitions (e.g., unassigned→completed) are rejected with error messages. Transition map covers all 11 statuses.
+- **Blocker detection (8C)**: Automatic detection of quote blockers (unapproved quotes), parts blockers (open/overdue orders), checklist blockers (incomplete post-repair checklists), and SLA blockers (overdue tickets). Surfaced on bench board cards, ticket detail, and dashboard.
+- **Technician assignment improvements (8D)**: Quick-assign AJAX endpoint (`POST /tickets/<id>/quick-assign`) for fast technician assignment. Technician name displayed on board cards. Board filterable by technician.
+- **Bench Board filters (8E)**: Added filters for branch, technician, status, date range, overdue only, waiting parts, and waiting quote. Filters update the board dynamically.
+- **SLA & overdue visibility (8F)**: Dedicated "Overdue Tickets" widget on dashboard listing all overdue tickets. OVERDUE badges on bench board cards and ticket detail. SLA dates highlighted when past due.
+- **Dashboard improvements (8G)**: Attention widget now uses blocker detection for richer reason labels. Overdue tickets shown in dedicated section. Activity feed improved with ticket number and customer name references.
+- **Ticket detail workflow panel (8H)**: New sidebar panel showing current status, next recommended action, and active blockers with details. Context-aware next-step suggestions.
+- **Workshop metrics (8I)**: Operational metrics row on dashboard showing counts for In Diagnosis, Awaiting Quote, Awaiting Parts, In Repair, Testing/QA, and Unassigned tickets.
+- **29 new Phase 8 tests (8J)**: Tests for bench board loading, column grouping, blocker badges, filter functionality, status transition validation, blocker detection (quote/parts/checklist/SLA), technician quick-assign, overdue detection, dashboard metrics, and workflow panel.
+- **Workshop Operations documentation (8K)**: New `docs/WORKSHOP_OPERATIONS.md` covering bench board, ticket lifecycle, status transitions, blocker detection, workshop metrics, and technician assignment.
+
 ## [0.9.8] - 2026-03-16
 ### Added
 - **Customer business identity (7A)**: Extended Customer model with `customer_type` (individual/business), `company_name`, `cif_vat`, and full billing address fields (address, postcode, city, region, country, email, phone). New customer edit page at `/customers/<id>/edit` with toggle between individual and business modes. Business customers show "BIZ" badges in lists and detail views.
