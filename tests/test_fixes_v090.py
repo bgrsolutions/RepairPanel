@@ -167,8 +167,9 @@ def test_ticket_detail_no_duplicate_controls(monkeypatch):
     assert resp.status_code == 200
     html = resp.data.decode()
     # The right sidebar should have the technician form, but the top panel should NOT
-    # Count occurrences of the assign form action
-    assign_count = html.count(f"/tickets/{ticket_id}/assign")
+    # Count occurrences of the assign form action (exclude assign-to-me quick action)
+    import re as _re
+    assign_count = len(_re.findall(f"/tickets/{ticket_id}/assign\"", html))
     assert assign_count == 1, f"Expected 1 assign form, found {assign_count}"
     status_count = html.count(f"/tickets/{ticket_id}/status")
     assert status_count == 1, f"Expected 1 status form, found {status_count}"

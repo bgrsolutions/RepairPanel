@@ -15,7 +15,7 @@ from app.forms.ticket_forms import TicketCreateForm
 from app.forms.ticket_note_forms import TicketAssignmentForm, TicketMetaForm, TicketNoteForm, TicketStatusForm
 from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, Quote, RepairChecklist, RepairService, StockLevel, StockReservation, Ticket, TicketNote, User
 from app.services.audit_service import log_action
-from app.services.inventory_service import reserve_stock_for_ticket
+from app.services.inventory_service import consume_reservation, reserve_stock_for_ticket
 from app.services.quote_service import compute_quote_totals
 from app.utils.ticketing import default_sla_target, generate_ticket_number, is_ticket_overdue, normalize_ticket_status, ticket_age_days
 
@@ -529,6 +529,142 @@ def release_reservation(ticket_id, reservation_id):
         level.reserved_qty = max(0, float(level.reserved_qty or 0) - float(reservation.quantity))
     db.session.commit()
     flash(_("Reservation released"), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/consume-reservation/<uuid:reservation_id>")
+@login_required
+def consume_part(ticket_id, reservation_id):
+    """Consume a reserved part — mark as installed and deduct stock."""
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    reservation = db.session.get(StockReservation, reservation_id)
+    if not reservation or str(reservation.ticket_id) != str(ticket_id):
+        flash(_("Reservation not found"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    if reservation.status != "reserved":
+        flash(_("Reservation is not in reserved state"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    try:
+        consume_reservation(reservation)
+        part_name = reservation.part.name if reservation.part else "Part"
+        db.session.add(TicketNote(
+            ticket_id=ticket.id, author_user_id=current_user.id,
+            note_type="internal",
+            content=f"Part installed: {part_name} (qty {reservation.quantity})",
+        ))
+        db.session.commit()
+        flash(_("Part consumed and stock updated"), "success")
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "error")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/assign-to-me")
+@login_required
+def assign_to_me(ticket_id):
+    """Quick action: assign ticket to current user."""
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    previous = ticket.assigned_technician.full_name if ticket.assigned_technician else "Unassigned"
+    ticket.assigned_technician_id = current_user.id
+    _sync_assignment_status(ticket)
+    db.session.add(TicketNote(
+        ticket_id=ticket.id, author_user_id=current_user.id,
+        note_type="internal",
+        content=f"Assignment changed: {previous} → {current_user.full_name}",
+    ))
+    db.session.commit()
+    flash(_("Ticket assigned to you"), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/quick-status")
+@login_required
+def quick_status(ticket_id):
+    """Quick action: transition to a pre-defined status shortcut."""
+    from app.services.workflow_service import is_valid_transition
+
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    action = (request.form.get("action") or "").strip()
+    current_status = normalize_ticket_status(ticket.internal_status)
+
+    ACTION_MAP = {
+        "diagnosis_complete": Ticket.STATUS_AWAITING_QUOTE_APPROVAL,
+        "waiting_parts": Ticket.STATUS_AWAITING_PARTS,
+        "start_repair": Ticket.STATUS_IN_REPAIR,
+        "repair_complete": Ticket.STATUS_TESTING_QA,
+        "ready_for_collection": Ticket.STATUS_READY_FOR_COLLECTION,
+        "mark_complete": Ticket.STATUS_COMPLETED,
+    }
+
+    new_status = ACTION_MAP.get(action)
+    if not new_status:
+        flash(_("Unknown quick action"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    if new_status != current_status and not is_valid_transition(current_status, new_status):
+        flash(_("Invalid status transition from %(from_s)s to %(to_s)s",
+                 from_s=current_status.replace("_", " ").title(),
+                 to_s=new_status.replace("_", " ").title()), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    # Enforce post-repair checklist for completion/ready statuses
+    if new_status in (Ticket.STATUS_COMPLETED, Ticket.STATUS_READY_FOR_COLLECTION) and sa_inspect(db.engine).has_table("repair_checklists"):
+        post_checklists = RepairChecklist.query.filter_by(
+            ticket_id=ticket.id, checklist_type="post_repair"
+        ).all()
+        if not any(cl.is_complete for cl in post_checklists):
+            flash(_("Cannot change status: the post-repair checklist must be completed first."), "error")
+            return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    previous = ticket.internal_status
+    ticket.internal_status = new_status
+    db.session.add(TicketNote(
+        ticket_id=ticket.id, author_user_id=current_user.id,
+        note_type="internal",
+        content=f"Status changed: {previous} → {new_status}",
+    ))
+    db.session.commit()
+    flash(_("Ticket status updated to %(status)s", status=new_status.replace("_", " ").title()), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/quick-note")
+@login_required
+def quick_note(ticket_id):
+    """Quick action: add an internal bench note without the full modal."""
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    content = (request.form.get("content") or "").strip()
+    if not content:
+        flash(_("Note content is required"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    db.session.add(TicketNote(
+        ticket_id=ticket.id,
+        author_user_id=uuid.UUID(str(current_user.id)),
+        note_type="internal",
+        content=content,
+    ))
+    db.session.commit()
+    flash(_("Bench note added"), "success")
     return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
 
 

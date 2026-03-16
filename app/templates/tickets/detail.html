@@ -30,6 +30,31 @@
     <div class="space-y-6 xl:col-span-2">
       {% call section_card('Actions', 'Modal actions for updates') %}
       <div class="space-y-4">
+        {# -- Quick Technician Actions -- #}
+        <div class="rounded-lg border border-cyan-800/40 bg-cyan-950/20 p-3">
+          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-cyan-400/80">Quick Actions</p>
+          <div class="flex flex-wrap gap-2.5">
+            {% if not ticket.assigned_technician or (ticket.assigned_technician and ticket.assigned_technician.id != current_user.id) %}
+            <form method="post" action="{{ url_for('tickets.assign_to_me', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg bg-cyan-600 px-4 py-2 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors">Assign to me</button></form>
+            {% endif %}
+            {% set qa_status = ticket.internal_status %}
+            {% if qa_status in ('awaiting_diagnostics',) %}
+            <form method="post" action="{{ url_for('tickets.quick_status', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><input type="hidden" name="action" value="diagnosis_complete" /><button class="rounded-lg border border-violet-700 bg-violet-950/40 px-4 py-2 text-xs font-semibold text-violet-200 hover:bg-violet-900/40 transition-colors">Diagnosis complete</button></form>
+            {% endif %}
+            {% if qa_status in ('awaiting_diagnostics', 'awaiting_quote_approval', 'in_repair') %}
+            <form method="post" action="{{ url_for('tickets.quick_status', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><input type="hidden" name="action" value="waiting_parts" /><button class="rounded-lg border border-fuchsia-700 bg-fuchsia-950/40 px-4 py-2 text-xs font-semibold text-fuchsia-200 hover:bg-fuchsia-900/40 transition-colors">Waiting for parts</button></form>
+            {% endif %}
+            {% if qa_status in ('assigned', 'awaiting_diagnostics', 'awaiting_quote_approval', 'awaiting_parts') %}
+            <form method="post" action="{{ url_for('tickets.quick_status', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><input type="hidden" name="action" value="start_repair" /><button class="rounded-lg border border-emerald-700 bg-emerald-950/40 px-4 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors">Start repair</button></form>
+            {% endif %}
+            {% if qa_status == 'in_repair' %}
+            <form method="post" action="{{ url_for('tickets.quick_status', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><input type="hidden" name="action" value="repair_complete" /><button class="rounded-lg border border-amber-700 bg-amber-950/40 px-4 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-900/40 transition-colors">Repair complete</button></form>
+            {% endif %}
+            {% if qa_status == 'testing_qa' %}
+            <form method="post" action="{{ url_for('tickets.quick_status', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><input type="hidden" name="action" value="ready_for_collection" /><button class="rounded-lg border border-emerald-700 bg-emerald-950/40 px-4 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors">Ready for collection</button></form>
+            {% endif %}
+          </div>
+        </div>
         {# -- Workflow actions -- #}
         <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
           <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-indigo-400/80">Workflow</p>
@@ -184,7 +209,7 @@
                 <div>
                   <p class="text-xs font-bold uppercase tracking-widest {% if checklist.is_complete %}text-emerald-400{% else %}text-amber-400{% endif %}">Pre-Repair Check #{{ loop.index }}</p>
                   <p class="mt-0.5 text-[10px] text-slate-500">
-                    {% if checklist.is_complete %}Completed {{ checklist.completed_at.strftime('%b %d, %H:%M') }}{% else %}In progress &mdash; {{ checklist.checked_count }}/{{ checklist.total_count }} checked{% endif %}
+                    {% if checklist.is_complete %}Completed {{ checklist.completed_at.strftime('%b %d, %H:%M') }}{% else %}In progress &mdash; <span class="checklist-progress">{{ checklist.checked_count }}/{{ checklist.total_count }} checked</span>{% endif %}
                   </p>
                 </div>
                 {% if checklist.is_complete %}
@@ -197,7 +222,7 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 {% for item in checklist.items %}
                 <div class="flex items-start gap-2.5 rounded-lg border border-slate-800/60 bg-slate-950/40 px-3 py-2">
-                  <input type="checkbox" name="item_{{ item.id }}" id="pre_{{ checklist.id }}_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40" />
+                  <input type="checkbox" name="item_{{ item.id }}" id="pre_{{ checklist.id }}_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40 {% if not checklist.is_complete %}checklist-toggle{% endif %}" {% if not checklist.is_complete %}data-item-id="{{ item.id }}"{% endif %} />
                   <div class="flex-1 min-w-0">
                     <label for="pre_{{ checklist.id }}_{{ item.id }}" class="block text-xs {% if item.is_checked %}text-slate-400{% else %}text-slate-200{% endif %}">{{ item.label }}</label>
                     {% if not checklist.is_complete %}
@@ -237,7 +262,7 @@
                 <div>
                   <p class="text-xs font-bold uppercase tracking-widest {% if checklist.is_complete %}text-emerald-400{% else %}text-amber-400{% endif %}">Post-Repair Check #{{ loop.index }}</p>
                   <p class="mt-0.5 text-[10px] text-slate-500">
-                    {% if checklist.is_complete %}Completed {{ checklist.completed_at.strftime('%b %d, %H:%M') }}{% else %}In progress &mdash; {{ checklist.checked_count }}/{{ checklist.total_count }} checked{% endif %}
+                    {% if checklist.is_complete %}Completed {{ checklist.completed_at.strftime('%b %d, %H:%M') }}{% else %}In progress &mdash; <span class="checklist-progress">{{ checklist.checked_count }}/{{ checklist.total_count }} checked</span>{% endif %}
                   </p>
                 </div>
                 {% if checklist.is_complete %}
@@ -250,7 +275,7 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 {% for item in checklist.items %}
                 <div class="flex items-start gap-2.5 rounded-lg border border-slate-800/60 bg-slate-950/40 px-3 py-2">
-                  <input type="checkbox" name="item_{{ item.id }}" id="post_{{ checklist.id }}_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40" />
+                  <input type="checkbox" name="item_{{ item.id }}" id="post_{{ checklist.id }}_{{ item.id }}" {% if item.is_checked %}checked{% endif %} {% if checklist.is_complete %}disabled{% endif %} class="mt-0.5 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40 {% if not checklist.is_complete %}checklist-toggle{% endif %}" {% if not checklist.is_complete %}data-item-id="{{ item.id }}"{% endif %} />
                   <div class="flex-1 min-w-0">
                     <label for="post_{{ checklist.id }}_{{ item.id }}" class="block text-xs {% if item.is_checked %}text-slate-400{% else %}text-slate-200{% endif %}">{{ item.label }}</label>
                     {% if not checklist.is_complete %}
@@ -282,6 +307,16 @@
           </div>
 
         </div>
+      </div>
+
+      {# -- Inline Bench Note -- #}
+      <div class="rounded-2xl border border-blue-800/30 bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">Quick Bench Note</h2>
+        <form method="post" action="{{ url_for('tickets.quick_note', ticket_id=ticket.id) }}" class="flex gap-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <input type="text" name="content" placeholder="Type a bench note..." required class="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-indigo-600" />
+          <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500 transition-colors">Add Note</button>
+        </form>
       </div>
 
       {% call section_card('Notes', 'Internal and customer-facing timeline') %}
@@ -375,10 +410,18 @@
               </div>
             </div>
             {% if reservation.status == 'reserved' %}
-            <form method="post" action="{{ url_for('tickets.release_reservation', ticket_id=ticket.id, reservation_id=reservation.id) }}" class="shrink-0">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              <button class="rounded-lg border border-rose-700/60 bg-rose-950/40 px-3 py-1.5 text-[11px] font-semibold text-rose-300 hover:bg-rose-900/50 hover:border-rose-600 transition-colors" onclick="return confirm('Release this reservation? Stock will become available again.')">Release</button>
-            </form>
+            <div class="flex flex-col gap-1.5 shrink-0">
+              <form method="post" action="{{ url_for('tickets.consume_part', ticket_id=ticket.id, reservation_id=reservation.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button class="w-full rounded-lg border border-emerald-700/60 bg-emerald-950/40 px-3 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-900/50 hover:border-emerald-600 transition-colors" onclick="return confirm('Install this part? Stock will be consumed.')">Install</button>
+              </form>
+              <form method="post" action="{{ url_for('tickets.release_reservation', ticket_id=ticket.id, reservation_id=reservation.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button class="w-full rounded-lg border border-rose-700/60 bg-rose-950/40 px-3 py-1.5 text-[11px] font-semibold text-rose-300 hover:bg-rose-900/50 hover:border-rose-600 transition-colors" onclick="return confirm('Release this reservation?')">Release</button>
+              </form>
+            </div>
+            {% elif reservation.status == 'consumed' %}
+            <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Installed</span>
             {% endif %}
           </div>
         </article>
@@ -419,6 +462,30 @@
     const dlg = document.getElementById(btn.dataset.openModal);
     if (dlg && dlg.showModal) dlg.showModal();
   }));
+  // AJAX checklist item toggle
+  document.querySelectorAll('.checklist-toggle').forEach(cb => {
+    cb.addEventListener('change', async () => {
+      const itemId = cb.dataset.itemId;
+      const checked = cb.checked;
+      try {
+        const resp = await fetch(`/checklists/item/${itemId}/toggle`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrf_token]').value},
+          body: JSON.stringify({is_checked: checked}),
+        });
+        if (!resp.ok) { cb.checked = !checked; }
+        else {
+          const data = await resp.json();
+          // Update progress display
+          const prog = cb.closest('form')?.querySelector('.checklist-progress');
+          if (prog && data.checked_count !== undefined) prog.textContent = `${data.checked_count}/${data.total_count} checked`;
+          // Show complete button if all checked
+          const completeBtn = cb.closest('form')?.querySelector('.complete-btn');
+          if (completeBtn) completeBtn.style.display = data.all_checked ? '' : 'none';
+        }
+      } catch { cb.checked = !checked; }
+    });
+  });
   const reserveSearch = document.getElementById('reserve-part-search');
   reserveSearch?.addEventListener('input', async () => {
     const q = reserveSearch.value.trim();
