@@ -407,7 +407,7 @@ class TestPhase11:
             _login(client)
             resp = client.get(f'/tickets/{ticket_id}')
             assert resp.status_code == 200
-            assert b'Customer Portal' in resp.data
+            assert b'Customer Communication' in resp.data
             assert b'public-status-url' in resp.data
             assert token.encode() in resp.data
 
