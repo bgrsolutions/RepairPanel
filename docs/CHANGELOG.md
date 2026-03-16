@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.10.0] - 2026-03-16
+### Added
+- **Improved ticket creation flow (9.1)**: Inline "Quick Add Device" form during ticket creation — staff can add a new device (brand, model, serial, IMEI, category) without leaving the check-in page. New device is immediately selectable in the device dropdown.
+- **Device search AJAX endpoint (9.1)**: `GET /tickets/device-search` searches devices by brand, model, serial number, or IMEI. Supports optional `customer_id` scoping. Integrated into ticket creation with live search below the device dropdown.
+- **Device creation AJAX endpoint (9.1)**: `POST /tickets/device-create-json` creates a new device linked to a customer during ticket creation. Returns the new device ID for immediate selection.
+- **Customer list instant filter (9.2)**: Client-side live filtering on the customer list page — rows filter as the user types without a page reload.
+- **Parts list instant filter (9.3)**: Client-side live filtering on the parts catalog page — rows filter as the user types.
+- **Safe part deletion (9.4)**: `POST /inventory/parts/<id>/delete` with dependency safety checks. Refuses deletion if the part has stock movements, reservations, part order lines, quote lines, or is a default part for a repair service. Shows a warning directing the user to deactivate instead. Unreferenced parts are soft-deleted (deleted_at + is_active=false). Delete buttons added to the parts list UI with confirmation dialog.
+- **26 new Phase 9 tests**: Device search (model, serial, IMEI, customer-scoped, min length), device AJAX creation (success, missing fields), customer search (tickets, customers blueprint, min length, list page, query filter), part search (name, SKU, min length, live search, delete button), safe deletion (unused part deletes, stock movement blocks, order line blocks), ticket creation (page loads, customer devices, existing device), Phase 8 regression (bench board, transitions, dashboard).
+
 ## [0.9.10] - 2026-03-16
 ### Fixed
 - **QR code dependency (7I fix)**: Added `qrcode` and `Pillow` to `requirements.txt`. These were installed at development time but missing from the dependency manifest, causing `generate_qr_data_uri()` to silently return `None` on fresh deployments and rendering device labels without QR codes.

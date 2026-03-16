@@ -46,9 +46,58 @@
       <div class="space-y-4">
         <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">2. Device</h2>
         <div id="device-section">
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_id.label }}</label>
-          {{ form.device_id(id='device-select', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_id.label }}</label>
+              {{ form.device_id(id='device-select', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+            </div>
+            <button type="button" id="new-device-btn" class="hidden shrink-0 rounded-xl border border-indigo-700/50 bg-indigo-950/30 px-3 py-2.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-900/40 transition-colors">+ New Device</button>
+          </div>
           <p id="no-customer-hint" class="mt-1.5 text-xs text-slate-500">Select a customer first to see their devices.</p>
+          {# Inline device search #}
+          <div id="device-search-wrap" class="hidden mt-2 relative">
+            <input id="device-search" type="text" autocomplete="off" placeholder="Search devices by brand, model, serial, or IMEI..." class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+            <div id="device-results" class="absolute z-20 mt-1 w-full rounded-xl border border-slate-700 bg-slate-800 shadow-lg max-h-48 overflow-y-auto hidden"></div>
+          </div>
+        </div>
+        {# Inline new device form #}
+        <div id="new-device-form" class="hidden rounded-xl border border-indigo-800/40 bg-indigo-950/10 p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Quick Add Device</span>
+            <button type="button" id="cancel-new-device" class="text-xs text-slate-500 hover:text-slate-300">Cancel</button>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-400">Category</label>
+              <select id="new-dev-category" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+                <option value="phones">Phones</option>
+                <option value="tablets">Tablets</option>
+                <option value="laptops">Laptops</option>
+                <option value="desktops">Desktops</option>
+                <option value="consoles">Consoles</option>
+                <option value="wearables">Wearables</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-400">Brand *</label>
+              <input id="new-dev-brand" type="text" placeholder="e.g. Apple, Samsung" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-400">Model *</label>
+              <input id="new-dev-model" type="text" placeholder="e.g. iPhone 14 Pro" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-400">Serial Number</label>
+              <input id="new-dev-serial" type="text" placeholder="Optional" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-400">IMEI</label>
+              <input id="new-dev-imei" type="text" placeholder="Optional" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+            </div>
+          </div>
+          <button type="button" id="save-new-device" class="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Add Device</button>
+          <p id="new-device-error" class="hidden text-xs text-rose-400"></p>
         </div>
       </div>
 
@@ -226,9 +275,21 @@
     }
   });
 
+  const newDeviceBtn = document.getElementById('new-device-btn');
+  const newDeviceForm = document.getElementById('new-device-form');
+  const deviceSearchWrap = document.getElementById('device-search-wrap');
+  const deviceSearchInput = document.getElementById('device-search');
+  const deviceSearchResults = document.getElementById('device-results');
+  let deviceSearchTimeout = null;
+  let currentCustomerId = null;
+
   async function loadDevices(customerId) {
+    currentCustomerId = customerId;
     deviceSelect.innerHTML = '';
     noCustomerHint.classList.add('hidden');
+    newDeviceBtn.classList.add('hidden');
+    deviceSearchWrap.classList.add('hidden');
+    newDeviceForm.classList.add('hidden');
     if (!customerId) {
       deviceSelect.innerHTML = '<option value="">Select customer first</option>';
       noCustomerHint.classList.remove('hidden');
@@ -239,16 +300,115 @@
     const devices = await response.json();
     deviceSelect.innerHTML = '';
     if (!devices.length) {
-      deviceSelect.innerHTML = '<option value="">No devices registered for this customer</option>';
+      deviceSelect.innerHTML = '<option value="">No devices — add one below</option>';
+    } else {
+      for (const device of devices) {
+        const option = document.createElement('option');
+        option.value = device.id;
+        option.text = device.label;
+        deviceSelect.appendChild(option);
+      }
+    }
+    newDeviceBtn.classList.remove('hidden');
+    deviceSearchWrap.classList.remove('hidden');
+  }
+
+  // New device form toggle
+  newDeviceBtn?.addEventListener('click', () => {
+    newDeviceForm.classList.toggle('hidden');
+  });
+  document.getElementById('cancel-new-device')?.addEventListener('click', () => {
+    newDeviceForm.classList.add('hidden');
+  });
+
+  // Save new device via AJAX
+  document.getElementById('save-new-device')?.addEventListener('click', async () => {
+    const errEl = document.getElementById('new-device-error');
+    errEl.classList.add('hidden');
+    const brand = document.getElementById('new-dev-brand').value.trim();
+    const model = document.getElementById('new-dev-model').value.trim();
+    if (!brand || !model) {
+      errEl.textContent = 'Brand and model are required.';
+      errEl.classList.remove('hidden');
       return;
     }
-    for (const device of devices) {
+    const resp = await fetch('/tickets/device-create-json', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrf_token]').value},
+      body: JSON.stringify({
+        customer_id: currentCustomerId,
+        category: document.getElementById('new-dev-category').value,
+        brand, model,
+        serial_number: document.getElementById('new-dev-serial').value.trim(),
+        imei: document.getElementById('new-dev-imei').value.trim(),
+      }),
+    });
+    const data = await resp.json();
+    if (data.ok) {
       const option = document.createElement('option');
-      option.value = device.id;
-      option.text = device.label;
+      option.value = data.id;
+      option.text = data.label;
+      // Remove placeholder if present
+      if (deviceSelect.options.length === 1 && !deviceSelect.options[0].value) {
+        deviceSelect.innerHTML = '';
+      }
       deviceSelect.appendChild(option);
+      deviceSelect.value = data.id;
+      newDeviceForm.classList.add('hidden');
+      // Clear form fields
+      document.getElementById('new-dev-brand').value = '';
+      document.getElementById('new-dev-model').value = '';
+      document.getElementById('new-dev-serial').value = '';
+      document.getElementById('new-dev-imei').value = '';
+    } else {
+      errEl.textContent = data.error || 'Failed to create device';
+      errEl.classList.remove('hidden');
     }
-  }
+  });
+
+  // Device search within customer's devices
+  deviceSearchInput?.addEventListener('input', () => {
+    clearTimeout(deviceSearchTimeout);
+    const q = deviceSearchInput.value.trim();
+    if (q.length < 2) { deviceSearchResults.classList.add('hidden'); deviceSearchResults.innerHTML = ''; return; }
+    deviceSearchTimeout = setTimeout(async () => {
+      const url = `/tickets/device-search?q=${encodeURIComponent(q)}` + (currentCustomerId ? `&customer_id=${currentCustomerId}` : '');
+      const data = await (await fetch(url)).json();
+      deviceSearchResults.innerHTML = '';
+      if (!data.items.length) {
+        deviceSearchResults.innerHTML = '<div class="px-3 py-2 text-xs text-slate-500">No devices found</div>';
+        deviceSearchResults.classList.remove('hidden');
+        return;
+      }
+      for (const item of data.items) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'block w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 transition-colors first:rounded-t-xl last:rounded-b-xl';
+        btn.textContent = item.label;
+        btn.onclick = () => {
+          // Add to select if not already present
+          let found = false;
+          for (const opt of deviceSelect.options) { if (opt.value === item.id) { found = true; break; } }
+          if (!found) {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.text = item.label;
+            deviceSelect.appendChild(option);
+          }
+          deviceSelect.value = item.id;
+          deviceSearchResults.classList.add('hidden');
+          deviceSearchInput.value = '';
+        };
+        deviceSearchResults.appendChild(btn);
+      }
+      deviceSearchResults.classList.remove('hidden');
+    }, 250);
+  });
+  document.addEventListener('click', (e) => {
+    if (!deviceSearchResults.contains(e.target) && e.target !== deviceSearchInput) {
+      deviceSearchResults.classList.add('hidden');
+    }
+  });
 
   // --- Service selection: part availability + ETA suggestion ---
   async function loadServiceAvailability() {

@@ -7,7 +7,7 @@ from sqlalchemy import func, inspect, or_
 
 from app.extensions import db
 from app.forms.inventory_forms import PartCategoryForm, PartForm, StockAdjustmentForm, StockLocationForm
-from app.models import Branch, Part, PartCategory, PartOrderLine, PartSupplier, StockLayer, StockLevel, StockLocation, Supplier
+from app.models import Branch, Part, PartCategory, PartOrderLine, PartSupplier, QuoteLine, RepairService, StockLayer, StockLevel, StockLocation, StockMovement, StockReservation, Supplier
 from app.services.inventory_service import apply_stock_movement
 from app.utils.permissions import roles_required
 
@@ -171,6 +171,48 @@ def toggle_part_active(part_id):
     db.session.commit()
     flash(_("Part status updated"), "success")
     return redirect(url_for("inventory.list_parts", include_inactive=1))
+
+
+@inventory_bp.post("/parts/<uuid:part_id>/delete")
+@login_required
+@roles_required("Super Admin", "Admin", "Manager")
+def delete_part(part_id):
+    """Soft-delete a part. Refuses if the part has historical usage that would be corrupted."""
+    part = db.session.get(Part, part_id)
+    if not part or part.deleted_at is not None:
+        flash(_("Part not found"), "error")
+        return redirect(url_for("inventory.list_parts"))
+
+    # Safety checks — refuse if part is referenced in historical records
+    reasons = []
+    if StockMovement.query.filter_by(part_id=part.id).first():
+        reasons.append("stock movements")
+    if StockReservation.query.filter_by(part_id=part.id).first():
+        reasons.append("stock reservations")
+    if PartOrderLine.query.filter_by(part_id=part.id).first():
+        reasons.append("part orders")
+    try:
+        has_quote_lines = db.session.query(QuoteLine).filter(
+            QuoteLine.part_id.isnot(None)
+        ).filter(QuoteLine.part_id == part.id).first()
+    except Exception:
+        has_quote_lines = None
+    if has_quote_lines:
+        reasons.append("quote lines")
+    if RepairService.query.filter_by(default_part_id=part.id).first():
+        reasons.append("repair services")
+
+    if reasons:
+        flash(_("Cannot delete part '%(name)s': it is referenced by %(refs)s. "
+                "Deactivate it instead to hide it from active use.",
+                name=part.name, refs=", ".join(reasons)), "warning")
+        return redirect(url_for("inventory.part_detail", part_id=part.id))
+
+    part.deleted_at = datetime.now(timezone.utc)
+    part.is_active = False
+    db.session.commit()
+    flash(_("Part '%(name)s' deleted", name=part.name), "success")
+    return redirect(url_for("inventory.list_parts"))
 
 
 @inventory_bp.route("/parts/new", methods=["GET", "POST"])
