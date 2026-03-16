@@ -1,8 +1,9 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Blueprint, current_app, render_template
 from flask_login import login_required
+from sqlalchemy import inspect as sa_inspect
 
 from app.extensions import db
 from app.models import AuditLog, PartOrder, Ticket, TicketNote
@@ -187,6 +188,21 @@ def dashboard():
 
     activity_items = _fetch_activity_items(limit=12)
 
+    # Today's bookings
+    todays_bookings = []
+    try:
+        if sa_inspect(db.engine).has_table("bookings"):
+            from app.models import Booking
+            day_start = datetime.combine(today, datetime.min.time())
+            day_end = day_start + timedelta(days=1)
+            todays_bookings = Booking.query.filter(
+                Booking.start_time >= day_start,
+                Booking.start_time < day_end,
+                Booking.status.notin_(["cancelled"]),
+            ).order_by(Booking.start_time).all()
+    except Exception:
+        pass
+
     return render_template(
         "core/dashboard.html",
         stats=stats,
@@ -194,4 +210,5 @@ def dashboard():
         attention_tickets=attention_tickets,
         technician_workload=technician_workload,
         activity_items=activity_items,
+        todays_bookings=todays_bookings,
     )

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit Booking' if editing else 'New Booking' }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6 max-w-2xl">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">{{ 'Edit Booking' if editing else 'New Booking' }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ 'Update booking details.' if editing else 'Schedule a repair booking.' }}</p>
+  </div>
+
+  <form method="post" class="space-y-6">
+    {{ form.hidden_tag() }}
+
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Booking Details</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Location <span class="text-red-400">*</span></label>
+          {{ form.location_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Repair Service</label>
+          {{ form.repair_service_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Start Time <span class="text-red-400">*</span></label>
+          {{ form.start_time(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">End Time <span class="text-red-400">*</span></label>
+          {{ form.end_time(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Status</label>
+          {{ form.status(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        {{ form.customer_id }}
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-slate-400 mb-1">Notes</label>
+          {{ form.notes(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      {{ form.submit(class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors cursor-pointer") }}
+      <a href="{{ url_for('bookings.list_bookings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

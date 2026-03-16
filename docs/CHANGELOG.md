@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.7] - 2026-03-16
+### Added
+- **Company model (6A)**: New `Company` entity for business/legal identity management with legal_name, trading_name, CIF/NIF, tax_mode, contact details, logo_path, default quote/repair terms, document footer. Admin UI at `/admin/companies/` with full CRUD.
+- **Branch/Store extension (6B)**: Extended existing `Branch` model with 12 new columns — company_id (FK), address_line_1, address_line_2, postcode, city, island_or_region, country, phone, email, opening_hours, ticket_prefix, quote_prefix. New edit UI at `/settings/branches/<id>/edit`. Added `full_address` property.
+- **Service Catalogue (6C)**: New `RepairService` model with name, device_category, description, default_part_id (FK to parts), labour_minutes, suggested_sale_price, is_active. Admin UI at `/services/` with CRUD, category badges, and part links.
+- **Smart Check-In service selector (6D)**: Fast Check-In (`/tickets/new`) now includes repair service selector, part availability panel, and ETA suggestion panel. Service info sidebar shows labour time and suggested price.
+- **Part availability during check-in (6E)**: AJAX endpoint `/tickets/service-availability` returns real-time stock data for the selected service's default part — stock in current store, other stores, needs ordering flag, supplier lead time.
+- **ETA suggestion (6F)**: Automatic promised repair time calculation based on service labour_minutes, stock availability, and supplier lead_time_days. Rounds to business hours.
+- **Booking/Calendar foundation (6G)**: New `Booking` model with location_id, customer_id, repair_service_id, linked_ticket_id, start/end time, status (scheduled/confirmed/in_progress/completed/cancelled/no_show), notes. UI at `/bookings/` with day view, week navigation, date picker, and location filter.
+- **Dashboard bookings widget (6H)**: Today's Bookings section on dashboard showing up to 5 upcoming bookings with time, customer, service, and status badges.
+- **Document identity foundations (6I)**: Company and Branch models now carry all fields needed for quote/ticket document headers (company identity, branch address, prefixes).
+- **Navigation**: Added Bookings and Services links to desktop and mobile navigation under Operations dropdown. Settings page links to Companies, Service Catalogue, and Bookings.
+- Migration `b5c7d9e1f3a5` creates companies, repair_services, bookings tables and extends branches with new columns.
+- 26 new Phase 6 tests covering company CRUD, branch editing, service catalogue, check-in service selector, part availability API, ETA suggestion, booking CRUD, dashboard widget, model properties, migration validation, and navigation.
+
 ## [0.9.6] - 2026-03-15
 ### Added
 - **Intake form redesign (6A)**: Reworked `/intake/new` with 6 numbered step sections — Branch & Customer, Device Details, Fault & Condition, Pre-Repair Quick Check (5 checkboxes), Initial Diagnosis, and Attachments & Disclaimer. Sidebar intake checklist guide for staff reference.

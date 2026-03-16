@@ -13,7 +13,7 @@ from app.forms.diagnostic_forms import DiagnosticForm
 from app.forms.inventory_forms import StockReservationForm
 from app.forms.ticket_forms import TicketCreateForm
 from app.forms.ticket_note_forms import TicketAssignmentForm, TicketMetaForm, TicketNoteForm, TicketStatusForm
-from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, Quote, RepairChecklist, StockReservation, Ticket, TicketNote, User
+from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, Quote, RepairChecklist, RepairService, StockLevel, StockReservation, Ticket, TicketNote, User
 from app.services.audit_service import log_action
 from app.services.inventory_service import reserve_stock_for_ticket
 from app.services.quote_service import compute_quote_totals
@@ -560,6 +560,105 @@ def my_queue():
     return render_template("tickets/my_queue.html", grouped=grouped, is_ticket_overdue=is_ticket_overdue, now=now, eta_by_ticket=eta_by_ticket)
 
 
+def _service_choices():
+    """Build choices list for repair service selector."""
+    try:
+        from sqlalchemy import inspect as _insp
+        if not _insp(db.engine).has_table("repair_services"):
+            return [("", "-- Select Service (optional) --")]
+    except Exception:
+        return [("", "-- Select Service (optional) --")]
+    services = RepairService.query.filter(RepairService.is_active.is_(True)).order_by(RepairService.device_category, RepairService.name).all()
+    choices = [("", "-- Select Service (optional) --")]
+    for s in services:
+        cat = f" [{s.device_category.replace('_', ' ').title()}]" if s.device_category else ""
+        choices.append((str(s.id), f"{s.name}{cat}"))
+    return choices
+
+
+def _part_availability(part_id, branch_id=None):
+    """Check stock availability for a part across branches."""
+    levels = StockLevel.query.filter(StockLevel.part_id == part_id).all()
+    this_store = 0
+    other_stores = 0
+    for lvl in levels:
+        available = (lvl.on_hand_qty or 0) - (lvl.reserved_qty or 0)
+        if branch_id and str(lvl.branch_id) == str(branch_id):
+            this_store += max(0, available)
+        else:
+            other_stores += max(0, available)
+    return this_store, other_stores
+
+
+def _suggest_eta(service, part_in_stock):
+    """Suggest a promised completion time based on service and stock."""
+    now = datetime.utcnow()
+    labour_hours = (service.labour_minutes or 60) / 60.0
+
+    if part_in_stock:
+        # Part in stock: promise based on labour + same-day buffer
+        eta = now + timedelta(hours=max(labour_hours + 1, 2))
+        # Round up to next whole hour at :00
+        eta = eta.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        # Cap at 18:00 today or next business day
+        if eta.hour >= 18:
+            next_day = (now + timedelta(days=1)).replace(hour=10, minute=0, second=0, microsecond=0)
+            eta = next_day + timedelta(hours=int(labour_hours) + 1)
+    else:
+        # Part not in stock: add lead time from part or default 3 days
+        part = service.default_part
+        lead_days = (part.lead_time_days if part and part.lead_time_days else 3)
+        eta = now + timedelta(days=lead_days, hours=labour_hours)
+        eta = eta.replace(hour=18, minute=0, second=0, microsecond=0)
+
+    return eta
+
+
+@tickets_bp.get("/service-availability")
+@login_required
+def service_availability():
+    """AJAX endpoint: returns part availability and ETA for a service+branch."""
+    service_id = (request.args.get("service_id") or "").strip()
+    branch_id = (request.args.get("branch_id") or "").strip()
+    if not service_id:
+        return jsonify({"available": False})
+    try:
+        svc = db.session.get(RepairService, uuid.UUID(service_id))
+    except (ValueError, TypeError):
+        return jsonify({"available": False})
+    if not svc:
+        return jsonify({"available": False})
+
+    result = {
+        "service_name": svc.name,
+        "labour_minutes": svc.labour_minutes,
+        "suggested_price": float(svc.suggested_sale_price) if svc.suggested_sale_price else None,
+    }
+
+    if svc.default_part_id:
+        part = svc.default_part
+        this_store, other_stores = _part_availability(svc.default_part_id, branch_id)
+        result["part_name"] = part.name if part else None
+        result["stock_this_store"] = this_store
+        result["stock_other_stores"] = other_stores
+        result["part_in_stock"] = this_store > 0
+        result["needs_ordering"] = this_store == 0 and other_stores == 0
+        if part and part.lead_time_days:
+            result["lead_time_days"] = part.lead_time_days
+
+        eta = _suggest_eta(svc, this_store > 0)
+        result["suggested_eta"] = eta.strftime("%Y-%m-%dT%H:%M")
+        result["eta_display"] = eta.strftime("%d %b %Y %H:%M")
+    else:
+        # No default part — just use labour time
+        eta = _suggest_eta(svc, True)
+        result["suggested_eta"] = eta.strftime("%Y-%m-%dT%H:%M")
+        result["eta_display"] = eta.strftime("%d %b %Y %H:%M")
+        result["part_in_stock"] = True
+
+    return jsonify(result)
+
+
 @tickets_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def create_ticket():
@@ -575,6 +674,7 @@ def create_ticket():
     devices = devices_query.order_by(Device.brand).all()
     form.device_id.choices = [(str(d.id), f"{d.brand} {d.model} ({d.serial_number or 'N/A'})") for d in devices]
     form.branch_id.choices = [(str(b.id), f"{b.code} - {b.name}") for b in Branch.query.order_by(Branch.code).all()]
+    form.repair_service_id.choices = _service_choices()
     selected_branch = request.form.get("branch_id") or (form.branch_id.choices[0][0] if form.branch_id.choices else None)
     form.assigned_technician_id.choices = _technician_choices(selected_branch)
 
@@ -610,6 +710,12 @@ def create_ticket():
             intake_parts.append(f"Accessories: {form.accessories.data}")
         if form.customer_notes.data:
             intake_parts.append(f"Customer notes: {form.customer_notes.data}")
+        # Record selected service
+        svc_id = form.repair_service_id.data
+        if svc_id:
+            svc = db.session.get(RepairService, uuid.UUID(svc_id))
+            if svc:
+                intake_parts.append(f"Service: {svc.name}")
         if intake_parts:
             db.session.add(TicketNote(ticket_id=ticket.id, author_user_id=current_user.id, note_type="internal", content="\n".join(intake_parts)))
         db.session.commit()

@@ -7,6 +7,7 @@ class TicketCreateForm(FlaskForm):
     customer_id = HiddenField("Customer", validators=[DataRequired()])
     device_id = SelectField("Device", validators=[DataRequired()], coerce=str)
     branch_id = SelectField("Branch", validators=[DataRequired()], coerce=str)
+    repair_service_id = SelectField("Repair Service", validators=[Optional()], coerce=str)
     assigned_technician_id = SelectField("Assigned Technician", validators=[Optional()], coerce=str)
     internal_status = SelectField(
         "Workflow Status",
