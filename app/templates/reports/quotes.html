@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import stat_card, empty_state %}
+{% block title %}Quote Report - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Management Reporting</p>
+      <h1 class="text-2xl font-semibold text-white">Quote Pipeline Report</h1>
+      <p class="mt-1 text-sm text-slate-400">Approval rates, pipeline health, and time-to-approve metrics.</p>
+    </div>
+    <a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Back to Dashboard</a>
+  </div>
+
+  {# ── Filters ── #}
+  <form method="get" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Filter</p>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <select name="date_range" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
+        <option value="">All time</option>
+        <option value="today" {% if filters.date_range == 'today' %}selected{% endif %}>Today</option>
+        <option value="last_7_days" {% if filters.date_range == 'last_7_days' %}selected{% endif %}>Last 7 days</option>
+        <option value="last_30_days" {% if filters.date_range == 'last_30_days' %}selected{% endif %}>Last 30 days</option>
+        <option value="this_month" {% if filters.date_range == 'this_month' %}selected{% endif %}>This month</option>
+      </select>
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Apply</button>
+    </div>
+  </form>
+
+  {# ── KPI Tiles ── #}
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    {{ stat_card('Total Quotes', quotes.total_quotes, 'In selected period', 'indigo') }}
+    {{ stat_card('Approval Rate', ('%.1f%%'|format(quotes.approval_rate)), 'Approved / sent+decided', 'emerald') }}
+    {{ stat_card('Avg Time to Approve', ('%.1f days'|format(quotes.avg_time_to_approve_days)), 'From sent to approved', 'cyan') }}
+    {{ stat_card('Approved', quotes.by_status.get('approved', 0), 'Quotes accepted', 'emerald') }}
+  </div>
+
+  {# ── Status Breakdown ── #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Quotes by Status</h2>
+    {% if quotes.by_status %}
+    <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+      {% for status, count in quotes.by_status.items() %}
+      <a href="{{ url_for('quotes.list_quotes') }}" class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3.5 flex items-center justify-between hover:border-slate-700 transition-colors">
+        <span class="text-sm text-slate-300 capitalize">{{ status }}</span>
+        <span class="text-sm font-semibold text-white">{{ count }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    {{ empty_state('No quotes found', 'No quotes match the selected filters.') }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

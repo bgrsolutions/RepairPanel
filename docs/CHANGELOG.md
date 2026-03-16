@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.15.0] - 2026-03-16
+### Added
+- **Reporting Service Layer (14.1)**: Centralized `app/services/reporting_service.py` with query/aggregation functions for all management reporting: `management_overview()`, `technician_workload()`, `ticket_throughput()`, `quote_report()`, `inventory_report()`, `communication_report()`, and filter helpers.
+- **Management Dashboard Enhancement (14.2)**: Comprehensive KPI dashboard at `/reports/` with overview tiles (total open, overdue, created today, completed today, unassigned), pipeline status tiles (awaiting diagnosis, awaiting quote, awaiting parts, in repair, ready for collection), throughput KPIs (avg age, avg turnaround, created/completed this week, stalled count), quote pipeline summary, technician workload summary, communication & portal metrics, and inventory quick glance.
+- **Technician Workload Report (14.3)**: Dedicated `/reports/technician-workload` route with per-technician breakdown table showing active, in-repair, overdue, completed, and total ticket counts. Drill-down links to filtered ticket list per technician.
+- **Quote Pipeline Report (14.4)**: Dedicated `/reports/quotes` route with quote status breakdown, approval rate, average time-to-approve metrics, and drill-down links to quotes list.
+- **Inventory & Parts Report (14.5)**: Dedicated `/reports/inventory` route with most-used parts, low stock alerts, pending orders, reservation counts (consumed/reserved), and parts awaiting arrival.
+- **Customer Communication & Portal Reporting (14.6)**: Communication metrics section on management dashboard showing active portal tokens, total tokens, expired tokens, and communication actions in the last 30 days.
+- **Reporting Filters (14.7)**: All reporting routes support date range (today, last 7 days, last 30 days, this month, last month), branch, and technician filters via query parameters. Filter form included on all report pages.
+- **Role-Aware Dashboard Access (14.8)**: All reporting routes protected server-side with `@permission_required(can_view_reports)` decorator. Only Super Admin, Admin, and Manager roles can access reports. Returns 403 for unauthorized users.
+- **Drill-Down Links (14.9)**: Status breakdown items link to filtered ticket lists. Technician workload entries link to technician-filtered ticket views. Sub-report navigation links on dashboard (Technician Workload, Quote Report, Inventory Report).
+- 45 new Phase 14 tests covering reporting service functions (overview, workload, throughput, quotes, inventory, communication), route protection (403 for Technician/Front Desk/Inventory/Read Only, 200 for Admin/Manager/Super Admin), filter integration, template content (tiles, metrics, drill-down links, filter forms), and edge cases (empty data).
+
 ## [0.14.0] - 2026-03-16
 ### Added
 - **Permission Service Layer (13.1)**: Centralized `app/services/permission_service.py` with role constants, role groupings (`_ADMIN_ROLES`, `_MANAGEMENT_ROLES`, `_WORKSHOP_ROLES`, `_FRONTDESK_ROLES`, `_INVENTORY_ROLES`, `_ALL_STAFF_ROLES`), and 14+ permission check functions (`can_manage_settings`, `can_create_ticket`, `can_progress_workflow`, etc.).
