@@ -8,7 +8,12 @@
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">Ticket Summary</p>
         <h1 class="mt-1.5 text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ ticket.ticket_number }}</h1>
-        <p class="mt-1.5 text-sm text-slate-400"><a class="hover:text-indigo-300 transition-colors" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a> · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
+        <p class="mt-1.5 text-sm text-slate-400">
+          <a class="hover:text-indigo-300 transition-colors" href="{{ url_for('customers.customer_detail', customer_id=ticket.customer.id) }}">{{ ticket.customer.display_name }}</a>
+          {% if ticket.customer.is_business %}<span class="ml-1 inline-flex rounded-full border border-amber-600/30 bg-amber-950/40 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">BIZ</span>{% endif %}
+          · {{ ticket.device.brand }} {{ ticket.device.model }}
+          {% if ticket.customer.is_business and ticket.customer.cif_vat %}<span class="ml-1.5 text-xs text-slate-500">CIF: {{ ticket.customer.cif_vat }}</span>{% endif %}
+        </p>
         {% if ticket.issue_summary %}<p class="mt-2.5 text-sm leading-relaxed text-slate-300">{{ ticket.issue_summary }}</p>{% endif %}
       </div>
       <div class="flex flex-wrap items-center gap-2.5 lg:justify-end">{{ status_badge(ticket.internal_status) }}{{ priority_badge(ticket.priority) }}</div>
@@ -41,6 +46,16 @@
             <button type="button" data-open-modal="diag-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Add diagnostics</button>
             <button type="button" data-open-modal="quote-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Create quote</button>
             <button type="button" data-open-modal="reserve-modal" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Reserve part</button>
+          </div>
+        </div>
+        {# -- Print actions -- #}
+        <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Print</p>
+          <div class="flex flex-wrap gap-2.5">
+            <a href="{{ url_for('printing.print_ticket', ticket_id=ticket.id) }}" target="_blank" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Ticket Slip</a>
+            <a href="{{ url_for('printing.print_checklist', ticket_id=ticket.id) }}" target="_blank" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Checklist</a>
+            <a href="{{ url_for('printing.print_device_label', ticket_id=ticket.id) }}" target="_blank" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Device Label</a>
+            <a href="{{ url_for('printing.print_accessory_label', ticket_id=ticket.id) }}" target="_blank" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Accessory Label</a>
           </div>
         </div>
         {# -- Destructive / lifecycle actions -- #}

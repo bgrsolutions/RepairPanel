@@ -6,6 +6,7 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 from flask_login import login_required
 
 from app.extensions import db
+from app.forms.customer_forms import CustomerEditForm
 from app.models import Customer, Device, StockReservation, Ticket
 
 
@@ -68,7 +69,11 @@ def customer_search_json():
     rows = Customer.query.filter(Customer.deleted_at.is_(None)).filter(
         or_(Customer.full_name.ilike(like), Customer.phone.ilike(like), Customer.email.ilike(like))
     ).order_by(Customer.full_name.asc()).limit(25).all()
-    return {"items": [{"id": str(c.id), "label": f"{c.full_name} · {c.phone or c.email or ''}"} for c in rows]}
+    items = []
+    for c in rows:
+        label = c.display_name + " · " + (c.phone or c.email or "")
+        items.append({"id": str(c.id), "label": label, "is_business": c.is_business})
+    return {"items": items}
 
 
 @customers_bp.post("/create-json")
@@ -84,6 +89,25 @@ def create_customer_json():
     db.session.add(customer)
     db.session.commit()
     return jsonify({"ok": True, "id": str(customer.id), "label": f"{customer.full_name} · {phone}"})
+
+
+@customers_bp.route("/<uuid:customer_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_customer(customer_id):
+    customer = Customer.query.filter(Customer.id == customer_id, Customer.deleted_at.is_(None)).first_or_404()
+    form = CustomerEditForm(obj=customer)
+
+    if form.validate_on_submit():
+        form.populate_obj(customer)
+        # Clear business fields if switched to individual
+        if customer.customer_type == "individual":
+            customer.company_name = None
+            customer.cif_vat = None
+        db.session.commit()
+        flash("Customer updated", "success")
+        return redirect(url_for("customers.customer_detail", customer_id=customer.id))
+
+    return render_template("customers/edit.html", form=form, customer=customer)
 
 
 @customers_bp.get("/<uuid:customer_id>")

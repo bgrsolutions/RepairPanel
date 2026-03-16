@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.8] - 2026-03-16
+### Added
+- **Customer business identity (7A)**: Extended Customer model with `customer_type` (individual/business), `company_name`, `cif_vat`, and full billing address fields (address, postcode, city, region, country, email, phone). New customer edit page at `/customers/<id>/edit` with toggle between individual and business modes. Business customers show "BIZ" badges in lists and detail views.
+- **Company-aware ticket/quote context (7B-7C)**: Ticket detail, quote detail, and customer views now display business customer company name, CIF/VAT, and "BIZ" badge. Quote `display_customer_name` property uses `display_name` for business-aware rendering. Standalone quotes support business customer details.
+- **Printable quote (7D)**: Professional print-friendly quote at `/print/quote/<id>` with company/branch identity header, customer block (individual or business-aware), device details, diagnostic summary, line items table with IGIC tax, subtotal/tax/grand total block, terms, signature area, and QR code.
+- **Printable ticket/intake slip (7E)**: Print-friendly repair ticket at `/print/ticket/<id>` with ticket number, branch identity, customer/device details, IMEI/serial, issue summary, intake notes, diagnostics, pre-repair check summary, repair terms, and customer signature area.
+- **Printable checklist (7F)**: Print-friendly checklist summary at `/print/ticket/<id>/checklist` showing all pre-repair and post-repair checklists with item status, notes, and completion timestamps.
+- **Device sticky label (7G)**: Compact label at `/print/ticket/<id>/label/device` (62mm×29mm) with ticket number, device model, customer surname, IMEI/serial, branch code, QR code. Optimized for label printers.
+- **Accessory sticky label (7G)**: Per-accessory labels at `/print/ticket/<id>/label/accessory` parsed from intake notes, each with ticket number, accessory name, customer surname, branch code.
+- **Document service (7H)**: Shared `document_service.py` with `resolve_branch_identity()`, `customer_block()`, and `generate_qr_data_uri()` helpers. Reusable `print/base_print.html` base template with professional print CSS, screen preview toolbar, and document layout components.
+- **QR code foundation (7I)**: `qrcode` library integration for generating QR codes as base64 data URIs. Used on printed quotes (quote reference), tickets (ticket number), and device labels.
+- **Print action buttons (7J)**: Ticket detail page now has Print section with Ticket Slip, Checklist, Device Label, and Accessory Label buttons. Quote detail page has Print Quote button.
+- Migration `c7d9e1f3a5b7` adds 11 columns to customers table with index on customer_type.
+- 29 new Phase 7 tests covering customer business fields, edit flow, business badges on ticket/quote detail, printable quote/ticket/checklist/label routes, document service helpers, QR code generation, print buttons, and migration validation.
+
 ## [0.9.7] - 2026-03-16
 ### Added
 - **Company model (6A)**: New `Company` entity for business/legal identity management with legal_name, trading_name, CIF/NIF, tax_mode, contact details, logo_path, default quote/repair terms, document footer. Admin UI at `/admin/companies/` with full CRUD.

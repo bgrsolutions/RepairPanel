@@ -22,9 +22,15 @@
           <span class="text-slate-500">Device:</span> {{ quote.display_device or 'N/A' }}
           <span class="mx-1.5 text-slate-700">|</span>
           <span class="text-slate-500">Customer:</span> {{ quote.display_customer_name }}
+          {% set qcust = quote.customer or (quote.ticket.customer if quote.ticket else none) %}
+          {% if qcust and qcust.is_business %}
+          <span class="ml-1 inline-flex rounded-full border border-amber-600/30 bg-amber-950/40 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">BIZ</span>
+          {% if qcust.cif_vat %}<span class="ml-1.5 text-xs text-slate-500">CIF: {{ qcust.cif_vat }}</span>{% endif %}
+          {% endif %}
         </p>
       </div>
       <div class="flex flex-wrap gap-2.5">
+        <a href="{{ url_for('printing.print_quote', quote_id=quote.id) }}" target="_blank" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700">Print Quote</a>
         {% if quote.status == 'draft' %}
         <a href="{{ url_for('quotes.edit_quote', quote_id=quote.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700">Edit Quote</a>
         <form method="post" action="{{ url_for('quotes.send_quote', quote_id=quote.id) }}"><button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Send for Approval</button></form>

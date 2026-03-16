@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Edit Customer - {{ customer.full_name }} - IRONCore{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-3xl space-y-6">
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">Edit Customer</p>
+        <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{{ customer.full_name }}</h1>
+      </div>
+      <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700">Back to Profile</a>
+    </div>
+  </div>
+
+  <form method="post" class="space-y-6">
+    {{ form.hidden_tag() }}
+
+    {# Contact details #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Contact Details</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.full_name.label.text }}</label>
+          {{ form.full_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.phone.label.text }}</label>
+          {{ form.phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.email.label.text }}</label>
+          {{ form.email(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.preferred_language.label.text }}</label>
+          {{ form.preferred_language(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+      </div>
+    </div>
+
+    {# Customer type toggle #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Customer Type</h2>
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_type.label.text }}</label>
+        {{ form.customer_type(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200", id="customer-type-select") }}
+      </div>
+    </div>
+
+    {# Business fields (shown/hidden by JS) #}
+    <div id="business-fields" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel" style="display: none;">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Business / Company Details</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.company_name.label.text }}</label>
+          {{ form.company_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.cif_vat.label.text }}</label>
+          {{ form.cif_vat(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+      </div>
+    </div>
+
+    {# Billing address (shown/hidden by JS) #}
+    <div id="billing-fields" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel" style="display: none;">
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Billing Address</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_address_line_1.label.text }}</label>
+          {{ form.billing_address_line_1(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_address_line_2.label.text }}</label>
+          {{ form.billing_address_line_2(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_postcode.label.text }}</label>
+          {{ form.billing_postcode(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_city.label.text }}</label>
+          {{ form.billing_city(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_region.label.text }}</label>
+          {{ form.billing_region(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_country.label.text }}</label>
+          {{ form.billing_country(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_email.label.text }}</label>
+          {{ form.billing_email(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_phone.label.text }}</label>
+          {{ form.billing_phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200") }}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">Save Changes</button>
+  </form>
+</section>
+
+<script>
+  const typeSelect = document.getElementById('customer-type-select');
+  const businessFields = document.getElementById('business-fields');
+  const billingFields = document.getElementById('billing-fields');
+  function toggleBusiness() {
+    const isBiz = typeSelect.value === 'business';
+    businessFields.style.display = isBiz ? '' : 'none';
+    billingFields.style.display = isBiz ? '' : 'none';
+  }
+  typeSelect.addEventListener('change', toggleBusiness);
+  toggleBusiness();
+</script>
+{% endblock %}

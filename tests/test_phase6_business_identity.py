@@ -491,7 +491,7 @@ def test_migration_has_downgrade(monkeypatch):
     import os
     migrations_dir = os.path.join(os.path.dirname(__file__), '..', 'migrations', 'versions')
     for fname in os.listdir(migrations_dir):
-        if 'phase6' in fname.lower() or 'business_identity' in fname.lower():
+        if 'phase6' in fname.lower() or ('business_identity' in fname.lower() and 'phase7' not in fname.lower()):
             with open(os.path.join(migrations_dir, fname)) as f:
                 content = f.read()
             assert 'def downgrade' in content

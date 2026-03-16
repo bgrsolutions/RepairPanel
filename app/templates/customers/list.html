@@ -39,7 +39,8 @@
           {% for customer in customers %}
           <tr class="transition hover:bg-slate-800/40">
             <td class="px-4 py-3">
-              <a class="font-medium text-white hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}">{{ customer.full_name }}</a>
+              <a class="font-medium text-white hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}">{{ customer.display_name }}</a>
+              {% if customer.is_business %}<span class="ml-1.5 inline-flex rounded-full border border-amber-600/30 bg-amber-950/40 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">BIZ</span>{% endif %}
             </td>
             <td class="px-4 py-3 text-slate-300">{{ customer.phone or '—' }}</td>
             <td class="px-4 py-3 text-slate-300">{{ customer.email or '—' }}</td>

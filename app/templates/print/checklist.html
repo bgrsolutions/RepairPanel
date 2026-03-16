@@ -1,0 +1,49 @@
+{% extends 'print/base_print.html' %}
+{% block title %}Checklist - {{ ticket.ticket_number }}{% endblock %}
+{% block document %}
+
+<div class="doc-header">
+  <div>
+    <div class="company">{{ identity.company_name }}</div>
+    {% if identity.address %}<div class="company-detail">{{ identity.address }}</div>{% endif %}
+  </div>
+  <div class="doc-ref">
+    <div class="ref-number">{{ ticket.ticket_number }}</div>
+    <div class="ref-date">{{ ticket.device.brand }} {{ ticket.device.model }}</div>
+    <div class="ref-date">Customer: {{ ticket.customer.display_name }}</div>
+  </div>
+</div>
+
+{% for checklist in checklists %}
+<p class="section-header">
+  {{ checklist.checklist_type|replace('_',' ')|title }} Check #{{ loop.index }}
+  {% if checklist.is_complete %}
+  <span style="font-size:9pt; color:#16a34a; font-weight:normal;">&#10003; Complete{% if checklist.completed_at %} — {{ checklist.completed_at.strftime('%d/%m/%Y %H:%M') }}{% endif %}</span>
+  {% else %}
+  <span style="font-size:9pt; color:#d97706; font-weight:normal;">In Progress ({{ checklist.checked_count }}/{{ checklist.total_count }})</span>
+  {% endif %}
+</p>
+<table class="doc-table">
+  <thead>
+    <tr><th style="width:5%">#</th><th>Check Item</th><th class="text-center" style="width:12%">Pass</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    {% for item in checklist.items %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ item.label }}</td>
+      <td class="text-center">{% if item.is_checked %}&#10003;{% else %}&#9744;{% endif %}</td>
+      <td>{{ item.notes or '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="text-align:center; color:#888; padding:20px;">No checklists recorded for this ticket.</p>
+{% endfor %}
+
+{% if identity.document_footer %}
+<div class="doc-footer">{{ identity.document_footer }}</div>
+{% endif %}
+
+{% endblock %}
