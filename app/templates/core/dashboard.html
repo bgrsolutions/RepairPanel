@@ -122,6 +122,33 @@
         </div>
       </div>
       {% endif %}
+
+      {# ── Recently Approved Quotes ── #}
+      {% if recently_approved_quotes %}
+      <div class="rounded-2xl border border-emerald-800/40 bg-emerald-950/10 p-5 shadow-panel" id="approved-quotes-card">
+        <div class="mb-3 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-300">Recently Approved Quotes</h2>
+            <p class="text-[10px] text-slate-500">{{ recently_approved_quotes|length }} quote{{ 's' if recently_approved_quotes|length != 1 }} approved in the last 7 days</p>
+          </div>
+          <a href="{{ url_for('quotes.list_quotes') }}" class="text-xs text-emerald-300 hover:text-emerald-200">View all quotes</a>
+        </div>
+        <div class="space-y-2">
+          {% for quote in recently_approved_quotes[:5] %}
+          <a href="{{ url_for('tickets.ticket_detail', ticket_id=quote.ticket_id) if quote.ticket_id else url_for('quotes.quote_detail', quote_id=quote.id) }}" class="flex items-center justify-between rounded-xl border border-emerald-800/30 bg-slate-900/60 p-3 hover:border-emerald-700/40 transition-colors">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-white">v{{ quote.version }} — {{ quote.ticket.ticket_number if quote.ticket else 'No ticket' }}</p>
+              <p class="text-xs text-slate-400 truncate">{{ quote.ticket.customer.display_name if quote.ticket and quote.ticket.customer else 'Unknown' }} · {{ quote.currency }} {{ '%.2f'|format(quote.total_amount or 0) }}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="rounded-full bg-emerald-950/60 border border-emerald-700/40 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300">Approved</span>
+              {% if quote.updated_at %}<span class="text-[10px] text-slate-500">{{ quote.updated_at.strftime('%b %d') }}</span>{% endif %}
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </section>
 
     <section class="space-y-5">

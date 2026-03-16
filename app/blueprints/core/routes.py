@@ -6,7 +6,7 @@ from flask_login import login_required
 from sqlalchemy import inspect as sa_inspect
 
 from app.extensions import db
-from app.models import AuditLog, PartOrder, Ticket, TicketNote
+from app.models import AuditLog, PartOrder, Quote, Ticket, TicketNote
 from app.utils.ticketing import is_ticket_overdue, normalize_ticket_status, ticket_age_days
 
 log = logging.getLogger(__name__)
@@ -198,6 +198,20 @@ def dashboard():
 
     activity_items = _fetch_activity_items(limit=12)
 
+    # Recently approved quotes (last 7 days) for staff visibility
+    recently_approved_quotes = []
+    try:
+        seven_days_ago = now - timedelta(days=7)
+        recently_approved_quotes = (
+            Quote.query
+            .filter(Quote.status == "approved", Quote.updated_at >= seven_days_ago)
+            .order_by(Quote.updated_at.desc())
+            .limit(10)
+            .all()
+        )
+    except Exception:
+        pass
+
     # Today's bookings
     todays_bookings = []
     try:
@@ -223,4 +237,5 @@ def dashboard():
         technician_workload=technician_workload,
         activity_items=activity_items,
         todays_bookings=todays_bookings,
+        recently_approved_quotes=recently_approved_quotes,
     )

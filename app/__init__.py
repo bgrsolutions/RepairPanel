@@ -79,6 +79,8 @@ def create_app(config_class=Config):
             "csrf_token": generate_csrf,
         }
         ctx.update(permission_context())
+        # Staff update badge count (lightweight, server-rendered)
+        ctx["staff_update_count"] = _staff_update_count()
         return ctx
 
     @app.get("/set-language/<locale>")
@@ -88,6 +90,47 @@ def create_app(config_class=Config):
         return redirect(request.referrer or "/")
 
     return app
+
+
+def _staff_update_count() -> int:
+    """Return count of actionable updates for the current staff member.
+
+    Lightweight query — only runs for authenticated users.
+    Counts: recently approved quotes (last 48h) + unassigned tickets.
+    """
+    from flask_login import current_user as cu
+
+    if not getattr(cu, "is_authenticated", False):
+        return 0
+
+    try:
+        from datetime import datetime, timedelta
+        from app.models import Quote, Ticket
+        from app.utils.ticketing import normalize_ticket_status
+
+        now = datetime.utcnow()
+        count = 0
+
+        # Recently approved quotes (last 48 hours)
+        two_days_ago = now - timedelta(hours=48)
+        count += Quote.query.filter(
+            Quote.status == "approved",
+            Quote.updated_at >= two_days_ago,
+        ).count()
+
+        # Unassigned tickets
+        tickets = Ticket.query.filter(
+            Ticket.deleted_at.is_(None),
+            Ticket.assigned_technician_id.is_(None),
+        ).all()
+        count += sum(
+            1 for t in tickets
+            if normalize_ticket_status(t.internal_status) not in Ticket.CLOSED_STATUSES
+        )
+
+        return count
+    except Exception:
+        return 0
 
 
 def _select_locale():
