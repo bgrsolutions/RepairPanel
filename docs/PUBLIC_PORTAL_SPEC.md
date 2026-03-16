@@ -47,10 +47,21 @@
 - Technician names, assignment data, and inventory details are never shown.
 - Tokens are URL-safe random 24-character strings via `secrets.token_urlsafe(24)`.
 - Tokens are stored in `portal_tokens` table with `token_type="public_status_lookup"` and `ticket_id`.
+- Token format validation: rejects tokens shorter than 20 or longer than 50 characters (Phase 12).
+- Token expiry: tokens with `expires_at` in the past are rejected (Phase 12).
+- Token revocation: staff can revoke tokens, deleting them from the database. Revoked tokens fail lookup (Phase 12).
 
 ### Staff Integration
-- Ticket detail page shows a "Customer Portal" section with the public status URL and copy button.
-- Staff can share this link via SMS, email, or on printed receipts.
+- Ticket detail page shows a "Customer Communication" panel (Phase 12) with:
+  - Public status URL with copy-to-clipboard button.
+  - Quote approval URL (when a pending quote exists) with copy button.
+  - **Message Builder**: modal dialog for generating customer-safe messages from templates (7 templates covering all repair states). Messages include portal URL, quote approval URL, ticket reference, and device summary.
+  - **Ready Notification** shortcut: appears when ticket is `ready_for_collection`.
+  - **Quote Notification** shortcut: appears when a pending quote exists.
+  - **Regenerate Link**: creates a new portal token, invalidating the old one.
+  - **Revoke Link**: deletes the portal token, disabling direct URL access.
+- All communication actions (link copied, message generated, token regenerated/revoked) are logged as `communication` type notes visible in the Communication History block on ticket detail.
+- Communication History block (Phase 12): staff-only log of all communication events, not exposed publicly.
 
 ## 4. Quote Approval Portal
 - Tokenized approval links with expiry.

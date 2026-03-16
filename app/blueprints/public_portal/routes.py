@@ -248,10 +248,27 @@ def public_status_lookup():
 
 @public_portal_bp.get("/repair/<token>")
 def public_repair_status(token):
-    """Direct token-based access to repair status — no login or verifier needed."""
+    """Direct token-based access to repair status — no login or verifier needed.
+
+    Security hardening (Phase 12):
+    - Token must be exactly the expected length range (20-50 chars) to reject garbage
+    - Token must match type "public_status_lookup" exactly
+    - Expired tokens (expires_at in the past) are rejected
+    - Revoked tokens (deleted from DB) naturally fail lookup
+    """
+    # Basic token format validation — reject obviously invalid tokens early
+    if not token or len(token) < 20 or len(token) > 50:
+        flash(_("Invalid or expired repair status link"), "error")
+        return redirect(url_for("public_portal.public_status_lookup"))
+
     portal_token = PortalToken.query.filter_by(token=token, token_type="public_status_lookup").first()
     if not portal_token or not portal_token.ticket_id:
         flash(_("Invalid or expired repair status link"), "error")
+        return redirect(url_for("public_portal.public_status_lookup"))
+
+    # Check token expiry if set
+    if portal_token.expires_at and portal_token.expires_at < datetime.utcnow():
+        flash(_("This repair status link has expired"), "error")
         return redirect(url_for("public_portal.public_status_lookup"))
 
     ticket = db.session.get(Ticket, portal_token.ticket_id)

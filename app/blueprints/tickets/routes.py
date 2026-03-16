@@ -16,6 +16,15 @@ from app.forms.ticket_forms import TicketCreateForm
 from app.forms.ticket_note_forms import TicketAssignmentForm, TicketMetaForm, TicketNoteForm, TicketStatusForm
 from app.models import Branch, Customer, Device, Diagnostic, Part, PartOrder, PortalToken, Quote, RepairChecklist, RepairService, StockLevel, StockReservation, Ticket, TicketNote, User
 from app.services.audit_service import log_action
+from app.services.customer_communication_service import (
+    available_templates,
+    generate_message,
+    get_portal_token,
+    get_quote_approval_url_for_ticket,
+    regenerate_portal_token,
+    revoke_portal_token,
+    suggested_template_key,
+)
 from app.services.inventory_service import consume_reservation, reserve_stock_for_ticket
 from app.services.quote_service import compute_quote_totals
 from app.utils.ticketing import default_sla_target, generate_ticket_number, is_ticket_overdue, normalize_ticket_status, ticket_age_days
@@ -282,6 +291,21 @@ def ticket_detail(ticket_id):
     except Exception:
         public_status_url = None
 
+    # Quote approval URL for communication shortcuts
+    try:
+        quote_approval_url = get_quote_approval_url_for_ticket(ticket)
+    except Exception:
+        quote_approval_url = None
+
+    # Communication context for message builder
+    comm_templates = available_templates()
+    suggested_tpl = suggested_template_key(normalize_ticket_status(ticket.internal_status))
+
+    # Communication history (notes with type="communication")
+    communication_notes = [n for n in notes if n.note_type == "communication"]
+
+    portal_token_active = public_status_url is not None
+
     return render_template(
         "tickets/detail.html",
         ticket=ticket,
@@ -306,6 +330,11 @@ def ticket_detail(ticket_id):
         blockers=blockers,
         next_action=next_action,
         public_status_url=public_status_url,
+        quote_approval_url=quote_approval_url,
+        comm_templates=comm_templates,
+        suggested_tpl=suggested_tpl,
+        communication_notes=communication_notes,
+        portal_token_active=portal_token_active,
     )
 
 
@@ -1012,3 +1041,128 @@ def create_ticket():
         return redirect(url_for("tickets.list_tickets"))
 
     return render_template("tickets/new.html", form=form, selected_customer=selected_customer)
+
+
+# ---------------------------------------------------------------------------
+# Phase 12 — Portal token lifecycle & communication actions
+# ---------------------------------------------------------------------------
+
+
+@tickets_bp.post("/<uuid:ticket_id>/regenerate-portal-token")
+@login_required
+def regenerate_token(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    new_token = regenerate_portal_token(ticket.id)
+    db.session.add(TicketNote(
+        ticket_id=ticket.id,
+        author_user_id=uuid.UUID(str(current_user.id)),
+        note_type="communication",
+        content="Portal status link regenerated. Previous link invalidated.",
+    ))
+    db.session.commit()
+    log_action("ticket.portal_token_regenerated", "Ticket", str(ticket.id), details={"new_token_prefix": new_token[:8]})
+    flash(_("Portal link regenerated. Old link no longer works."), "success")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/revoke-portal-token")
+@login_required
+def revoke_token(ticket_id):
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    count = revoke_portal_token(ticket.id)
+    if count > 0:
+        db.session.add(TicketNote(
+            ticket_id=ticket.id,
+            author_user_id=uuid.UUID(str(current_user.id)),
+            note_type="communication",
+            content="Portal status link revoked. Customer can no longer access status via direct link.",
+        ))
+        db.session.commit()
+        log_action("ticket.portal_token_revoked", "Ticket", str(ticket.id))
+        flash(_("Portal link revoked"), "success")
+    else:
+        db.session.commit()
+        flash(_("No active portal link to revoke"), "info")
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/generate-message")
+@login_required
+def generate_customer_message(ticket_id):
+    """Generate a customer communication message from a template. Returns JSON."""
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        return jsonify({"error": "Ticket not found"}), 404
+
+    template_key = request.json.get("template_key") if request.is_json else request.form.get("template_key")
+    if not template_key:
+        template_key = suggested_template_key(normalize_ticket_status(ticket.internal_status))
+
+    # Build portal URL
+    try:
+        portal_tok = get_portal_token(ticket.id)
+        portal_url = url_for("public_portal.public_repair_status", token=portal_tok.token, _external=True) if portal_tok else None
+    except Exception:
+        portal_url = None
+
+    # Build quote approval URL
+    try:
+        quote_url = get_quote_approval_url_for_ticket(ticket)
+    except Exception:
+        quote_url = None
+
+    # Opening hours from branch
+    opening_hours = None
+    if ticket.branch and hasattr(ticket.branch, "opening_hours"):
+        opening_hours = ticket.branch.opening_hours
+
+    msg = generate_message(
+        template_key,
+        ticket_number=ticket.ticket_number,
+        device_summary=f"{ticket.device.brand} {ticket.device.model}",
+        customer_name=ticket.customer.full_name if ticket.customer else None,
+        portal_url=portal_url,
+        quote_approval_url=quote_url,
+        opening_hours=opening_hours,
+    )
+    return jsonify(msg)
+
+
+@tickets_bp.post("/<uuid:ticket_id>/log-communication")
+@login_required
+def log_communication_action(ticket_id):
+    """Log a communication action (link copied, message prepared, etc.)."""
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        return jsonify({"error": "Ticket not found"}), 404
+
+    action_type = request.json.get("action_type", "") if request.is_json else request.form.get("action_type", "")
+    detail = request.json.get("detail", "") if request.is_json else request.form.get("detail", "")
+
+    action_labels = {
+        "portal_link_copied": "Portal status link copied to clipboard",
+        "quote_link_copied": "Quote approval link copied to clipboard",
+        "message_generated": f"Customer message prepared: {detail}" if detail else "Customer message prepared",
+        "message_sent": f"Customer message sent: {detail}" if detail else "Customer message sent",
+        "ready_notification_prepared": "Ready-for-collection notification prepared",
+        "quote_notification_prepared": "Quote approval notification prepared",
+    }
+    content = action_labels.get(action_type, f"Communication action: {action_type}")
+
+    db.session.add(TicketNote(
+        ticket_id=ticket.id,
+        author_user_id=uuid.UUID(str(current_user.id)),
+        note_type="communication",
+        content=content,
+    ))
+    db.session.commit()
+    log_action(f"ticket.comm.{action_type}", "Ticket", str(ticket.id), details={"action_type": action_type, "detail": detail})
+    return jsonify({"ok": True})

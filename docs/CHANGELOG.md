@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.13.0] - 2026-03-16
+### Added
+- **Staff Communication Panel (12.1)**: Enhanced "Customer Communication" panel on ticket detail replacing the simple portal link display. Includes portal URL copy, quote approval URL copy (when pending), Message Builder button, Ready Notification shortcut (when ready for collection), and Quote Notification shortcut (when pending quote exists).
+- **Communication Event Logging (12.2)**: All communication actions (portal link copied, quote link copied, message generated, token regenerated/revoked) are logged as `communication` type TicketNote entries. Audit trail via `log_action()` for each event.
+- **Customer Message Templates (12.3)**: New `customer_communication_service.py` with 7 message templates (Checked In, Awaiting Diagnosis, Quote Ready, Waiting for Parts, In Repair, Ready for Collection, Completed). Templates include portal URL, quote approval URL, ticket reference, device summary, customer name, and opening hours. AJAX endpoint `POST /tickets/<id>/generate-message` returns rendered JSON. Message Builder modal in ticket detail for staff use.
+- **Portal Token Regeneration (12.4)**: `POST /tickets/<id>/regenerate-portal-token` creates a new token and deletes all previous ones. Old links immediately stop working. Staff confirmation required. Communication note logged.
+- **Portal Token Revocation (12.4)**: `POST /tickets/<id>/revoke-portal-token` deletes the portal token without creating a new one. Customer loses direct URL access. Communication note logged.
+- **Ready-for-Collection Communication Shortcut (12.5)**: One-click "Ready Notification" button generates a pre-filled customer message with collection instructions, portal URL, and opening hours (when available from branch data).
+- **Quote Approval Communication Shortcut (12.6)**: One-click "Quote Notification" button generates a pre-filled message with quote approval URL and portal URL. Only appears when a pending quote with approval token exists.
+- **Communication History Block (12.7)**: Staff-only section on ticket detail showing all `communication` type notes with timestamps and author attribution. Hidden when no communication notes exist. Never exposed on public portal.
+- **Portal Security Hardening (12.8)**: Token format validation (reject < 20 or > 50 chars), token expiry checking (`expires_at`), revocation-aware validation (deleted tokens fail). Consistent error messaging for all invalid token scenarios.
+- 40 new Phase 12 tests covering communication panel UI, event logging, message templates, token lifecycle, communication shortcuts, history block, security hardening, and Phase 8-11 regression.
+
 ## [0.12.0] - 2026-03-16
 ### Added
 - **Public Repair Status Page (11.1)**: Customer-facing repair status page at `/public/repair/<token>` with secure tokenized URL access — no login or verifier needed. Displays device summary, customer-friendly status label, visual 6-step progress indicator, contextual communication summary, and customer-safe notes timeline.

@@ -83,17 +83,49 @@
             <a href="{{ url_for('printing.print_accessory_label', ticket_id=ticket.id) }}" target="_blank" class="rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:border-slate-500 transition-colors">Accessory Label</a>
           </div>
         </div>
-        {# -- Customer Portal Link -- #}
-        {% if public_status_url %}
-        <div class="rounded-lg border border-cyan-800/40 bg-cyan-950/20 p-3">
-          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-cyan-400/80">Customer Portal</p>
-          <p class="mb-2 text-xs text-slate-400">Share this link with the customer to check repair status:</p>
-          <div class="flex items-center gap-2">
+        {# -- Customer Communication Panel (Phase 12) -- #}
+        <div class="rounded-lg border border-cyan-800/40 bg-cyan-950/20 p-3" id="customer-communication-panel">
+          <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-cyan-400/80">Customer Communication</p>
+
+          {# Portal link row #}
+          {% if public_status_url %}
+          <p class="mb-1.5 text-xs text-slate-400">Public repair status link:</p>
+          <div class="flex items-center gap-2 mb-3">
             <input type="text" value="{{ public_status_url }}" readonly id="public-status-url" class="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-300 select-all" />
-            <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('public-status-url').value);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)" class="rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors">Copy</button>
+            <button type="button" id="copy-portal-link" onclick="_copyAndLog('public-status-url','portal_link_copied',this)" class="rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors">Copy</button>
+          </div>
+          {% else %}
+          <p class="mb-3 text-xs text-slate-500">Portal link is not active. Generate one below.</p>
+          {% endif %}
+
+          {# Quote approval link (shown only when pending quote exists) #}
+          {% if quote_approval_url %}
+          <p class="mb-1.5 text-xs text-slate-400">Quote approval link:</p>
+          <div class="flex items-center gap-2 mb-3">
+            <input type="text" value="{{ quote_approval_url }}" readonly id="quote-approval-url" class="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-300 select-all" />
+            <button type="button" onclick="_copyAndLog('quote-approval-url','quote_link_copied',this)" class="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-500 transition-colors">Copy</button>
+          </div>
+          {% endif %}
+
+          {# Action buttons row #}
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button type="button" data-open-modal="message-builder-modal" class="rounded-lg border border-cyan-700 bg-cyan-950/40 px-3 py-1.5 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/40 transition-colors">Message Builder</button>
+            {% if ticket.internal_status == 'ready_for_collection' %}
+            <button type="button" onclick="_generateQuickMessage('ready_for_collection')" class="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors">Ready Notification</button>
+            {% endif %}
+            {% if quote_approval_url %}
+            <button type="button" onclick="_generateQuickMessage('quote_ready')" class="rounded-lg border border-amber-700 bg-amber-950/40 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-900/40 transition-colors">Quote Notification</button>
+            {% endif %}
+          </div>
+
+          {# Token management #}
+          <div class="flex flex-wrap gap-2 border-t border-slate-800/50 pt-2.5">
+            <form method="post" action="{{ url_for('tickets.regenerate_token', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-1.5 text-[11px] font-semibold text-slate-300 hover:bg-slate-700 transition-colors" onclick="return confirm('Regenerate portal link? The old link will stop working.')">{% if portal_token_active %}Regenerate Link{% else %}Generate Link{% endif %}</button></form>
+            {% if portal_token_active %}
+            <form method="post" action="{{ url_for('tickets.revoke_token', ticket_id=ticket.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button class="rounded-lg border border-rose-700/60 bg-rose-950/40 px-3 py-1.5 text-[11px] font-semibold text-rose-300 hover:bg-rose-900/40 transition-colors" onclick="return confirm('Revoke portal link? Customer will lose direct access.')">Revoke Link</button></form>
+            {% endif %}
           </div>
         </div>
-        {% endif %}
         {# -- Destructive / lifecycle actions -- #}
         <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
           <p class="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-400/70">Lifecycle</p>
@@ -352,6 +384,25 @@
         {% else %}<p class="py-4 text-center text-sm text-slate-500">No notes yet.</p>{% endfor %}
       </div>
       {% endcall %}
+
+      {# -- Communication History (Phase 12) -- #}
+      {% if communication_notes %}
+      <div class="rounded-2xl border border-amber-800/30 bg-slate-900/70 p-4 shadow-panel" id="communication-history">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-300">Communication History</h2>
+        <p class="mb-3 text-xs text-slate-500">Staff-only log of customer communication actions</p>
+        <div class="space-y-2">
+          {% for note in communication_notes %}
+          <div class="rounded-lg border border-amber-800/30 bg-amber-950/10 p-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-amber-200">{{ note.content }}</span>
+              <span class="text-[10px] text-slate-500 whitespace-nowrap">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            {% if note.author_user %}<p class="mt-1 text-[10px] text-slate-500">By {{ note.author_user.full_name }}</p>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <aside class="space-y-6">
@@ -467,6 +518,36 @@
   <dialog id="quote-modal" class="w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Create quote</h3><button class="text-slate-400">✕</button></form><div class="space-y-2 p-4 text-sm text-slate-300"><p>Open the quote builder to add labour and part lines for this ticket.</p><a class="inline-flex rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white" href="{{ url_for('quotes.new_quote', ticket_id=ticket.id) }}">Open Quote Builder</a></div></dialog>
   <dialog id="reserve-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Reserve part</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('tickets.reserve_part', ticket_id=ticket.id) }}" class="space-y-3 p-4">{{ reservation_form.hidden_tag() }}<p class="text-xs text-slate-500">Reserve stock against this ticket so parts are blocked for this repair job.</p><div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-part-search">Search part</label><input id="reserve-part-search" type="text" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm" placeholder="Search by part name, SKU, barcode, supplier SKU" /></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-part-select">Part</label>{{ reservation_form.part_id(id='reserve-part-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-location-select">Stock location</label>{{ reservation_form.location_id(id='reserve-location-select', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="reserve-qty">Quantity</label>{{ reservation_form.quantity(id='reserve-qty', class='w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm') }}</div>{{ reservation_form.submit(class='rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white') }}</form></dialog>
   <dialog id="update-modal" class="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200"><form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3"><h3 class="text-sm font-semibold">Send update to customer</h3><button class="text-slate-400">✕</button></form><form method="post" action="{{ url_for('tickets.send_customer_update', ticket_id=ticket.id) }}" class="space-y-3 p-4"><p class="text-xs text-slate-500">Customer-facing updates appear on the public repair status page. Optional email only sends intent unless outbound email is configured.</p><div><label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400" for="update-content">Update message</label><textarea id="update-content" name="content" rows="4" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" placeholder="Write a customer-facing progress update"></textarea></div><label class="inline-flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" name="send_email" value="1" /> Send this update as an email to {{ ticket.customer.email or 'the customer email on file' }}</label><button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Send Update</button></form></dialog>
+
+  {# -- Message Builder Modal (Phase 12) -- #}
+  <dialog id="message-builder-modal" class="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-0 text-slate-200">
+    <form method="dialog" class="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+      <h3 class="text-sm font-semibold">Customer Message Builder</h3>
+      <button class="text-slate-400">&#10005;</button>
+    </form>
+    <div class="space-y-3 p-4">
+      <p class="text-xs text-slate-500">Generate a customer-safe message from a template. Copy or send as an update.</p>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Template</label>
+        <select id="msg-template-select" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200">
+          {% for tpl in comm_templates %}
+          <option value="{{ tpl.key }}" {% if tpl.key == suggested_tpl %}selected{% endif %}>{{ tpl.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="button" id="msg-generate-btn" onclick="_generateFromBuilder()" class="rounded-lg bg-cyan-600 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors">Generate Message</button>
+      <div id="msg-output-container" class="hidden">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Subject</label>
+        <input type="text" id="msg-subject" readonly class="mb-2 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200" />
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">Message</label>
+        <textarea id="msg-body" rows="10" readonly class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 font-mono"></textarea>
+        <div class="mt-3 flex gap-2">
+          <button type="button" onclick="_copyMessageBody()" class="rounded-lg bg-cyan-600 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors">Copy Message</button>
+          <button type="button" onclick="_sendAsUpdate()" class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors">Send as Customer Update</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
 </section>
 <script>
   document.querySelectorAll('[data-open-modal]').forEach((btn) => btn.addEventListener('click', () => {
@@ -506,5 +587,88 @@
     sel.innerHTML = '';
     for (const item of data.items) { const option = document.createElement('option'); option.value = item.id; option.text = item.label; sel.appendChild(option); }
   });
+
+  // Phase 12: Communication helpers
+  const _csrfToken = () => document.querySelector('[name=csrf_token]')?.value || '';
+  const _ticketId = '{{ ticket.id }}';
+  const _msgUrl = `/tickets/${_ticketId}/generate-message`;
+  const _logUrl = `/tickets/${_ticketId}/log-communication`;
+
+  async function _copyAndLog(inputId, actionType, btn) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    try {
+      await navigator.clipboard.writeText(el.value);
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = orig, 1500);
+    } catch { el.select(); document.execCommand('copy'); }
+    // Log the action (fire-and-forget)
+    fetch(_logUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken()},
+      body: JSON.stringify({action_type: actionType}),
+    }).catch(() => {});
+  }
+
+  async function _generateFromBuilder() {
+    const key = document.getElementById('msg-template-select')?.value;
+    const resp = await fetch(_msgUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken()},
+      body: JSON.stringify({template_key: key}),
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    document.getElementById('msg-subject').value = data.subject || '';
+    document.getElementById('msg-body').value = data.body || '';
+    document.getElementById('msg-output-container').classList.remove('hidden');
+    // Log it
+    fetch(_logUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken()},
+      body: JSON.stringify({action_type: 'message_generated', detail: data.label || key}),
+    }).catch(() => {});
+  }
+
+  async function _generateQuickMessage(key) {
+    const resp = await fetch(_msgUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken()},
+      body: JSON.stringify({template_key: key}),
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    // Open message builder modal with pre-filled content
+    const dlg = document.getElementById('message-builder-modal');
+    document.getElementById('msg-template-select').value = key;
+    document.getElementById('msg-subject').value = data.subject || '';
+    document.getElementById('msg-body').value = data.body || '';
+    document.getElementById('msg-output-container').classList.remove('hidden');
+    if (dlg?.showModal) dlg.showModal();
+    const logAction = key === 'ready_for_collection' ? 'ready_notification_prepared' : 'quote_notification_prepared';
+    fetch(_logUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken()},
+      body: JSON.stringify({action_type: logAction, detail: data.label || key}),
+    }).catch(() => {});
+  }
+
+  async function _copyMessageBody() {
+    const body = document.getElementById('msg-body')?.value;
+    if (!body) return;
+    try { await navigator.clipboard.writeText(body); } catch { document.getElementById('msg-body').select(); document.execCommand('copy'); }
+  }
+
+  async function _sendAsUpdate() {
+    const body = document.getElementById('msg-body')?.value;
+    if (!body) return;
+    const form = new FormData();
+    form.append('csrf_token', _csrfToken());
+    form.append('content', body);
+    const resp = await fetch(`/tickets/${_ticketId}/send-update`, {method: 'POST', body: form});
+    if (resp.redirected) { window.location.href = resp.url; }
+    else { window.location.reload(); }
+  }
 </script>
 {% endblock %}
