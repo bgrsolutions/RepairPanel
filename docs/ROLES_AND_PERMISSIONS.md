@@ -57,6 +57,7 @@ All sensitive routes are protected with `@permission_required(check_fn)` decorat
 - `inventory/categories/new`, `inventory/locations/new`, `inventory/movements/new` — `can_manage_inventory`
 - `inventory/parts/*/toggle-active`, `inventory/parts/*/delete`, `inventory/categories/*/delete` — `roles_required("Super Admin", "Admin", "Manager")`
 - `users/*` — `roles_required("Super Admin", "Admin", "Manager")`
+- `reports/*` (all reporting routes: `/`, `/technician-workload`, `/quotes`, `/inventory`) — `can_view_reports`
 
 ### Template-Level (UI Visibility)
 Templates conditionally show/hide UI elements using the `perms` proxy:
