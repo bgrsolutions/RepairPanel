@@ -1,0 +1,6340 @@
+# Spanish (es) translations for IRONCore RepairPanel.
+# Copyright (C) 2026 BGR Solutions
+# This file is distributed under the same license as the project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: IRONCore RepairPanel 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-17 10:10+0000\n"
+"PO-Revision-Date: 2026-03-17 00:00+0000\n"
+"Last-Translator: IRONCore Team\n"
+"Language: es\n"
+"Language-Team: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/blueprints/auth/routes.py:18
+msgid "Welcome back"
+msgstr "Bienvenido de nuevo"
+
+#: app/blueprints/auth/routes.py:20
+msgid "Invalid credentials"
+msgstr "Credenciales inválidas"
+
+#: app/blueprints/auth/routes.py:28
+msgid "Signed out"
+msgstr "Sesión cerrada"
+
+#: app/blueprints/bookings/routes.py:83
+msgid "Booking created"
+msgstr "Reserva creada"
+
+#: app/blueprints/bookings/routes.py:114
+msgid "Booking updated"
+msgstr "Reserva actualizada"
+
+# ===================================================================
+# FLASH MESSAGES FROM ROUTES
+#: app/blueprints/checklists/routes.py:23
+#: app/blueprints/diagnostics/routes.py:19
+#: app/blueprints/integrations/routes.py:28
+#: app/blueprints/integrations/routes.py:42
+#: app/blueprints/public_portal/routes.py:292
+#: app/blueprints/quotes/routes.py:130 app/blueprints/quotes/routes.py:147
+#: app/blueprints/tickets/routes.py:227 app/blueprints/tickets/routes.py:355
+#: app/blueprints/tickets/routes.py:383 app/blueprints/tickets/routes.py:425
+#: app/blueprints/tickets/routes.py:446 app/blueprints/tickets/routes.py:467
+#: app/blueprints/tickets/routes.py:495 app/blueprints/tickets/routes.py:517
+#: app/blueprints/tickets/routes.py:539 app/blueprints/tickets/routes.py:566
+#: app/blueprints/tickets/routes.py:596 app/blueprints/tickets/routes.py:631
+#: app/blueprints/tickets/routes.py:656 app/blueprints/tickets/routes.py:710
+#: app/blueprints/tickets/routes.py:1078 app/blueprints/tickets/routes.py:1100
+msgid "Ticket not found"
+msgstr "Ticket no encontrado"
+
+#: app/blueprints/checklists/routes.py:28
+#, fuzzy
+msgid "Invalid checklist type"
+msgstr "Listas de Control de Calidad"
+
+#: app/blueprints/checklists/routes.py:36
+#, python-format
+msgid "A %(type)s checklist already exists for this ticket"
+msgstr "Ya existe una lista de verificación %(type)s para este ticket"
+
+#: app/blueprints/checklists/routes.py:63
+#, python-format
+msgid "%(type)s checklist created with %(count)d items"
+msgstr "Lista de verificación %(type)s creada con %(count)d elementos"
+
+# ===================================================================
+# FLASH MESSAGES FROM ROUTES
+#: app/blueprints/checklists/routes.py:73
+#: app/blueprints/checklists/routes.py:110
+#, fuzzy
+msgid "Checklist not found"
+msgstr "Ticket no encontrado"
+
+#: app/blueprints/checklists/routes.py:77
+msgid "This checklist is already completed and cannot be modified"
+msgstr "Esta lista de verificación ya está completada y no puede modificarse"
+
+#: app/blueprints/checklists/routes.py:100
+#, fuzzy
+msgid "Checklist updated"
+msgstr "Lista de verificación guardada"
+
+#: app/blueprints/checklists/routes.py:114
+#, fuzzy
+msgid "This checklist is already completed"
+msgstr "El ticket ya está archivado"
+
+#: app/blueprints/checklists/routes.py:118
+msgid "All checklist items must be checked before completing"
+msgstr "Todos los elementos de la lista deben marcarse antes de completar"
+
+#: app/blueprints/checklists/routes.py:124
+#, fuzzy
+msgid "Checklist marked as complete"
+msgstr "Finalización estimada"
+
+#: app/blueprints/companies/routes.py:40
+#, fuzzy
+msgid "Company created"
+msgstr "Empresa guardada"
+
+#: app/blueprints/companies/routes.py:59
+#, fuzzy
+msgid "Company updated"
+msgstr "Empresa guardada"
+
+#: app/blueprints/diagnostics/routes.py:24
+#, fuzzy
+msgid "Invalid diagnostic submission"
+msgstr "Envío de nota inválido"
+
+#: app/blueprints/diagnostics/routes.py:53
+msgid "Diagnosis saved"
+msgstr "Diagnóstico guardado"
+
+#: app/blueprints/intake/routes.py:214
+#: app/blueprints/public_portal/routes.py:162
+msgid "Unsupported attachment file type"
+msgstr "Tipo de archivo adjunto no soportado"
+
+#: app/blueprints/intake/routes.py:226
+msgid "Intake created"
+msgstr "Recepción creada"
+
+# ===================================================================
+# FLASH MESSAGES FROM ROUTES
+#: app/blueprints/intake/routes.py:237 app/blueprints/intake/routes.py:260
+#: app/blueprints/intake/routes.py:302
+#, fuzzy
+msgid "Intake not found"
+msgstr "Ticket no encontrado"
+
+#: app/blueprints/intake/routes.py:264
+#, fuzzy
+msgid "Intake already converted"
+msgstr "Recepción creada"
+
+#: app/blueprints/intake/routes.py:293
+#, fuzzy
+msgid "Intake converted to ticket"
+msgstr "Convertir en Ticket"
+
+# ===================================================================
+# INTEGRATIONS / EXPORTS
+#: app/blueprints/integrations/routes.py:33
+#, fuzzy
+msgid "Ticket export queued"
+msgstr "Cola de Exportaciones"
+
+#: app/blueprints/inventory/routes.py:169
+#: app/blueprints/inventory/routes.py:185
+#: app/blueprints/inventory/routes.py:280
+#: app/blueprints/inventory/routes.py:341
+#, fuzzy
+msgid "Part not found"
+msgstr "Presupuesto no encontrado"
+
+#: app/blueprints/inventory/routes.py:174
+#, fuzzy
+msgid "Part status updated"
+msgstr "Estado del ticket actualizado"
+
+#: app/blueprints/inventory/routes.py:208
+#, python-format
+msgid ""
+"Cannot delete part '%(name)s': it is referenced by %(refs)s. Deactivate "
+"it instead to hide it from active use."
+msgstr ""
+"No se puede eliminar la pieza '%(name)s': está referenciada por %(refs)s. "
+"Desactívela en su lugar para ocultarla del uso activo."
+
+#: app/blueprints/inventory/routes.py:216
+#, python-format
+msgid "Part '%(name)s' deleted"
+msgstr "Pieza '%(name)s' eliminada"
+
+#: app/blueprints/inventory/routes.py:268
+msgid "Part created"
+msgstr "Pieza creada"
+
+#: app/blueprints/inventory/routes.py:330
+msgid "Part updated"
+msgstr "Pieza actualizada"
+
+#: app/blueprints/inventory/routes.py:369
+#: app/blueprints/inventory/routes.py:380
+msgid "Categories unavailable until migrations are applied"
+msgstr "Categorías no disponibles hasta que se apliquen las migraciones"
+
+#: app/blueprints/inventory/routes.py:387
+#, fuzzy
+msgid "Category saved"
+msgstr "Nombre de Categoría"
+
+#: app/blueprints/inventory/routes.py:398
+#, fuzzy
+msgid "Category not found"
+msgstr "Cliente no encontrado"
+
+#: app/blueprints/inventory/routes.py:403
+msgid "Category deleted"
+msgstr "Categoría eliminada"
+
+#: app/blueprints/inventory/routes.py:424
+#, fuzzy
+msgid "Stock location created"
+msgstr "Ubicación creada"
+
+#: app/blueprints/inventory/routes.py:448
+msgid "Stock movement recorded"
+msgstr "Movimiento de stock registrado"
+
+#: app/blueprints/notifications/routes.py:28
+msgid "Template key, subject and body are required"
+msgstr "La clave de plantilla, el asunto y el cuerpo son obligatorios"
+
+#: app/blueprints/notifications/routes.py:41
+#, fuzzy
+msgid "Notification template created"
+msgstr "Plantilla de notificación guardada"
+
+#: app/blueprints/notifications/routes.py:67
+#, fuzzy
+msgid "Ticket is required"
+msgstr "Ticket creado"
+
+# ===================================================================
+# NOTIFICATIONS
+#: app/blueprints/notifications/routes.py:72
+#, fuzzy
+msgid "Notification event queued"
+msgstr "Eventos de Notificación"
+
+#: app/blueprints/orders/routes.py:134
+#, fuzzy
+msgid "Part order created"
+msgstr "Pedido creado"
+
+#: app/blueprints/orders/routes.py:145 app/blueprints/orders/routes.py:182
+#: app/blueprints/orders/routes.py:243 app/blueprints/orders/routes.py:294
+#, fuzzy
+msgid "Order not found"
+msgstr "Presupuesto no encontrado"
+
+#: app/blueprints/orders/routes.py:171
+msgid "Order updated"
+msgstr "Pedido actualizado"
+
+#: app/blueprints/orders/routes.py:197
+msgid "Received quantity exceeds remaining quantity"
+msgstr "La cantidad recibida supera la cantidad pendiente"
+
+#: app/blueprints/orders/routes.py:230
+#, fuzzy
+msgid "Stock received and inventory updated"
+msgstr "Asignación de técnico actualizada"
+
+#: app/blueprints/orders/routes.py:232
+#, fuzzy
+msgid "Invalid receiving request"
+msgstr "Solicitud de reserva inválida"
+
+#: app/blueprints/orders/routes.py:250
+msgid "Please select a location"
+msgstr "Por favor, selecciona una ubicación"
+
+#: app/blueprints/orders/routes.py:285
+#, python-format
+msgid "All stock received (%(count)s lines)"
+msgstr "Todo el stock recibido (%(count)s líneas)"
+
+#: app/blueprints/orders/routes.py:304
+#, fuzzy
+msgid "Order status updated"
+msgstr "Pedido actualizado"
+
+#: app/blueprints/public_portal/routes.py:79
+msgid "Branch not found"
+msgstr "Sucursal no encontrada"
+
+#: app/blueprints/public_portal/routes.py:244
+msgid "No repair record found for the provided details"
+msgstr "No se encontró registro de reparación con los datos proporcionados"
+
+#: app/blueprints/public_portal/routes.py:261
+#: app/blueprints/public_portal/routes.py:266
+msgid "Invalid or expired repair status link"
+msgstr "Enlace de estado de reparación inválido o expirado"
+
+#: app/blueprints/public_portal/routes.py:271
+msgid "This repair status link has expired"
+msgstr "Este enlace de estado de reparación ha expirado"
+
+#: app/blueprints/public_portal/routes.py:276
+msgid "Repair record not found"
+msgstr "Registro de reparación no encontrado"
+
+#: app/blueprints/public_portal/routes.py:304
+msgid "Contact preferences updated"
+msgstr "Preferencias de contacto actualizadas"
+
+#: app/blueprints/public_portal/routes.py:306
+msgid "Invalid contact update"
+msgstr "Actualización de contacto inválida"
+
+#: app/blueprints/public_portal/routes.py:320
+msgid "Invalid quote approval link"
+msgstr "Enlace de aprobación de presupuesto inválido"
+
+#: app/blueprints/public_portal/routes.py:390
+msgid "Your quote decision has been recorded"
+msgstr "Tu decisión sobre el presupuesto ha sido registrada"
+
+#: app/blueprints/quotes/routes.py:155 app/blueprints/quotes/routes.py:219
+#: app/blueprints/quotes/routes.py:316
+#, fuzzy
+msgid "Invalid quote data"
+msgstr "Enlace de aprobación de presupuesto inválido"
+
+#: app/blueprints/quotes/routes.py:170
+#, fuzzy
+msgid "Quote created"
+msgstr "Usuario creado"
+
+#: app/blueprints/quotes/routes.py:209
+msgid "Please select or enter a customer"
+msgstr "Por favor, selecciona o introduce un cliente"
+
+#: app/blueprints/quotes/routes.py:248
+#, fuzzy
+msgid "Standalone quote created"
+msgstr "Presupuesto Independiente"
+
+#: app/blueprints/quotes/routes.py:267 app/blueprints/quotes/routes.py:310
+#: app/blueprints/quotes/routes.py:349 app/blueprints/quotes/routes.py:377
+#: app/blueprints/quotes/routes.py:396 app/blueprints/quotes/routes.py:414
+#: app/blueprints/quotes/routes.py:450
+msgid "Quote not found"
+msgstr "Presupuesto no encontrado"
+
+#: app/blueprints/quotes/routes.py:338
+msgid "Quote updated"
+msgstr "Presupuesto actualizado"
+
+#: app/blueprints/quotes/routes.py:386
+#, fuzzy
+msgid "Quote sent for approval"
+msgstr "Presupuesto enviado para tu aprobación"
+
+#: app/blueprints/quotes/routes.py:404
+#, fuzzy
+msgid "Quote marked as expired"
+msgstr "Presupuesto expirado"
+
+#: app/blueprints/quotes/routes.py:440
+#, fuzzy
+msgid "Manual quote decision recorded"
+msgstr "Tu decisión sobre el presupuesto ha sido registrada"
+
+#: app/blueprints/quotes/routes.py:453
+msgid "This quote already has a ticket"
+msgstr "Este presupuesto ya tiene un ticket asociado"
+
+#: app/blueprints/quotes/routes.py:489
+#, python-format
+msgid "Ticket %(number)s created from quote"
+msgstr "Ticket %(number)s creado a partir del presupuesto"
+
+#: app/blueprints/services/routes.py:49
+msgid "Service created"
+msgstr "Servicio creado"
+
+#: app/blueprints/services/routes.py:77
+msgid "Service updated"
+msgstr "Servicio actualizado"
+
+#: app/blueprints/settings/routes.py:52
+msgid "Branch code and name are required"
+msgstr "El código y el nombre de la sucursal son obligatorios"
+
+#: app/blueprints/settings/routes.py:58
+#, fuzzy
+msgid "Branch created"
+msgstr "Sucursal guardada"
+
+#: app/blueprints/settings/routes.py:96
+#, fuzzy
+msgid "Branch updated"
+msgstr "Sucursal guardada"
+
+#: app/blueprints/settings/routes.py:120
+msgid "Portal settings persistence unavailable until migrations are applied"
+msgstr "La persistencia de la configuración del portal no está disponible hasta que se apliquen las migraciones"
+
+#: app/blueprints/settings/routes.py:136
+#, fuzzy
+msgid "Portal settings saved"
+msgstr "Configuración del Portal"
+
+#: app/blueprints/settings/routes.py:155
+msgid "Settings persistence unavailable until migrations are applied"
+msgstr "La persistencia de la configuración no está disponible hasta que se apliquen las migraciones"
+
+#: app/blueprints/settings/routes.py:165
+#, fuzzy
+msgid "Quote settings saved"
+msgstr "Configuración guardada"
+
+#: app/blueprints/suppliers/routes.py:39
+msgid "Supplier created"
+msgstr "Proveedor creado"
+
+#: app/blueprints/suppliers/routes.py:50 app/blueprints/suppliers/routes.py:61
+#: app/blueprints/suppliers/routes.py:86
+#, fuzzy
+msgid "Supplier not found"
+msgstr "Presupuesto no encontrado"
+
+#: app/blueprints/suppliers/routes.py:75
+msgid "Supplier updated"
+msgstr "Proveedor actualizado"
+
+#: app/blueprints/suppliers/routes.py:91
+#, fuzzy
+msgid "Supplier status updated"
+msgstr "Proveedor actualizado"
+
+#: app/blueprints/tickets/routes.py:368
+msgid "Technician assignment updated"
+msgstr "Asignación de técnico actualizada"
+
+#: app/blueprints/tickets/routes.py:371
+#, fuzzy
+msgid "Invalid assignment request"
+msgstr "Solicitud de reserva inválida"
+
+#: app/blueprints/tickets/routes.py:393 app/blueprints/tickets/routes.py:677
+#, python-format
+msgid "Invalid status transition from %(from_s)s to %(to_s)s"
+msgstr "Transición de estado inválida de %(from_s)s a %(to_s)s"
+
+#: app/blueprints/tickets/routes.py:405
+#, python-format
+msgid ""
+"Cannot change status to %(status)s: the post-repair checklist must exist "
+"and be completed first."
+msgstr ""
+"No se puede cambiar el estado a %(status)s: la lista de verificación "
+"post-reparación debe existir y estar completada."
+
+#: app/blueprints/tickets/routes.py:412
+msgid "Ticket status updated"
+msgstr "Estado del ticket actualizado"
+
+#: app/blueprints/tickets/routes.py:414
+#, fuzzy
+msgid "Invalid status update request"
+msgstr "Actualización de contacto inválida"
+
+#: app/blueprints/tickets/routes.py:433
+msgid "Ticket details updated"
+msgstr "Detalles del ticket actualizados"
+
+#: app/blueprints/tickets/routes.py:435
+msgid "Invalid ticket details update"
+msgstr "Actualización de detalles del ticket inválida"
+
+#: app/blueprints/tickets/routes.py:453
+msgid "Note added"
+msgstr "Nota añadida"
+
+#: app/blueprints/tickets/routes.py:455
+msgid "Invalid note submission"
+msgstr "Envío de nota inválido"
+
+#: app/blueprints/tickets/routes.py:473
+msgid "Update content is required"
+msgstr "El contenido de la actualización es obligatorio"
+
+#: app/blueprints/tickets/routes.py:485
+msgid "Customer update recorded"
+msgstr "Actualización del cliente registrada"
+
+#: app/blueprints/tickets/routes.py:499
+msgid "Ticket is already archived"
+msgstr "El ticket ya está archivado"
+
+#: app/blueprints/tickets/routes.py:507
+msgid "Ticket archived"
+msgstr "Ticket archivado"
+
+#: app/blueprints/tickets/routes.py:521
+msgid "Only closed or archived tickets can be reopened"
+msgstr "Solo los tickets cerrados o archivados pueden reabrirse"
+
+#: app/blueprints/tickets/routes.py:529
+msgid "Ticket reopened"
+msgstr "Ticket reabierto"
+
+#: app/blueprints/tickets/routes.py:552
+msgid "Part reserved"
+msgstr "Pieza reservada"
+
+#: app/blueprints/tickets/routes.py:557
+msgid "Invalid reservation request"
+msgstr "Solicitud de reserva inválida"
+
+#: app/blueprints/tickets/routes.py:571 app/blueprints/tickets/routes.py:601
+#, fuzzy
+msgid "Reservation not found"
+msgstr "Sucursal no encontrada"
+
+#: app/blueprints/tickets/routes.py:585
+#, fuzzy
+msgid "Reservation released"
+msgstr "Solicitud de reserva inválida"
+
+#: app/blueprints/tickets/routes.py:605
+msgid "Reservation is not in reserved state"
+msgstr "La reserva no está en estado reservado"
+
+#: app/blueprints/tickets/routes.py:617
+msgid "Part consumed and stock updated"
+msgstr "Pieza consumida y stock actualizado"
+
+#: app/blueprints/tickets/routes.py:643
+#, fuzzy
+msgid "Ticket assigned to you"
+msgstr "Tickets asignados a ti"
+
+#: app/blueprints/tickets/routes.py:673
+#, fuzzy
+msgid "Unknown quick action"
+msgstr "Acciones Rápidas"
+
+#: app/blueprints/tickets/routes.py:688
+#, fuzzy, python-format
+msgid "Cannot change status: the post-repair checklist must be completed first."
+msgstr ""
+"No se puede cambiar el estado a %(status)s: la lista de verificación "
+"post-reparación debe existir y estar completada."
+
+#: app/blueprints/tickets/routes.py:699
+#, fuzzy, python-format
+msgid "Ticket status updated to %(status)s"
+msgstr "Estado del ticket actualizado"
+
+#: app/blueprints/tickets/routes.py:715
+msgid "Note content is required"
+msgstr "El contenido de la nota es obligatorio"
+
+#: app/blueprints/tickets/routes.py:725
+#, fuzzy
+msgid "Bench note added"
+msgstr "Nota añadida"
+
+#: app/blueprints/tickets/routes.py:1061
+msgid "Ticket created"
+msgstr "Ticket creado"
+
+#: app/blueprints/tickets/routes.py:1090
+msgid "Portal link regenerated. Old link no longer works."
+msgstr "Enlace del portal regenerado. El enlace anterior ya no funciona."
+
+#: app/blueprints/tickets/routes.py:1113
+#, fuzzy
+msgid "Portal link revoked"
+msgstr "Token del portal revocado"
+
+#: app/blueprints/tickets/routes.py:1116
+#, fuzzy
+msgid "No active portal link to revoke"
+msgstr "Token del portal revocado"
+
+#: app/blueprints/users/routes.py:43 app/blueprints/users/routes.py:85
+msgid "A user with this email already exists"
+msgstr "Ya existe un usuario con este correo electrónico"
+
+#: app/blueprints/users/routes.py:63
+msgid "User created"
+msgstr "Usuario creado"
+
+#: app/blueprints/users/routes.py:75
+#, fuzzy
+msgid "User not found"
+msgstr "Cliente no encontrado"
+
+#: app/blueprints/users/routes.py:103
+msgid "User updated"
+msgstr "Usuario actualizado"
+
+# ===================================================================
+# CUSTOMER COMMUNICATION SERVICE — templates
+#: app/services/customer_communication_service.py:35
+msgid "Checked In / Received"
+msgstr "Registrado / Recibido"
+
+#: app/services/customer_communication_service.py:36
+msgid "Your device has been checked in"
+msgstr "Tu dispositivo ha sido registrado"
+
+#: app/services/customer_communication_service.py:38
+#: app/services/customer_communication_service.py:51
+#: app/services/customer_communication_service.py:62
+#: app/services/customer_communication_service.py:75
+#: app/services/customer_communication_service.py:86
+#: app/services/customer_communication_service.py:97
+#: app/services/customer_communication_service.py:110
+#, python-format
+msgid "Hi%(customer_name)s,"
+msgstr "Hola%(customer_name)s,"
+
+#: app/services/customer_communication_service.py:39
+#, python-format
+msgid ""
+"Your %(device_summary)s has been checked in for repair (Ref: "
+"%(ticket_number)s)."
+msgstr ""
+"Tu %(device_summary)s ha sido registrado para reparación (Ref: "
+"%(ticket_number)s)."
+
+#: app/services/customer_communication_service.py:40
+msgid "You can track the status of your repair at any time here:"
+msgstr "Puedes seguir el estado de tu reparación en cualquier momento aquí:"
+
+#: app/services/customer_communication_service.py:42
+msgid "We'll keep you updated as things progress."
+msgstr "Te mantendremos informado a medida que avance."
+
+#: app/services/customer_communication_service.py:43
+msgid "Thank you for choosing us!"
+msgstr "¡Gracias por elegirnos!"
+
+#: app/services/customer_communication_service.py:48
+#: app/services/customer_status_service.py:42
+#: app/templates/reports/dashboard.html:56
+msgid "Awaiting Diagnosis"
+msgstr "Esperando Diagnóstico"
+
+#: app/services/customer_communication_service.py:49
+msgid "Your device is being diagnosed"
+msgstr "Tu dispositivo está siendo diagnosticado"
+
+#: app/services/customer_communication_service.py:52
+#, python-format
+msgid ""
+"Our technician is now diagnosing your %(device_summary)s (Ref: "
+"%(ticket_number)s)."
+msgstr ""
+"Nuestro técnico está diagnosticando tu %(device_summary)s (Ref: "
+"%(ticket_number)s)."
+
+#: app/services/customer_communication_service.py:53
+msgid "We'll let you know the findings and next steps shortly."
+msgstr "Te informaremos de los hallazgos y próximos pasos en breve."
+
+#: app/services/customer_communication_service.py:54
+#: app/services/customer_communication_service.py:78
+#: app/services/customer_communication_service.py:89
+msgid "Track your repair status:"
+msgstr "Sigue el estado de tu reparación:"
+
+#: app/services/customer_communication_service.py:59
+msgid "Quote Ready for Approval"
+msgstr "Presupuesto Listo para Aprobación"
+
+#: app/services/customer_communication_service.py:60
+msgid "Your repair quote is ready for review"
+msgstr "Tu presupuesto de reparación está listo para revisión"
+
+#: app/services/customer_communication_service.py:63
+#, python-format
+msgid ""
+"We've completed the diagnosis of your %(device_summary)s (Ref: "
+"%(ticket_number)s) and prepared a repair quote for you."
+msgstr ""
+"Hemos completado el diagnóstico de tu %(device_summary)s (Ref: "
+"%(ticket_number)s) y preparado un presupuesto de reparación para ti."
+
+#: app/services/customer_communication_service.py:64
+msgid "Please review and approve the quote here:"
+msgstr "Por favor, revisa y aprueba el presupuesto aquí:"
+
+#: app/services/customer_communication_service.py:66
+msgid "Or check the full repair status:"
+msgstr "O consulta el estado completo de la reparación:"
+
+#: app/services/customer_communication_service.py:67
+msgid "If you have any questions, don't hesitate to contact us."
+msgstr "Si tienes alguna pregunta, no dudes en contactarnos."
+
+#: app/services/customer_communication_service.py:72
+#: app/services/customer_status_service.py:44
+msgid "Waiting for Parts"
+msgstr "Esperando Piezas"
+
+#: app/services/customer_communication_service.py:73
+msgid "Parts on order for your repair"
+msgstr "Piezas pedidas para tu reparación"
+
+#: app/services/customer_communication_service.py:76
+#, python-format
+msgid ""
+"We are currently waiting for parts needed to repair your "
+"%(device_summary)s (Ref: %(ticket_number)s)."
+msgstr ""
+"Actualmente estamos esperando las piezas necesarias para reparar tu "
+"%(device_summary)s (Ref: %(ticket_number)s)."
+
+#: app/services/customer_communication_service.py:77
+msgid "We'll notify you as soon as the parts arrive and work resumes."
+msgstr "Te notificaremos en cuanto lleguen las piezas y se reanude el trabajo."
+
+#: app/services/customer_communication_service.py:83
+#: app/services/customer_status_service.py:45
+#: app/templates/core/dashboard.html:46 app/templates/reports/dashboard.html:68
+#: app/templates/reports/technician_workload.html:47
+msgid "In Repair"
+msgstr "En Reparación"
+
+#: app/services/customer_communication_service.py:84
+msgid "Your device is being repaired"
+msgstr "Tu dispositivo está siendo reparado"
+
+#: app/services/customer_communication_service.py:87
+#, python-format
+msgid ""
+"Great news — your %(device_summary)s (Ref: %(ticket_number)s) is now "
+"being repaired by our technician."
+msgstr ""
+"¡Buenas noticias! Tu %(device_summary)s (Ref: %(ticket_number)s) está "
+"siendo reparado por nuestro técnico."
+
+#: app/services/customer_communication_service.py:88
+msgid "We'll let you know once it's ready for collection."
+msgstr "Te avisaremos cuando esté listo para recoger."
+
+#: app/services/customer_communication_service.py:94
+#: app/services/customer_status_service.py:47
+#: app/templates/core/dashboard.html:25 app/templates/reports/dashboard.html:72
+msgid "Ready for Collection"
+msgstr "Listo para Recoger"
+
+#: app/services/customer_communication_service.py:95
+#: app/templates/public/status.html:82
+msgid "Your device is ready for collection!"
+msgstr "¡Tu dispositivo está listo para recoger!"
+
+#: app/services/customer_communication_service.py:98
+#, python-format
+msgid "Your %(device_summary)s (Ref: %(ticket_number)s) is ready for collection!"
+msgstr "¡Tu %(device_summary)s (Ref: %(ticket_number)s) está listo para recoger!"
+
+#: app/services/customer_communication_service.py:100
+msgid "Please bring a valid ID when collecting your device."
+msgstr ""
+"Por favor, trae un documento de identidad válido al recoger tu "
+"dispositivo."
+
+#: app/services/customer_communication_service.py:101
+msgid "View your repair summary:"
+msgstr "Consulta el resumen de tu reparación:"
+
+#: app/services/customer_communication_service.py:102
+msgid "Thank you for your patience!"
+msgstr "¡Gracias por tu paciencia!"
+
+#: app/services/customer_communication_service.py:107
+msgid "Completed / Collected"
+msgstr "Completado / Recogido"
+
+#: app/services/customer_communication_service.py:108
+msgid "Your repair is complete"
+msgstr "Tu reparación está completa"
+
+#: app/services/customer_communication_service.py:111
+#, python-format
+msgid ""
+"Your %(device_summary)s (Ref: %(ticket_number)s) repair has been "
+"completed. Thank you for choosing us!"
+msgstr ""
+"La reparación de tu %(device_summary)s (Ref: %(ticket_number)s) ha sido "
+"completada. ¡Gracias por elegirnos!"
+
+#: app/services/customer_communication_service.py:112
+msgid "You can review your repair summary:"
+msgstr "Puedes consultar el resumen de tu reparación:"
+
+#: app/services/customer_communication_service.py:113
+msgid "If you experience any issues, please don't hesitate to contact us."
+msgstr "Si experimentas algún problema, no dudes en contactarnos."
+
+#: app/services/customer_communication_service.py:174
+#, python-format
+msgid "Opening hours: %(hours)s"
+msgstr "Horario de apertura: %(hours)s"
+
+#: app/services/customer_communication_service.py:177
+msgid "(portal link not available)"
+msgstr "(enlace del portal no disponible)"
+
+#: app/services/customer_communication_service.py:178
+msgid "(no quote approval link available)"
+msgstr "(enlace de aprobación de presupuesto no disponible)"
+
+# ===================================================================
+# CUSTOMER STATUS SERVICE — customer-facing labels
+#: app/services/customer_status_service.py:40
+#: app/services/customer_status_service.py:41
+#: app/services/customer_status_service.py:65
+msgid "Checked In"
+msgstr "Registrado"
+
+#: app/services/customer_status_service.py:43
+msgid "Awaiting Your Approval"
+msgstr "Esperando Tu Aprobación"
+
+#: app/services/customer_status_service.py:46
+#: app/services/customer_status_service.py:65
+msgid "Quality Check"
+msgstr "Control de Calidad"
+
+#: app/services/customer_status_service.py:48
+#: app/services/customer_status_service.py:50
+#: app/templates/reports/technician_workload.html:49
+msgid "Completed"
+msgstr "Completado"
+
+#: app/services/customer_status_service.py:49 app/templates/orders/list.html:22
+#: app/templates/orders/list.html:66
+msgid "Cancelled"
+msgstr "Cancelado"
+
+#: app/services/customer_status_service.py:65
+msgid "Diagnosing"
+msgstr "Diagnosticando"
+
+#: app/services/customer_status_service.py:65
+#: app/templates/core/dashboard.html:144
+#: app/templates/reports/dashboard.html:136
+#: app/templates/reports/quotes.html:35
+msgid "Approved"
+msgstr "Aprobado"
+
+#: app/services/customer_status_service.py:65
+msgid "Repairing"
+msgstr "Reparando"
+
+#: app/services/customer_status_service.py:65
+msgid "Ready"
+msgstr "Listo"
+
+# ===================================================================
+# CUSTOMER STATUS SERVICE — communication messages
+#: app/services/customer_status_service.py:98
+msgid ""
+"Your device has been checked in and is awaiting assignment to a "
+"technician."
+msgstr ""
+"Tu dispositivo ha sido registrado y está esperando asignación a un "
+"técnico."
+
+#: app/services/customer_status_service.py:99
+msgid "Your device has been checked in and a technician has been assigned."
+msgstr "Tu dispositivo ha sido registrado y se ha asignado un técnico."
+
+#: app/services/customer_status_service.py:100
+msgid ""
+"Our technician is diagnosing your device to determine what needs to be "
+"done."
+msgstr ""
+"Nuestro técnico está diagnosticando tu dispositivo para determinar qué "
+"necesita."
+
+#: app/services/customer_status_service.py:101
+msgid ""
+"We have prepared a repair quote for your approval. Please review and "
+"approve it so we can proceed."
+msgstr ""
+"Hemos preparado un presupuesto de reparación para tu aprobación. Revísalo"
+" y apruébalo para que podamos continuar."
+
+#: app/services/customer_status_service.py:102
+msgid ""
+"We are waiting for parts needed for your repair. We'll update you when "
+"they arrive."
+msgstr ""
+"Estamos esperando las piezas necesarias para tu reparación. Te avisaremos"
+" cuando lleguen."
+
+#: app/services/customer_status_service.py:103
+msgid "Your device is currently being repaired by our technician."
+msgstr "Tu dispositivo está siendo reparado por nuestro técnico."
+
+#: app/services/customer_status_service.py:104
+msgid "The repair is complete and your device is undergoing quality checks."
+msgstr "La reparación está completa y tu dispositivo está en control de calidad."
+
+#: app/services/customer_status_service.py:105
+msgid ""
+"Great news — your device is ready! Please visit us during opening hours "
+"to collect it."
+msgstr ""
+"¡Buenas noticias! Tu dispositivo está listo. Visítanos en horario de "
+"apertura para recogerlo."
+
+#: app/services/customer_status_service.py:106
+msgid "Your repair has been completed and collected. Thank you for choosing us!"
+msgstr "Tu reparación ha sido completada y recogida. ¡Gracias por elegirnos!"
+
+#: app/services/customer_status_service.py:107
+msgid ""
+"This repair has been cancelled. Please contact us if you have any "
+"questions."
+msgstr "Esta reparación ha sido cancelada. Contáctanos si tienes alguna pregunta."
+
+#: app/services/customer_status_service.py:108
+msgid "This repair has been completed. Thank you for choosing us!"
+msgstr "Esta reparación ha sido completada. ¡Gracias por elegirnos!"
+
+#: app/services/customer_status_service.py:119
+msgid ""
+"We have prepared a repair quote for your approval. Please review it below"
+" and let us know if you'd like to proceed."
+msgstr ""
+"Hemos preparado un presupuesto de reparación para tu aprobación. Revísalo"
+" a continuación y dinos si deseas continuar."
+
+#: app/services/customer_status_service.py:122
+msgid ""
+"We are waiting for parts required for your repair. We will notify you as "
+"soon as they arrive and work can resume."
+msgstr ""
+"Estamos esperando las piezas necesarias para tu reparación. Te "
+"notificaremos en cuanto lleguen y el trabajo pueda reanudarse."
+
+#: app/services/customer_status_service.py:124
+msgid "Your repair is being processed. We'll keep you updated."
+msgstr "Tu reparación está siendo procesada. Te mantendremos informado."
+
+# ===================================================================
+# CUSTOMER STATUS SERVICE — timeline events
+#: app/services/customer_status_service.py:138
+msgid "Device checked in"
+msgstr "Dispositivo registrado"
+
+#: app/services/customer_status_service.py:139
+msgid "Diagnosis started"
+msgstr "Diagnóstico iniciado"
+
+#: app/services/customer_status_service.py:140
+msgid "Quote sent for your approval"
+msgstr "Presupuesto enviado para tu aprobación"
+
+#: app/services/customer_status_service.py:141
+msgid "Quote approved"
+msgstr "Presupuesto aprobado"
+
+#: app/services/customer_status_service.py:142
+msgid "Parts ordered"
+msgstr "Piezas pedidas"
+
+#: app/services/customer_status_service.py:143
+msgid "Repair started"
+msgstr "Reparación iniciada"
+
+#: app/services/customer_status_service.py:144
+msgid "Quality check in progress"
+msgstr "Control de calidad en progreso"
+
+#: app/services/customer_status_service.py:145
+#: app/templates/tickets/detail.html:75 app/templates/tickets/list.html:28
+msgid "Ready for collection"
+msgstr "Listo para recoger"
+
+#: app/services/customer_status_service.py:146
+msgid "Repair completed"
+msgstr "Reparación completada"
+
+# ===================================================================
+# NAVIGATION / BASE TEMPLATE
+#: app/templates/base.html:27 app/templates/base.html:103
+msgid "Dashboard"
+msgstr "Panel de Control"
+
+#: app/templates/base.html:30 app/templates/base.html:104
+msgid "Repairs"
+msgstr "Reparaciones"
+
+#: app/templates/base.html:32 app/templates/base.html:105
+#: app/templates/customers/list.html:34
+msgid "Tickets"
+msgstr "Tickets"
+
+#: app/templates/base.html:33 app/templates/base.html:106
+#: app/templates/intake/detail.html:2
+msgid "Intake"
+msgstr "Recepción"
+
+#: app/templates/base.html:34 app/templates/base.html:107
+#: app/templates/customers/list.html:2 app/templates/customers/list.html:8
+msgid "Customers"
+msgstr "Clientes"
+
+#: app/templates/base.html:35 app/templates/base.html:108
+#: app/templates/quotes/list.html:2 app/templates/quotes/list.html:7
+#: app/templates/tickets/detail.html:173
+msgid "Quotes"
+msgstr "Presupuestos"
+
+#: app/templates/base.html:37 app/templates/base.html:109
+#: app/templates/tickets/list.html:13
+msgid "Bench Board"
+msgstr "Panel de Taller"
+
+#: app/templates/base.html:38 app/templates/base.html:110
+#: app/templates/core/dashboard.html:15 app/templates/tickets/board.html:13
+msgid "My Queue"
+msgstr "Mi Cola"
+
+#: app/templates/base.html:43 app/templates/base.html:45
+#: app/templates/base.html:111 app/templates/base.html:112
+#: app/templates/inventory/overview.html:7
+#: app/templates/inventory/part_edit.html:6
+#: app/templates/inventory/part_new.html:6
+#: app/templates/inventory/parts_list.html:7
+#: app/templates/reports/dashboard.html:197
+msgid "Inventory"
+msgstr "Inventario"
+
+#: app/templates/base.html:46 app/templates/base.html:113
+#: app/templates/inventory/overview.html:12 app/templates/tickets/board.html:43
+msgid "Parts"
+msgstr "Piezas"
+
+#: app/templates/base.html:47 app/templates/base.html:114
+#: app/templates/inventory/part_edit.html:57
+#: app/templates/inventory/part_new.html:57 app/templates/suppliers/list.html:2
+#: app/templates/suppliers/list.html:7
+msgid "Suppliers"
+msgstr "Proveedores"
+
+#: app/templates/base.html:48 app/templates/base.html:115
+msgid "Orders"
+msgstr "Pedidos"
+
+#: app/templates/base.html:53 app/templates/base.html:116
+msgid "Operations"
+msgstr "Operaciones"
+
+#: app/templates/base.html:55 app/templates/base.html:117
+#: app/templates/bookings/list.html:2 app/templates/bookings/list.html:7
+#: app/templates/settings/index.html:13
+msgid "Bookings"
+msgstr "Reservas"
+
+#: app/templates/base.html:56 app/templates/base.html:118
+msgid "Services"
+msgstr "Servicios"
+
+#: app/templates/base.html:58 app/templates/base.html:119
+#: app/templates/core/dashboard.html:16
+msgid "Reports"
+msgstr "Informes"
+
+#: app/templates/base.html:59 app/templates/base.html:120
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#: app/templates/base.html:60 app/templates/base.html:121
+#: app/templates/core/dashboard.html:17
+msgid "Exports"
+msgstr "Exportaciones"
+
+#: app/templates/base.html:66 app/templates/base.html:123
+msgid "Admin"
+msgstr "Administración"
+
+#: app/templates/base.html:68 app/templates/base.html:124
+#: app/templates/settings/index.html:2
+msgid "Settings"
+msgstr "Configuración"
+
+#: app/templates/base.html:69 app/templates/base.html:125
+#: app/templates/users/list.html:7
+msgid "Users / Staff"
+msgstr "Usuarios / Personal"
+
+#: app/templates/base.html:76 app/templates/base.html:128
+msgid "Intakes"
+msgstr "Recepciones"
+
+#: app/templates/base.html:81 app/templates/base.html:129
+#: app/templates/core/dashboard.html:13 app/templates/intake/new.html:205
+#: app/templates/tickets/new.html:7
+msgid "Fast Check-In"
+msgstr "Registro Rápido"
+
+#: app/templates/base.html:89
+#, python-format
+msgid "%(count)s actionable updates"
+msgstr "%(count)s actualizaciones pendientes"
+
+#: app/templates/base.html:94
+msgid "Logout"
+msgstr "Cerrar Sesión"
+
+#: app/templates/auth/login.html:2 app/templates/base.html:94
+msgid "Login"
+msgstr "Iniciar Sesión"
+
+# ===================================================================
+# PUBLIC PORTAL — STATUS
+#: app/templates/public_base.html:6 app/templates/public_base.html:21
+msgid "Device Repair Service"
+msgstr "Servicio de Reparación de Dispositivos"
+
+#: app/templates/public_base.html:63
+msgid "Powered by"
+msgstr "Desarrollado por"
+
+#: app/templates/public_base.html:64
+msgid "Professional device repair management"
+msgstr "Gestión profesional de reparación de dispositivos"
+
+#: app/templates/auth/login.html:8
+#, fuzzy
+msgid "Sign in to your workspace"
+msgstr "Inicia sesión en tu cuenta"
+
+#: app/templates/auth/login.html:9
+msgid "Use your staff account to continue."
+msgstr "Usa tu cuenta de personal para continuar."
+
+#: app/templates/bookings/form.html:2 app/templates/bookings/form.html:6
+#, fuzzy
+msgid "Edit Booking"
+msgstr "Nueva Reserva"
+
+#: app/templates/bookings/form.html:2 app/templates/bookings/form.html:6
+msgid "New Booking"
+msgstr "Nueva Reserva"
+
+#: app/templates/bookings/form.html:7
+#, fuzzy
+msgid "Update booking details."
+msgstr "Detalles del presupuesto"
+
+#: app/templates/bookings/form.html:7
+msgid "Schedule a repair booking."
+msgstr "Programa una reserva de reparación."
+
+# ===================================================================
+# BOOKINGS
+#: app/templates/bookings/form.html:14
+#, fuzzy
+msgid "Booking Details"
+msgstr "Lista de Reservas"
+
+#: app/templates/bookings/form.html:17
+#: app/templates/inventory/movement_new.html:30
+#: app/templates/orders/detail.html:54 app/templates/orders/detail.html:91
+msgid "Location"
+msgstr "Ubicación"
+
+#: app/templates/bookings/form.html:21
+msgid "Repair Service"
+msgstr "Servicio de Reparación"
+
+#: app/templates/bookings/form.html:25
+msgid "Start Time"
+msgstr "Hora de Inicio"
+
+#: app/templates/bookings/form.html:29
+msgid "End Time"
+msgstr "Hora de Fin"
+
+#: app/templates/bookings/form.html:33 app/templates/core/dashboard.html:75
+#: app/templates/customers/detail.html:85 app/templates/intake/list.html:22
+#: app/templates/orders/detail.html:10 app/templates/orders/list.html:38
+#: app/templates/print/ticket.html:95
+#: app/templates/public/quote_approval.html:110
+#: app/templates/public/status.html:174 app/templates/quotes/list.html:26
+#: app/templates/services/list.html:30 app/templates/suppliers/list.html:20
+#: app/templates/tickets/detail.html:25 app/templates/tickets/list.html:57
+#: app/templates/users/list.html:21
+msgid "Status"
+msgstr "Estado"
+
+#: app/templates/bookings/form.html:38
+#: app/templates/inventory/movement_new.html:43
+#: app/templates/inventory/movement_new.html:44
+#: app/templates/orders/detail.html:124 app/templates/print/checklist.html:28
+#: app/templates/print/quote.html:131 app/templates/print/ticket.html:95
+#: app/templates/suppliers/new.html:45 app/templates/suppliers/new.html:46
+#: app/templates/tickets/detail.html:391
+msgid "Notes"
+msgstr "Notas"
+
+#: app/templates/bookings/form.html:46 app/templates/companies/form.html:74
+#: app/templates/intake/new.html:182 app/templates/inventory/part_edit.html:118
+#: app/templates/inventory/part_new.html:118 app/templates/orders/new.html:122
+#: app/templates/quotes/new.html:139
+#: app/templates/quotes/standalone_new.html:59
+#: app/templates/quotes/standalone_new.html:162
+#: app/templates/services/form.html:50
+#: app/templates/settings/branch_edit.html:93 app/templates/tickets/new.html:67
+#: app/templates/tickets/new.html:174
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: app/templates/bookings/list.html:8
+msgid "View and manage repair bookings by date and location."
+msgstr "Consulta y gestiona las reservas de reparación por fecha y ubicación."
+
+#: app/templates/bookings/list.html:10
+#, fuzzy
+msgid "+ New Booking"
+msgstr "Nueva Reserva"
+
+#: app/templates/bookings/list.html:27 app/templates/reports/dashboard.html:25
+#: app/templates/reports/inventory.html:21 app/templates/reports/quotes.html:21
+#: app/templates/reports/technician_workload.html:21
+#: app/templates/tickets/board.html:38 app/templates/tickets/list.html:35
+#: app/templates/tickets/new.html:155
+msgid "Today"
+msgstr "Hoy"
+
+#: app/templates/bookings/list.html:37
+#, fuzzy
+msgid "All locations"
+msgstr "Ubicaciones"
+
+#: app/templates/bookings/list.html:50
+#, fuzzy
+msgid "booking"
+msgstr "Reservas"
+
+#: app/templates/bookings/list.html:70
+#, fuzzy
+msgid "No customer"
+msgstr "Cliente"
+
+#: app/templates/bookings/list.html:93 app/templates/companies/list.html:37
+#: app/templates/customers/detail.html:15
+#: app/templates/inventory/part_edit.html:2 app/templates/orders/detail.html:12
+#: app/templates/orders/new.html:2 app/templates/orders/new.html:6
+#: app/templates/orders/new.html:7 app/templates/services/list.html:56
+#: app/templates/settings/index.html:52 app/templates/users/list.html:40
+msgid "Edit"
+msgstr "Editar"
+
+#: app/templates/bookings/list.html:99
+#, fuzzy
+msgid "No bookings for this date."
+msgstr "No hay reservas hoy"
+
+#: app/templates/bookings/list.html:100
+#, fuzzy
+msgid "Create a booking"
+msgstr "Guardar Reserva"
+
+#: app/templates/companies/form.html:2 app/templates/companies/form.html:6
+#, fuzzy
+msgid "Edit Company"
+msgstr "Nueva Empresa"
+
+#: app/templates/companies/form.html:2 app/templates/companies/form.html:6
+msgid "New Company"
+msgstr "Nueva Empresa"
+
+#: app/templates/companies/form.html:7
+msgid "Update business entity details."
+msgstr "Actualiza los datos de la entidad empresarial."
+
+#: app/templates/companies/form.html:7
+msgid "Add a new business/legal entity."
+msgstr "Añade una nueva entidad empresarial/jurídica."
+
+#: app/templates/companies/form.html:15
+msgid "1. Business Identity"
+msgstr "1. Identidad Empresarial"
+
+#: app/templates/companies/form.html:18 app/templates/companies/list.html:18
+msgid "Legal Name"
+msgstr "Razón Social"
+
+#: app/templates/companies/form.html:22 app/templates/companies/list.html:19
+msgid "Trading Name"
+msgstr "Nombre Comercial"
+
+#: app/templates/companies/form.html:26
+msgid "CIF / NIF"
+msgstr "CIF / NIF"
+
+#: app/templates/companies/form.html:30 app/templates/companies/list.html:21
+msgid "Tax Mode"
+msgstr "Régimen Fiscal"
+
+#: app/templates/companies/form.html:38
+#, fuzzy
+msgid "2. Contact Information"
+msgstr "Correo de Contacto"
+
+#: app/templates/companies/form.html:41 app/templates/customers/detail.html:19
+#: app/templates/customers/list.html:31 app/templates/public/status.html:301
+#: app/templates/quotes/standalone_new.html:50
+#: app/templates/settings/branch_edit.html:68
+#: app/templates/suppliers/new.html:26 app/templates/suppliers/new.html:27
+msgid "Phone"
+msgstr "Teléfono"
+
+#: app/templates/companies/form.html:45 app/templates/customers/detail.html:23
+#: app/templates/customers/list.html:32 app/templates/public/status.html:306
+#: app/templates/quotes/standalone_new.html:54
+#: app/templates/settings/branch_edit.html:72
+#: app/templates/suppliers/new.html:22 app/templates/suppliers/new.html:23
+#: app/templates/users/list.html:18
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: app/templates/companies/form.html:49 app/templates/suppliers/new.html:30
+#: app/templates/suppliers/new.html:31
+msgid "Website"
+msgstr "Sitio Web"
+
+#: app/templates/companies/form.html:57
+#, fuzzy
+msgid "3. Document Defaults"
+msgstr "Pie de Página del Documento"
+
+#: app/templates/companies/form.html:59
+msgid "Default Quote Terms"
+msgstr "Condiciones por Defecto del Presupuesto"
+
+#: app/templates/companies/form.html:63
+msgid "Default Repair Terms"
+msgstr "Condiciones por Defecto de Reparación"
+
+#: app/templates/companies/form.html:67
+msgid "Document Footer"
+msgstr "Pie de Página del Documento"
+
+#: app/templates/companies/form.html:68
+msgid "e.g. Company Reg. No. / Legal notice text"
+msgstr "p. ej. N.º de Registro / Texto legal"
+
+# ===================================================================
+# COMPANIES
+#: app/templates/companies/list.html:2 app/templates/companies/list.html:7
+#: app/templates/settings/index.html:11
+msgid "Companies"
+msgstr "Empresas"
+
+#: app/templates/companies/list.html:8
+msgid "Manage business/legal entities."
+msgstr "Gestiona entidades empresariales/jurídicas."
+
+#: app/templates/companies/list.html:10
+#, fuzzy
+msgid "+ New Company"
+msgstr "Nueva Empresa"
+
+# ===================================================================
+# PRINT TEMPLATES
+#: app/templates/companies/list.html:20
+msgid "CIF/NIF"
+msgstr "CIF/NIF"
+
+#: app/templates/companies/list.html:22 app/templates/suppliers/list.html:18
+#, fuzzy
+msgid "Contact"
+msgstr "Contenido"
+
+#: app/templates/companies/list.html:23 app/templates/users/list.html:20
+msgid "Branches"
+msgstr "Sucursales"
+
+#: app/templates/companies/list.html:45
+#, fuzzy
+msgid "No companies configured yet."
+msgstr "Aún no hay empresas"
+
+#: app/templates/companies/list.html:46
+msgid "Create your first company"
+msgstr "Crea tu primera empresa"
+
+#: app/templates/components/ui_macros.html:91
+#: app/templates/core/dashboard.html:54 app/templates/reports/dashboard.html:49
+#: app/templates/tickets/board.html:100 app/templates/tickets/detail.html:23
+#: app/templates/tickets/list.html:26 app/templates/tickets/list.html:82
+msgid "Unassigned"
+msgstr "Sin Asignar"
+
+# ===================================================================
+# DASHBOARD
+#: app/templates/core/dashboard.html:8
+msgid "Operations Command"
+msgstr "Centro de Operaciones"
+
+#: app/templates/core/dashboard.html:9
+msgid "Repair Desk Dashboard"
+msgstr "Panel de Reparaciones"
+
+#: app/templates/core/dashboard.html:10
+msgid "Live queue health for reception and bench technicians."
+msgstr "Estado en tiempo real de la cola para recepción y técnicos."
+
+#: app/templates/core/dashboard.html:14 app/templates/tickets/my_queue.html:12
+msgid "Open Bench Board"
+msgstr "Abrir Panel de Taller"
+
+#: app/templates/core/dashboard.html:23
+msgid "Total Open Tickets"
+msgstr "Tickets Abiertos"
+
+#: app/templates/core/dashboard.html:23
+msgid "Current active repairs"
+msgstr "Reparaciones activas"
+
+#: app/templates/core/dashboard.html:24 app/templates/orders/list.html:68
+#: app/templates/reports/dashboard.html:46
+#: app/templates/reports/technician_workload.html:48
+#: app/templates/tickets/board.html:49 app/templates/tickets/detail.html:481
+#: app/templates/tickets/detail.html:483 app/templates/tickets/list.html:23
+msgid "Overdue"
+msgstr "Vencidos"
+
+#: app/templates/core/dashboard.html:24
+msgid "Past SLA target date"
+msgstr "Fecha SLA excedida"
+
+#: app/templates/core/dashboard.html:25
+msgid "Awaiting customer pickup"
+msgstr "Esperando recogida del cliente"
+
+#: app/templates/core/dashboard.html:26
+msgid "Today's New"
+msgstr "Nuevos Hoy"
+
+#: app/templates/core/dashboard.html:26
+msgid "Intakes registered today"
+msgstr "Recepciones registradas hoy"
+
+#: app/templates/core/dashboard.html:34
+msgid "In Diagnosis"
+msgstr "En Diagnóstico"
+
+#: app/templates/core/dashboard.html:38 app/templates/reports/dashboard.html:60
+msgid "Awaiting Quote"
+msgstr "Esperando Presupuesto"
+
+#: app/templates/core/dashboard.html:42 app/templates/reports/dashboard.html:64
+msgid "Awaiting Parts"
+msgstr "Esperando Piezas"
+
+#: app/templates/core/dashboard.html:50
+msgid "Testing / QA"
+msgstr "Pruebas / Control de Calidad"
+
+#: app/templates/core/dashboard.html:64
+msgid "Recent Tickets"
+msgstr "Tickets Recientes"
+
+#: app/templates/core/dashboard.html:65 app/templates/core/dashboard.html:187
+msgid "View all"
+msgstr "Ver todos"
+
+#: app/templates/core/dashboard.html:72 app/templates/customers/detail.html:85
+#: app/templates/print/ticket.html:2
+#: app/templates/public/quote_approval.html:19
+#: app/templates/quotes/list.html:25 app/templates/quotes/new.html:10
+#: app/templates/reports/inventory.html:83 app/templates/tickets/list.html:55
+msgid "Ticket"
+msgstr "Ticket"
+
+#: app/templates/core/dashboard.html:73 app/templates/customers/list.html:30
+#: app/templates/intake/list.html:20 app/templates/print/quote.html:36
+#: app/templates/print/ticket.html:30
+#: app/templates/public/quote_approval.html:28
+#: app/templates/quotes/list.html:23
+#: app/templates/quotes/standalone_new.html:19
+msgid "Customer"
+msgstr "Cliente"
+
+#: app/templates/core/dashboard.html:74 app/templates/customers/detail.html:85
+#: app/templates/intake/list.html:21 app/templates/print/quote.html:51
+#: app/templates/print/ticket.html:42
+#: app/templates/public/quote_approval.html:25
+#: app/templates/quotes/list.html:24
+msgid "Device"
+msgstr "Dispositivo"
+
+#: app/templates/core/dashboard.html:76 app/templates/customers/detail.html:85
+#: app/templates/print/ticket.html:65 app/templates/tickets/list.html:58
+msgid "Priority"
+msgstr "Prioridad"
+
+#: app/templates/core/dashboard.html:77 app/templates/customers/detail.html:85
+#: app/templates/quotes/list.html:27 app/templates/tickets/list.html:61
+msgid "Created"
+msgstr "Creado"
+
+#: app/templates/core/dashboard.html:95
+msgid "No recent tickets yet"
+msgstr "Aún no hay tickets recientes"
+
+#: app/templates/core/dashboard.html:95
+msgid "Create a new intake to start operations"
+msgstr "Crea una nueva recepción para comenzar las operaciones"
+
+#: app/templates/core/dashboard.html:104
+msgid "Overdue Tickets"
+msgstr "Tickets Vencidos"
+
+#: app/templates/core/dashboard.html:105
+#, python-format
+msgid "%(count)s tickets past SLA target"
+msgstr "%(count)s tickets fuera de plazo SLA"
+
+#: app/templates/core/dashboard.html:107
+msgid "View on Board"
+msgstr "Ver en el Panel"
+
+#: app/templates/core/dashboard.html:118
+msgid "OVERDUE"
+msgstr "VENCIDO"
+
+#: app/templates/core/dashboard.html:131
+msgid "Recently Approved Quotes"
+msgstr "Presupuestos Aprobados Recientemente"
+
+#: app/templates/core/dashboard.html:132
+#, python-format
+msgid "%(count)s quotes approved in the last 7 days"
+msgstr "%(count)s presupuestos aprobados en los últimos 7 días"
+
+#: app/templates/core/dashboard.html:134
+msgid "View all quotes"
+msgstr "Ver todos los presupuestos"
+
+#: app/templates/core/dashboard.html:140
+msgid "No ticket"
+msgstr "Sin ticket"
+
+#: app/templates/core/dashboard.html:141
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: app/templates/core/dashboard.html:157
+msgid "Tickets Need Attention"
+msgstr "Tickets que Requieren Atención"
+
+#: app/templates/core/dashboard.html:158
+msgid "Blocked, overdue, or stalled tickets requiring action"
+msgstr "Tickets bloqueados, vencidos o estancados que requieren acción"
+
+#: app/templates/core/dashboard.html:178
+msgid "All clear"
+msgstr "Todo en orden"
+
+#: app/templates/core/dashboard.html:178
+msgid "No overdue or blocked tickets right now"
+msgstr "No hay tickets vencidos o bloqueados en este momento"
+
+#: app/templates/core/dashboard.html:186
+msgid "Today's Bookings"
+msgstr "Reservas de Hoy"
+
+#: app/templates/core/dashboard.html:210
+msgid "No bookings today"
+msgstr "No hay reservas hoy"
+
+#: app/templates/core/dashboard.html:210
+msgid "Schedule bookings from the Bookings page"
+msgstr "Programa reservas desde la página de Reservas"
+
+#: app/templates/core/dashboard.html:217
+msgid "Recent Activity"
+msgstr "Actividad Reciente"
+
+#: app/templates/core/dashboard.html:247
+msgid "No recent activity"
+msgstr "No hay actividad reciente"
+
+#: app/templates/core/dashboard.html:247
+msgid "Operational events will appear here as tickets are updated"
+msgstr ""
+"Los eventos operativos aparecerán aquí a medida que se actualicen los "
+"tickets"
+
+#: app/templates/customers/detail.html:3 app/templates/customers/detail.html:9
+#, fuzzy
+msgid "Customer Profile"
+msgstr "Teléfono del Cliente"
+
+#: app/templates/customers/detail.html:12
+msgid "Business"
+msgstr "Empresa"
+
+#: app/templates/customers/detail.html:27
+#: app/templates/notifications/templates.html:19
+#: app/templates/quotes/new.html:28 app/templates/quotes/standalone_new.html:71
+msgid "Language"
+msgstr "Idioma"
+
+#: app/templates/customers/detail.html:32
+#: app/templates/settings/branch_edit.html:26
+msgid "Company"
+msgstr "Empresa"
+
+#: app/templates/customers/detail.html:36
+#, fuzzy
+msgid "CIF / VAT"
+msgstr "CIF / NIF"
+
+#: app/templates/customers/detail.html:40 app/templates/customers/edit.html:67
+#, fuzzy
+msgid "Billing Address"
+msgstr "Dirección"
+
+#: app/templates/customers/detail.html:49
+#, fuzzy
+msgid "Linked Devices"
+msgstr "Dispositivos"
+
+#: app/templates/customers/detail.html:55 app/templates/intake/detail.html:69
+#: app/templates/print/quote.html:55 app/templates/print/ticket.html:45
+#, fuzzy
+msgid "Serial:"
+msgstr "Número de Serie"
+
+#: app/templates/customers/detail.html:56 app/templates/intake/detail.html:70
+#: app/templates/print/label_device.html:22 app/templates/print/quote.html:56
+#: app/templates/print/ticket.html:46
+#, fuzzy
+msgid "IMEI:"
+msgstr "IMEI"
+
+#: app/templates/customers/detail.html:60
+msgid "Unlink"
+msgstr "Desvincular"
+
+#: app/templates/customers/detail.html:65
+#, fuzzy
+msgid "Search customer"
+msgstr "Guardar Cliente"
+
+#: app/templates/customers/detail.html:67
+#, fuzzy
+msgid "Move"
+msgstr "Eliminar"
+
+#: app/templates/customers/detail.html:72
+#, fuzzy
+msgid "No devices linked yet."
+msgstr "Aún no hay servicios"
+
+#: app/templates/customers/detail.html:79
+#, fuzzy
+msgid "Repair History"
+msgstr "Reparación iniciada"
+
+#: app/templates/customers/detail.html:85
+#, fuzzy
+msgid "Fitted Parts"
+msgstr "Editar Pieza"
+
+#: app/templates/customers/detail.html:101
+#, fuzzy
+msgid "No repair history yet."
+msgstr "Tu reparación está completa"
+
+#: app/templates/customers/edit.html:2 app/templates/customers/edit.html:8
+msgid "Edit Customer"
+msgstr "Editar Cliente"
+
+#: app/templates/customers/edit.html:11
+#, fuzzy
+msgid "Back to Profile"
+msgstr "Volver a Tickets"
+
+#: app/templates/customers/edit.html:20
+#, fuzzy
+msgid "Contact Details"
+msgstr "Correo de Contacto"
+
+#: app/templates/customers/edit.html:43
+msgid "Customer Type"
+msgstr "Tipo de Cliente"
+
+#: app/templates/customers/edit.html:52
+msgid "Business / Company Details"
+msgstr "Datos de la Empresa"
+
+#: app/templates/customers/edit.html:104
+msgid "Save Changes"
+msgstr "Guardar Cambios"
+
+#: app/templates/customers/list.html:7
+#, fuzzy
+msgid "Customer Directory"
+msgstr "Detalle del Cliente"
+
+#: app/templates/customers/list.html:9
+msgid "Search customers and open their full repair history."
+msgstr "Busca clientes y accede a su historial completo de reparaciones."
+
+#: app/templates/customers/list.html:16 app/templates/customers/list.html:20
+msgid "Search"
+msgstr "Buscar"
+
+#: app/templates/customers/list.html:17
+msgid "Name, phone, or email — results filter as you type"
+msgstr "Nombre, teléfono o correo — los resultados se filtran mientras escribes"
+
+#: app/templates/customers/list.html:33
+msgid "Devices"
+msgstr "Dispositivos"
+
+#: app/templates/customers/list.html:35 app/templates/intake/list.html:23
+#: app/templates/reports/technician_workload.html:51
+#: app/templates/tickets/detail.html:51 app/templates/tickets/list.html:62
+#: app/templates/users/list.html:22
+msgid "Actions"
+msgstr "Acciones"
+
+#: app/templates/customers/list.html:50
+msgid "Open Profile"
+msgstr "Abrir Perfil"
+
+#: app/templates/customers/list.html:54
+#, fuzzy
+msgid "No customers found."
+msgstr "Cliente no encontrado"
+
+#: app/templates/intake/detail.html:12
+#, fuzzy
+msgid "Print Receipt"
+msgstr "Imprimir Lista de Verificación"
+
+#: app/templates/intake/detail.html:16
+#, fuzzy
+msgid "Assign technician (optional)"
+msgstr "Técnico Asignado"
+
+#: app/templates/intake/detail.html:21
+msgid "Promised completion is customer-facing. SLA target is internal deadline."
+msgstr "La finalización prometida es visible para el cliente. El objetivo SLA es un plazo interno."
+
+#: app/templates/intake/detail.html:22
+msgid "Convert to Ticket"
+msgstr "Convertir en Ticket"
+
+#: app/templates/intake/detail.html:25
+#, fuzzy
+msgid "Open Ticket"
+msgstr "Reabrir Ticket"
+
+#: app/templates/intake/detail.html:34
+msgid "Reported Fault"
+msgstr "Avería Reportada"
+
+#: app/templates/intake/detail.html:38
+#, fuzzy
+msgid "Accessories & Notes"
+msgstr "Accesorios"
+
+#: app/templates/intake/detail.html:39
+#, fuzzy
+msgid "Accessories:"
+msgstr "Accesorios"
+
+#: app/templates/intake/detail.html:40
+#, fuzzy
+msgid "Notes:"
+msgstr "Notas"
+
+#: app/templates/intake/detail.html:43
+msgid "Attachments"
+msgstr "Adjuntos"
+
+#: app/templates/intake/detail.html:46
+#, fuzzy
+msgid "unknown"
+msgstr "Desconocido"
+
+#: app/templates/intake/detail.html:48
+msgid "No attachments uploaded."
+msgstr "No se han subido adjuntos."
+
+#: app/templates/intake/detail.html:56
+#, fuzzy
+msgid "Linked Customer"
+msgstr "Editar Cliente"
+
+#: app/templates/intake/detail.html:61
+#, fuzzy
+msgid "Open Customer Profile"
+msgstr "Teléfono del Cliente"
+
+#: app/templates/intake/detail.html:66
+#, fuzzy
+msgid "Linked Device"
+msgstr "Nuevo Servicio"
+
+#: app/templates/intake/detail.html:68 app/templates/print/ticket.html:44
+#, fuzzy
+msgid "Category:"
+msgstr "Categoría"
+
+#: app/templates/intake/detail.html:74
+#, fuzzy
+msgid "Conversion Status"
+msgstr "Estado del Flujo"
+
+#: app/templates/intake/detail.html:76
+#, fuzzy
+msgid "Converted to ticket."
+msgstr "Convertir en Ticket"
+
+#: app/templates/intake/detail.html:78
+#, fuzzy
+msgid "Open Created Ticket"
+msgstr "Crear Ticket"
+
+#: app/templates/intake/detail.html:80
+#, fuzzy
+msgid "Add Another Device / Ticket"
+msgstr "Registrar otro dispositivo"
+
+#: app/templates/intake/detail.html:84
+#, fuzzy
+msgid "Not converted yet."
+msgstr "Aún no hay clientes"
+
+#: app/templates/intake/detail.html:89
+#, fuzzy
+msgid "Disclaimers / Signatures"
+msgstr "Firma del Cliente"
+
+#: app/templates/intake/detail.html:90
+msgid "Disclaimer records:"
+msgstr "Registros de descargo:"
+
+#: app/templates/intake/detail.html:91
+#, fuzzy
+msgid "Signatures:"
+msgstr "Firma del Cliente"
+
+#: app/templates/intake/list.html:3 app/templates/intake/list.html:8
+#, fuzzy
+msgid "Intake Submissions"
+msgstr "Envío de nota inválido"
+
+#: app/templates/intake/list.html:9
+msgid "Pre-check-ins and internal intake records."
+msgstr "Pre-registros y registros internos de recepción."
+
+#: app/templates/intake/list.html:11
+#, fuzzy
+msgid "+ New Intake"
+msgstr "Nueva Recepción"
+
+#: app/templates/intake/list.html:18
+msgid "Reference"
+msgstr "Referencia"
+
+#: app/templates/intake/list.html:19
+msgid "Source"
+msgstr "Origen"
+
+#: app/templates/intake/list.html:34 app/templates/orders/list.html:78
+#: app/templates/tickets/list.html:88
+msgid "Open"
+msgstr "Abrir"
+
+#: app/templates/intake/list.html:37
+#, fuzzy
+msgid "No intake submissions yet."
+msgstr "Aún no hay recepciones"
+
+#: app/templates/intake/new.html:2
+msgid "New Intake"
+msgstr "Nueva Recepción"
+
+#: app/templates/intake/new.html:7
+#, fuzzy
+msgid "Intake Workflow"
+msgstr "Flujo de Trabajo"
+
+#: app/templates/intake/new.html:8
+msgid "Device Intake &amp; Pre-Check"
+msgstr "Recepción de Dispositivo y Verificación Previa"
+
+#: app/templates/intake/new.html:9
+msgid ""
+"Complete intake form with customer, device, diagnostics, and pre-repair "
+"checks."
+msgstr ""
+"Completa el formulario de recepción con datos del cliente, dispositivo, "
+"diagnóstico y verificaciones previas a la reparación."
+
+#: app/templates/intake/new.html:11
+#, fuzzy
+msgid "Back to Intakes"
+msgstr "Volver a Tickets"
+
+#: app/templates/intake/new.html:22
+#, fuzzy
+msgid "Branch &amp; Customer"
+msgstr "Nombre de Sucursal / Tienda"
+
+#: app/templates/intake/new.html:36
+msgid "Find Existing Customer"
+msgstr "Buscar Cliente Existente"
+
+#: app/templates/intake/new.html:37
+msgid "Search name, email, phone..."
+msgstr "Buscar nombre, correo, teléfono..."
+
+#: app/templates/intake/new.html:43
+#, fuzzy
+msgid "Full name"
+msgstr "Nombre Completo"
+
+#: app/templates/intake/new.html:60
+msgid "Device Details"
+msgstr "Detalles del Dispositivo"
+
+#: app/templates/intake/new.html:65
+msgid "Apple, Samsung, etc."
+msgstr "Apple, Samsung, etc."
+
+#: app/templates/intake/new.html:69
+msgid "iPhone 15 Pro, Galaxy S24, etc."
+msgstr "iPhone 15 Pro, Galaxy S24, etc."
+
+#: app/templates/intake/new.html:86
+#, fuzzy
+msgid "Fault &amp; Condition"
+msgstr "Descripción del Problema"
+
+#: app/templates/intake/new.html:90
+msgid "What is wrong with the device? Describe the customer reported issue..."
+msgstr "¿Qué le ocurre al dispositivo? Describe el problema reportado por el cliente..."
+
+#: app/templates/intake/new.html:94
+msgid "Scratches, dents, screen cracks, water damage signs, cosmetic state..."
+msgstr "Arañazos, abolladuras, grietas en pantalla, indicios de daño por agua, estado estético..."
+
+#: app/templates/intake/new.html:99
+msgid "Charger, case, SIM card, SD card, cables..."
+msgstr "Cargador, funda, tarjeta SIM, tarjeta SD, cables..."
+
+#: app/templates/intake/new.html:103
+msgid "Any special instructions or observations..."
+msgstr "Instrucciones especiales u observaciones..."
+
+#: app/templates/intake/new.html:113
+#, fuzzy
+msgid "Pre-Repair Quick Check"
+msgstr "Verificación Pre-Reparación"
+
+#: app/templates/intake/new.html:114
+msgid "Perform these basic checks while the customer is present"
+msgstr "Realiza estas verificaciones básicas con el cliente presente"
+
+#: app/templates/intake/new.html:119
+#, fuzzy
+msgid "Powers On"
+msgstr "El dispositivo enciende"
+
+#: app/templates/intake/new.html:119
+msgid "Device turns on and boots"
+msgstr "El dispositivo enciende y arranca"
+
+#: app/templates/intake/new.html:120
+msgid "Screen OK"
+msgstr "Pantalla correcta"
+
+#: app/templates/intake/new.html:120
+msgid "Display shows correctly, no dead pixels"
+msgstr "La pantalla se muestra correctamente, sin píxeles muertos"
+
+#: app/templates/intake/new.html:121
+msgid "Charging OK"
+msgstr "Carga correcta"
+
+#: app/templates/intake/new.html:121
+#, fuzzy
+msgid "Charging port accepts cable, charges"
+msgstr "Puerto de carga funcional"
+
+#: app/templates/intake/new.html:122
+#, fuzzy
+msgid "Buttons OK"
+msgstr "Los botones físicos funcionan"
+
+#: app/templates/intake/new.html:122
+msgid "Volume, power, home buttons work"
+msgstr "Los botones de volumen, encendido y home funcionan"
+
+#: app/templates/intake/new.html:123
+#, fuzzy
+msgid "No Water Damage"
+msgstr "Sin daño visible por agua"
+
+#: app/templates/intake/new.html:123
+msgid "No visible liquid indicators triggered"
+msgstr "Ningún indicador de líquido visible activado"
+
+#: app/templates/intake/new.html:142
+msgid "Initial Diagnosis"
+msgstr "Diagnóstico Inicial"
+
+#: app/templates/intake/new.html:143
+msgid "Optional — fill if the technician can make a quick assessment at intake"
+msgstr "Opcional — completa si el técnico puede hacer una valoración rápida en recepción"
+
+#: app/templates/intake/new.html:149
+msgid "Quick assessment of the issue..."
+msgstr "Valoración rápida del problema..."
+
+#: app/templates/intake/new.html:153
+msgid "Suggested repair approach..."
+msgstr "Enfoque de reparación sugerido..."
+
+#: app/templates/intake/new.html:162
+msgid "Attachments &amp; Disclaimer"
+msgstr "Adjuntos y Descargo de Responsabilidad"
+
+#: app/templates/intake/new.html:170
+#, fuzzy
+msgid "Signature (Optional)"
+msgstr "Finalización estimada"
+
+#: app/templates/intake/new.html:171
+msgid "Signature data"
+msgstr "Datos de firma"
+
+#: app/templates/intake/new.html:176
+#, fuzzy
+msgid "I confirm the customer accepted the intake disclaimer."
+msgstr "El cliente aceptó las condiciones de recepción"
+
+#: app/templates/intake/new.html:188
+#, fuzzy
+msgid "Intake Checklist"
+msgstr "Imprimir Lista de Verificación"
+
+#: app/templates/intake/new.html:189
+msgid "Follow these steps for a thorough intake."
+msgstr "Sigue estos pasos para una recepción completa."
+
+#: app/templates/intake/new.html:191
+msgid "Select branch and find or create customer record."
+msgstr "Selecciona la sucursal y busca o crea el registro del cliente."
+
+#: app/templates/intake/new.html:192
+msgid "Record device brand, model, serial/IMEI."
+msgstr "Registra la marca, modelo y número de serie/IMEI del dispositivo."
+
+#: app/templates/intake/new.html:193
+msgid "Document the reported fault and device condition."
+msgstr "Documenta el problema reportado y la condición del dispositivo."
+
+#: app/templates/intake/new.html:194
+msgid "Run pre-repair quick checks with customer present."
+msgstr "Realiza las verificaciones rápidas pre-reparación con el cliente presente."
+
+#: app/templates/intake/new.html:195
+msgid "Add initial diagnosis if a quick assessment is possible."
+msgstr "Añade el diagnóstico inicial si es posible hacer una valoración rápida."
+
+#: app/templates/intake/new.html:196
+msgid "Upload photos, get disclaimer sign-off."
+msgstr "Sube fotos y obtén la firma del descargo de responsabilidad."
+
+#: app/templates/intake/new.html:201
+msgid "Need a faster flow?"
+msgstr "¿Necesitas un proceso más rápido?"
+
+#: app/templates/intake/new.html:202
+msgid "Use Fast Check-In for returning customers with registered devices."
+msgstr "Usa el Registro Rápido para clientes recurrentes con dispositivos ya registrados."
+
+#: app/templates/intake/receipt.html:5 app/templates/intake/receipt.html:23
+#, fuzzy
+msgid "Intake Receipt"
+msgstr "Referencia de Recepción"
+
+#: app/templates/intake/receipt.html:25
+#, fuzzy
+msgid "Reference:"
+msgstr "Referencia"
+
+#: app/templates/intake/receipt.html:26 app/templates/print/quote.html:24
+#: app/templates/print/ticket.html:17 app/templates/quotes/detail.html:18
+#, fuzzy
+msgid "Status:"
+msgstr "Estado"
+
+#: app/templates/intake/receipt.html:27 app/templates/print/checklist.html:13
+#: app/templates/quotes/detail.html:24
+#, fuzzy
+msgid "Customer:"
+msgstr "Cliente"
+
+#: app/templates/intake/receipt.html:28 app/templates/quotes/detail.html:22
+#, fuzzy
+msgid "Device:"
+msgstr "Dispositivo"
+
+#: app/templates/intake/receipt.html:29 app/templates/print/quote.html:67
+#, fuzzy
+msgid "Fault:"
+msgstr "Automático"
+
+#: app/templates/intake/receipt.html:30 app/templates/print/quote.html:22
+#: app/templates/print/quote.html:140 app/templates/print/quote.html:144
+#: app/templates/print/ticket.html:124
+#, fuzzy
+msgid "Date:"
+msgstr "Fecha"
+
+#: app/templates/intake/receipt.html:31
+msgid "QR/Barcode foundation placeholder:"
+msgstr "Espacio para código QR/barras:"
+
+# ===================================================================
+# INTEGRATIONS / EXPORTS
+#: app/templates/integrations/exports.html:2
+msgid "Export Queue"
+msgstr "Cola de Exportaciones"
+
+#: app/templates/integrations/exports.html:6
+#, fuzzy
+msgid "Odoo Export Readiness"
+msgstr "Vista Previa de Exportación"
+
+#: app/templates/integrations/exports.html:7
+msgid "Queue tickets for export and monitor status."
+msgstr "Añade tickets a la cola de exportación y supervisa el estado."
+
+#: app/templates/integrations/exports.html:11
+#, fuzzy
+msgid "Queue Ticket Export"
+msgstr "Aún no hay tickets"
+
+#: app/templates/integrations/exports.html:17
+#, fuzzy
+msgid "Preview Payload"
+msgstr "Ver todos"
+
+#: app/templates/integrations/exports.html:19
+#, fuzzy
+msgid "Queue Export"
+msgstr "Informes de Presupuestos"
+
+# ===================================================================
+# INTEGRATIONS / EXPORTS
+#: app/templates/integrations/exports.html:28
+#, fuzzy
+msgid "Export Queue Log"
+msgstr "Cola de Exportaciones"
+
+#: app/templates/integrations/exports.html:36
+#, fuzzy
+msgid "No queued exports yet."
+msgstr "Aún no hay exportaciones"
+
+#: app/templates/integrations/preview.html:2
+msgid "Export Preview"
+msgstr "Vista Previa de Exportación"
+
+#: app/templates/integrations/preview.html:6
+#, fuzzy
+msgid "Export Payload Preview"
+msgstr "Vista Previa de Exportación"
+
+#: app/templates/inventory/categories_list.html:2
+#: app/templates/inventory/categories_list.html:6
+#, fuzzy
+msgid "Part Categories"
+msgstr "Categorías"
+
+#: app/templates/inventory/categories_list.html:7
+#, fuzzy
+msgid "+ New Category"
+msgstr "Nueva Categoría"
+
+# ===================================================================
+# MISCELLANEOUS
+#: app/templates/inventory/categories_list.html:16
+#: app/templates/inventory/parts_list.html:89
+msgid "Delete"
+msgstr "Eliminar"
+
+#: app/templates/inventory/categories_list.html:20
+#, fuzzy
+msgid "No categories yet."
+msgstr "Aún no hay categorías"
+
+#: app/templates/inventory/category_new.html:2
+msgid "New Category"
+msgstr "Nueva Categoría"
+
+#: app/templates/inventory/category_new.html:6
+#, fuzzy
+msgid "Create Category"
+msgstr "Guardar Categoría"
+
+#: app/templates/inventory/category_new.html:7
+msgid "Add a new part category to organize your inventory."
+msgstr "Añade una nueva categoría de piezas para organizar tu inventario."
+
+#: app/templates/inventory/category_new.html:13
+#: app/templates/inventory/location_new.html:22
+#: app/templates/inventory/locations_list.html:15
+#: app/templates/inventory/parts_list.html:55 app/templates/orders/new.html:107
+#: app/templates/suppliers/list.html:17 app/templates/suppliers/new.html:14
+#: app/templates/users/list.html:17
+msgid "Name"
+msgstr "Nombre"
+
+#: app/templates/inventory/category_new.html:14
+#, fuzzy
+msgid "Category name"
+msgstr "Nombre de Categoría"
+
+#: app/templates/inventory/category_new.html:17
+#: app/templates/inventory/location_new.html:18
+#: app/templates/inventory/location_new.html:19
+#: app/templates/inventory/locations_list.html:14
+#, fuzzy
+msgid "Code"
+msgstr "Código Postal"
+
+#: app/templates/inventory/category_new.html:18
+#, fuzzy
+msgid "Code (optional)"
+msgstr "Añadir Opción"
+
+#: app/templates/inventory/category_new.html:21
+#: app/templates/inventory/category_new.html:22
+#: app/templates/inventory/part_edit.html:107
+#: app/templates/inventory/part_new.html:107 app/templates/orders/new.html:69
+#: app/templates/print/quote.html:81
+#: app/templates/public/quote_approval.html:59
+#: app/templates/quotes/detail.html:84 app/templates/quotes/new.html:75
+#: app/templates/services/form.html:38
+msgid "Description"
+msgstr "Descripción"
+
+#: app/templates/inventory/location_new.html:2
+#, fuzzy
+msgid "New Stock Location"
+msgstr "Nueva Ubicación"
+
+#: app/templates/inventory/location_new.html:6
+#, fuzzy
+msgid "Create Stock Location"
+msgstr "Nueva Ubicación"
+
+#: app/templates/inventory/location_new.html:7
+msgid "Define a new storage location for inventory tracking."
+msgstr "Define una nueva ubicación de almacenamiento para el seguimiento del inventario."
+
+#: app/templates/inventory/location_new.html:14
+#: app/templates/inventory/locations_list.html:13
+#: app/templates/inventory/movement_new.html:26
+msgid "Branch"
+msgstr "Sucursal"
+
+#: app/templates/inventory/location_new.html:23
+#, fuzzy
+msgid "Location name"
+msgstr "Nombre de Ubicación"
+
+#: app/templates/inventory/location_new.html:26
+#: app/templates/inventory/locations_list.html:16
+#: app/templates/orders/list.html:35 app/templates/print/quote.html:80
+#: app/templates/public/quote_approval.html:58
+#: app/templates/quotes/detail.html:83 app/templates/quotes/new.html:57
+#: app/templates/quotes/new.html:70 app/templates/quotes/standalone_new.html:95
+msgid "Type"
+msgstr "Tipo"
+
+#: app/templates/inventory/locations_list.html:2
+#: app/templates/inventory/locations_list.html:6
+#, fuzzy
+msgid "Stock Locations"
+msgstr "Ubicaciones"
+
+#: app/templates/inventory/locations_list.html:7
+#, fuzzy
+msgid "+ New Location"
+msgstr "Nueva Ubicación"
+
+#: app/templates/inventory/locations_list.html:29
+#, fuzzy
+msgid "No locations yet."
+msgstr "Aún no hay ubicaciones"
+
+#: app/templates/inventory/movement_new.html:2
+msgid "New Stock Movement"
+msgstr "Nuevo Movimiento de Stock"
+
+#: app/templates/inventory/movement_new.html:6
+#, fuzzy
+msgid "Record Stock Movement"
+msgstr "Registrar Movimiento"
+
+#: app/templates/inventory/movement_new.html:7
+msgid "Log a stock transfer, adjustment, or allocation."
+msgstr "Registra una transferencia, ajuste o asignación de stock."
+
+#: app/templates/inventory/movement_new.html:14
+#: app/templates/inventory/overview.html:24 app/templates/orders/new.html:64
+#: app/templates/tickets/detail.html:545
+msgid "Part"
+msgstr "Pieza"
+
+#: app/templates/inventory/movement_new.html:15
+msgid "Search by SKU, name, or barcode..."
+msgstr "Buscar por SKU, nombre o código de barras..."
+
+#: app/templates/inventory/movement_new.html:34
+msgid "Movement Type"
+msgstr "Tipo de Movimiento"
+
+#: app/templates/inventory/movement_new.html:38
+#: app/templates/inventory/movement_new.html:39
+#: app/templates/orders/detail.html:95 app/templates/tickets/detail.html:545
+msgid "Quantity"
+msgstr "Cantidad"
+
+# ===================================================================
+# INVENTORY
+#: app/templates/inventory/overview.html:2
+#, fuzzy
+msgid "Inventory Overview"
+msgstr "Resumen de Stock"
+
+# ===================================================================
+# INVENTORY
+#: app/templates/inventory/overview.html:8
+msgid "Stock Overview"
+msgstr "Resumen de Stock"
+
+#: app/templates/inventory/overview.html:9
+msgid "Aggregated stock by product. Click a row to see branch/location breakdown."
+msgstr ""
+"Stock agregado por producto. Haz clic en una fila para ver el desglose "
+"por sucursal/ubicación."
+
+#: app/templates/inventory/overview.html:13
+#: app/templates/inventory/part_detail.html:82
+#: app/templates/inventory/part_edit.html:80
+#: app/templates/inventory/part_new.html:80
+#: app/templates/inventory/parts_list.html:12
+msgid "Categories"
+msgstr "Categorías"
+
+#: app/templates/inventory/overview.html:14
+msgid "Locations"
+msgstr "Ubicaciones"
+
+#: app/templates/inventory/overview.html:15
+msgid "+ Movement"
+msgstr "+ Movimiento"
+
+#: app/templates/inventory/overview.html:25
+msgid "Cost / Sale"
+msgstr "Coste / Venta"
+
+#: app/templates/inventory/overview.html:26
+#: app/templates/inventory/part_detail.html:27
+msgid "On Hand"
+msgstr "En Stock"
+
+#: app/templates/inventory/overview.html:27
+#: app/templates/inventory/part_detail.html:28
+msgid "Reserved"
+msgstr "Reservado"
+
+#: app/templates/inventory/overview.html:28
+#: app/templates/inventory/part_detail.html:29
+msgid "Available"
+msgstr "Disponible"
+
+#: app/templates/inventory/overview.html:49
+#: app/templates/inventory/part_detail.html:92
+#: app/templates/inventory/part_detail.html:103
+#: app/templates/inventory/parts_list.html:78 app/templates/orders/new.html:78
+msgid "Cost"
+msgstr "Coste"
+
+#: app/templates/inventory/overview.html:51
+#: app/templates/inventory/parts_list.html:78
+msgid "Sale"
+msgstr "Venta"
+
+#: app/templates/inventory/overview.html:77
+#: app/templates/inventory/part_detail.html:43
+#, fuzzy
+msgid "No stock levels yet."
+msgstr "Aún no hay niveles de stock"
+
+#: app/templates/inventory/part_detail.html:2
+msgid "Part Detail"
+msgstr "Detalle de Pieza"
+
+#: app/templates/inventory/part_detail.html:8
+msgid "Part/Product"
+msgstr "Pieza/Producto"
+
+#: app/templates/inventory/part_detail.html:10
+#, fuzzy
+msgid "No description"
+msgstr "Descripción"
+
+#: app/templates/inventory/part_detail.html:13
+#: app/templates/inventory/part_edit.html:7
+msgid "Edit Part"
+msgstr "Editar Pieza"
+
+#: app/templates/inventory/part_detail.html:21
+#, fuzzy
+msgid "Stock by Location"
+msgstr "Guardar Ubicación"
+
+#: app/templates/inventory/part_detail.html:26
+#, fuzzy
+msgid "Branch/Location"
+msgstr "Ubicación"
+
+#: app/templates/inventory/part_detail.html:55
+#: app/templates/inventory/part_edit.html:100
+#: app/templates/inventory/part_new.html:100
+#: app/templates/reports/dashboard.html:152
+#, fuzzy
+msgid "Details"
+msgstr "Tus Datos"
+
+#: app/templates/inventory/part_detail.html:58
+#, fuzzy
+msgid "Default supplier"
+msgstr "Nuevo Proveedor"
+
+#: app/templates/inventory/part_detail.html:62
+#, fuzzy
+msgid "Other suppliers"
+msgstr "Proveedores"
+
+#: app/templates/inventory/part_detail.html:66
+#, fuzzy
+msgid "Lead time"
+msgstr "Hora de Fin"
+
+#: app/templates/inventory/part_detail.html:70
+#, fuzzy
+msgid "Cost price"
+msgstr "Precio de Coste"
+
+#: app/templates/inventory/part_detail.html:74 app/templates/orders/new.html:82
+#, fuzzy
+msgid "Sale price"
+msgstr "Precio de Venta"
+
+#: app/templates/inventory/part_detail.html:78
+msgid "Gross margin"
+msgstr "Margen bruto"
+
+#: app/templates/inventory/part_detail.html:89
+msgid "Recent Purchase Price History"
+msgstr "Historial Reciente de Precios de Compra"
+
+#: app/templates/inventory/part_detail.html:92
+#: app/templates/orders/detail.html:28 app/templates/orders/detail.html:96
+#: app/templates/orders/new.html:73 app/templates/orders/new.html:74
+#: app/templates/print/quote.html:82
+#: app/templates/public/quote_approval.html:60
+#: app/templates/quotes/detail.html:85 app/templates/quotes/new.html:59
+#: app/templates/quotes/new.html:91 app/templates/quotes/standalone_new.html:97
+#: app/templates/tickets/detail.html:495
+msgid "Qty"
+msgstr "Cant."
+
+#: app/templates/inventory/part_detail.html:94
+#, fuzzy
+msgid "No order history yet."
+msgstr "Aún no hay pedidos"
+
+#: app/templates/inventory/part_detail.html:100
+#, fuzzy
+msgid "Recent FIFO Layers"
+msgstr "Tickets Recientes"
+
+#: app/templates/inventory/part_detail.html:103
+#: app/templates/orders/detail.html:28
+#, fuzzy
+msgid "Remaining"
+msgstr "Reparando"
+
+#: app/templates/inventory/part_detail.html:105
+#, fuzzy
+msgid "No receipt layers yet."
+msgstr "Aún no hay tickets recientes"
+
+#: app/templates/inventory/part_edit.html:15
+#: app/templates/inventory/part_new.html:15
+#, fuzzy
+msgid "Identity"
+msgstr "Cantidad"
+
+#: app/templates/inventory/part_edit.html:18
+#: app/templates/inventory/part_new.html:18
+#, fuzzy
+msgid "Part Name"
+msgstr "Nombre de Opción"
+
+#: app/templates/inventory/part_edit.html:22
+#: app/templates/inventory/part_new.html:22
+#: app/templates/inventory/parts_list.html:54 app/templates/orders/new.html:103
+msgid "SKU"
+msgstr "SKU"
+
+#: app/templates/inventory/part_edit.html:26
+#: app/templates/inventory/part_new.html:26
+#, fuzzy
+msgid "Barcode"
+msgstr "Código de Sucursal"
+
+#: app/templates/inventory/part_edit.html:30
+#: app/templates/inventory/part_new.html:30
+#, fuzzy
+msgid "Supplier SKU"
+msgstr "Proveedores"
+
+#: app/templates/inventory/part_edit.html:38
+#: app/templates/inventory/part_new.html:38
+#: app/templates/inventory/parts_list.html:59
+#, fuzzy
+msgid "Pricing"
+msgstr "Imprimir"
+
+#: app/templates/inventory/part_edit.html:41
+#: app/templates/inventory/part_new.html:41
+#: app/templates/orders/detail.html:103 app/templates/orders/new.html:112
+msgid "Cost Price"
+msgstr "Precio de Coste"
+
+#: app/templates/inventory/part_edit.html:45
+#: app/templates/inventory/part_new.html:45 app/templates/orders/detail.html:30
+#: app/templates/orders/detail.html:107 app/templates/orders/new.html:81
+#: app/templates/orders/new.html:116
+msgid "Sale Price"
+msgstr "Precio de Venta"
+
+#: app/templates/inventory/part_edit.html:49
+#: app/templates/inventory/part_new.html:49
+msgid "Gross Margin"
+msgstr "Margen Bruto"
+
+#: app/templates/inventory/part_edit.html:60
+#: app/templates/inventory/part_new.html:60
+#, fuzzy
+msgid "Default Supplier"
+msgstr "Nuevo Proveedor"
+
+#: app/templates/inventory/part_edit.html:64
+#: app/templates/inventory/part_new.html:64 app/templates/suppliers/new.html:38
+msgid "Lead Time (days)"
+msgstr "Plazo de Entrega (días)"
+
+#: app/templates/inventory/part_edit.html:69
+#: app/templates/inventory/part_new.html:69
+#, fuzzy
+msgid "Additional Suppliers"
+msgstr "Nuevo Proveedor"
+
+#: app/templates/inventory/part_edit.html:71
+#: app/templates/inventory/part_new.html:71
+msgid "Ctrl/Cmd+click to select multiple."
+msgstr "Ctrl/Cmd+clic para seleccionar varios."
+
+#: app/templates/inventory/part_edit.html:77
+#: app/templates/inventory/part_new.html:77
+#, fuzzy
+msgid "Categories & Stock"
+msgstr "Categorías"
+
+#: app/templates/inventory/part_edit.html:84
+#: app/templates/inventory/part_new.html:84
+#, fuzzy
+msgid "Legacy Category Label"
+msgstr "Nombre de Categoría"
+
+#: app/templates/inventory/part_edit.html:88
+#: app/templates/inventory/part_new.html:88
+msgid "Low Stock Threshold"
+msgstr "Umbral de Stock Mínimo"
+
+#: app/templates/inventory/part_edit.html:92
+#: app/templates/inventory/part_new.html:92
+#, fuzzy
+msgid "Serial tracking"
+msgstr "Seguimiento en tiempo real"
+
+#: app/templates/inventory/part_edit.html:93
+#: app/templates/inventory/part_new.html:93
+#: app/templates/inventory/parts_list.html:85
+#: app/templates/reports/technician_workload.html:46
+#: app/templates/services/form.html:43 app/templates/services/list.html:50
+#: app/templates/settings/index.html:48 app/templates/suppliers/detail.html:42
+#: app/templates/suppliers/list.html:31 app/templates/suppliers/new.html:42
+#: app/templates/tickets/detail.html:287 app/templates/tickets/detail.html:340
+#: app/templates/users/list.html:34
+msgid "Active"
+msgstr "Activo"
+
+#: app/templates/inventory/part_edit.html:103
+#: app/templates/inventory/part_new.html:103
+msgid "Image URL"
+msgstr "URL de imagen"
+
+#: app/templates/inventory/part_edit.html:111
+#: app/templates/inventory/part_new.html:111 app/templates/quotes/new.html:130
+#: app/templates/quotes/standalone_new.html:155
+#, fuzzy
+msgid "Internal Notes"
+msgstr "Notas de Recepción"
+
+#: app/templates/inventory/part_edit.html:119
+msgid "Save Part"
+msgstr "Guardar Pieza"
+
+#: app/templates/inventory/part_new.html:2
+msgid "New Part"
+msgstr "Nueva Pieza"
+
+#: app/templates/inventory/part_new.html:7 app/templates/orders/new.html:123
+#, fuzzy
+msgid "Create Part"
+msgstr "Crear Usuario"
+
+#: app/templates/inventory/part_new.html:31
+msgid "Supplier's own product code"
+msgstr "Código de producto propio del proveedor"
+
+#: app/templates/inventory/part_new.html:85
+msgid "Optional free-text category"
+msgstr "Categoría de texto libre (opcional)"
+
+#: app/templates/inventory/part_new.html:108
+#, fuzzy
+msgid "Customer-visible description"
+msgstr "Descripción del Problema"
+
+#: app/templates/inventory/part_new.html:112
+msgid "Internal notes (not customer-visible)"
+msgstr "Notas internas (no visibles para el cliente)"
+
+#: app/templates/inventory/parts_list.html:2
+#: app/templates/inventory/parts_list.html:8
+#, fuzzy
+msgid "Parts Catalog"
+msgstr "Detalle de Pieza"
+
+#: app/templates/inventory/parts_list.html:9
+msgid ""
+"Operational filtering by category, supplier, stock state, and active "
+"status."
+msgstr ""
+"Filtrado operativo por categoría, proveedor, estado de stock y estado "
+"activo."
+
+#: app/templates/inventory/parts_list.html:13 app/templates/orders/new.html:94
+#, fuzzy
+msgid "+ New Part"
+msgstr "Nueva Pieza"
+
+#: app/templates/inventory/parts_list.html:18
+msgid "Search & Filter"
+msgstr "Buscar y Filtrar"
+
+#: app/templates/inventory/parts_list.html:20
+msgid "Name, SKU, barcode, supplier SKU — filters as you type"
+msgstr "Nombre, SKU, código de barras, SKU de proveedor — filtra mientras escribes"
+
+#: app/templates/inventory/parts_list.html:22
+#, fuzzy
+msgid "All categories"
+msgstr "Categorías"
+
+#: app/templates/inventory/parts_list.html:26
+#, fuzzy
+msgid "All suppliers"
+msgstr "Proveedores"
+
+#: app/templates/inventory/parts_list.html:32
+#, fuzzy
+msgid "Any stock state"
+msgstr "Cualquier estado"
+
+#: app/templates/inventory/parts_list.html:33
+#, fuzzy
+msgid "In stock"
+msgstr "Stock Mínimo"
+
+#: app/templates/inventory/parts_list.html:34
+msgid "Low stock"
+msgstr "Stock bajo"
+
+#: app/templates/inventory/parts_list.html:35
+msgid "Out of stock"
+msgstr "Sin stock"
+
+#: app/templates/inventory/parts_list.html:38
+#, fuzzy
+msgid "Any lead time"
+msgstr "Hora de Fin"
+
+#: app/templates/inventory/parts_list.html:39
+#, fuzzy
+msgid "Has lead time"
+msgstr "Hora de Fin"
+
+#: app/templates/inventory/parts_list.html:40
+#, fuzzy
+msgid "Long lead time (7d+)"
+msgstr "Plazo de Entrega (días)"
+
+#: app/templates/inventory/parts_list.html:44
+#: app/templates/services/list.html:12
+#, fuzzy
+msgid "Show inactive"
+msgstr "Activo"
+
+#: app/templates/inventory/parts_list.html:46 app/templates/orders/list.html:15
+#: app/templates/orders/list.html:25 app/templates/reports/inventory.html:17
+#: app/templates/reports/quotes.html:17
+#: app/templates/reports/technician_workload.html:17
+msgid "Filter"
+msgstr "Filtrar"
+
+#: app/templates/inventory/parts_list.html:56
+#: app/templates/services/list.html:26 app/templates/tickets/new.html:71
+msgid "Category"
+msgstr "Categoría"
+
+#: app/templates/inventory/parts_list.html:57
+#: app/templates/orders/detail.html:10 app/templates/orders/list.html:36
+#: app/templates/suppliers/detail.html:2 app/templates/tickets/detail.html:529
+msgid "Supplier"
+msgstr "Proveedor"
+
+#: app/templates/inventory/parts_list.html:58
+#: app/templates/suppliers/list.html:19
+#, fuzzy
+msgid "Lead Time"
+msgstr "Hora de Fin"
+
+#: app/templates/inventory/parts_list.html:60 app/templates/orders/list.html:57
+#, fuzzy
+msgid "Stock"
+msgstr "Entrada de Stock"
+
+#: app/templates/inventory/parts_list.html:61
+#, fuzzy
+msgid "State"
+msgstr "Estado"
+
+#: app/templates/inventory/parts_list.html:62 app/templates/orders/list.html:41
+#, fuzzy
+msgid "Action"
+msgstr "Acciones"
+
+#: app/templates/inventory/parts_list.html:73
+#, fuzzy
+msgid "Barcode:"
+msgstr "Código de Sucursal"
+
+#: app/templates/inventory/parts_list.html:73
+#, fuzzy
+msgid "Supplier SKU:"
+msgstr "Proveedores"
+
+#: app/templates/inventory/parts_list.html:82
+#, fuzzy
+msgid "on hand"
+msgstr "En Stock"
+
+#: app/templates/inventory/parts_list.html:82
+#, fuzzy
+msgid "avail"
+msgstr "Disponible"
+
+#: app/templates/inventory/parts_list.html:85
+#: app/templates/services/list.html:52 app/templates/settings/index.html:50
+#: app/templates/suppliers/list.html:33 app/templates/users/list.html:36
+#, fuzzy
+msgid "Inactive"
+msgstr "Activo"
+
+#: app/templates/inventory/parts_list.html:88
+msgid "Deactivate"
+msgstr "Desactivar"
+
+#: app/templates/inventory/parts_list.html:88
+#, fuzzy
+msgid "Reactivate"
+msgstr "Desactivar"
+
+#: app/templates/inventory/parts_list.html:96
+#, fuzzy
+msgid "No parts found."
+msgstr "Presupuesto no encontrado"
+
+# ===================================================================
+# NOTIFICATIONS
+#: app/templates/notifications/events.html:2
+#: app/templates/notifications/events.html:6
+msgid "Notification Events"
+msgstr "Eventos de Notificación"
+
+#: app/templates/notifications/events.html:7
+msgid "Queue and monitor notification delivery."
+msgstr "Gestiona la cola y supervisa el envío de notificaciones."
+
+#: app/templates/notifications/events.html:11
+msgid "Queue New Event"
+msgstr "Añadir Nuevo Evento a la Cola"
+
+#: app/templates/notifications/events.html:19
+msgid "Queue Event"
+msgstr "Poner Evento en Cola"
+
+#: app/templates/notifications/events.html:25
+#, fuzzy
+msgid "Events"
+msgstr "Tipo de Evento"
+
+#: app/templates/notifications/events.html:33
+#, fuzzy
+msgid "No events yet."
+msgstr "Aún no hay servicios"
+
+#: app/templates/notifications/events.html:39
+msgid "Delivery Log"
+msgstr "Registro de Envíos"
+
+#: app/templates/notifications/events.html:47
+#, fuzzy
+msgid "No deliveries yet."
+msgstr "Aún no hay servicios"
+
+#: app/templates/notifications/templates.html:2
+#: app/templates/notifications/templates.html:6
+#: app/templates/settings/index.html:15
+msgid "Notification Templates"
+msgstr "Plantillas de Notificación"
+
+#: app/templates/notifications/templates.html:7
+msgid "Create and manage message templates for automated notifications."
+msgstr "Crea y gestiona plantillas de mensajes para notificaciones automatizadas."
+
+#: app/templates/notifications/templates.html:11
+#, fuzzy
+msgid "New Template"
+msgstr "Plantilla"
+
+#: app/templates/notifications/templates.html:15
+#, fuzzy
+msgid "Template Key"
+msgstr "Plantilla"
+
+#: app/templates/notifications/templates.html:16
+msgid "e.g. quote_ready"
+msgstr "p. ej. quote_ready"
+
+#: app/templates/notifications/templates.html:24
+#, fuzzy
+msgid "Subject Template"
+msgstr "Plantilla"
+
+#: app/templates/notifications/templates.html:25
+#, fuzzy
+msgid "Subject template"
+msgstr "Plantilla"
+
+#: app/templates/notifications/templates.html:28
+#, fuzzy
+msgid "Body Template"
+msgstr "Plantilla"
+
+#: app/templates/notifications/templates.html:29
+#, fuzzy
+msgid "Body template"
+msgstr "Plantilla"
+
+#: app/templates/notifications/templates.html:32
+#, fuzzy
+msgid "Create Template"
+msgstr "Crear Ticket"
+
+#: app/templates/notifications/templates.html:38
+#, fuzzy
+msgid "Existing Templates"
+msgstr "Plantillas de Notificación"
+
+#: app/templates/notifications/templates.html:49
+#, fuzzy
+msgid "No templates yet."
+msgstr "Aún no hay empresas"
+
+#: app/templates/orders/detail.html:2
+#, fuzzy
+msgid "Part Order Detail"
+msgstr "Detalle del Pedido"
+
+#: app/templates/orders/detail.html:8
+msgid "Order Detail"
+msgstr "Detalle del Pedido"
+
+#: app/templates/orders/detail.html:9 app/templates/orders/list.html:34
+#: app/templates/orders/new.html:6
+#, fuzzy
+msgid "Order"
+msgstr "Pedidos"
+
+#: app/templates/orders/detail.html:10
+#, fuzzy
+msgid "Repair-linked:"
+msgstr "Reparando"
+
+#: app/templates/orders/detail.html:10
+msgid "General stock order"
+msgstr "Pedido general de stock"
+
+# ===================================================================
+# ORDERS
+#: app/templates/orders/detail.html:20 app/templates/orders/new.html:59
+#, fuzzy
+msgid "Order Lines"
+msgstr "Lista de Pedidos"
+
+#: app/templates/orders/detail.html:28 app/templates/orders/list.html:21
+#: app/templates/orders/list.html:64
+msgid "Received"
+msgstr "Recibido"
+
+#: app/templates/orders/detail.html:29 app/templates/orders/new.html:77
+#, fuzzy
+msgid "Unit Cost"
+msgstr "Precio unitario"
+
+#: app/templates/orders/detail.html:42
+#, fuzzy
+msgid "Order total:"
+msgstr "Detalle del Pedido"
+
+#: app/templates/orders/detail.html:49
+#, fuzzy
+msgid "Receive All Stock"
+msgstr "Reservar Stock"
+
+#: app/templates/orders/detail.html:50
+msgid ""
+"Receive all remaining quantities in one action. Choose the destination "
+"location."
+msgstr ""
+"Recibe todas las cantidades pendientes en una sola acción. Elige la "
+"ubicación de destino."
+
+#: app/templates/orders/detail.html:58 app/templates/orders/detail.html:99
+#, fuzzy
+msgid "Delivery Note"
+msgstr "Notas del Pedido"
+
+#: app/templates/orders/detail.html:59
+#, fuzzy
+msgid "Optional note"
+msgstr "Nombre de Opción"
+
+#: app/templates/orders/detail.html:62
+#, fuzzy
+msgid "Receive All"
+msgstr "Recibido"
+
+#: app/templates/orders/detail.html:62
+#, fuzzy
+msgid "lines"
+msgstr "Recepciones"
+
+#: app/templates/orders/detail.html:71
+#, fuzzy
+msgid "Order Info"
+msgstr "Notas del Pedido"
+
+#: app/templates/orders/detail.html:73
+#, fuzzy
+msgid "Ordered at"
+msgstr "Fecha del Pedido"
+
+#: app/templates/orders/detail.html:74 app/templates/orders/list.html:39
+#: app/templates/reports/inventory.html:82
+#: app/templates/tickets/detail.html:530
+msgid "ETA"
+msgstr "ETA"
+
+#: app/templates/orders/detail.html:75 app/templates/orders/list.html:40
+#, fuzzy
+msgid "Tracking"
+msgstr "Entrada de Stock"
+
+#: app/templates/orders/detail.html:76
+#, fuzzy
+msgid "Supplier ref"
+msgstr "Nombre del Proveedor"
+
+#: app/templates/orders/detail.html:83
+msgid "Receive Single Line"
+msgstr "Recibir Línea Individual"
+
+#: app/templates/orders/detail.html:87
+#, fuzzy
+msgid "Line"
+msgstr "Iniciar Sesión"
+
+#: app/templates/orders/detail.html:100
+#, fuzzy
+msgid "Delivery note"
+msgstr "Notas del Pedido"
+
+#: app/templates/orders/detail.html:104
+#, fuzzy
+msgid "Override cost price"
+msgstr "Precio de Coste"
+
+#: app/templates/orders/detail.html:108
+#, fuzzy
+msgid "Override sale price"
+msgstr "Precio de Venta"
+
+#: app/templates/orders/detail.html:116
+#, fuzzy
+msgid "Update Status"
+msgstr "Estado del presupuesto"
+
+#: app/templates/orders/detail.html:120
+msgid "Event Type"
+msgstr "Tipo de Evento"
+
+#: app/templates/orders/list.html:2 app/templates/orders/list.html:8
+#, fuzzy
+msgid "Part Orders"
+msgstr "Piezas pedidas"
+
+#: app/templates/orders/list.html:7
+#, fuzzy
+msgid "Supply Chain"
+msgstr "Proveedor"
+
+#: app/templates/orders/list.html:9
+msgid "Repair-linked and general stock replenishment orders."
+msgstr "Pedidos vinculados a reparaciones y pedidos generales de reposición de stock."
+
+#: app/templates/orders/list.html:11
+#, fuzzy
+msgid "+ New Part Order"
+msgstr "Nuevo Pedido"
+
+#: app/templates/orders/list.html:18
+#, fuzzy
+msgid "All statuses"
+msgstr "Cualquier estado"
+
+#: app/templates/orders/list.html:19
+#, fuzzy
+msgid "Ordered"
+msgstr "Pedidos"
+
+#: app/templates/orders/list.html:20
+#, fuzzy
+msgid "Partially Received"
+msgstr "Pieza reservada"
+
+#: app/templates/orders/list.html:24
+msgid "Search reference, supplier..."
+msgstr "Buscar referencia, proveedor..."
+
+#: app/templates/orders/list.html:37
+#, fuzzy
+msgid "Lines"
+msgstr "Recepciones"
+
+#: app/templates/orders/list.html:50
+#, fuzzy
+msgid "Supplier ref:"
+msgstr "Nombre del Proveedor"
+
+#: app/templates/orders/list.html:54 app/templates/public/thank_you.html:50
+#, fuzzy
+msgid "Repair"
+msgstr "Reparaciones"
+
+#: app/templates/orders/list.html:70
+#, fuzzy
+msgid "Partial"
+msgstr "Pieza"
+
+#: app/templates/orders/list.html:84
+#, fuzzy
+msgid "No orders found."
+msgstr "Aún no hay pedidos"
+
+#: app/templates/orders/new.html:2 app/templates/orders/new.html:6
+msgid "New"
+msgstr "Nuevo"
+
+#: app/templates/orders/new.html:2 app/templates/orders/new.html:7
+#, fuzzy
+msgid "Part Order"
+msgstr "Piezas pedidas"
+
+#: app/templates/orders/new.html:7
+#, fuzzy
+msgid "Create"
+msgstr "Creado"
+
+#: app/templates/orders/new.html:15
+#, fuzzy
+msgid "Search Ticket (optional)"
+msgstr "Operaciones de Tickets"
+
+#: app/templates/orders/new.html:16
+#, fuzzy
+msgid "Ticket #, customer name, email"
+msgstr "Correo del Cliente"
+
+#: app/templates/orders/new.html:65
+#, fuzzy
+msgid "Search part..."
+msgstr "Reservar pieza"
+
+#: app/templates/orders/new.html:70
+#, fuzzy
+msgid "Override"
+msgstr "VENCIDO"
+
+#: app/templates/orders/new.html:85
+msgid "Remove"
+msgstr "Eliminar"
+
+#: app/templates/orders/new.html:93
+#, fuzzy
+msgid "+ Add Line"
+msgstr "Añadir Línea"
+
+#: app/templates/orders/new.html:100
+#, fuzzy
+msgid "Add New Part"
+msgstr "Nueva Pieza"
+
+#: app/templates/print/base_print.html:6 app/templates/print/base_print.html:82
+#: app/templates/tickets/detail.html:100
+msgid "Print"
+msgstr "Imprimir"
+
+#: app/templates/print/base_print.html:83
+msgid "Back"
+msgstr "Volver"
+
+#: app/templates/print/base_print.html:85
+msgid "Print preview — use Ctrl+P or the button"
+msgstr "Vista previa de impresión — usa Ctrl+P o el botón"
+
+#: app/templates/print/checklist.html:2 app/templates/tickets/detail.html:103
+#, fuzzy
+msgid "Checklist"
+msgstr "Imprimir Lista de Verificación"
+
+#: app/templates/print/checklist.html:19 app/templates/print/ticket.html:95
+msgid "Check"
+msgstr "Verificación"
+
+#: app/templates/print/checklist.html:21 app/templates/public/status.html:220
+#: app/templates/tickets/detail.html:285 app/templates/tickets/detail.html:338
+msgid "Complete"
+msgstr "Completo"
+
+#: app/templates/print/checklist.html:23 app/templates/public/status.html:222
+msgid "In Progress"
+msgstr "En Progreso"
+
+# ===================================================================
+# CUSTOMER STATUS SERVICE — customer-facing labels
+#: app/templates/print/checklist.html:28
+#, fuzzy
+msgid "Check Item"
+msgstr "Registrado"
+
+#: app/templates/print/checklist.html:28
+#, fuzzy
+msgid "Pass"
+msgstr "Contraseña"
+
+#: app/templates/print/checklist.html:42
+#, fuzzy
+msgid "No checklists recorded for this ticket."
+msgstr "No hay presupuestos para este ticket"
+
+#: app/templates/print/label_accessory.html:2
+#: app/templates/tickets/detail.html:105
+#, fuzzy
+msgid "Accessory Label"
+msgstr "Accesorios"
+
+#: app/templates/print/label_accessory.html:26
+msgid "Accessories"
+msgstr "Accesorios"
+
+#: app/templates/print/label_device.html:2
+#: app/templates/tickets/detail.html:104
+#, fuzzy
+msgid "Device Label"
+msgstr "Modelo del Dispositivo"
+
+#: app/templates/print/label_device.html:23
+#, fuzzy
+msgid "S/N:"
+msgstr "N/S"
+
+#: app/templates/print/quote.html:2 app/templates/print/quote.html:20
+#: app/templates/quotes/detail.html:3 app/templates/quotes/list.html:22
+#: app/templates/tickets/board.html:46
+msgid "Quote"
+msgstr "Presupuesto"
+
+#: app/templates/print/quote.html:14 app/templates/print/quote.html:46
+#: app/templates/print/ticket.html:11 app/templates/print/ticket.html:38
+#, fuzzy
+msgid "Tel:"
+msgstr "Tel"
+
+#: app/templates/print/quote.html:23
+#, fuzzy
+msgid "Valid until:"
+msgstr "Credenciales inválidas"
+
+#: app/templates/print/quote.html:39 app/templates/print/ticket.html:33
+#, fuzzy
+msgid "Contact:"
+msgstr "Contenido"
+
+#: app/templates/print/quote.html:66 app/templates/quotes/detail.html:56
+#, fuzzy
+msgid "Diagnostic Summary"
+msgstr "Diagnósticos"
+
+#: app/templates/print/quote.html:68
+#, fuzzy
+msgid "Diagnosis:"
+msgstr "Diagnósticos"
+
+#: app/templates/print/quote.html:69
+#, fuzzy
+msgid "Recommended:"
+msgstr "Reparación Recomendada"
+
+#: app/templates/print/quote.html:83 app/templates/quotes/new.html:60
+#: app/templates/quotes/standalone_new.html:98
+msgid "Unit Price"
+msgstr "Precio Unitario"
+
+#: app/templates/print/quote.html:85 app/templates/quotes/detail.html:88
+#, fuzzy
+msgid "Line Total"
+msgstr "Total"
+
+#: app/templates/print/quote.html:107
+#: app/templates/public/quote_approval.html:87
+#: app/templates/quotes/detail.html:116
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: app/templates/print/quote.html:115
+#: app/templates/public/quote_approval.html:62
+#: app/templates/public/quote_approval.html:95
+#: app/templates/quotes/detail.html:125 app/templates/quotes/new.html:61
+#: app/templates/quotes/standalone_new.html:99
+#: app/templates/reports/dashboard.html:128
+#: app/templates/reports/technician_workload.html:50
+msgid "Total"
+msgstr "Total"
+
+#: app/templates/print/quote.html:124 app/templates/quotes/new.html:37
+#: app/templates/quotes/standalone_new.html:80
+#, fuzzy
+msgid "Terms & Conditions"
+msgstr "Condición del Dispositivo"
+
+#: app/templates/print/quote.html:139 app/templates/print/ticket.html:119
+msgid "Customer Signature"
+msgstr "Firma del Cliente"
+
+#: app/templates/print/quote.html:140 app/templates/print/quote.html:144
+#, fuzzy
+msgid "Name:"
+msgstr "Nombre"
+
+#: app/templates/print/quote.html:143
+msgid "Store Representative"
+msgstr "Representante de la Tienda"
+
+#: app/templates/print/ticket.html:15
+#, fuzzy
+msgid "Received:"
+msgstr "Recibido"
+
+#: app/templates/print/ticket.html:16
+#, fuzzy
+msgid "Branch:"
+msgstr "Sucursal"
+
+#: app/templates/print/ticket.html:39
+#, fuzzy
+msgid "Email:"
+msgstr "Correo electrónico"
+
+#: app/templates/print/ticket.html:53
+#, fuzzy
+msgid "Issue Summary"
+msgstr "Problema / Resumen"
+
+#: app/templates/print/ticket.html:54 app/templates/tickets/detail.html:229
+msgid "Not specified"
+msgstr "No especificado"
+
+#: app/templates/print/ticket.html:61
+msgid "Promised Completion"
+msgstr "Fecha Prometida"
+
+#: app/templates/print/ticket.html:73
+msgid "Intake Notes"
+msgstr "Notas de Recepción"
+
+#: app/templates/print/ticket.html:83 app/templates/tickets/detail.html:211
+msgid "Diagnostics"
+msgstr "Diagnósticos"
+
+#: app/templates/print/ticket.html:85 app/templates/tickets/detail.html:219
+msgid "Customer Reported Fault"
+msgstr "Problema Reportado por el Cliente"
+
+#: app/templates/print/ticket.html:86 app/templates/tickets/detail.html:224
+msgid "Technician Diagnosis"
+msgstr "Diagnóstico del Técnico"
+
+#: app/templates/print/ticket.html:87 app/templates/tickets/detail.html:228
+msgid "Recommended Repair"
+msgstr "Reparación Recomendada"
+
+#: app/templates/print/ticket.html:93 app/templates/tickets/detail.html:279
+msgid "Pre-Repair Check"
+msgstr "Verificación Pre-Reparación"
+
+#: app/templates/print/ticket.html:111
+#, fuzzy
+msgid "Repair Terms & Conditions"
+msgstr "Condición del Dispositivo"
+
+#: app/templates/print/ticket.html:120
+#, fuzzy
+msgid "I acknowledge leaving the above device for repair."
+msgstr "Reconozco que dejo el dispositivo indicado para reparación"
+
+#: app/templates/print/ticket.html:123
+msgid "Received By"
+msgstr "Recibido Por"
+
+#: app/templates/print/ticket.html:124
+#, fuzzy
+msgid "Staff:"
+msgstr "Personal"
+
+#: app/templates/public/check_in.html:2
+msgid "Kiosk Check-In"
+msgstr "Registro en Kiosco"
+
+# ===================================================================
+# CUSTOMER STATUS SERVICE — timeline events
+#: app/templates/public/check_in.html:2
+#, fuzzy
+msgid "Device Check-In"
+msgstr "Dispositivo registrado"
+
+#: app/templates/public/check_in.html:13
+msgid "Quick & easy process"
+msgstr "Proceso rápido y sencillo"
+
+# ===================================================================
+# PUBLIC PORTAL — CHECK-IN
+#: app/templates/public/check_in.html:15
+#, fuzzy
+msgid "Welcome! Let's check in your device"
+msgstr "Registra Tu Dispositivo"
+
+#: app/templates/public/check_in.html:15
+#, fuzzy
+msgid "Submit your device for repair"
+msgstr "Tu dispositivo está siendo reparado"
+
+#: app/templates/public/check_in.html:16
+msgid ""
+"Fill in the details below and our team will take it from there. It only "
+"takes a few minutes."
+msgstr ""
+"Completa los datos a continuación y nuestro equipo se encargará del resto."
+" Solo tarda unos minutos."
+
+#: app/templates/public/check_in.html:43
+#, fuzzy
+msgid "Your details"
+msgstr "Tus Datos"
+
+#: app/templates/public/check_in.html:44
+msgid "So we know how to reach you with updates"
+msgstr "Para poder contactarte con novedades"
+
+# ===================================================================
+# PUBLIC PORTAL — CHECK-IN
+#: app/templates/public/check_in.html:76
+#, fuzzy
+msgid "Your device"
+msgstr "Registra Tu Dispositivo"
+
+#: app/templates/public/check_in.html:77
+msgid "Tell us what you're bringing in for repair"
+msgstr "Cuéntanos qué dispositivo traes para reparar"
+
+#: app/templates/public/check_in.html:113
+msgid "What's wrong?"
+msgstr "¿Qué le pasa?"
+
+#: app/templates/public/check_in.html:114
+msgid "Tell us about the issue so our team can prepare"
+msgstr "Descríbenos el problema para que nuestro equipo pueda prepararse"
+
+#: app/templates/public/check_in.html:144
+msgid "Finish up"
+msgstr "Finalizar"
+
+#: app/templates/public/check_in.html:145
+msgid "Upload a photo and confirm your submission"
+msgstr "Sube una foto y confirma tu envío"
+
+#: app/templates/public/check_in.html:153
+msgid "A photo of your device helps us document its current condition"
+msgstr "Una foto de tu dispositivo nos ayuda a documentar su estado actual"
+
+#: app/templates/public/check_in.html:162
+#, fuzzy
+msgid "Intake disclaimer"
+msgstr "Acepto las condiciones de recepción"
+
+#: app/templates/public/check_in.html:163
+msgid ""
+"I confirm that the details provided above are accurate and I accept the "
+"intake terms and conditions for this repair service."
+msgstr ""
+"Confirmo que los datos facilitados son correctos y acepto las condiciones "
+"de recepción de este servicio de reparación."
+
+#: app/templates/public/quote_approval.html:2
+#, fuzzy
+msgid "Quote Approval"
+msgstr "URL de Aprobación del Presupuesto"
+
+# ===================================================================
+# PUBLIC PORTAL — QUOTE APPROVAL
+#: app/templates/public/quote_approval.html:15
+msgid "Quote for your review"
+msgstr "Presupuesto para tu revisión"
+
+#: app/templates/public/quote_approval.html:17
+msgid "Repair quote"
+msgstr "Presupuesto de reparación"
+
+#: app/templates/public/quote_approval.html:21
+#: app/templates/quotes/detail.html:14
+#: app/templates/quotes/standalone_new.html:6
+msgid "Standalone Quote"
+msgstr "Presupuesto Independiente"
+
+#: app/templates/public/quote_approval.html:37
+msgid "Secure & verified"
+msgstr "Seguro y verificado"
+
+#: app/templates/public/quote_approval.html:41
+msgid "Respond at your convenience"
+msgstr "Responde cuando te convenga"
+
+#: app/templates/public/quote_approval.html:61
+msgid "Unit price"
+msgstr "Precio unitario"
+
+#: app/templates/public/quote_approval.html:91
+#: app/templates/quotes/detail.html:87 app/templates/quotes/detail.html:120
+msgid "IGIC"
+msgstr "IGIC"
+
+#: app/templates/public/quote_approval.html:107
+msgid "Quote details"
+msgstr "Detalles del presupuesto"
+
+#: app/templates/public/quote_approval.html:117
+#: app/templates/quotes/new.html:32 app/templates/quotes/standalone_new.html:75
+#: app/templates/tickets/detail.html:190
+msgid "Expires"
+msgstr "Expira"
+
+#: app/templates/public/quote_approval.html:122
+msgid "Payment"
+msgstr "Pago"
+
+#: app/templates/public/quote_approval.html:131
+msgid "Pay now online"
+msgstr "Pagar ahora en línea"
+
+#: app/templates/public/quote_approval.html:143
+msgid "Quote expired"
+msgstr "Presupuesto expirado"
+
+#: app/templates/public/quote_approval.html:144
+msgid ""
+"This quote link has expired. Please contact the branch for a refreshed "
+"quote."
+msgstr ""
+"Este enlace de presupuesto ha expirado. Contacta con la sucursal para "
+"obtener un presupuesto actualizado."
+
+#: app/templates/public/quote_approval.html:153
+msgid "Your decision"
+msgstr "Tu decisión"
+
+#: app/templates/public/quote_approval.html:154
+msgid "Review the quote above and let us know how you'd like to proceed."
+msgstr "Revisa el presupuesto anterior y dinos cómo deseas proceder."
+
+#: app/templates/public/quote_approval.html:160
+msgid "Your name"
+msgstr "Tu nombre"
+
+#: app/templates/public/quote_approval.html:165
+#: app/templates/quotes/detail.html:171
+msgid "Phone or email"
+msgstr "Teléfono o correo electrónico"
+
+#: app/templates/public/quote_approval.html:170
+msgid "Preferred language"
+msgstr "Idioma preferido"
+
+#: app/templates/public/quote_approval.html:175
+#: app/templates/quotes/detail.html:159
+msgid "Decision"
+msgstr "Decisión"
+
+#: app/templates/public/quote_approval.html:180
+msgid "Payment method"
+msgstr "Método de pago"
+
+#: app/templates/public/quote_approval.html:185
+msgid "Reason for declining (if applicable)"
+msgstr "Motivo del rechazo (si aplica)"
+
+#: app/templates/public/quote_approval.html:186
+msgid "Optional - help us understand your concerns"
+msgstr "Opcional - ayúdanos a entender tus inquietudes"
+
+#: app/templates/public/status.html:2
+#, fuzzy
+msgid "Track Your Repair"
+msgstr "Sigue tu reparación"
+
+#: app/templates/public/status.html:12
+msgid "Real-time tracking"
+msgstr "Seguimiento en tiempo real"
+
+#: app/templates/public/status.html:14 app/templates/public/thank_you.html:69
+msgid "Track your repair"
+msgstr "Sigue tu reparación"
+
+#: app/templates/public/status.html:16
+msgid ""
+"Enter your ticket number and the phone or email you used at check-in to "
+"see your repair status."
+msgstr ""
+"Introduce tu número de ticket y el teléfono o correo electrónico que "
+"usaste al registrar para ver el estado de tu reparación."
+
+#: app/templates/public/status.html:27 app/templates/public/status.html:54
+msgid "Ticket number"
+msgstr "Número de ticket"
+
+#: app/templates/public/status.html:28
+msgid "The reference you received when you checked in"
+msgstr "La referencia que recibiste al registrar"
+
+#: app/templates/public/status.html:32 app/templates/public/status.html:58
+msgid "Verification"
+msgstr "Verificación"
+
+#: app/templates/public/status.html:33
+msgid "The phone number or email you gave us"
+msgstr "El teléfono o correo electrónico que nos proporcionaste"
+
+#: app/templates/public/status.html:46
+msgid "Look up a different ticket"
+msgstr "Buscar otro ticket"
+
+#: app/templates/public/status.html:83
+msgid ""
+"Great news — your repair is complete. Please visit the branch during "
+"opening hours to pick up your device."
+msgstr ""
+"¡Buenas noticias! Tu reparación está completa. Visítanos en horario de "
+"apertura para recoger tu dispositivo."
+
+#: app/templates/public/status.html:94
+msgid "Your approval is needed"
+msgstr "Necesitamos tu aprobación"
+
+#: app/templates/public/status.html:95
+msgid ""
+"We've prepared a repair quote for you. Please review and approve it so we"
+" can proceed with the repair."
+msgstr ""
+"Hemos preparado un presupuesto de reparación para ti. Por favor, revísalo"
+" y apruébalo para que podamos continuar con la reparación."
+
+#: app/templates/public/status.html:117
+msgid "TICKET"
+msgstr "TICKET"
+
+#: app/templates/public/status.html:121
+msgid "Checked in"
+msgstr "Registrado"
+
+#: app/templates/public/status.html:139
+msgid "Estimated completion:"
+msgstr "Finalización estimada:"
+
+#: app/templates/public/status.html:147
+msgid "Repair progress"
+msgstr "Progreso de la reparación"
+
+#: app/templates/public/status.html:179
+msgid "Estimated completion"
+msgstr "Finalización estimada"
+
+#: app/templates/public/status.html:186
+msgid "Quote status"
+msgstr "Estado del presupuesto"
+
+#: app/templates/public/status.html:194
+msgid "Review & approve quote"
+msgstr "Revisar y aprobar presupuesto"
+
+#: app/templates/public/status.html:210
+msgid "Quality Checklists"
+msgstr "Listas de Control de Calidad"
+
+#: app/templates/public/status.html:211
+msgid "Pre-repair and post-repair quality checks performed on your device"
+msgstr ""
+"Verificaciones de calidad pre y post reparación realizadas en tu "
+"dispositivo"
+
+#: app/templates/public/status.html:250
+msgid "Updates"
+msgstr "Actualizaciones"
+
+#: app/templates/public/status.html:251
+msgid "Messages and updates about your repair"
+msgstr "Mensajes y actualizaciones sobre tu reparación"
+
+#: app/templates/public/status.html:270
+msgid "No updates yet. We'll post updates here as your repair progresses."
+msgstr ""
+"Aún no hay actualizaciones. Publicaremos actualizaciones aquí a medida "
+"que avance tu reparación."
+
+#: app/templates/public/status.html:285
+msgid "Need to update your contact details?"
+msgstr "¿Necesitas actualizar tus datos de contacto?"
+
+#: app/templates/public/status.html:286
+msgid "Change your phone, email, or add collection instructions"
+msgstr "Cambia tu teléfono, correo electrónico o añade instrucciones de recogida"
+
+#: app/templates/public/status.html:297
+msgid "Contact person"
+msgstr "Persona de contacto"
+
+#: app/templates/public/status.html:310
+msgid "Collection or contact remarks"
+msgstr "Observaciones de recogida o contacto"
+
+# ===================================================================
+# CUSTOMER COMMUNICATION SERVICE — templates
+#: app/templates/public/thank_you.html:2
+#, fuzzy
+msgid "Check-In Received"
+msgstr "Registrado / Recibido"
+
+#: app/templates/public/thank_you.html:12
+#, fuzzy
+msgid "Submission received"
+msgstr "Permiso denegado"
+
+#: app/templates/public/thank_you.html:13
+#, fuzzy
+msgid "Thank you for your check-in!"
+msgstr "¡Gracias por tu paciencia!"
+
+#: app/templates/public/thank_you.html:14
+#, fuzzy
+msgid "Your device has been successfully registered in our system."
+msgstr "Tu dispositivo ha sido registrado"
+
+#: app/templates/public/thank_you.html:18
+#, fuzzy
+msgid "Your reference number"
+msgstr "Referencia"
+
+#: app/templates/public/thank_you.html:20
+#, fuzzy
+msgid "Save this for tracking your repair"
+msgstr "Sigue tu reparación"
+
+#: app/templates/public/thank_you.html:26
+msgid "What happens next?"
+msgstr "¿Qué ocurre ahora?"
+
+#: app/templates/public/thank_you.html:27
+msgid "Here's what to expect from here"
+msgstr "Esto es lo que puedes esperar a partir de ahora"
+
+#: app/templates/public/thank_you.html:34
+#, fuzzy
+msgid "Review"
+msgstr "Ver"
+
+#: app/templates/public/thank_you.html:35
+msgid ""
+"Our reception team will review your submission and confirm the intake "
+"details."
+msgstr ""
+"Nuestro equipo de recepción revisará tu envío y confirmará los datos de "
+"recepción."
+
+#: app/templates/public/thank_you.html:42 app/templates/quotes/detail.html:63
+#, fuzzy
+msgid "Diagnosis"
+msgstr "Diagnósticos"
+
+#: app/templates/public/thank_you.html:43
+msgid "A technician will diagnose the issue and we'll send you a quote if needed."
+msgstr "Un técnico diagnosticará el problema y te enviaremos un presupuesto si es necesario."
+
+#: app/templates/public/thank_you.html:51
+#, fuzzy
+msgid "Once approved, we'll repair your device and run quality checks."
+msgstr "La reparación está completa y tu dispositivo está en control de calidad."
+
+#: app/templates/public/thank_you.html:58
+#, fuzzy
+msgid "Collection"
+msgstr "Listo para recoger"
+
+#: app/templates/public/thank_you.html:59
+msgid "We'll notify you when your device is ready to be picked up."
+msgstr "Te avisaremos cuando tu dispositivo esté listo para recoger."
+
+#: app/templates/public/thank_you.html:73
+#, fuzzy
+msgid "Start new kiosk check-in"
+msgstr "Registro en Kiosco"
+
+#: app/templates/public/thank_you.html:77
+#, fuzzy
+msgid "Submit another check-in"
+msgstr "Enviar Registro"
+
+#: app/templates/quotes/detail.html:3 app/templates/quotes/list.html:43
+msgid "Standalone"
+msgstr "Independiente"
+
+#: app/templates/quotes/detail.html:9
+#, fuzzy
+msgid "Repair Quote"
+msgstr "Presupuesto de reparación"
+
+#: app/templates/quotes/detail.html:11 app/templates/tickets/detail.html:243
+msgid "Version"
+msgstr "Versión"
+
+#: app/templates/quotes/detail.html:33
+#, fuzzy
+msgid "Print Quote"
+msgstr "Nuevo Presupuesto"
+
+#: app/templates/quotes/detail.html:35 app/templates/quotes/new.html:2
+#: app/templates/quotes/new.html:6 app/templates/quotes/standalone_new.html:2
+#: app/templates/quotes/standalone_new.html:6
+#: app/templates/quotes/standalone_new.html:7
+#, fuzzy
+msgid "Edit Quote"
+msgstr "Nuevo Presupuesto"
+
+#: app/templates/quotes/detail.html:36
+#, fuzzy
+msgid "Send for Approval"
+msgstr "Presupuesto Listo para Aprobación"
+
+#: app/templates/quotes/detail.html:39
+#, fuzzy
+msgid "Approve / Decline"
+msgstr "Aprobado"
+
+#: app/templates/quotes/detail.html:42
+#, fuzzy
+msgid "Mark Expired"
+msgstr "Presupuesto expirado"
+
+#: app/templates/quotes/detail.html:47
+#, fuzzy
+msgid "Create Ticket from Quote"
+msgstr "Crear Ticket"
+
+#: app/templates/quotes/detail.html:59
+#, fuzzy
+msgid "Fault"
+msgstr "Automático"
+
+#: app/templates/quotes/detail.html:67
+#, fuzzy
+msgid "Recommended"
+msgstr "Reparación Recomendada"
+
+#: app/templates/quotes/detail.html:86
+#, fuzzy
+msgid "Unit"
+msgstr "Cantidad"
+
+#: app/templates/quotes/detail.html:97
+#, fuzzy
+msgid "Part:"
+msgstr "Pieza"
+
+#: app/templates/quotes/detail.html:113
+#, fuzzy
+msgid "Quote Total"
+msgstr "Detalles del presupuesto"
+
+#: app/templates/quotes/detail.html:130
+msgid "Terms:"
+msgstr "Condiciones:"
+
+#: app/templates/quotes/detail.html:134
+#, fuzzy
+msgid "Approval Links"
+msgstr "Enlace de aprobación de presupuesto inválido"
+
+#: app/templates/quotes/detail.html:153
+#, fuzzy
+msgid "Staff Quote Decision"
+msgstr "Enviar Decisión"
+
+#: app/templates/quotes/detail.html:157
+msgid ""
+"Record an internal approval or decline decision for this quote. This is "
+"for in-store or phone-based confirmations."
+msgstr ""
+"Registra una decisión interna de aprobación o rechazo para este "
+"presupuesto. Para confirmaciones en tienda o por teléfono."
+
+#: app/templates/quotes/detail.html:161
+#, fuzzy
+msgid "Approve"
+msgstr "Aprobado"
+
+#: app/templates/quotes/detail.html:162
+#, fuzzy
+msgid "Decline"
+msgstr "Rechazar Presupuesto"
+
+#: app/templates/quotes/detail.html:166
+#, fuzzy
+msgid "Approver name"
+msgstr "Nombre del Proveedor"
+
+#: app/templates/quotes/detail.html:167
+#, fuzzy
+msgid "Customer name or staff reference"
+msgstr "Guardar Preferencias de Contacto"
+
+#: app/templates/quotes/detail.html:170
+#, fuzzy
+msgid "Contact (optional)"
+msgstr "Teléfono de Contacto"
+
+#: app/templates/quotes/detail.html:173
+#, fuzzy
+msgid "Record Decision"
+msgstr "Tu decisión"
+
+# ===================================================================
+# QUOTES
+#: app/templates/quotes/list.html:8
+msgid "All quotes across tickets and standalone enquiries"
+msgstr "Todos los presupuestos de tickets y consultas independientes"
+
+#: app/templates/quotes/list.html:12 app/templates/quotes/standalone_new.html:2
+msgid "New Standalone Quote"
+msgstr "Nuevo Presupuesto Independiente"
+
+#: app/templates/quotes/list.html:58
+msgid "View"
+msgstr "Ver"
+
+#: app/templates/quotes/list.html:67
+msgid "No quotes yet"
+msgstr "Aún no hay presupuestos"
+
+#: app/templates/quotes/new.html:2
+#, fuzzy
+msgid "Create Quote"
+msgstr "Crear presupuesto"
+
+#: app/templates/quotes/new.html:6
+msgid "New Quote"
+msgstr "Nuevo Presupuesto"
+
+#: app/templates/quotes/new.html:7
+#, fuzzy
+msgid "Edit Repair Quote"
+msgstr "Presupuesto de reparación"
+
+#: app/templates/quotes/new.html:7
+#, fuzzy
+msgid "Create Repair Quote"
+msgstr "Presupuesto de reparación"
+
+#: app/templates/quotes/new.html:24 app/templates/quotes/standalone_new.html:67
+#: app/templates/settings/index.html:16 app/templates/settings/quotes.html:2
+#: app/templates/settings/quotes.html:6
+msgid "Quote Settings"
+msgstr "Configuración de Presupuestos"
+
+#: app/templates/quotes/new.html:38
+msgid "Standard terms and conditions for the quote"
+msgstr "Condiciones generales del presupuesto"
+
+#: app/templates/quotes/new.html:47 app/templates/quotes/standalone_new.html:89
+#, fuzzy
+msgid "Repair Option"
+msgstr "Reparando"
+
+#: app/templates/quotes/new.html:48
+msgid "Name this option clearly for the customer"
+msgstr "Nombra esta opción de forma clara para el cliente"
+
+#: app/templates/quotes/new.html:58 app/templates/quotes/standalone_new.html:96
+#, fuzzy
+msgid "Description / Part"
+msgstr "Descripción"
+
+#: app/templates/quotes/new.html:96 app/templates/services/list.html:29
+#: app/templates/tickets/new.html:196
+#, fuzzy
+msgid "Price"
+msgstr "Precio unitario"
+
+#: app/templates/quotes/new.html:105
+#: app/templates/quotes/standalone_new.html:131
+#, fuzzy
+msgid "Remove line"
+msgstr "Eliminar"
+
+#: app/templates/quotes/new.html:118
+#: app/templates/quotes/standalone_new.html:143
+#, fuzzy
+msgid "Add line"
+msgstr "Añadir Línea"
+
+#: app/templates/quotes/new.html:121
+#: app/templates/quotes/standalone_new.html:146
+#, fuzzy
+msgid "Option total"
+msgstr "Nombre de Opción"
+
+#: app/templates/quotes/new.html:131
+#: app/templates/quotes/standalone_new.html:156
+msgid "Internal notes (not shown to customers)"
+msgstr "Notas internas (no visibles para los clientes)"
+
+#: app/templates/quotes/new.html:136
+#: app/templates/quotes/standalone_new.html:160
+msgid "Tax:"
+msgstr "Impuesto:"
+
+#: app/templates/quotes/new.html:136
+#: app/templates/quotes/standalone_new.html:160
+msgid "applied to quote totals"
+msgstr "aplicado a los totales del presupuesto"
+
+#: app/templates/quotes/standalone_new.html:7
+#, fuzzy
+msgid "Create Quote (No Ticket)"
+msgstr "Crear Ticket"
+
+#: app/templates/quotes/standalone_new.html:8
+msgid ""
+"For enquiries via WhatsApp, phone, walk-in, or other channels before a "
+"ticket is created."
+msgstr ""
+"Para consultas por WhatsApp, teléfono, visita directa u otros canales "
+"antes de crear un ticket."
+
+#: app/templates/quotes/standalone_new.html:16
+#: app/templates/tickets/list.html:56
+msgid "Customer & Device"
+msgstr "Cliente y Dispositivo"
+
+#: app/templates/quotes/standalone_new.html:22
+msgid "Search by name, email, or phone..."
+msgstr "Buscar por nombre, correo o teléfono..."
+
+#: app/templates/quotes/standalone_new.html:26
+#, fuzzy
+msgid "Or"
+msgstr "Ordenar"
+
+#: app/templates/quotes/standalone_new.html:27
+#, fuzzy
+msgid "+ Add new customer"
+msgstr "Guardar Cliente"
+
+#: app/templates/quotes/standalone_new.html:31
+msgid "Customer Name"
+msgstr "Nombre del Cliente"
+
+#: app/templates/quotes/standalone_new.html:32
+msgid "Name for walk-in / phone enquiry"
+msgstr "Nombre para consulta en tienda o por teléfono"
+
+#: app/templates/quotes/standalone_new.html:36
+#, fuzzy
+msgid "Device Description"
+msgstr "Condición del Dispositivo"
+
+#: app/templates/quotes/standalone_new.html:43
+#, fuzzy
+msgid "Add New Customer"
+msgstr "Guardar Cliente"
+
+#: app/templates/quotes/standalone_new.html:46
+msgid "Full Name"
+msgstr "Nombre Completo"
+
+#: app/templates/quotes/standalone_new.html:60
+#, fuzzy
+msgid "Create Customer"
+msgstr "Crear Usuario"
+
+#: app/templates/quotes/standalone_new.html:81
+msgid "Standard terms and conditions"
+msgstr "Condiciones generales"
+
+# ===================================================================
+# REPORTS
+#: app/templates/reports/dashboard.html:3
+#, fuzzy
+msgid "Management Dashboard"
+msgstr "Panel de Informes"
+
+#: app/templates/reports/dashboard.html:8
+#: app/templates/reports/inventory.html:8 app/templates/reports/quotes.html:8
+#: app/templates/reports/technician_workload.html:8
+msgid "Management Reporting"
+msgstr "Informes de Gestión"
+
+# ===================================================================
+# NAVIGATION / BASE TEMPLATE
+#: app/templates/reports/dashboard.html:9
+#, fuzzy
+msgid "KPI Dashboard"
+msgstr "Panel de Control"
+
+#: app/templates/reports/dashboard.html:10
+msgid "Operational health, throughput, and pipeline metrics."
+msgstr "Indicadores de salud operativa, rendimiento y pipeline."
+
+#: app/templates/reports/dashboard.html:13
+#: app/templates/reports/dashboard.html:151
+#: app/templates/reports/technician_workload.html:3
+#: app/templates/reports/technician_workload.html:9
+msgid "Technician Workload"
+msgstr "Carga de Trabajo de Técnicos"
+
+#: app/templates/reports/dashboard.html:14 app/templates/reports/quotes.html:3
+#, fuzzy
+msgid "Quote Report"
+msgstr "Informes de Presupuestos"
+
+#: app/templates/reports/dashboard.html:15
+#: app/templates/reports/inventory.html:3
+#, fuzzy
+msgid "Inventory Report"
+msgstr "Informes de Inventario"
+
+#: app/templates/reports/dashboard.html:21
+#, fuzzy
+msgid "Filter & Date Range"
+msgstr "Filtrar y Ordenar"
+
+#: app/templates/reports/dashboard.html:24
+#: app/templates/reports/inventory.html:20 app/templates/reports/quotes.html:20
+#: app/templates/reports/technician_workload.html:20
+#, fuzzy
+msgid "All time"
+msgstr "Hora de Inicio"
+
+#: app/templates/reports/dashboard.html:26
+#: app/templates/reports/inventory.html:22 app/templates/reports/quotes.html:22
+#: app/templates/reports/technician_workload.html:22
+msgid "Last 7 days"
+msgstr "Últimos 7 días"
+
+#: app/templates/reports/dashboard.html:27
+#: app/templates/reports/inventory.html:23 app/templates/reports/quotes.html:23
+#: app/templates/reports/technician_workload.html:23
+msgid "Last 30 days"
+msgstr "Últimos 30 días"
+
+#: app/templates/reports/dashboard.html:28
+#: app/templates/reports/inventory.html:24 app/templates/reports/quotes.html:24
+#: app/templates/reports/technician_workload.html:24
+#: app/templates/tickets/board.html:40 app/templates/tickets/list.html:37
+msgid "This month"
+msgstr "Este mes"
+
+#: app/templates/reports/dashboard.html:29
+#, fuzzy
+msgid "Last month"
+msgstr "Este mes"
+
+#: app/templates/reports/dashboard.html:32
+#: app/templates/reports/technician_workload.html:27
+#: app/templates/tickets/list.html:31
+msgid "All branches"
+msgstr "Todas las sucursales"
+
+#: app/templates/reports/dashboard.html:36
+#: app/templates/reports/technician_workload.html:31
+#: app/templates/tickets/list.html:32
+msgid "All technicians"
+msgstr "Todos los técnicos"
+
+#: app/templates/reports/dashboard.html:39
+#: app/templates/reports/inventory.html:26 app/templates/reports/quotes.html:26
+#: app/templates/reports/technician_workload.html:34
+#: app/templates/tickets/board.html:51 app/templates/tickets/list.html:45
+msgid "Apply"
+msgstr "Aplicar"
+
+#: app/templates/reports/dashboard.html:45
+#, fuzzy
+msgid "Total Open"
+msgstr "Tickets Abiertos"
+
+#: app/templates/reports/dashboard.html:45
+#, fuzzy
+msgid "Active tickets"
+msgstr "Archivar Ticket"
+
+#: app/templates/reports/dashboard.html:46
+#, fuzzy
+msgid "Past SLA target"
+msgstr "Fecha SLA excedida"
+
+#: app/templates/reports/dashboard.html:47
+#: app/templates/reports/dashboard.html:88
+#, fuzzy
+msgid "Created Today"
+msgstr "Creado"
+
+#: app/templates/reports/dashboard.html:47
+#, fuzzy
+msgid "New intakes today"
+msgstr "Nueva Recepción"
+
+#: app/templates/reports/dashboard.html:48
+#, fuzzy
+msgid "Completed Today"
+msgstr "Completado"
+
+#: app/templates/reports/dashboard.html:48
+msgid "Closed today"
+msgstr "Cerrados hoy"
+
+#: app/templates/reports/dashboard.html:49
+#, fuzzy
+msgid "Need technician"
+msgstr "Técnico Asignado"
+
+#: app/templates/reports/dashboard.html:80
+#, fuzzy
+msgid "Avg Age (days)"
+msgstr "Plazo de Entrega (días)"
+
+#: app/templates/reports/dashboard.html:84
+msgid "Avg Turnaround"
+msgstr "Tiempo Medio de Resolución"
+
+#: app/templates/reports/dashboard.html:92
+#, fuzzy
+msgid "Created This Week"
+msgstr "Crear Ticket"
+
+#: app/templates/reports/dashboard.html:96
+#, fuzzy
+msgid "Completed This Week"
+msgstr "Completado / Recogido"
+
+#: app/templates/reports/dashboard.html:100
+#, fuzzy
+msgid "Stalled (3+ days)"
+msgstr "Plazo de Entrega (días)"
+
+#: app/templates/reports/dashboard.html:108
+#, fuzzy
+msgid "Tickets by Status"
+msgstr "Estado del ticket actualizado"
+
+#: app/templates/reports/dashboard.html:122
+#, fuzzy
+msgid "Quote Pipeline"
+msgstr "Prefijo de Presupuesto"
+
+#: app/templates/reports/dashboard.html:123
+#: app/templates/reports/dashboard.html:198
+#: app/templates/reports/dashboard.html:219
+#, fuzzy
+msgid "Full report"
+msgstr "Informes"
+
+#: app/templates/reports/dashboard.html:132
+#, fuzzy
+msgid "Quote Approval Rate"
+msgstr "URL de Aprobación del Presupuesto"
+
+#: app/templates/reports/dashboard.html:140
+#, fuzzy
+msgid "Awaiting"
+msgstr "Esperando Presupuesto"
+
+#: app/templates/reports/dashboard.html:160
+#, fuzzy
+msgid "overdue"
+msgstr "VENCIDO"
+
+#: app/templates/reports/dashboard.html:163
+#, fuzzy
+msgid "active"
+msgstr "Activo"
+
+#: app/templates/reports/dashboard.html:166
+#, fuzzy
+msgid "No ticket data available."
+msgstr "Detalles del Ticket"
+
+#: app/templates/reports/dashboard.html:173
+#, fuzzy
+msgid "Communication & Portal"
+msgstr "Panel de Comunicación"
+
+#: app/templates/reports/dashboard.html:177
+#, fuzzy
+msgid "Active Tokens"
+msgstr "Sin token activo"
+
+#: app/templates/reports/dashboard.html:181
+#, fuzzy
+msgid "Total Tokens"
+msgstr "Tickets Abiertos"
+
+#: app/templates/reports/dashboard.html:185
+#, fuzzy
+msgid "Expired"
+msgstr "Expira"
+
+#: app/templates/reports/dashboard.html:189
+#, fuzzy
+msgid "Actions (30d)"
+msgstr "Acciones"
+
+#: app/templates/reports/dashboard.html:203
+#: app/templates/reports/inventory.html:32
+#, fuzzy
+msgid "Low Stock Items"
+msgstr "Entrada de Stock"
+
+#: app/templates/reports/dashboard.html:207
+#: app/templates/reports/inventory.html:33
+#, fuzzy
+msgid "Pending Orders"
+msgstr "Horario de Apertura"
+
+#: app/templates/reports/dashboard.html:218
+#: app/templates/reports/inventory.html:41
+#, fuzzy
+msgid "Most-Used Parts"
+msgstr "Post-Reparación"
+
+#: app/templates/reports/inventory.html:9
+#, fuzzy
+msgid "Inventory & Parts Report"
+msgstr "Informes de Inventario"
+
+#: app/templates/reports/inventory.html:10
+msgid "Parts usage, stock levels, and pending orders."
+msgstr "Uso de piezas, niveles de stock y pedidos pendientes."
+
+# ===================================================================
+# NAVIGATION / BASE TEMPLATE
+#: app/templates/reports/inventory.html:12 app/templates/reports/quotes.html:12
+#: app/templates/reports/technician_workload.html:12
+#, fuzzy
+msgid "Back to Dashboard"
+msgstr "Panel de Control"
+
+#: app/templates/reports/inventory.html:32
+msgid "Below threshold"
+msgstr "Por debajo del umbral"
+
+#: app/templates/reports/inventory.html:33
+msgid "Ordered/shipped/partial"
+msgstr "Pedido/enviado/parcial"
+
+#: app/templates/reports/inventory.html:34
+#, fuzzy
+msgid "Parts Reserved"
+msgstr "Pieza reservada"
+
+#: app/templates/reports/inventory.html:34
+#, fuzzy
+msgid "Active reservations"
+msgstr "Reservas de Stock"
+
+#: app/templates/reports/inventory.html:35
+#, fuzzy
+msgid "Parts Consumed"
+msgstr "Piezas pedidas"
+
+#: app/templates/reports/inventory.html:35
+#, fuzzy
+msgid "Installed on tickets"
+msgstr "Tickets Abiertos"
+
+#: app/templates/reports/inventory.html:52
+#, fuzzy
+msgid "No part usage data"
+msgstr "Fecha SLA excedida"
+
+#: app/templates/reports/inventory.html:52
+msgid "No reservations recorded for the selected period."
+msgstr "No se han registrado reservas en el período seleccionado."
+
+#: app/templates/reports/inventory.html:59
+#, fuzzy
+msgid "Low Stock Alert"
+msgstr "Aún no hay niveles de stock"
+
+#: app/templates/reports/inventory.html:65
+msgid "Threshold:"
+msgstr "Umbral:"
+
+#: app/templates/reports/inventory.html:70
+#, fuzzy
+msgid "All stocked"
+msgstr "Todo en orden"
+
+#: app/templates/reports/inventory.html:70
+msgid "No parts below their low-stock threshold."
+msgstr "No hay piezas por debajo de su umbral de stock mínimo."
+
+#: app/templates/reports/inventory.html:78
+#, fuzzy
+msgid "Parts Awaiting Arrival"
+msgstr "Esperando Tu Aprobación"
+
+#: app/templates/reports/inventory.html:86
+#, fuzzy
+msgid "No pending orders"
+msgstr "Horario de Apertura"
+
+#: app/templates/reports/inventory.html:86
+#, fuzzy
+msgid "All part orders have been received."
+msgstr "Tu registro ha sido recibido"
+
+#: app/templates/reports/quotes.html:9
+#, fuzzy
+msgid "Quote Pipeline Report"
+msgstr "Informes de Presupuestos"
+
+#: app/templates/reports/quotes.html:10
+msgid "Approval rates, pipeline health, and time-to-approve metrics."
+msgstr "Tasas de aprobación, estado del pipeline y métricas de tiempo de aprobación."
+
+#: app/templates/reports/quotes.html:32
+#, fuzzy
+msgid "Total Quotes"
+msgstr "Ver todos los presupuestos"
+
+#: app/templates/reports/quotes.html:32
+msgid "In selected period"
+msgstr "En el período seleccionado"
+
+#: app/templates/reports/quotes.html:33
+#, fuzzy
+msgid "Approval Rate"
+msgstr "Aprobar Presupuesto"
+
+#: app/templates/reports/quotes.html:33
+msgid "Approved / sent+decided"
+msgstr "Aprobados / enviados+decididos"
+
+#: app/templates/reports/quotes.html:34
+#, fuzzy
+msgid "Avg Time to Approve"
+msgstr "Última Aprobación"
+
+#: app/templates/reports/quotes.html:34
+#, fuzzy
+msgid "From sent to approved"
+msgstr "Presupuesto aprobado"
+
+#: app/templates/reports/quotes.html:35
+#, fuzzy
+msgid "Quotes accepted"
+msgstr "Presupuesto actualizado"
+
+#: app/templates/reports/quotes.html:40
+#, fuzzy
+msgid "Quotes by Status"
+msgstr "Estado del presupuesto"
+
+#: app/templates/reports/quotes.html:51
+#, fuzzy
+msgid "No quotes found"
+msgstr "Presupuesto no encontrado"
+
+#: app/templates/reports/quotes.html:51
+msgid "No quotes match the selected filters."
+msgstr "Ningún presupuesto coincide con los filtros seleccionados."
+
+#: app/templates/reports/technician_workload.html:10
+#, fuzzy
+msgid "Per-technician assignment, repair status, and overdue counts."
+msgstr "Asignación de técnico actualizada"
+
+#: app/templates/reports/technician_workload.html:45
+#: app/templates/tickets/detail.html:23 app/templates/tickets/list.html:59
+msgid "Technician"
+msgstr "Técnico"
+
+# ===================================================================
+# TICKET NEW / CREATE
+#: app/templates/reports/technician_workload.html:75
+#, fuzzy
+msgid "View Tickets"
+msgstr "Nuevo Ticket"
+
+#: app/templates/reports/technician_workload.html:85
+msgid "No workload data"
+msgstr "Sin datos de carga de trabajo"
+
+#: app/templates/reports/technician_workload.html:85
+msgid "No tickets found for the selected filters."
+msgstr "No se han encontrado tickets para los filtros seleccionados."
+
+#: app/templates/services/form.html:2 app/templates/services/form.html:6
+#, fuzzy
+msgid "Edit Service"
+msgstr "Nuevo Servicio"
+
+#: app/templates/services/form.html:2
+msgid "New Service"
+msgstr "Nuevo Servicio"
+
+#: app/templates/services/form.html:6
+#, fuzzy
+msgid "New Repair Service"
+msgstr "Servicio de Reparación"
+
+#: app/templates/services/form.html:7
+#, fuzzy
+msgid "Update service details."
+msgstr "Detalles del Dispositivo"
+
+# ===================================================================
+# SERVICES
+#: app/templates/services/form.html:7
+#, fuzzy
+msgid "Add a repair service to the catalogue."
+msgstr "Catálogo de Servicios"
+
+#: app/templates/services/form.html:14
+#, fuzzy
+msgid "Service Details"
+msgstr "Detalles del Dispositivo"
+
+#: app/templates/services/form.html:17
+msgid "Service Name"
+msgstr "Nombre del Servicio"
+
+#: app/templates/services/form.html:18
+msgid "e.g. iPhone 13 Screen Repair"
+msgstr "p. ej. Reparación de pantalla iPhone 13"
+
+#: app/templates/services/form.html:21
+msgid "Device Category"
+msgstr "Categoría del Dispositivo"
+
+#: app/templates/services/form.html:25 app/templates/services/list.html:27
+#, fuzzy
+msgid "Default Part"
+msgstr "Condiciones por Defecto de Reparación"
+
+#: app/templates/services/form.html:27
+msgid "Part automatically linked to this service for stock checks."
+msgstr "Pieza vinculada automáticamente a este servicio para verificación de stock."
+
+#: app/templates/services/form.html:30
+#, fuzzy
+msgid "Labour Time (minutes)"
+msgstr "Duración (min)"
+
+#: app/templates/services/form.html:31
+msgid "e.g. 45"
+msgstr "p. ej. 45"
+
+#: app/templates/services/form.html:34
+#, fuzzy
+msgid "Suggested Sale Price"
+msgstr "Precio de Venta"
+
+# ===================================================================
+# SERVICES
+#: app/templates/services/list.html:2 app/templates/services/list.html:7
+#: app/templates/settings/index.html:12
+msgid "Service Catalogue"
+msgstr "Catálogo de Servicios"
+
+#: app/templates/services/list.html:8
+msgid "Manage repair services, pricing, and linked parts."
+msgstr "Gestiona servicios de reparación, precios y piezas vinculadas."
+
+#: app/templates/services/list.html:14
+#, fuzzy
+msgid "Hide inactive"
+msgstr "Desactivar"
+
+#: app/templates/services/list.html:16
+#, fuzzy
+msgid "+ New Service"
+msgstr "Nuevo Servicio"
+
+#: app/templates/services/list.html:25
+#, fuzzy
+msgid "Service"
+msgstr "Servicios"
+
+#: app/templates/services/list.html:28 app/templates/tickets/new.html:195
+msgid "Labour"
+msgstr "Mano de Obra"
+
+#: app/templates/services/list.html:42
+#, fuzzy
+msgid "Any"
+msgstr "Empresa"
+
+#: app/templates/services/list.html:64
+#, fuzzy
+msgid "No repair services configured yet."
+msgstr "Aún no hay servicios"
+
+#: app/templates/services/list.html:65
+#, fuzzy
+msgid "Create your first service"
+msgstr "Servicio de Reparación"
+
+#: app/templates/settings/branch_edit.html:2
+#, fuzzy
+msgid "Edit Branch"
+msgstr "Guardar Sucursal"
+
+#: app/templates/settings/branch_edit.html:6
+#, fuzzy
+msgid "Edit Branch / Store"
+msgstr "Nombre de Sucursal / Tienda"
+
+#: app/templates/settings/branch_edit.html:7
+#, fuzzy
+msgid "Update location and contact details for"
+msgstr "¿Necesitas actualizar tus datos de contacto?"
+
+#: app/templates/settings/branch_edit.html:15
+#, fuzzy
+msgid "1. Branch Identity"
+msgstr "Código de Sucursal"
+
+#: app/templates/settings/branch_edit.html:18
+msgid "Branch Code"
+msgstr "Código de Sucursal"
+
+#: app/templates/settings/branch_edit.html:22
+#, fuzzy
+msgid "Store Name"
+msgstr "Nombre del Cliente"
+
+#: app/templates/settings/branch_edit.html:34
+#, fuzzy
+msgid "2. Address"
+msgstr "Dirección"
+
+#: app/templates/settings/branch_edit.html:37
+msgid "Address Line 1"
+msgstr "Dirección Línea 1"
+
+#: app/templates/settings/branch_edit.html:41
+msgid "Address Line 2"
+msgstr "Dirección Línea 2"
+
+#: app/templates/settings/branch_edit.html:45
+msgid "City"
+msgstr "Ciudad"
+
+#: app/templates/settings/branch_edit.html:49
+msgid "Postcode"
+msgstr "Código Postal"
+
+#: app/templates/settings/branch_edit.html:53
+msgid "Island / Region"
+msgstr "Isla / Región"
+
+#: app/templates/settings/branch_edit.html:57
+msgid "Country"
+msgstr "País"
+
+#: app/templates/settings/branch_edit.html:65
+#, fuzzy
+msgid "3. Contact & Operations"
+msgstr "Persona de Contacto"
+
+#: app/templates/settings/branch_edit.html:76
+msgid "Ticket Prefix"
+msgstr "Prefijo de Ticket"
+
+#: app/templates/settings/branch_edit.html:78
+msgid "Optional prefix for ticket numbers at this location."
+msgstr "Prefijo opcional para los números de ticket en esta ubicación."
+
+#: app/templates/settings/branch_edit.html:81
+msgid "Quote Prefix"
+msgstr "Prefijo de Presupuesto"
+
+#: app/templates/settings/branch_edit.html:85
+msgid "Opening Hours"
+msgstr "Horario de Apertura"
+
+#: app/templates/settings/index.html:6
+#, fuzzy
+msgid "Admin / Settings"
+msgstr "Configuración de Sucursal"
+
+#: app/templates/settings/index.html:7
+msgid "Manage branches, companies, services, and system configuration."
+msgstr "Gestiona sucursales, empresas, servicios y configuración del sistema."
+
+#: app/templates/settings/index.html:14 app/templates/settings/portal.html:6
+#, fuzzy
+msgid "Public Portal Settings"
+msgstr "Configuración del Portal"
+
+#: app/templates/settings/index.html:20
+#, fuzzy
+msgid "Create Branch / Store"
+msgstr "Nombre de Sucursal / Tienda"
+
+#: app/templates/settings/index.html:22
+#, fuzzy
+msgid "Branch code"
+msgstr "Código de Sucursal"
+
+#: app/templates/settings/index.html:23
+#, fuzzy
+msgid "Branch / Store name"
+msgstr "Nombre de Sucursal / Tienda"
+
+#: app/templates/settings/index.html:24
+#, fuzzy
+msgid "Create Branch"
+msgstr "Guardar Sucursal"
+
+#: app/templates/settings/index.html:29
+#, fuzzy
+msgid "Branches / Stores"
+msgstr "Nombre de Sucursal / Tienda"
+
+#: app/templates/settings/index.html:56
+msgid "No branches configured."
+msgstr "No hay sucursales configuradas."
+
+#: app/templates/settings/portal.html:2 app/templates/settings/quotes.html:24
+msgid "Portal Settings"
+msgstr "Configuración del Portal"
+
+#: app/templates/settings/portal.html:7
+msgid "Configure branding, locales, and customer-facing text."
+msgstr "Configura la imagen de marca, idiomas y textos visibles para el cliente."
+
+#: app/templates/settings/portal.html:12
+#, fuzzy
+msgid "Portal branding name"
+msgstr "Nombre Comercial"
+
+#: app/templates/settings/portal.html:16
+msgid "Supported languages (comma separated)"
+msgstr "Idiomas admitidos (separados por comas)"
+
+#: app/templates/settings/portal.html:20
+#, fuzzy
+msgid "Default disclaimer"
+msgstr "Condiciones por Defecto de Reparación"
+
+#: app/templates/settings/portal.html:24
+msgid "Portal footer/help text"
+msgstr "Texto de pie de página/ayuda del portal"
+
+#: app/templates/settings/portal.html:28
+#, fuzzy
+msgid "Save Portal Settings"
+msgstr "Configuración del Portal"
+
+#: app/templates/settings/quotes.html:7
+msgid "Configure default terms &amp; conditions for new quotes."
+msgstr "Configura las condiciones generales predeterminadas para nuevos presupuestos."
+
+#: app/templates/settings/quotes.html:13
+msgid "Default Terms &amp; Conditions"
+msgstr "Condiciones Generales Predeterminadas"
+
+#: app/templates/settings/quotes.html:14
+msgid ""
+"This text will be auto-populated when creating new quotes. Staff can edit"
+" it per-quote."
+msgstr ""
+"Este texto se rellenará automáticamente al crear nuevos presupuestos. El "
+"personal puede editarlo por presupuesto."
+
+#: app/templates/settings/quotes.html:15
+msgid "Enter default terms and conditions..."
+msgstr "Introduce las condiciones generales predeterminadas..."
+
+#: app/templates/settings/quotes.html:18 app/templates/tickets/detail.html:307
+#: app/templates/tickets/detail.html:360
+msgid "Save"
+msgstr "Guardar"
+
+#: app/templates/settings/quotes.html:23
+#, fuzzy
+msgid "Back to Settings"
+msgstr "Configuración de Sucursal"
+
+#: app/templates/suppliers/detail.html:7
+msgid "Supplier record and contact details."
+msgstr "Ficha del proveedor y datos de contacto."
+
+#: app/templates/suppliers/detail.html:50
+msgid "Save Supplier"
+msgstr "Guardar Proveedor"
+
+#: app/templates/suppliers/detail.html:55
+#, fuzzy
+msgid "Admin Actions"
+msgstr "Acciones"
+
+#: app/templates/suppliers/detail.html:59
+msgid "Deactivate this supplier? They will be hidden from new orders."
+msgstr "¿Desactivar este proveedor? No aparecerá en nuevos pedidos."
+
+#: app/templates/suppliers/detail.html:59
+#, fuzzy
+msgid "Deactivate Supplier"
+msgstr "Guardar Proveedor"
+
+#: app/templates/suppliers/detail.html:61
+#, fuzzy
+msgid "Reactivate Supplier"
+msgstr "Guardar Proveedor"
+
+#: app/templates/suppliers/list.html:8
+msgid "Manage supplier contacts and lead times."
+msgstr "Gestiona contactos de proveedores y plazos de entrega."
+
+#: app/templates/suppliers/list.html:10
+#, fuzzy
+msgid "+ New Supplier"
+msgstr "Nuevo Proveedor"
+
+#: app/templates/suppliers/list.html:28
+#, fuzzy
+msgid "days"
+msgstr "Hoy"
+
+#: app/templates/suppliers/list.html:38
+#, fuzzy
+msgid "No suppliers yet."
+msgstr "Aún no hay proveedores"
+
+#: app/templates/suppliers/new.html:2
+msgid "New Supplier"
+msgstr "Nuevo Proveedor"
+
+#: app/templates/suppliers/new.html:6
+#, fuzzy
+msgid "Create Supplier"
+msgstr "Guardar Proveedor"
+
+#: app/templates/suppliers/new.html:7
+msgid "Add a new supplier to the system."
+msgstr "Añade un nuevo proveedor al sistema."
+
+#: app/templates/suppliers/new.html:15
+#, fuzzy
+msgid "Supplier name"
+msgstr "Nombre del Proveedor"
+
+#: app/templates/suppliers/new.html:18
+#, fuzzy
+msgid "Contact Name"
+msgstr "Teléfono de Contacto"
+
+#: app/templates/suppliers/new.html:19
+#, fuzzy
+msgid "Contact name"
+msgstr "Teléfono de Contacto"
+
+#: app/templates/suppliers/new.html:34
+#, fuzzy
+msgid "Account Reference"
+msgstr "Guardar Preferencias de Contacto"
+
+#: app/templates/suppliers/new.html:35
+#, fuzzy
+msgid "Account reference"
+msgstr "Guardar Preferencias de Contacto"
+
+#: app/templates/suppliers/new.html:39
+#, fuzzy
+msgid "Lead time days"
+msgstr "Plazo de Entrega (días)"
+
+#: app/templates/tickets/board.html:3
+#, fuzzy
+msgid "Bench Board - IRONCore"
+msgstr "Panel de Taller"
+
+#: app/templates/tickets/board.html:8
+#, fuzzy
+msgid "Technician Workflow"
+msgstr "Carga de Trabajo de Técnicos"
+
+# ===================================================================
+# BOARD / QUEUE
+#: app/templates/tickets/board.html:9
+#, fuzzy
+msgid "Repair Bench Board"
+msgstr "Panel de Reparaciones"
+
+#: app/templates/tickets/board.html:10
+msgid "Workshop view — tickets grouped by workflow stage with blocker detection."
+msgstr "Vista de taller — tickets agrupados por etapa del flujo con detección de bloqueos."
+
+#: app/templates/tickets/board.html:14
+#, fuzzy
+msgid "Back to List"
+msgstr "Volver a Tickets"
+
+#: app/templates/tickets/board.html:20 app/templates/tickets/list.html:19
+msgid "Filter & Sort"
+msgstr "Filtrar y Ordenar"
+
+#: app/templates/tickets/board.html:23 app/templates/tickets/list.html:41
+msgid "Oldest first"
+msgstr "Más antiguos primero"
+
+#: app/templates/tickets/board.html:24 app/templates/tickets/list.html:40
+msgid "Newest first"
+msgstr "Más recientes primero"
+
+#: app/templates/tickets/board.html:25
+#, fuzzy
+msgid "Promise due soonest"
+msgstr "Fecha prometida más próxima"
+
+#: app/templates/tickets/board.html:26 app/templates/tickets/list.html:43
+msgid "SLA due soonest"
+msgstr "SLA más próximo"
+
+#: app/templates/tickets/board.html:29
+#, fuzzy
+msgid "Any technician"
+msgstr "Técnico"
+
+#: app/templates/tickets/board.html:33
+#, fuzzy
+msgid "Any branch"
+msgstr "Guardar Sucursal"
+
+#: app/templates/tickets/board.html:37 app/templates/tickets/list.html:34
+msgid "Any date"
+msgstr "Cualquier fecha"
+
+#: app/templates/tickets/board.html:39
+#, fuzzy
+msgid "This week"
+msgstr "Última semana"
+
+#: app/templates/tickets/board.html:106
+msgid "SLA:"
+msgstr "SLA:"
+
+#: app/templates/tickets/board.html:109
+#, fuzzy
+msgid "Promise:"
+msgstr "Fecha Estimada"
+
+#: app/templates/tickets/board.html:111
+msgid "Age:"
+msgstr "Antigüedad:"
+
+#: app/templates/tickets/board.html:111
+msgid "d"
+msgstr "d"
+
+#: app/templates/tickets/board.html:130
+#, fuzzy
+msgid "No tickets"
+msgstr "Sin ticket"
+
+#: app/templates/tickets/board.html:130
+msgid "Queue is clear for this stage."
+msgstr "La cola está libre en esta etapa."
+
+# ===================================================================
+# TICKET DETAIL
+#: app/templates/tickets/detail.html:9
+msgid "Ticket Summary"
+msgstr "Resumen del Ticket"
+
+#: app/templates/tickets/detail.html:13
+msgid "BIZ"
+msgstr "EMP"
+
+#: app/templates/tickets/detail.html:39
+msgid "Quote Approved"
+msgstr "Presupuesto Aprobado"
+
+#: app/templates/tickets/detail.html:44
+msgid "View Details"
+msgstr "Ver Detalles"
+
+#: app/templates/tickets/detail.html:51
+#, fuzzy
+msgid "Modal actions for updates"
+msgstr "Esperando Piezas"
+
+#: app/templates/tickets/detail.html:56
+msgid "Quick Actions"
+msgstr "Acciones Rápidas"
+
+#: app/templates/tickets/detail.html:59
+msgid "Assign to me"
+msgstr "Asignarme"
+
+#: app/templates/tickets/detail.html:63
+msgid "Diagnosis complete"
+msgstr "Diagnóstico completo"
+
+#: app/templates/tickets/detail.html:66
+msgid "Waiting for parts"
+msgstr "Esperando piezas"
+
+#: app/templates/tickets/detail.html:69
+msgid "Start repair"
+msgstr "Iniciar reparación"
+
+#: app/templates/tickets/detail.html:72
+msgid "Repair complete"
+msgstr "Reparación completa"
+
+#: app/templates/tickets/detail.html:82
+msgid "Workflow"
+msgstr "Flujo de Trabajo"
+
+#: app/templates/tickets/detail.html:84 app/templates/tickets/detail.html:539
+msgid "Edit ticket details"
+msgstr "Editar detalles del ticket"
+
+#: app/templates/tickets/detail.html:85
+msgid "Send update"
+msgstr "Enviar actualización"
+
+#: app/templates/tickets/detail.html:90
+msgid "Records"
+msgstr "Registros"
+
+#: app/templates/tickets/detail.html:92
+msgid "Add note"
+msgstr "Añadir nota"
+
+#: app/templates/tickets/detail.html:93 app/templates/tickets/detail.html:542
+msgid "Add diagnostics"
+msgstr "Añadir diagnóstico"
+
+#: app/templates/tickets/detail.html:94 app/templates/tickets/detail.html:544
+msgid "Create quote"
+msgstr "Crear presupuesto"
+
+#: app/templates/tickets/detail.html:95 app/templates/tickets/detail.html:545
+msgid "Reserve part"
+msgstr "Reservar pieza"
+
+#: app/templates/tickets/detail.html:102
+#, fuzzy
+msgid "Ticket Slip"
+msgstr "Tickets"
+
+#: app/templates/tickets/detail.html:111
+#, fuzzy
+msgid "Customer Communication"
+msgstr "Correo del Cliente"
+
+#: app/templates/tickets/detail.html:115
+#, fuzzy
+msgid "Public repair status link:"
+msgstr "Seguir Estado de Reparación"
+
+#: app/templates/tickets/detail.html:118 app/templates/tickets/detail.html:129
+#, fuzzy
+msgid "Copy"
+msgstr "Empresa"
+
+#: app/templates/tickets/detail.html:121
+msgid "Portal link is not active. Generate one below."
+msgstr "El enlace del portal no está activo. Genera uno a continuación."
+
+#: app/templates/tickets/detail.html:126
+#, fuzzy
+msgid "Quote approval link:"
+msgstr "URL de Aprobación del Presupuesto"
+
+#: app/templates/tickets/detail.html:135
+#, fuzzy
+msgid "Message Builder"
+msgstr "Mensaje"
+
+#: app/templates/tickets/detail.html:137
+#, fuzzy
+msgid "Ready Notification"
+msgstr "Notificaciones"
+
+#: app/templates/tickets/detail.html:140
+#, fuzzy
+msgid "Quote Notification"
+msgstr "Notificaciones"
+
+#: app/templates/tickets/detail.html:147
+msgid "Regenerate portal link? The old link will stop working."
+msgstr "¿Regenerar el enlace del portal? El enlace anterior dejará de funcionar."
+
+#: app/templates/tickets/detail.html:147
+#, fuzzy
+msgid "Regenerate Link"
+msgstr "Regenerar"
+
+#: app/templates/tickets/detail.html:147
+#, fuzzy
+msgid "Generate Link"
+msgstr "Regenerar"
+
+#: app/templates/tickets/detail.html:149
+msgid "Revoke portal link? Customer will lose direct access."
+msgstr "¿Revocar el enlace del portal? El cliente perderá el acceso directo."
+
+#: app/templates/tickets/detail.html:149
+#, fuzzy
+msgid "Revoke Link"
+msgstr "Revocar"
+
+#: app/templates/tickets/detail.html:157
+msgid "Lifecycle"
+msgstr "Ciclo de Vida"
+
+#: app/templates/tickets/detail.html:160
+#, fuzzy
+msgid "Archive this ticket?"
+msgstr "Archivar Ticket"
+
+#: app/templates/tickets/detail.html:160
+#, fuzzy
+msgid "Archive"
+msgstr "Archivado"
+
+#: app/templates/tickets/detail.html:163
+#, fuzzy
+msgid "Reopen this ticket?"
+msgstr "Reabrir Ticket"
+
+#: app/templates/tickets/detail.html:163
+#, fuzzy
+msgid "Reopen"
+msgstr "Abrir"
+
+#: app/templates/tickets/detail.html:174
+msgid "Commercial summary and approval state"
+msgstr "Resumen comercial y estado de aprobación"
+
+#: app/templates/tickets/detail.html:176
+#, fuzzy
+msgid "+ New Quote"
+msgstr "Nuevo Presupuesto"
+
+#: app/templates/tickets/detail.html:190
+#, fuzzy
+msgid "No expiry set"
+msgstr "Aún no hay exportaciones"
+
+#: app/templates/tickets/detail.html:194
+#, fuzzy
+msgid "View details"
+msgstr "Ver Detalles"
+
+#: app/templates/tickets/detail.html:202
+msgid "No quotes yet. Use the button above or Create quote action to start."
+msgstr "Aún no hay presupuestos. Usa el botón de arriba o la acción Crear presupuesto para empezar."
+
+#: app/templates/tickets/detail.html:212
+msgid "Bench findings and recommended repair actions"
+msgstr "Hallazgos del taller y acciones de reparación recomendadas"
+
+#: app/templates/tickets/detail.html:214
+msgid "+ New Revision"
+msgstr "+ Nueva Revisión"
+
+#: app/templates/tickets/detail.html:214
+#, fuzzy
+msgid "+ Add Diagnostics"
+msgstr "Añadir diagnóstico"
+
+#: app/templates/tickets/detail.html:234
+#, fuzzy
+msgid "Estimated Labour"
+msgstr "Finalización estimada"
+
+#: app/templates/tickets/detail.html:235
+msgid "hrs"
+msgstr "h"
+
+#: app/templates/tickets/detail.html:235
+#, fuzzy
+msgid "Not estimated"
+msgstr "Notas y Cronología"
+
+#: app/templates/tickets/detail.html:238
+#, fuzzy
+msgid "Repair Notes"
+msgstr "Presupuesto de reparación"
+
+#: app/templates/tickets/detail.html:239
+#, fuzzy
+msgid "No notes"
+msgstr "Notas"
+
+#: app/templates/tickets/detail.html:245
+#, fuzzy
+msgid "Recorded"
+msgstr "Registros"
+
+#: app/templates/tickets/detail.html:248
+msgid "By"
+msgstr "Por"
+
+#: app/templates/tickets/detail.html:252
+#, fuzzy
+msgid "total revisions"
+msgstr "Ingresos Totales"
+
+#: app/templates/tickets/detail.html:258
+#, fuzzy
+msgid "No diagnostics recorded yet."
+msgstr "Diagnóstico completo"
+
+#: app/templates/tickets/detail.html:259
+msgid "Use the Add Diagnostics button above to capture bench findings."
+msgstr "Usa el botón Añadir diagnóstico de arriba para registrar los hallazgos del taller."
+
+#: app/templates/tickets/detail.html:267
+msgid "Repair Checklists"
+msgstr "Listas de Verificación de Reparación"
+
+#: app/templates/tickets/detail.html:268
+#, fuzzy
+msgid "Pre-repair and post-repair quality checks"
+msgstr ""
+"Verificaciones de calidad pre y post reparación realizadas en tu "
+"dispositivo"
+
+#: app/templates/tickets/detail.html:281 app/templates/tickets/detail.html:334
+#, fuzzy
+msgid "In progress"
+msgstr "En Progreso"
+
+#: app/templates/tickets/detail.html:281 app/templates/tickets/detail.html:334
+#, fuzzy
+msgid "checked"
+msgstr "Verificación"
+
+#: app/templates/tickets/detail.html:298 app/templates/tickets/detail.html:351
+msgid "Notes (optional)"
+msgstr "Notas (opcional)"
+
+#: app/templates/tickets/detail.html:309 app/templates/tickets/detail.html:362
+#, fuzzy
+msgid "Mark Complete"
+msgstr "Completo"
+
+#: app/templates/tickets/detail.html:320
+#, fuzzy
+msgid "+ Create Pre-Repair Check"
+msgstr "Verificación Pre-Reparación"
+
+#: app/templates/tickets/detail.html:332
+#, fuzzy
+msgid "Post-Repair Check"
+msgstr "Verificación Pre-Reparación"
+
+#: app/templates/tickets/detail.html:373
+#, fuzzy
+msgid "+ Create Post-Repair Check"
+msgstr "Verificación Pre-Reparación"
+
+#: app/templates/tickets/detail.html:383
+msgid "Quick Bench Note"
+msgstr "Nota Rápida de Taller"
+
+#: app/templates/tickets/detail.html:386
+msgid "Type a bench note..."
+msgstr "Escribe una nota de taller..."
+
+#: app/templates/tickets/detail.html:387
+#, fuzzy
+msgid "Add Note"
+msgstr "Añadir nota"
+
+#: app/templates/tickets/detail.html:391
+msgid "Internal and customer-facing timeline"
+msgstr "Cronología interna y visible para el cliente"
+
+#: app/templates/tickets/detail.html:410
+#, fuzzy
+msgid "No notes yet."
+msgstr "Aún no hay presupuestos"
+
+#: app/templates/tickets/detail.html:417
+#, fuzzy
+msgid "Communication History"
+msgstr "Panel de Comunicación"
+
+#: app/templates/tickets/detail.html:418
+msgid "Staff-only log of customer communication actions"
+msgstr "Registro interno de acciones de comunicación con el cliente"
+
+#: app/templates/tickets/detail.html:439
+msgid "Workflow Status"
+msgstr "Estado del Flujo"
+
+#: app/templates/tickets/detail.html:440
+msgid "Current stage, next step, and blockers"
+msgstr "Etapa actual, siguiente paso y bloqueos"
+
+#: app/templates/tickets/detail.html:444
+#, fuzzy
+msgid "Current Status"
+msgstr "Estado del presupuesto"
+
+#: app/templates/tickets/detail.html:448
+#, fuzzy
+msgid "Next Recommended Action"
+msgstr "Reparación Recomendada"
+
+#: app/templates/tickets/detail.html:454
+msgid "Blockers"
+msgstr "Bloqueos"
+
+#: app/templates/tickets/detail.html:471
+#, fuzzy
+msgid "Technician & Workflow"
+msgstr "Carga de Trabajo de Técnicos"
+
+#: app/templates/tickets/detail.html:472
+msgid "Keep assignment and status updates in one compact panel."
+msgstr "Gestiona asignación y cambios de estado en un panel compacto."
+
+#: app/templates/tickets/detail.html:473
+#, fuzzy
+msgid "Assigned technician"
+msgstr "Técnico Asignado"
+
+#: app/templates/tickets/detail.html:475
+#, fuzzy
+msgid "Workflow status"
+msgstr "Estado del Flujo"
+
+#: app/templates/tickets/detail.html:479
+#, fuzzy
+msgid "SLA & Promise"
+msgstr "Precio de Venta"
+
+#: app/templates/tickets/detail.html:481
+#, fuzzy
+msgid "SLA target"
+msgstr "Fecha SLA excedida"
+
+#: app/templates/tickets/detail.html:481 app/templates/tickets/detail.html:482
+#, fuzzy
+msgid "Not set"
+msgstr "Nota"
+
+#: app/templates/tickets/detail.html:482 app/templates/tickets/detail.html:539
+#, fuzzy
+msgid "Promised completion"
+msgstr "Fecha Prometida"
+
+#: app/templates/tickets/detail.html:482
+#, fuzzy
+msgid "Past due"
+msgstr "Detalle de Pieza"
+
+#: app/templates/tickets/detail.html:483
+#, fuzzy
+msgid "Ticket age"
+msgstr "TICKET"
+
+#: app/templates/tickets/detail.html:483
+#, fuzzy
+msgid "day"
+msgstr "Hoy"
+
+#: app/templates/tickets/detail.html:485
+msgid "Create another ticket for this customer"
+msgstr "Crear otro ticket para este cliente"
+
+#: app/templates/tickets/detail.html:488
+#, fuzzy
+msgid "Reserved Parts"
+msgstr "Reservar pieza"
+
+#: app/templates/tickets/detail.html:488
+#, fuzzy
+msgid "Allocated stock for this ticket"
+msgstr "No hay presupuestos para este ticket"
+
+#: app/templates/tickets/detail.html:496
+#, fuzzy
+msgid "No location"
+msgstr "Nueva Ubicación"
+
+#: app/templates/tickets/detail.html:504
+msgid "Install this part? Stock will be consumed."
+msgstr "¿Instalar esta pieza? Se descontará del stock."
+
+#: app/templates/tickets/detail.html:504
+#, fuzzy
+msgid "Install"
+msgstr "Interno"
+
+#: app/templates/tickets/detail.html:508
+#, fuzzy
+msgid "Release this reservation?"
+msgstr "Reservas de Stock"
+
+#: app/templates/tickets/detail.html:508
+#, fuzzy
+msgid "Release"
+msgstr "Roles"
+
+#: app/templates/tickets/detail.html:512
+#, fuzzy
+msgid "Installed"
+msgstr "Recepción"
+
+#: app/templates/tickets/detail.html:516
+#, fuzzy
+msgid "No reserved parts."
+msgstr "Reservar pieza"
+
+#: app/templates/tickets/detail.html:519
+#, fuzzy
+msgid "Ordered Parts"
+msgstr "Fecha del Pedido"
+
+#: app/templates/tickets/detail.html:519
+msgid "Parts on order from suppliers — track ETA and delivery"
+msgstr "Piezas pedidas a proveedores — sigue el ETA y la entrega"
+
+#: app/templates/tickets/detail.html:533
+#, fuzzy
+msgid "No linked orders yet."
+msgstr "Aún no hay pedidos"
+
+#: app/templates/tickets/detail.html:539
+msgid "Update the customer-facing issue summary and promised completion datetime."
+msgstr "Actualiza el resumen del problema visible para el cliente y la fecha de finalización prometida."
+
+#: app/templates/tickets/detail.html:539
+#, fuzzy
+msgid "Issue summary"
+msgstr "Problema / Resumen"
+
+#: app/templates/tickets/detail.html:540
+msgid "Add note (internal)"
+msgstr "Añadir nota (interna)"
+
+#: app/templates/tickets/detail.html:540
+msgid "Use this for internal/admin notes. These notes are not sent to customers."
+msgstr "Usa esto para notas internas/administrativas. Estas notas no se envían a los clientes."
+
+#: app/templates/tickets/detail.html:540
+#, fuzzy
+msgid "Note type"
+msgstr "Tipo de Línea"
+
+#: app/templates/tickets/detail.html:540
+#, fuzzy
+msgid "Note content"
+msgstr "Contenido"
+
+#: app/templates/tickets/detail.html:542
+msgid "Capture bench findings and recommended repair actions."
+msgstr "Registra los hallazgos del taller y las acciones de reparación recomendadas."
+
+#: app/templates/tickets/detail.html:542
+#, fuzzy
+msgid "Customer reported fault"
+msgstr "Problema Reportado por el Cliente"
+
+#: app/templates/tickets/detail.html:542
+#, fuzzy
+msgid "Technician diagnosis"
+msgstr "Diagnóstico del Técnico"
+
+#: app/templates/tickets/detail.html:542
+#, fuzzy
+msgid "Recommended repair"
+msgstr "Reparación Recomendada"
+
+#: app/templates/tickets/detail.html:542
+#, fuzzy
+msgid "Estimated labour"
+msgstr "Finalización estimada"
+
+#: app/templates/tickets/detail.html:542
+#, fuzzy
+msgid "Repair notes"
+msgstr "Presupuesto de reparación"
+
+#: app/templates/tickets/detail.html:544
+msgid "Open the quote builder to add labour and part lines for this ticket."
+msgstr "Abre el generador de presupuestos para añadir líneas de mano de obra y piezas a este ticket."
+
+#: app/templates/tickets/detail.html:544
+msgid "Open Quote Builder"
+msgstr "Abrir Generador de Presupuesto"
+
+#: app/templates/tickets/detail.html:545
+msgid ""
+"Reserve stock against this ticket so parts are blocked for this repair "
+"job."
+msgstr ""
+"Reserva stock para este ticket para que las piezas queden bloqueadas para "
+"esta reparación."
+
+#: app/templates/tickets/detail.html:545
+#, fuzzy
+msgid "Search part"
+msgstr "Buscar"
+
+#: app/templates/tickets/detail.html:545
+msgid "Search by part name, SKU, barcode, supplier SKU"
+msgstr "Buscar por nombre de pieza, SKU, código de barras, SKU de proveedor"
+
+#: app/templates/tickets/detail.html:545
+#, fuzzy
+msgid "Stock location"
+msgstr "Guardar Ubicación"
+
+#: app/templates/tickets/detail.html:546
+#, fuzzy
+msgid "Send update to customer"
+msgstr "Guardar Cliente"
+
+#: app/templates/tickets/detail.html:546
+msgid ""
+"Customer-facing updates appear on the public repair status page. Optional"
+" email only sends intent unless outbound email is configured."
+msgstr ""
+"Las actualizaciones visibles para el cliente aparecen en la página pública"
+" de estado. El correo opcional solo envía si el correo saliente está "
+"configurado."
+
+#: app/templates/tickets/detail.html:546
+#, fuzzy
+msgid "Update message"
+msgstr "Actualizaciones"
+
+#: app/templates/tickets/detail.html:546
+msgid "Write a customer-facing progress update"
+msgstr "Escribe una actualización de progreso para el cliente"
+
+#: app/templates/tickets/detail.html:546
+msgid "Send this update as an email to"
+msgstr "Enviar esta actualización por correo a"
+
+#: app/templates/tickets/detail.html:546
+#, fuzzy
+msgid "the customer email on file"
+msgstr "Correo del Cliente"
+
+#: app/templates/tickets/detail.html:546
+#, fuzzy
+msgid "Send Update"
+msgstr "Enviar actualización"
+
+#: app/templates/tickets/detail.html:551
+#, fuzzy
+msgid "Customer Message Builder"
+msgstr "Correo del Cliente"
+
+#: app/templates/tickets/detail.html:555
+msgid ""
+"Generate a customer-safe message from a template. Copy or send as an "
+"update."
+msgstr ""
+"Genera un mensaje apto para el cliente a partir de una plantilla. Cópialo"
+" o envíalo como actualización."
+
+#: app/templates/tickets/detail.html:557
+msgid "Template"
+msgstr "Plantilla"
+
+#: app/templates/tickets/detail.html:564
+#, fuzzy
+msgid "Generate Message"
+msgstr "Regenerar"
+
+#: app/templates/tickets/detail.html:566
+msgid "Subject"
+msgstr "Asunto"
+
+#: app/templates/tickets/detail.html:568
+msgid "Message"
+msgstr "Mensaje"
+
+#: app/templates/tickets/detail.html:571
+#, fuzzy
+msgid "Copy Message"
+msgstr "Mensaje"
+
+#: app/templates/tickets/detail.html:572
+#, fuzzy
+msgid "Send as Customer Update"
+msgstr "Enviar Actualización al Cliente"
+
+# ===================================================================
+# TICKET LIST
+#: app/templates/tickets/list.html:8
+msgid "Front Desk · Operations"
+msgstr "Recepción · Operaciones"
+
+#: app/templates/tickets/list.html:9
+msgid "Ticket Operations"
+msgstr "Operaciones de Tickets"
+
+#: app/templates/tickets/list.html:10
+msgid "Manage intake, assignment, and progress across the workshop."
+msgstr "Gestiona recepción, asignación y progreso en el taller."
+
+#: app/templates/tickets/list.html:14
+msgid "+ New Ticket"
+msgstr "+ Nuevo Ticket"
+
+#: app/templates/tickets/list.html:22
+msgid "Any status"
+msgstr "Cualquier estado"
+
+#: app/templates/tickets/list.html:24
+msgid "Awaiting parts"
+msgstr "Esperando piezas"
+
+#: app/templates/tickets/list.html:25
+msgid "Assigned"
+msgstr "Asignado"
+
+#: app/templates/tickets/list.html:27
+msgid "In repair"
+msgstr "En reparación"
+
+#: app/templates/tickets/list.html:29
+msgid "Archived"
+msgstr "Archivado"
+
+#: app/templates/tickets/list.html:36
+msgid "Last week"
+msgstr "Última semana"
+
+#: app/templates/tickets/list.html:42
+msgid "Promised due soonest"
+msgstr "Fecha prometida más próxima"
+
+#: app/templates/tickets/list.html:60
+msgid "Promised ETA"
+msgstr "Fecha Estimada"
+
+#: app/templates/tickets/list.html:100
+msgid "No tickets yet"
+msgstr "Aún no hay tickets"
+
+#: app/templates/tickets/list.html:100
+msgid "Create your first ticket to populate the operations queue."
+msgstr "Crea tu primer ticket para llenar la cola de operaciones."
+
+#: app/templates/tickets/my_queue.html:3
+msgid "My Queue - IRONCore"
+msgstr "Mi Cola - IRONCore"
+
+#: app/templates/tickets/my_queue.html:8
+#, fuzzy
+msgid "Technician Workspace"
+msgstr "Carga de Trabajo de Técnicos"
+
+#: app/templates/tickets/my_queue.html:9
+msgid "My Assigned Queue"
+msgstr "Mi Cola Asignada"
+
+#: app/templates/tickets/my_queue.html:10
+msgid "Assigned tickets, with overdue and parts blockers surfaced first."
+msgstr "Tickets asignados, con los vencidos y bloqueados por piezas al frente."
+
+#: app/templates/tickets/my_queue.html:32
+#, fuzzy
+msgid "Overdue SLA"
+msgstr "VENCIDO"
+
+#: app/templates/tickets/my_queue.html:36
+#, fuzzy
+msgid "Parts ETA:"
+msgstr "Detalle de Pieza"
+
+#: app/templates/tickets/my_queue.html:36
+#, fuzzy
+msgid "ETA overdue"
+msgstr "VENCIDO"
+
+#: app/templates/tickets/my_queue.html:43
+#, fuzzy
+msgid "No assigned tickets"
+msgstr "Tickets Vencidos"
+
+#: app/templates/tickets/my_queue.html:43
+msgid "You currently have no tickets in this group."
+msgstr "Actualmente no tienes tickets en este grupo."
+
+#: app/templates/tickets/new.html:2
+#, fuzzy
+msgid "Fast Check-In - IRONCore"
+msgstr "Registro Rápido"
+
+#: app/templates/tickets/new.html:8
+#, fuzzy
+msgid "Device Check-In &amp; Intake"
+msgstr "Condición del Dispositivo al Registrar"
+
+#: app/templates/tickets/new.html:9
+msgid "Search customer, select device, pick service, and check in."
+msgstr "Busca el cliente, selecciona el dispositivo, elige el servicio y registra."
+
+#: app/templates/tickets/new.html:11
+msgid "Back to Tickets"
+msgstr "Volver a Tickets"
+
+#: app/templates/tickets/new.html:20
+#, fuzzy
+msgid "1. Branch &amp; Customer"
+msgstr "Nombre de Sucursal / Tienda"
+
+#: app/templates/tickets/new.html:27
+#, fuzzy
+msgid "Find Customer"
+msgstr "Editar Cliente"
+
+#: app/templates/tickets/new.html:28
+#, fuzzy
+msgid "Type name, phone, or email…"
+msgstr "Teléfono o Correo Electrónico"
+
+#: app/templates/tickets/new.html:36
+#, fuzzy
+msgid "Selected Customer"
+msgstr "Guardar Cliente"
+
+#: app/templates/tickets/new.html:40
+#, fuzzy
+msgid "Change"
+msgstr "Guardar Cambios"
+
+#: app/templates/tickets/new.html:47
+#, fuzzy
+msgid "2. Device"
+msgstr "Dispositivo"
+
+#: app/templates/tickets/new.html:54
+#, fuzzy
+msgid "+ New Device"
+msgstr "Nuevo Servicio"
+
+#: app/templates/tickets/new.html:56
+msgid "Select a customer first to see their devices."
+msgstr "Selecciona primero un cliente para ver sus dispositivos."
+
+#: app/templates/tickets/new.html:59
+msgid "Search devices by brand, model, serial, or IMEI..."
+msgstr "Buscar dispositivos por marca, modelo, serie o IMEI..."
+
+#: app/templates/tickets/new.html:66
+#, fuzzy
+msgid "Quick Add Device"
+msgstr "Registrar Dispositivo"
+
+#: app/templates/tickets/new.html:73
+msgid "Phones"
+msgstr "Teléfonos"
+
+#: app/templates/tickets/new.html:74
+#, fuzzy
+msgid "Tablets"
+msgstr "Estado"
+
+#: app/templates/tickets/new.html:75
+msgid "Laptops"
+msgstr "Portátiles"
+
+#: app/templates/tickets/new.html:76
+msgid "Desktops"
+msgstr "Sobremesas"
+
+#: app/templates/tickets/new.html:77
+#, fuzzy
+msgid "Consoles"
+msgstr "Consolas de Juegos"
+
+#: app/templates/tickets/new.html:78
+msgid "Wearables"
+msgstr "Wearables"
+
+#: app/templates/tickets/new.html:79
+msgid "Other"
+msgstr "Otro"
+
+#: app/templates/tickets/new.html:83
+#, fuzzy
+msgid "Brand *"
+msgstr "Sucursal"
+
+#: app/templates/tickets/new.html:84
+msgid "e.g. Apple, Samsung"
+msgstr "p. ej. Apple, Samsung"
+
+#: app/templates/tickets/new.html:87
+msgid "Model *"
+msgstr "Modelo *"
+
+#: app/templates/tickets/new.html:88
+msgid "e.g. iPhone 14 Pro"
+msgstr "p. ej. iPhone 14 Pro"
+
+#: app/templates/tickets/new.html:91
+msgid "Serial Number"
+msgstr "Número de Serie"
+
+#: app/templates/tickets/new.html:92 app/templates/tickets/new.html:96
+#, fuzzy
+msgid "Optional"
+msgstr "Nombre de Opción"
+
+#: app/templates/tickets/new.html:95
+msgid "IMEI"
+msgstr "IMEI"
+
+#: app/templates/tickets/new.html:99
+#, fuzzy
+msgid "Add Device"
+msgstr "Dispositivo"
+
+#: app/templates/tickets/new.html:106
+#, fuzzy
+msgid "3. Service &amp; Issue"
+msgstr "Nombre del Servicio"
+
+#: app/templates/tickets/new.html:115
+#, fuzzy
+msgid "Part Availability"
+msgstr "Disponible"
+
+#: app/templates/tickets/new.html:135
+msgid "4. Condition &amp; Accessories"
+msgstr "4. Condición y Accesorios"
+
+#: app/templates/tickets/new.html:152
+#, fuzzy
+msgid "5. Promised Completion"
+msgstr "Fecha Prometida"
+
+#: app/templates/tickets/new.html:156
+msgid "Tomorrow"
+msgstr "Mañana"
+
+#: app/templates/tickets/new.html:157
+msgid "3 Days"
+msgstr "3 Días"
+
+#: app/templates/tickets/new.html:158
+#, fuzzy
+msgid "1 Week"
+msgstr "Última semana"
+
+#: app/templates/tickets/new.html:159
+#, fuzzy
+msgid "Clear"
+msgstr "Todo en orden"
+
+#: app/templates/tickets/new.html:163
+msgid "Suggested:"
+msgstr "Sugerido:"
+
+# ===================================================================
+# USERS / STAFF
+#: app/templates/tickets/new.html:165
+#, fuzzy
+msgid "Use this"
+msgstr "Lista de Usuarios"
+
+#: app/templates/tickets/new.html:168
+msgid "Or pick a custom date/time above."
+msgstr "O elige una fecha/hora personalizada arriba."
+
+#: app/templates/tickets/new.html:180
+#, fuzzy
+msgid "Fast Check-In Guide"
+msgstr "Registro Rápido"
+
+#: app/templates/tickets/new.html:181
+msgid "Follow these steps for a fast device intake."
+msgstr "Sigue estos pasos para una recepción rápida del dispositivo."
+
+#: app/templates/tickets/new.html:183
+#, fuzzy
+msgid "Search and select customer."
+msgstr "Guardar Cliente"
+
+#: app/templates/tickets/new.html:184
+#, fuzzy
+msgid "Confirm customer device."
+msgstr "Cliente y Dispositivo"
+
+#: app/templates/tickets/new.html:185
+msgid "Select repair service — see part stock instantly."
+msgstr "Selecciona el servicio de reparación — ve el stock de piezas al instante."
+
+#: app/templates/tickets/new.html:186
+#, fuzzy
+msgid "Note device condition and accessories."
+msgstr "Condición del Dispositivo al Registrar"
+
+#: app/templates/tickets/new.html:187
+msgid "Review suggested ETA or set custom promise."
+msgstr "Revisa el ETA sugerido o establece una fecha prometida personalizada."
+
+# ===================================================================
+# TICKET DETAIL
+#: app/templates/tickets/new.html:193
+#, fuzzy
+msgid "Service Summary"
+msgstr "Resumen del Ticket"
+
+#: app/templates/tickets/new.html:201
+#, fuzzy
+msgid "Need full intake?"
+msgstr "Nueva Recepción"
+
+#: app/templates/tickets/new.html:202
+msgid ""
+"For new customers, new devices, or detailed diagnostics use the full "
+"intake form."
+msgstr ""
+"Para nuevos clientes, nuevos dispositivos o diagnósticos detallados, usa "
+"el formulario de recepción completo."
+
+#: app/templates/tickets/new.html:203
+#, fuzzy
+msgid "Go to Full Intake"
+msgstr "Nombre Completo"
+
+#: app/templates/users/edit.html:2 app/templates/users/edit.html:6
+msgid "Edit User"
+msgstr "Editar Usuario"
+
+# ===================================================================
+# USERS / STAFF
+#: app/templates/users/list.html:2
+#, fuzzy
+msgid "Users"
+msgstr "Lista de Usuarios"
+
+#: app/templates/users/list.html:8
+msgid "Manage technician and staff logins, roles, and active state."
+msgstr "Gestiona los accesos, roles y estado activo del personal y técnicos."
+
+#: app/templates/users/list.html:10
+#, fuzzy
+msgid "+ Add User"
+msgstr "Editar Usuario"
+
+#: app/templates/users/list.html:19
+msgid "Roles"
+msgstr "Roles"
+
+#: app/templates/users/list.html:31
+msgid "All"
+msgstr "Todos"
+
+#: app/templates/users/list.html:44
+#, fuzzy
+msgid "No users found."
+msgstr "Aún no hay usuarios"
+
+#: app/templates/users/new.html:2
+msgid "New User"
+msgstr "Nuevo Usuario"
+
+#: app/templates/users/new.html:6
+#, fuzzy
+msgid "Create Staff User"
+msgstr "Crear Usuario"
+
+#: app/templates/users/new.html:7
+msgid "Add a new staff member to the system."
+msgstr "Añade un nuevo miembro del personal al sistema."
+
+#: tests/test_phase15_i18n.py:519
+msgid "Some string that probably has no translation"
+msgstr ""
+
+#~ msgid "Save Details"
+#~ msgstr "Guardar Detalles"
+
+#~ msgid "Close"
+#~ msgstr "Cerrar"
+
+#~ msgid "Send"
+#~ msgstr "Enviar"
+
+#~ msgid "Send via email"
+#~ msgstr "Enviar por correo"
+
+#~ msgid "Pre-Repair Checks"
+#~ msgstr "Verificaciones Pre-Reparación"
+
+#~ msgid "New Diagnosis"
+#~ msgstr "Nuevo Diagnóstico"
+
+#~ msgid "Add Diagnosis"
+#~ msgstr "Añadir Diagnóstico"
+
+#~ msgid "Quote Summary"
+#~ msgstr "Resumen del Presupuesto"
+
+#~ msgid "Portal Status"
+#~ msgstr "Estado del Portal"
+
+#~ msgid "Copy URL"
+#~ msgstr "Copiar URL"
+
+#~ msgid "Print Ticket"
+#~ msgstr "Imprimir Ticket"
+
+#~ msgid "Print Label"
+#~ msgstr "Imprimir Etiqueta"
+
+#~ msgid "Pre-Repair"
+#~ msgstr "Pre-Reparación"
+
+#~ msgid "Create Checklist"
+#~ msgstr "Crear Lista de Verificación"
+
+#~ msgid "Awaiting Diagnostics"
+#~ msgstr "Esperando Diagnóstico"
+
+#~ msgid "Low"
+#~ msgstr "Baja"
+
+#~ msgid "Normal"
+#~ msgstr "Normal"
+
+#~ msgid "High"
+#~ msgstr "Alta"
+
+#~ msgid "Urgent"
+#~ msgstr "Urgente"
+
+#~ msgid "Accessories Received"
+#~ msgstr "Accesorios Recibidos"
+
+#~ msgid "Customer Notes"
+#~ msgstr "Notas del Cliente"
+
+#~ msgid "Visual workflow for bench technicians"
+#~ msgstr "Flujo visual para técnicos de taller"
+
+#~ msgid "No tickets in your queue"
+#~ msgstr "No hay tickets en tu cola"
+
+#~ msgid "Save Quote"
+#~ msgstr "Guardar Presupuesto"
+
+#~ msgid "Fixed"
+#~ msgstr "Fijo"
+
+#~ msgid "Linked Part ID"
+#~ msgstr "ID de Pieza Vinculada"
+
+#~ msgid "Currency"
+#~ msgstr "Moneda"
+
+#~ msgid "English"
+#~ msgstr "Inglés"
+
+#~ msgid "Español"
+#~ msgstr "Español"
+
+#~ msgid "Expires At"
+#~ msgstr "Expira el"
+
+#~ msgid "Quote Notes"
+#~ msgstr "Notas del Presupuesto"
+
+#~ msgid "Terms Snapshot"
+#~ msgstr "Condiciones"
+
+#~ msgid "Public Device Check-In"
+#~ msgstr "Registro Público de Dispositivo"
+
+#~ msgid "Fill in the details below to register your device for repair."
+#~ msgstr ""
+#~ "Completa los datos a continuación para"
+#~ " registrar tu dispositivo para reparación."
+
+#~ msgid "Device Brand"
+#~ msgstr "Marca del Dispositivo"
+
+#~ msgid "Accessories Included"
+#~ msgstr "Accesorios Incluidos"
+
+#~ msgid "Create Intake"
+#~ msgstr "Crear Recepción"
+
+#~ msgid "Preferred Contact"
+#~ msgstr "Contacto Preferido"
+
+# ===================================================================
+# PUBLIC PORTAL — THANK YOU
+#~ msgid "Thank You!"
+#~ msgstr "¡Gracias!"
+
+#~ msgid "Please save your reference number for future tracking."
+#~ msgstr "Guarda tu número de referencia para seguimiento futuro."
+
+#~ msgid "Location Code"
+#~ msgstr "Código de Ubicación"
+
+#~ msgid "Stock Out"
+#~ msgstr "Salida de Stock"
+
+#~ msgid "Adjustment"
+#~ msgstr "Ajuste"
+
+#~ msgid "Transfer"
+#~ msgstr "Transferencia"
+
+#~ msgid "Reason"
+#~ msgstr "Motivo"
+
+# ===================================================================
+# SUPPLIERS
+#~ msgid "Supplier List"
+#~ msgstr "Lista de Proveedores"
+
+#~ msgid "Supplier Detail"
+#~ msgstr "Detalle del Proveedor"
+
+#~ msgid "Activate"
+#~ msgstr "Activar"
+
+#~ msgid "Expected Delivery"
+#~ msgstr "Entrega Estimada"
+
+#~ msgid "Save Order"
+#~ msgstr "Guardar Pedido"
+
+#~ msgid "Mark Received"
+#~ msgstr "Marcar como Recibido"
+
+# ===================================================================
+# INTAKE
+#~ msgid "Intake List"
+#~ msgstr "Lista de Recepciones"
+
+#~ msgid "Intake Detail"
+#~ msgstr "Detalle de Recepción"
+
+#~ msgid "Screen displays correctly"
+#~ msgstr "La pantalla funciona correctamente"
+
+# ===================================================================
+# CUSTOMERS
+#~ msgid "Customer List"
+#~ msgstr "Lista de Clientes"
+
+#~ msgid "Individual"
+#~ msgstr "Particular"
+
+#~ msgid "Company Name"
+#~ msgstr "Nombre de la Empresa"
+
+#~ msgid "Ticket History"
+#~ msgstr "Historial de Tickets"
+
+#~ msgid "Reset Password"
+#~ msgstr "Restablecer Contraseña"
+
+# ===================================================================
+# AUTH
+#~ msgid "Sign In"
+#~ msgstr "Iniciar Sesión"
+
+# ===================================================================
+# SETTINGS
+#~ msgid "System Settings"
+#~ msgstr "Configuración del Sistema"
+
+#~ msgid "Save Company"
+#~ msgstr "Guardar Empresa"
+
+#~ msgid "Base Price"
+#~ msgstr "Precio Base"
+
+#~ msgid "Save Service"
+#~ msgstr "Guardar Servicio"
+
+#~ msgid "Booking Notes"
+#~ msgstr "Notas de Reserva"
+
+#~ msgid "No bookings yet"
+#~ msgstr "Aún no hay reservas"
+
+#~ msgid "Key Performance Indicators"
+#~ msgstr "Indicadores Clave de Rendimiento"
+
+#~ msgid "Period"
+#~ msgstr "Período"
+
+#~ msgid "Average Repair Time"
+#~ msgstr "Tiempo Medio de Reparación"
+
+#~ msgid "Completion Rate"
+#~ msgstr "Tasa de Completación"
+
+#~ msgid "No notifications yet"
+#~ msgstr "Aún no hay notificaciones"
+
+#~ msgid "Processed"
+#~ msgstr "Procesado"
+
+#~ msgid "Pending"
+#~ msgstr "Pendiente"
+
+#~ msgid "Download"
+#~ msgstr "Descargar"
+
+#~ msgid "Portal token regenerated"
+#~ msgstr "Token del portal regenerado"
+
+#~ msgid "Quote saved"
+#~ msgstr "Presupuesto guardado"
+
+#~ msgid "Intake updated"
+#~ msgstr "Recepción actualizada"
+
+#~ msgid "Customer created"
+#~ msgstr "Cliente creado"
+
+#~ msgid "Customer updated"
+#~ msgstr "Cliente actualizado"
+
+#~ msgid "Password reset"
+#~ msgstr "Contraseña restablecida"
+
+#~ msgid "Category created"
+#~ msgstr "Categoría creada"
+
+#~ msgid "You do not have permission to perform this action"
+#~ msgstr "No tienes permiso para realizar esta acción"
+
+# ===================================================================
+# FORM LABELS (from WTForms lazy_gettext)
+#~ msgid "Ticket Number"
+#~ msgstr "Número de Ticket"
+
+#~ msgid "Check Status"
+#~ msgstr "Ver Estado"
+
+#~ msgid "Collection/Contact Remarks"
+#~ msgstr "Observaciones de Recogida/Contacto"
+
+#~ msgid "Your Name"
+#~ msgstr "Tu Nombre"
+
+#~ msgid "Phone/Email"
+#~ msgstr "Teléfono/Correo"
+
+#~ msgid "Pay in store"
+#~ msgstr "Pagar en tienda"
+
+#~ msgid "Decline reason"
+#~ msgstr "Motivo del rechazo"
+
+#~ msgid "Preferred Language"
+#~ msgstr "Idioma Preferido"
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmar"
+
+#~ msgid "Yes"
+#~ msgstr "Sí"
+
+#~ msgid "No"
+#~ msgstr "No"
+
+#~ msgid "Loading..."
+#~ msgstr "Cargando..."
+
+#~ msgid "Error"
+#~ msgstr "Error"
+
+#~ msgid "Success"
+#~ msgstr "Éxito"
+
+#~ msgid "Warning"
+#~ msgstr "Advertencia"
+
+#~ msgid "Info"
+#~ msgstr "Información"
+
+#~ msgid "Amount"
+#~ msgstr "Importe"
+
+#~ msgid "N/A"
+#~ msgstr "N/A"
+
+#~ msgid "None"
+#~ msgstr "Ninguno"
+
+#~ msgid "Select"
+#~ msgstr "Seleccionar"
+
+#~ msgid "Next"
+#~ msgstr "Siguiente"
+
+#~ msgid "Previous"
+#~ msgstr "Anterior"
+
+#~ msgid "Showing"
+#~ msgstr "Mostrando"
+
+#~ msgid "of"
+#~ msgstr "de"
+
+#~ msgid "results"
+#~ msgstr "resultados"
+
+#~ msgid "per page"
+#~ msgstr "por página"
+

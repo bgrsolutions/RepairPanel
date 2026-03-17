@@ -1,5 +1,5 @@
 {% extends 'public_base.html' %}
-{% block title %}Track Your Repair - IRONCore{% endblock %}
+{% block title %}{{ _("Track Your Repair") }} - IRONCore{% endblock %}
 {% block content %}
 
 {% set input_cls = 'w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30' %}
@@ -9,11 +9,11 @@
   <div class="text-center sm:text-left">
     <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-950/30 px-4 py-1.5 text-xs font-medium text-indigo-300">
       <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-      Real-time tracking
+      {{ _("Real-time tracking") }}
     </div>
-    <h2 class="mt-4 text-3xl font-bold tracking-tight text-white">Track your repair</h2>
+    <h2 class="mt-4 text-3xl font-bold tracking-tight text-white">{{ _("Track your repair") }}</h2>
     {% if not lookup_result %}
-    <p class="mt-2 text-base text-slate-400 max-w-2xl">Enter your ticket number and the phone or email you used at check-in to see your repair status.</p>
+    <p class="mt-2 text-base text-slate-400 max-w-2xl">{{ _("Enter your ticket number and the phone or email you used at check-in to see your repair status.") }}</p>
     {% endif %}
   </div>
 
@@ -24,13 +24,13 @@
       {{ form.hidden_tag() }}
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Ticket number</label>
-          <p class="mb-2 text-xs text-slate-500">The reference you received when you checked in</p>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Ticket number") }}</label>
+          <p class="mb-2 text-xs text-slate-500">{{ _("The reference you received when you checked in") }}</p>
           {{ form.ticket_number(class=input_cls, placeholder='e.g. TK-20260315-001') }}
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Verification</label>
-          <p class="mb-2 text-xs text-slate-500">The phone number or email you gave us</p>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Verification") }}</label>
+          <p class="mb-2 text-xs text-slate-500">{{ _("The phone number or email you gave us") }}</p>
           {{ form.verifier(class=input_cls, placeholder='Phone or email used at check-in') }}
         </div>
       </div>
@@ -43,7 +43,7 @@
   <details class="group rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     <summary class="cursor-pointer list-none p-4 sm:p-5">
       <div class="flex items-center justify-between">
-        <span class="text-sm font-medium text-slate-400">Look up a different ticket</span>
+        <span class="text-sm font-medium text-slate-400">{{ _("Look up a different ticket") }}</span>
         <svg class="h-4 w-4 flex-shrink-0 text-slate-500 transition group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
       </div>
     </summary>
@@ -51,11 +51,11 @@
       {{ form.hidden_tag() }}
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Ticket number</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Ticket number") }}</label>
           {{ form.ticket_number(class=input_cls, placeholder='e.g. TK-20260315-001') }}
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Verification</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Verification") }}</label>
           {{ form.verifier(class=input_cls, placeholder='Phone or email used at check-in') }}
         </div>
       </div>
@@ -79,8 +79,8 @@
         <svg class="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
       <div>
-        <h3 class="text-xl font-bold text-emerald-300 sm:text-2xl">Your device is ready for collection!</h3>
-        <p class="mt-1 text-sm text-emerald-400/80">Great news — your repair is complete. Please visit the branch during opening hours to pick up your device.</p>
+        <h3 class="text-xl font-bold text-emerald-300 sm:text-2xl">{{ _("Your device is ready for collection!") }}</h3>
+        <p class="mt-1 text-sm text-emerald-400/80">{{ _("Great news — your repair is complete. Please visit the branch during opening hours to pick up your device.") }}</p>
       </div>
     </div>
   </div>
@@ -91,8 +91,8 @@
         <svg class="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
       </div>
       <div>
-        <h3 class="text-xl font-bold text-amber-300 sm:text-2xl">Your approval is needed</h3>
-        <p class="mt-1 text-sm text-amber-400/80">We've prepared a repair quote for you. Please review and approve it so we can proceed with the repair.</p>
+        <h3 class="text-xl font-bold text-amber-300 sm:text-2xl">{{ _("Your approval is needed") }}</h3>
+        <p class="mt-1 text-sm text-amber-400/80">{{ _("We've prepared a repair quote for you. Please review and approve it so we can proceed with the repair.") }}</p>
       </div>
     </div>
   </div>
@@ -114,11 +114,11 @@
     <!-- Ticket header -->
     <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <p class="text-xs font-medium tracking-widest text-indigo-400">TICKET</p>
+        <p class="text-xs font-medium tracking-widest text-indigo-400">{{ _("TICKET") }}</p>
         <h3 class="mt-1 text-2xl font-bold text-white">{{ lookup_result.ticket_number }}</h3>
         <p class="mt-1.5 text-sm text-slate-400">{{ lookup_result.device_summary }}</p>
         {% if lookup_result.created_at %}
-        <p class="mt-1 text-xs text-slate-500">Checked in {{ lookup_result.created_at }}</p>
+        <p class="mt-1 text-xs text-slate-500">{{ _("Checked in") }} {{ lookup_result.created_at }}</p>
         {% endif %}
       </div>
       <div class="text-left sm:text-right">
@@ -136,7 +136,7 @@
           {{ friendly_status }}
         </span>
         {% if lookup_result.estimated_completion %}
-        <p class="mt-2.5 text-xs text-slate-500">Estimated completion: {{ lookup_result.estimated_completion }}</p>
+        <p class="mt-2.5 text-xs text-slate-500">{{ _("Estimated completion:") }} {{ lookup_result.estimated_completion }}</p>
         {% endif %}
       </div>
     </div>
@@ -144,7 +144,7 @@
     <!-- Progress indicator -->
     {% if current_step >= 0 %}
     <div class="mt-8 pt-6 border-t border-slate-800/60">
-      <p class="mb-4 text-xs font-medium uppercase tracking-widest text-slate-500">Repair progress</p>
+      <p class="mb-4 text-xs font-medium uppercase tracking-widest text-slate-500">{{ _("Repair progress") }}</p>
       <div class="flex items-center justify-between">
         {% for step_name in progress_steps %}
         <div class="flex flex-col items-center flex-1">
@@ -171,19 +171,19 @@
     <!-- Status details -->
     <div class="mt-6 space-y-2.5 border-t border-slate-800/60 pt-6">
       <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
-        <span class="text-sm text-slate-400">Status</span>
+        <span class="text-sm text-slate-400">{{ _("Status") }}</span>
         <span class="text-sm font-medium text-slate-200">{{ friendly_status }}</span>
       </div>
       {% if lookup_result.estimated_completion %}
       <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
-        <span class="text-sm text-slate-400">Estimated completion</span>
+        <span class="text-sm text-slate-400">{{ _("Estimated completion") }}</span>
         <span class="text-sm font-medium text-slate-200">{{ lookup_result.estimated_completion }}</span>
       </div>
       {% endif %}
 
       {% if lookup_result.quote %}
       <div class="flex items-center justify-between rounded-xl bg-slate-800/40 px-4 py-3">
-        <span class="text-sm text-slate-400">Quote status</span>
+        <span class="text-sm text-slate-400">{{ _("Quote status") }}</span>
         <span class="text-sm font-medium text-slate-200">{{ lookup_result.quote.status|replace('_',' ')|title }}</span>
       </div>
       {% if lookup_result.quote.status in ['sent','draft'] and lookup_result.quote.approvals %}
@@ -191,7 +191,7 @@
         <a href="{{ url_for('public_portal.public_quote_approval', token=lookup_result.quote.approvals[0].token) }}"
            class="flex items-center justify-center gap-2.5 rounded-xl bg-amber-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-500 hover:shadow-amber-500/30">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-          Review &amp; approve quote
+          {{ _("Review & approve quote") }}
         </a>
       </div>
       {% endif %}
@@ -207,8 +207,8 @@
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
       <div>
-        <h4 class="text-base font-semibold text-white">Quality Checklists</h4>
-        <p class="text-sm text-slate-500">Pre-repair and post-repair quality checks performed on your device</p>
+        <h4 class="text-base font-semibold text-white">{{ _("Quality Checklists") }}</h4>
+        <p class="text-sm text-slate-500">{{ _("Pre-repair and post-repair quality checks performed on your device") }}</p>
       </div>
     </div>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -217,9 +217,9 @@
         <div class="flex items-center justify-between mb-3">
           <p class="text-xs font-bold uppercase tracking-widest {% if cl.is_complete %}text-emerald-400{% else %}text-amber-400{% endif %}">{{ cl.checklist_type|replace('_',' ')|title }}</p>
           {% if cl.is_complete %}
-          <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">Complete</span>
+          <span class="rounded-full bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300 border border-emerald-800/40">{{ _("Complete") }}</span>
           {% else %}
-          <span class="rounded-full bg-amber-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-300 border border-amber-800/40">In Progress</span>
+          <span class="rounded-full bg-amber-950/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-300 border border-amber-800/40">{{ _("In Progress") }}</span>
           {% endif %}
         </div>
         <div class="space-y-1.5">
@@ -247,8 +247,8 @@
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
       <div>
-        <h4 class="text-base font-semibold text-white">Updates</h4>
-        <p class="text-sm text-slate-500">Messages and updates about your repair</p>
+        <h4 class="text-base font-semibold text-white">{{ _("Updates") }}</h4>
+        <p class="text-sm text-slate-500">{{ _("Messages and updates about your repair") }}</p>
       </div>
     </div>
 
@@ -267,7 +267,7 @@
       {% else %}
       <div class="rounded-xl border border-dashed border-slate-700/60 bg-slate-800/20 p-8 text-center">
         <svg class="mx-auto h-8 w-8 text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
-        <p class="mt-3 text-sm text-slate-500">No updates yet. We'll post updates here as your repair progresses.</p>
+        <p class="mt-3 text-sm text-slate-500">{{ _("No updates yet. We'll post updates here as your repair progresses.") }}</p>
       </div>
       {% endfor %}
     </div>
@@ -282,8 +282,8 @@
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
           </div>
           <div>
-            <h4 class="text-base font-semibold text-white">Need to update your contact details?</h4>
-            <p class="mt-0.5 text-sm text-slate-500">Change your phone, email, or add collection instructions</p>
+            <h4 class="text-base font-semibold text-white">{{ _("Need to update your contact details?") }}</h4>
+            <p class="mt-0.5 text-sm text-slate-500">{{ _("Change your phone, email, or add collection instructions") }}</p>
           </div>
         </div>
         <svg class="h-5 w-5 flex-shrink-0 text-slate-500 transition group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
@@ -294,20 +294,20 @@
       <div class="space-y-5">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Contact person</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Contact person") }}</label>
             {{ contact_form.contact_person(class=input_cls, placeholder='Your name') }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Phone</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Phone") }}</label>
             {{ contact_form.contact_phone(class=input_cls, placeholder='Phone number') }}
           </div>
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Email</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Email") }}</label>
           {{ contact_form.contact_email(class=input_cls, placeholder='Email address') }}
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Collection or contact remarks</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Collection or contact remarks") }}</label>
           {{ contact_form.remarks(class=input_cls, rows='3', placeholder='e.g. Please call before collection, someone else will collect...') }}
         </div>
         <div class="pt-1">

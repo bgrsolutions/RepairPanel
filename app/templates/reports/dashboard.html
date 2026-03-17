@@ -1,111 +1,111 @@
 {% extends 'base.html' %}
 {% from 'components/ui_macros.html' import stat_card %}
-{% block title %}Management Dashboard - IRONCore{% endblock %}
+{% block title %}{{ _("Management Dashboard") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Management Reporting</p>
-      <h1 class="text-2xl font-semibold text-white">KPI Dashboard</h1>
-      <p class="mt-1 text-sm text-slate-400">Operational health, throughput, and pipeline metrics.</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ _("Management Reporting") }}</p>
+      <h1 class="text-2xl font-semibold text-white">{{ _("KPI Dashboard") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Operational health, throughput, and pipeline metrics.") }}</p>
     </div>
     <div class="flex flex-wrap gap-2">
-      <a href="{{ url_for('reports.technician_workload_detail') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Technician Workload</a>
-      <a href="{{ url_for('reports.quote_reporting') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Quote Report</a>
-      <a href="{{ url_for('reports.inventory_reporting') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Inventory Report</a>
+      <a href="{{ url_for('reports.technician_workload_detail') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Technician Workload") }}</a>
+      <a href="{{ url_for('reports.quote_reporting') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Quote Report") }}</a>
+      <a href="{{ url_for('reports.inventory_reporting') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Inventory Report") }}</a>
     </div>
   </div>
 
-  {# ── Filters ── #}
+  {# -- Filters -- #}
   <form method="get" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Filter & Date Range</p>
+    <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">{{ _("Filter & Date Range") }}</p>
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <select name="date_range" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
-        <option value="">All time</option>
-        <option value="today" {% if filters.date_range == 'today' %}selected{% endif %}>Today</option>
-        <option value="last_7_days" {% if filters.date_range == 'last_7_days' %}selected{% endif %}>Last 7 days</option>
-        <option value="last_30_days" {% if filters.date_range == 'last_30_days' %}selected{% endif %}>Last 30 days</option>
-        <option value="this_month" {% if filters.date_range == 'this_month' %}selected{% endif %}>This month</option>
-        <option value="last_month" {% if filters.date_range == 'last_month' %}selected{% endif %}>Last month</option>
+        <option value="">{{ _("All time") }}</option>
+        <option value="today" {% if filters.date_range == 'today' %}selected{% endif %}>{{ _("Today") }}</option>
+        <option value="last_7_days" {% if filters.date_range == 'last_7_days' %}selected{% endif %}>{{ _("Last 7 days") }}</option>
+        <option value="last_30_days" {% if filters.date_range == 'last_30_days' %}selected{% endif %}>{{ _("Last 30 days") }}</option>
+        <option value="this_month" {% if filters.date_range == 'this_month' %}selected{% endif %}>{{ _("This month") }}</option>
+        <option value="last_month" {% if filters.date_range == 'last_month' %}selected{% endif %}>{{ _("Last month") }}</option>
       </select>
       <select name="branch_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
-        <option value="">All branches</option>
+        <option value="">{{ _("All branches") }}</option>
         {% for b in branches %}<option value="{{ b.id }}" {% if filters.branch_id == b.id|string %}selected{% endif %}>{{ b.code }} - {{ b.name }}</option>{% endfor %}
       </select>
       <select name="technician_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
-        <option value="">All technicians</option>
+        <option value="">{{ _("All technicians") }}</option>
         {% for t in technicians %}<option value="{{ t.id }}" {% if filters.technician_id == t.id|string %}selected{% endif %}>{{ t.full_name }}</option>{% endfor %}
       </select>
-      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Apply</button>
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Apply") }}</button>
     </div>
   </form>
 
-  {# ── Overview Tiles ── #}
+  {# -- Overview Tiles -- #}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-    {{ stat_card('Total Open', overview.total_open, 'Active tickets', 'indigo') }}
-    {{ stat_card('Overdue', overview.overdue, 'Past SLA target', 'rose') }}
-    {{ stat_card("Created Today", overview.created_today, 'New intakes today', 'cyan') }}
-    {{ stat_card('Completed Today', overview.completed_today, 'Closed today', 'emerald') }}
-    {{ stat_card('Unassigned', overview.unassigned, 'Need technician', 'amber') }}
+    {{ stat_card(_('Total Open'), overview.total_open, _('Active tickets'), 'indigo') }}
+    {{ stat_card(_('Overdue'), overview.overdue, _('Past SLA target'), 'rose') }}
+    {{ stat_card(_("Created Today"), overview.created_today, _('New intakes today'), 'cyan') }}
+    {{ stat_card(_('Completed Today'), overview.completed_today, _('Closed today'), 'emerald') }}
+    {{ stat_card(_('Unassigned'), overview.unassigned, _('Need technician'), 'amber') }}
   </div>
 
-  {# ── Pipeline Status Tiles ── #}
+  {# -- Pipeline Status Tiles -- #}
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
     <div class="rounded-xl border border-amber-800/30 bg-amber-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-amber-300">{{ throughput.status_counts.get('Awaiting Diagnostics', 0) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Diagnosis</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Awaiting Diagnosis") }}</p>
     </div>
     <div class="rounded-xl border border-violet-800/30 bg-violet-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-violet-300">{{ throughput.status_counts.get('Awaiting Quote Approval', 0) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Quote</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Awaiting Quote") }}</p>
     </div>
     <div class="rounded-xl border border-cyan-800/30 bg-cyan-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-cyan-300">{{ throughput.status_counts.get('Awaiting Parts', 0) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Parts</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Awaiting Parts") }}</p>
     </div>
     <div class="rounded-xl border border-indigo-800/30 bg-indigo-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-indigo-300">{{ throughput.status_counts.get('In Repair', 0) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">In Repair</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("In Repair") }}</p>
     </div>
     <div class="rounded-xl border border-emerald-800/30 bg-emerald-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-emerald-300">{{ throughput.status_counts.get('Ready For Collection', 0) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Ready for Collection</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Ready for Collection") }}</p>
     </div>
   </div>
 
-  {# ── Throughput KPIs ── #}
+  {# -- Throughput KPIs -- #}
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
     <div class="rounded-xl border border-cyan-800/30 bg-cyan-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-cyan-300">{{ '%.1f'|format(throughput.avg_age_days) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Avg Age (days)</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Avg Age (days)") }}</p>
     </div>
     <div class="rounded-xl border border-emerald-800/30 bg-emerald-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-emerald-300">{{ '%.1f'|format(throughput.avg_turnaround_days) }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Avg Turnaround</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Avg Turnaround") }}</p>
     </div>
     <div class="rounded-xl border border-indigo-800/30 bg-indigo-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-indigo-300">{{ throughput.created_today }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Created Today</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Created Today") }}</p>
     </div>
     <div class="rounded-xl border border-violet-800/30 bg-violet-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-violet-300">{{ throughput.created_this_week }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Created This Week</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Created This Week") }}</p>
     </div>
     <div class="rounded-xl border border-emerald-800/30 bg-emerald-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-emerald-300">{{ throughput.completed_this_week }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Completed This Week</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Completed This Week") }}</p>
     </div>
     <div class="rounded-xl border border-amber-800/30 bg-amber-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-amber-300">{{ throughput.stalled_count }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Stalled (3+ days)</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Stalled (3+ days)") }}</p>
     </div>
   </div>
 
   <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
-    {# ── Status Breakdown + Quote Summary ── #}
+    {# -- Status Breakdown + Quote Summary -- #}
     <section class="xl:col-span-2 space-y-5">
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Tickets by Status</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Tickets by Status") }}</h2>
         <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {% for status, count in throughput.status_counts.items() %}
           <a href="{{ url_for('tickets.list_tickets', status=status.replace(' ', '_').lower()) }}" class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3.5 flex items-center justify-between hover:border-slate-700 transition-colors">
@@ -116,40 +116,40 @@
         </div>
       </div>
 
-      {# ── Quote Pipeline ── #}
+      {# -- Quote Pipeline -- #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Quote Pipeline</h2>
-          <a href="{{ url_for('reports.quote_reporting') }}" class="text-xs text-indigo-300 hover:text-indigo-200">Full report</a>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Quote Pipeline") }}</h2>
+          <a href="{{ url_for('reports.quote_reporting') }}" class="text-xs text-indigo-300 hover:text-indigo-200">{{ _("Full report") }}</a>
         </div>
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-white">{{ quotes.total_quotes }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Total</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Total") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-indigo-300">{{ '%.1f%%'|format(quotes.approval_rate) }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Quote Approval Rate</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Quote Approval Rate") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-emerald-300">{{ quotes.by_status.get('approved', 0) }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Approved</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Approved") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-amber-300">{{ quotes.by_status.get('sent', 0) }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Awaiting</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Awaiting") }}</p>
           </div>
         </div>
       </div>
     </section>
 
-    {# ── Right Column ── #}
+    {# -- Right Column -- #}
     <section class="space-y-5">
-      {# ── Technician Workload ── #}
+      {# -- Technician Workload -- #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Technician Workload</h2>
-          <a href="{{ url_for('reports.technician_workload_detail') }}" class="text-xs text-indigo-300 hover:text-indigo-200">Details</a>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Technician Workload") }}</h2>
+          <a href="{{ url_for('reports.technician_workload_detail') }}" class="text-xs text-indigo-300 hover:text-indigo-200">{{ _("Details") }}</a>
         </div>
         <div class="space-y-2">
           {% for entry in workload[:6] %}
@@ -157,66 +157,66 @@
             <div>
               <span class="text-sm text-slate-300">{{ entry.technician_name }}</span>
               {% if entry.overdue > 0 %}
-              <span class="ml-2 inline-flex items-center rounded-full bg-rose-950/40 px-2 py-0.5 text-[10px] font-bold text-rose-300">{{ entry.overdue }} overdue</span>
+              <span class="ml-2 inline-flex items-center rounded-full bg-rose-950/40 px-2 py-0.5 text-[10px] font-bold text-rose-300">{{ entry.overdue }} {{ _("overdue") }}</span>
               {% endif %}
             </div>
-            <span class="text-sm font-semibold text-white">{{ entry.assigned }} active</span>
+            <span class="text-sm font-semibold text-white">{{ entry.assigned }} {{ _("active") }}</span>
           </div>
           {% else %}
-          <p class="text-sm text-slate-500 py-4 text-center">No ticket data available.</p>
+          <p class="text-sm text-slate-500 py-4 text-center">{{ _("No ticket data available.") }}</p>
           {% endfor %}
         </div>
       </div>
 
-      {# ── Communication & Portal ── #}
+      {# -- Communication & Portal -- #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Communication & Portal</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Communication & Portal") }}</h2>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-emerald-300">{{ comms.active_tokens }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Active Tokens</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Active Tokens") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-slate-300">{{ comms.total_tokens }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Total Tokens</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Total Tokens") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-amber-300">{{ comms.expired_tokens }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Expired</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Expired") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-indigo-300">{{ comms.communication_actions_30d }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Actions (30d)</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Actions (30d)") }}</p>
           </div>
         </div>
       </div>
 
-      {# ── Inventory Quick Glance ── #}
+      {# -- Inventory Quick Glance -- #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Inventory</h2>
-          <a href="{{ url_for('reports.inventory_reporting') }}" class="text-xs text-indigo-300 hover:text-indigo-200">Full report</a>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Inventory") }}</h2>
+          <a href="{{ url_for('reports.inventory_reporting') }}" class="text-xs text-indigo-300 hover:text-indigo-200">{{ _("Full report") }}</a>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-rose-300">{{ inventory.low_stock_parts|length }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Low Stock Items</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Low Stock Items") }}</p>
           </div>
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-center">
             <p class="text-lg font-bold text-amber-300">{{ inventory.pending_orders }}</p>
-            <p class="text-[10px] uppercase text-slate-400">Pending Orders</p>
+            <p class="text-[10px] uppercase text-slate-400">{{ _("Pending Orders") }}</p>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-  {# ── Most-Used Parts ── #}
+  {# -- Most-Used Parts -- #}
   {% if inventory.most_used %}
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Most-Used Parts</h2>
-      <a href="{{ url_for('reports.inventory_reporting') }}" class="text-xs text-indigo-300 hover:text-indigo-200">Full report</a>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Most-Used Parts") }}</h2>
+      <a href="{{ url_for('reports.inventory_reporting') }}" class="text-xs text-indigo-300 hover:text-indigo-200">{{ _("Full report") }}</a>
     </div>
     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
       {% for item in inventory.most_used[:5] %}

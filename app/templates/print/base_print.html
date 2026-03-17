@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}Print{% endblock %} - IRONCore</title>
+  <title>{% block title %}{{ _("Print") }}{% endblock %} - IRONCore</title>
   <style>
     /* Reset */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -79,10 +79,10 @@
 </head>
 <body>
   <div class="no-print print-toolbar">
-    <button onclick="window.print()">Print</button>
-    <a href="javascript:history.back()">Back</a>
+    <button onclick="window.print()">{{ _("Print") }}</button>
+    <a href="javascript:history.back()">{{ _("Back") }}</a>
     <span style="flex:1"></span>
-    <span style="font-size:12px; color:#64748b;">Print preview — use Ctrl+P or the button</span>
+    <span style="font-size:12px; color:#64748b;">{{ _("Print preview — use Ctrl+P or the button") }}</span>
   </div>
   <div class="document">
     {% block document %}{% endblock %}

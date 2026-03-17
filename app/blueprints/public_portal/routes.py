@@ -29,10 +29,10 @@ from app.models import (
 from app.services.audit_service import log_action
 from app.services.customer_status_service import (
     CUSTOMER_SAFE_NOTE_TYPES,
-    PROGRESS_STEPS,
     communication_summary,
     customer_friendly_status,
     progress_step_index,
+    progress_steps,
 )
 from app.services.payment_service import create_quote_checkout_session
 from app.services.quote_service import compute_quote_totals
@@ -207,7 +207,7 @@ def _build_lookup_result(ticket):
         "customer_updates": customer_updates,
         "checklists": checklists,
         "communication_summary": communication_summary(internal_status, has_pending_quote=has_pending_quote, has_pending_parts=has_pending_parts),
-        "progress_steps": PROGRESS_STEPS,
+        "progress_steps": progress_steps(),
         "current_step": progress_step_index(internal_status),
         "created_at": ticket.created_at.strftime("%b %d, %Y") if ticket.created_at else None,
     }

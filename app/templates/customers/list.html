@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
-{% block title %}Customers - IRONCore{% endblock %}
+{% block title %}{{ _("Customers") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Customer Directory</p>
-      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Customers</h1>
-      <p class="mt-1 text-sm text-slate-400">Search customers and open their full repair history.</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ _("Customer Directory") }}</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ _("Customers") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Search customers and open their full repair history.") }}</p>
     </div>
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Search</label>
-        <input name="q" id="customer-live-search" value="{{ query }}" type="text" placeholder="Name, phone, or email — results filter as you type" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Search") }}</label>
+        <input name="q" id="customer-live-search" value="{{ query }}" type="text" placeholder="{{ _("Name, phone, or email — results filter as you type") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
       </div>
       <div class="self-end">
-        <button type="submit" class="inline-flex h-[42px] items-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Search</button>
+        <button type="submit" class="inline-flex h-[42px] items-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">{{ _("Search") }}</button>
       </div>
     </form>
   </div>
@@ -27,12 +27,12 @@
       <table class="min-w-full text-left text-sm text-slate-200">
         <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
           <tr>
-            <th class="px-4 py-3">Customer</th>
-            <th class="px-4 py-3">Phone</th>
-            <th class="px-4 py-3">Email</th>
-            <th class="px-4 py-3">Devices</th>
-            <th class="px-4 py-3">Tickets</th>
-            <th class="px-4 py-3">Actions</th>
+            <th class="px-4 py-3">{{ _("Customer") }}</th>
+            <th class="px-4 py-3">{{ _("Phone") }}</th>
+            <th class="px-4 py-3">{{ _("Email") }}</th>
+            <th class="px-4 py-3">{{ _("Devices") }}</th>
+            <th class="px-4 py-3">{{ _("Tickets") }}</th>
+            <th class="px-4 py-3">{{ _("Actions") }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-800/60">
@@ -47,11 +47,11 @@
             <td class="px-4 py-3 text-slate-400">{{ customer.devices|length }}</td>
             <td class="px-4 py-3 text-slate-400">{{ customer.tickets|length }}</td>
             <td class="px-4 py-3">
-              <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">Open Profile</a>
+              <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Open Profile") }}</a>
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No customers found.</td></tr>
+          <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">{{ _("No customers found.") }}</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}Bookings - {{ view_date.strftime('%d %b %Y') }} - IRONCore{% endblock %}
+{% block title %}{{ _("Bookings") }} - {{ view_date.strftime('%d %b %Y') }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold text-white">Bookings</h1>
-      <p class="mt-1 text-sm text-slate-400">View and manage repair bookings by date and location.</p>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Bookings") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("View and manage repair bookings by date and location.") }}</p>
     </div>
-    <a href="{{ url_for('bookings.create_booking') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">+ New Booking</a>
+    <a href="{{ url_for('bookings.create_booking') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("+ New Booking") }}</a>
   </div>
 
   {# Date navigation & filters #}
@@ -24,7 +24,7 @@
       {# Quick date links #}
       <div class="flex gap-1">
         {% set today = view_date.__class__.today() %}
-        <a href="{{ url_for('bookings.list_bookings', date=today.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == today %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">Today</a>
+        <a href="{{ url_for('bookings.list_bookings', date=today.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == today %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ _("Today") }}</a>
         {% for wd in week_dates %}
         <a href="{{ url_for('bookings.list_bookings', date=wd.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == wd %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ wd.strftime('%a %d') }}</a>
         {% endfor %}
@@ -34,7 +34,7 @@
       <form method="get" class="ml-auto flex items-center gap-2">
         <input type="hidden" name="date" value="{{ view_date.strftime('%Y-%m-%d') }}" />
         <select name="location_id" onchange="this.form.submit()" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-          <option value="">All locations</option>
+          <option value="">{{ _("All locations") }}</option>
           {% for b in branches %}
           <option value="{{ b.id }}" {% if selected_location == b.id|string %}selected{% endif %}>{{ b.name }}</option>
           {% endfor %}
@@ -47,7 +47,7 @@
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel overflow-hidden">
     <div class="border-b border-slate-800/60 bg-slate-800/30 px-4 py-3">
       <h2 class="text-sm font-semibold text-white">{{ view_date.strftime('%A, %d %B %Y') }}</h2>
-      <p class="text-xs text-slate-400">{{ bookings | length }} booking{{ 's' if bookings | length != 1 else '' }}</p>
+      <p class="text-xs text-slate-400">{{ bookings | length }} {{ _("booking") }}{{ 's' if bookings | length != 1 else '' }}</p>
     </div>
 
     {% if bookings %}
@@ -67,7 +67,7 @@
             {% if booking.customer %}
             <span class="text-sm text-slate-200 font-medium">{{ booking.customer.full_name }}</span>
             {% else %}
-            <span class="text-sm text-slate-500 italic">No customer</span>
+            <span class="text-sm text-slate-500 italic">{{ _("No customer") }}</span>
             {% endif %}
             {% if booking.repair_service %}
             <span class="inline-flex items-center rounded-full bg-cyan-950/40 px-2 py-0.5 text-xs text-cyan-300 ring-1 ring-inset ring-cyan-800/40">{{ booking.repair_service.name }}</span>
@@ -90,14 +90,14 @@
         </div>
 
         {# Actions #}
-        <a href="{{ url_for('bookings.edit_booking', booking_id=booking.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium flex-shrink-0">Edit</a>
+        <a href="{{ url_for('bookings.edit_booking', booking_id=booking.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium flex-shrink-0">{{ _("Edit") }}</a>
       </div>
       {% endfor %}
     </div>
     {% else %}
     <div class="py-12 text-center">
-      <p class="text-sm text-slate-500">No bookings for this date.</p>
-      <a href="{{ url_for('bookings.create_booking') }}" class="mt-2 inline-block text-sm text-indigo-400 hover:text-indigo-300">Create a booking</a>
+      <p class="text-sm text-slate-500">{{ _("No bookings for this date.") }}</p>
+      <a href="{{ url_for('bookings.create_booking') }}" class="mt-2 inline-block text-sm text-indigo-400 hover:text-indigo-300">{{ _("Create a booking") }}</a>
     </div>
     {% endif %}
   </div>

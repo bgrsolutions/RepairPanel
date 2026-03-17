@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Login - IRONCore{% endblock %}
+{% block title %}{{ _("Login") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="flex min-h-[72vh] items-center justify-center py-8 sm:py-12">
   <div class="w-full max-w-md rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-panel backdrop-blur sm:p-8">
     <div class="mb-8">
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">IRONCore</p>
-      <h1 class="mt-2 text-2xl font-semibold tracking-tight text-white">Sign in to your workspace</h1>
-      <p class="mt-1.5 text-sm text-slate-400">Use your staff account to continue.</p>
+      <h1 class="mt-2 text-2xl font-semibold tracking-tight text-white">{{ _("Sign in to your workspace") }}</h1>
+      <p class="mt-1.5 text-sm text-slate-400">{{ _("Use your staff account to continue.") }}</p>
     </div>
 
     <form method="post" class="space-y-5">

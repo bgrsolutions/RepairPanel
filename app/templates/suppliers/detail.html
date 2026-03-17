@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}{{ supplier.name }} - Supplier - IRONCore{% endblock %}
+{% block title %}{{ supplier.name }} - {{ _("Supplier") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
     <h1 class="text-2xl font-semibold text-white">{{ supplier.name }}</h1>
-    <p class="mt-1 text-sm text-slate-400">Supplier record and contact details.</p>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Supplier record and contact details.") }}</p>
   </div>
 
   <form method="post" action="{{ url_for('suppliers.update_supplier', supplier_id=supplier.id) }}" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-5">
@@ -39,7 +39,7 @@
         {{ form.account_reference(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors') }}
       </div>
       <div class="flex items-end pb-1">
-        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} Active</label>
+        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} {{ _("Active") }}</label>
       </div>
     </div>
     <div>
@@ -47,18 +47,18 @@
       {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', rows='4') }}
     </div>
     <div class="flex items-center gap-3 pt-1">
-      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Save Supplier</button>
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Save Supplier") }}</button>
     </div>
   </form>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Admin Actions</h2>
+    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">{{ _("Admin Actions") }}</h2>
     <form method="post" action="{{ url_for('suppliers.toggle_supplier_active', supplier_id=supplier.id) }}" class="inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       {% if supplier.is_active %}
-      <button class="rounded-xl border border-rose-800 bg-rose-950/40 px-4 py-2.5 text-xs font-medium text-rose-200 hover:bg-rose-900/40 transition-colors" onclick="return confirm('Deactivate this supplier? They will be hidden from new orders.')">Deactivate Supplier</button>
+      <button class="rounded-xl border border-rose-800 bg-rose-950/40 px-4 py-2.5 text-xs font-medium text-rose-200 hover:bg-rose-900/40 transition-colors" onclick="return confirm('{{ _("Deactivate this supplier? They will be hidden from new orders.") }}')">{{ _("Deactivate Supplier") }}</button>
       {% else %}
-      <button class="rounded-xl border border-emerald-800 bg-emerald-950/40 px-4 py-2.5 text-xs font-medium text-emerald-200 hover:bg-emerald-900/40 transition-colors">Reactivate Supplier</button>
+      <button class="rounded-xl border border-emerald-800 bg-emerald-950/40 px-4 py-2.5 text-xs font-medium text-emerald-200 hover:bg-emerald-900/40 transition-colors">{{ _("Reactivate Supplier") }}</button>
       {% endif %}
     </form>
   </div>

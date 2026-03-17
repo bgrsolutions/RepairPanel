@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}Export Queue - IRONCore{% endblock %}
+{% block title %}{{ _("Export Queue") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Odoo Export Readiness</h1>
-    <p class="mt-1 text-sm text-slate-400">Queue tickets for export and monitor status.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Odoo Export Readiness") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Queue tickets for export and monitor status.") }}</p>
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Queue Ticket Export</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">{{ _("Queue Ticket Export") }}</h2>
     <div class="space-y-2.5">
       {% for ticket in tickets %}
       <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3.5 flex flex-wrap items-center justify-between gap-3">
         <span class="text-sm font-medium text-slate-200">{{ ticket.ticket_number }} <span class="text-slate-500 mx-1">·</span> <span class="text-slate-400 font-normal">{{ ticket.customer.full_name }}</span></span>
         <div class="flex gap-2">
-          <a class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors" href="{{ url_for('integrations.preview_ticket', ticket_id=ticket.id) }}">Preview Payload</a>
+          <a class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors" href="{{ url_for('integrations.preview_ticket', ticket_id=ticket.id) }}">{{ _("Preview Payload") }}</a>
           <form method="post" action="{{ url_for('integrations.queue_ticket', ticket_id=ticket.id) }}">
-            <button class="rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Queue Export</button>
+            <button class="rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Queue Export") }}</button>
           </form>
         </div>
       </div>
@@ -25,7 +25,7 @@
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Export Queue Log</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">{{ _("Export Queue Log") }}</h2>
     <div class="space-y-2">
       {% for item in items %}
       <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3.5 text-sm flex items-center justify-between">
@@ -33,7 +33,7 @@
         <span class="text-xs text-slate-500">{{ item.status }}</span>
       </div>
       {% else %}
-      <p class="text-sm text-slate-500 py-4 text-center">No queued exports yet.</p>
+      <p class="text-sm text-slate-500 py-4 text-center">{{ _("No queued exports yet.") }}</p>
       {% endfor %}
     </div>
   </div>

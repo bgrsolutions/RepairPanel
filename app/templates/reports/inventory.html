@@ -1,44 +1,44 @@
 {% extends 'base.html' %}
 {% from 'components/ui_macros.html' import stat_card, empty_state %}
-{% block title %}Inventory Report - IRONCore{% endblock %}
+{% block title %}{{ _("Inventory Report") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Management Reporting</p>
-      <h1 class="text-2xl font-semibold text-white">Inventory & Parts Report</h1>
-      <p class="mt-1 text-sm text-slate-400">Parts usage, stock levels, and pending orders.</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ _("Management Reporting") }}</p>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Inventory & Parts Report") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Parts usage, stock levels, and pending orders.") }}</p>
     </div>
-    <a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Back to Dashboard</a>
+    <a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Back to Dashboard") }}</a>
   </div>
 
-  {# ── Filters ── #}
+  {# -- Filters -- #}
   <form method="get" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Filter</p>
+    <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">{{ _("Filter") }}</p>
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <select name="date_range" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200">
-        <option value="">All time</option>
-        <option value="today" {% if filters.date_range == 'today' %}selected{% endif %}>Today</option>
-        <option value="last_7_days" {% if filters.date_range == 'last_7_days' %}selected{% endif %}>Last 7 days</option>
-        <option value="last_30_days" {% if filters.date_range == 'last_30_days' %}selected{% endif %}>Last 30 days</option>
-        <option value="this_month" {% if filters.date_range == 'this_month' %}selected{% endif %}>This month</option>
+        <option value="">{{ _("All time") }}</option>
+        <option value="today" {% if filters.date_range == 'today' %}selected{% endif %}>{{ _("Today") }}</option>
+        <option value="last_7_days" {% if filters.date_range == 'last_7_days' %}selected{% endif %}>{{ _("Last 7 days") }}</option>
+        <option value="last_30_days" {% if filters.date_range == 'last_30_days' %}selected{% endif %}>{{ _("Last 30 days") }}</option>
+        <option value="this_month" {% if filters.date_range == 'this_month' %}selected{% endif %}>{{ _("This month") }}</option>
       </select>
-      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Apply</button>
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Apply") }}</button>
     </div>
   </form>
 
-  {# ── KPI Tiles ── #}
+  {# -- KPI Tiles -- #}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    {{ stat_card('Low Stock Items', inventory.low_stock_parts|length, 'Below threshold', 'rose') }}
-    {{ stat_card('Pending Orders', inventory.pending_orders, 'Ordered/shipped/partial', 'amber') }}
-    {{ stat_card('Parts Reserved', inventory.reserved_count, 'Active reservations', 'indigo') }}
-    {{ stat_card('Parts Consumed', inventory.consumed_count, 'Installed on tickets', 'emerald') }}
+    {{ stat_card(_('Low Stock Items'), inventory.low_stock_parts|length, _('Below threshold'), 'rose') }}
+    {{ stat_card(_('Pending Orders'), inventory.pending_orders, _('Ordered/shipped/partial'), 'amber') }}
+    {{ stat_card(_('Parts Reserved'), inventory.reserved_count, _('Active reservations'), 'indigo') }}
+    {{ stat_card(_('Parts Consumed'), inventory.consumed_count, _('Installed on tickets'), 'emerald') }}
   </div>
 
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-    {# ── Most Used Parts ── #}
+    {# -- Most Used Parts -- #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Most-Used Parts</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Most-Used Parts") }}</h2>
       <div class="space-y-2">
         {% for item in inventory.most_used %}
         <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 flex items-center justify-between">
@@ -49,41 +49,41 @@
           <span class="text-sm font-semibold text-white shrink-0 ml-2">{{ '%.0f'|format(item.quantity) }}</span>
         </div>
         {% else %}
-        {{ empty_state('No part usage data', 'No reservations recorded for the selected period.') }}
+        {{ empty_state(_('No part usage data'), _('No reservations recorded for the selected period.')) }}
         {% endfor %}
       </div>
     </div>
 
-    {# ── Low Stock Parts ── #}
+    {# -- Low Stock Parts -- #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Low Stock Alert</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Low Stock Alert") }}</h2>
       <div class="space-y-2">
         {% for item in inventory.low_stock_parts %}
         <div class="rounded-xl border border-rose-800/30 bg-rose-950/10 p-3 flex items-center justify-between">
           <div class="min-w-0">
             <p class="text-sm text-slate-300 truncate">{{ item.name }}</p>
-            <p class="text-[10px] text-slate-500">{{ item.sku }} &middot; Threshold: {{ item.threshold }}</p>
+            <p class="text-[10px] text-slate-500">{{ item.sku }} &middot; {{ _("Threshold:") }} {{ item.threshold }}</p>
           </div>
           <span class="text-sm font-bold text-rose-300 shrink-0 ml-2">{{ '%.0f'|format(item.on_hand) }}</span>
         </div>
         {% else %}
-        {{ empty_state('All stocked', 'No parts below their low-stock threshold.') }}
+        {{ empty_state(_('All stocked'), _('No parts below their low-stock threshold.')) }}
         {% endfor %}
       </div>
     </div>
   </div>
 
-  {# ── Parts Awaiting Arrival ── #}
+  {# -- Parts Awaiting Arrival -- #}
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Parts Awaiting Arrival</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Parts Awaiting Arrival") }}</h2>
     <div class="space-y-2">
       {% for order in awaiting_arrival %}
       <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="block rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 hover:bg-slate-800/60 hover:border-slate-700 transition-colors text-sm text-slate-300">
-        <div>{{ order.reference or order.id }} · {{ order.supplier.name if order.supplier else '—' }} · {{ order.status|replace('_',' ')|title }} · ETA {{ order.estimated_arrival_at.strftime('%Y-%m-%d') if order.estimated_arrival_at else '—' }}</div>
-        {% if order.ticket %}<div class="mt-1 text-xs text-slate-500">Ticket {{ order.ticket.ticket_number }} · {{ order.ticket.customer.full_name }} · {{ order.ticket.device.brand }} {{ order.ticket.device.model }}</div>{% endif %}
+        <div>{{ order.reference or order.id }} · {{ order.supplier.name if order.supplier else '—' }} · {{ order.status|replace('_',' ')|title }} · {{ _("ETA") }} {{ order.estimated_arrival_at.strftime('%Y-%m-%d') if order.estimated_arrival_at else '—' }}</div>
+        {% if order.ticket %}<div class="mt-1 text-xs text-slate-500">{{ _("Ticket") }} {{ order.ticket.ticket_number }} · {{ order.ticket.customer.full_name }} · {{ order.ticket.device.brand }} {{ order.ticket.device.model }}</div>{% endif %}
       </a>
       {% else %}
-      {{ empty_state('No pending orders', 'All part orders have been received.') }}
+      {{ empty_state(_('No pending orders'), _('All part orders have been received.')) }}
       {% endfor %}
     </div>
   </div>

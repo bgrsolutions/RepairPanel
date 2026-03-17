@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Quotes - IRONCore{% endblock %}
+{% block title %}{{ _("Quotes") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <h1 class="text-2xl font-bold tracking-tight text-white">Quotes</h1>
-      <p class="mt-1 text-sm text-slate-400">All quotes across tickets and standalone enquiries</p>
+      <h1 class="text-2xl font-bold tracking-tight text-white">{{ _("Quotes") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("All quotes across tickets and standalone enquiries") }}</p>
     </div>
     <a href="{{ url_for('quotes.new_standalone_quote') }}" class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">
       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-      New Standalone Quote
+      {{ _("New Standalone Quote") }}
     </a>
   </div>
 
@@ -19,12 +19,12 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-slate-800/60 bg-slate-900/80 text-left text-xs uppercase tracking-wider text-slate-400">
-            <th class="px-5 py-3.5">Quote</th>
-            <th class="px-5 py-3.5">Customer</th>
-            <th class="px-5 py-3.5">Device</th>
-            <th class="px-5 py-3.5">Ticket</th>
-            <th class="px-5 py-3.5">Status</th>
-            <th class="px-5 py-3.5">Created</th>
+            <th class="px-5 py-3.5">{{ _("Quote") }}</th>
+            <th class="px-5 py-3.5">{{ _("Customer") }}</th>
+            <th class="px-5 py-3.5">{{ _("Device") }}</th>
+            <th class="px-5 py-3.5">{{ _("Ticket") }}</th>
+            <th class="px-5 py-3.5">{{ _("Status") }}</th>
+            <th class="px-5 py-3.5">{{ _("Created") }}</th>
             <th class="px-5 py-3.5"></th>
           </tr>
         </thead>
@@ -40,7 +40,7 @@
               {% if quote.ticket %}
               <a href="{{ url_for('tickets.ticket_detail', ticket_id=quote.ticket_id) }}" class="text-indigo-400 hover:text-indigo-300">{{ quote.ticket.ticket_number }}</a>
               {% else %}
-              <span class="rounded-full border border-amber-700/40 bg-amber-950/30 px-2 py-0.5 text-[10px] font-medium text-amber-300">Standalone</span>
+              <span class="rounded-full border border-amber-700/40 bg-amber-950/30 px-2 py-0.5 text-[10px] font-medium text-amber-300">{{ _("Standalone") }}</span>
               {% endif %}
             </td>
             <td class="px-5 py-3.5">
@@ -55,7 +55,7 @@
             </td>
             <td class="px-5 py-3.5 text-slate-500 tabular-nums">{{ quote.created_at.strftime('%Y-%m-%d') }}</td>
             <td class="px-5 py-3.5 text-right">
-              <a href="{{ url_for('quotes.quote_detail', quote_id=quote.id) }}" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors">View</a>
+              <a href="{{ url_for('quotes.quote_detail', quote_id=quote.id) }}" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors">{{ _("View") }}</a>
             </td>
           </tr>
           {% endfor %}
@@ -64,7 +64,7 @@
     </div>
     {% else %}
     <div class="p-10 text-center">
-      <p class="text-sm text-slate-500">No quotes yet</p>
+      <p class="text-sm text-slate-500">{{ _("No quotes yet") }}</p>
     </div>
     {% endif %}
   </div>

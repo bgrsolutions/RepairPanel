@@ -88,7 +88,7 @@
       {% if ticket.assigned_technician %}
         {{ ticket.assigned_technician.full_name }}
       {% else %}
-        <span class="text-slate-600">Unassigned</span>
+        <span class="text-slate-600">{{ _("Unassigned") }}</span>
       {% endif %}
     </div>
   </article>

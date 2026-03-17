@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Fast Check-In - IRONCore{% endblock %}
+{% block title %}{{ _("Fast Check-In - IRONCore") }}{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Fast Check-In</p>
-      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Device Check-In &amp; Intake</h1>
-      <p class="mt-1 text-sm text-slate-400">Search customer, select device, pick service, and check in.</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">{{ _("Fast Check-In") }}</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ _("Device Check-In &amp; Intake") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Search customer, select device, pick service, and check in.") }}</p>
     </div>
-    <a href="{{ url_for('tickets.list_tickets') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">Back to Tickets</a>
+    <a href="{{ url_for('tickets.list_tickets') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">{{ _("Back to Tickets") }}</a>
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -17,15 +17,15 @@
 
       {# Step 1: Branch + Customer #}
       <div class="space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">1. Branch &amp; Customer</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ _("1. Branch &amp; Customer") }}</h2>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.branch_id.label }}</label>
             {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', id='branch-select') }}
           </div>
           <div class="relative">
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Find Customer</label>
-            <input id="customer-search" type="text" autocomplete="off" placeholder="Type name, phone, or email…" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Find Customer") }}</label>
+            <input id="customer-search" type="text" autocomplete="off" placeholder="{{ _("Type name, phone, or email…") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
             <div id="customer-results" class="absolute z-20 mt-1 w-full rounded-xl border border-slate-700 bg-slate-800 shadow-lg max-h-48 overflow-y-auto hidden"></div>
             {{ form.customer_id(type='hidden', id='customer-id-field') }}
           </div>
@@ -33,77 +33,77 @@
         <div id="customer-card" class="hidden rounded-xl border border-indigo-800/60 bg-indigo-950/20 px-4 py-3">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Selected Customer</span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">{{ _("Selected Customer") }}</span>
               <p id="customer-card-name" class="mt-0.5 text-sm font-medium text-white"></p>
               <p id="customer-card-contact" class="text-xs text-slate-400"></p>
             </div>
-            <button type="button" id="clear-customer" class="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-400 hover:bg-slate-700 hover:text-white transition-colors">Change</button>
+            <button type="button" id="clear-customer" class="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-400 hover:bg-slate-700 hover:text-white transition-colors">{{ _("Change") }}</button>
           </div>
         </div>
       </div>
 
       {# Step 2: Device #}
       <div class="space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">2. Device</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ _("2. Device") }}</h2>
         <div id="device-section">
           <div class="flex items-end gap-2">
             <div class="flex-1">
               <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_id.label }}</label>
               {{ form.device_id(id='device-select', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
             </div>
-            <button type="button" id="new-device-btn" class="hidden shrink-0 rounded-xl border border-indigo-700/50 bg-indigo-950/30 px-3 py-2.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-900/40 transition-colors">+ New Device</button>
+            <button type="button" id="new-device-btn" class="hidden shrink-0 rounded-xl border border-indigo-700/50 bg-indigo-950/30 px-3 py-2.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-900/40 transition-colors">{{ _("+ New Device") }}</button>
           </div>
-          <p id="no-customer-hint" class="mt-1.5 text-xs text-slate-500">Select a customer first to see their devices.</p>
+          <p id="no-customer-hint" class="mt-1.5 text-xs text-slate-500">{{ _("Select a customer first to see their devices.") }}</p>
           {# Inline device search #}
           <div id="device-search-wrap" class="hidden mt-2 relative">
-            <input id="device-search" type="text" autocomplete="off" placeholder="Search devices by brand, model, serial, or IMEI..." class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+            <input id="device-search" type="text" autocomplete="off" placeholder="{{ _("Search devices by brand, model, serial, or IMEI...") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
             <div id="device-results" class="absolute z-20 mt-1 w-full rounded-xl border border-slate-700 bg-slate-800 shadow-lg max-h-48 overflow-y-auto hidden"></div>
           </div>
         </div>
         {# Inline new device form #}
         <div id="new-device-form" class="hidden rounded-xl border border-indigo-800/40 bg-indigo-950/10 p-4 space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Quick Add Device</span>
-            <button type="button" id="cancel-new-device" class="text-xs text-slate-500 hover:text-slate-300">Cancel</button>
+            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">{{ _("Quick Add Device") }}</span>
+            <button type="button" id="cancel-new-device" class="text-xs text-slate-500 hover:text-slate-300">{{ _("Cancel") }}</button>
           </div>
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-400">Category</label>
+              <label class="mb-1 block text-xs font-medium text-slate-400">{{ _("Category") }}</label>
               <select id="new-dev-category" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
-                <option value="phones">Phones</option>
-                <option value="tablets">Tablets</option>
-                <option value="laptops">Laptops</option>
-                <option value="desktops">Desktops</option>
-                <option value="consoles">Consoles</option>
-                <option value="wearables">Wearables</option>
-                <option value="other">Other</option>
+                <option value="phones">{{ _("Phones") }}</option>
+                <option value="tablets">{{ _("Tablets") }}</option>
+                <option value="laptops">{{ _("Laptops") }}</option>
+                <option value="desktops">{{ _("Desktops") }}</option>
+                <option value="consoles">{{ _("Consoles") }}</option>
+                <option value="wearables">{{ _("Wearables") }}</option>
+                <option value="other">{{ _("Other") }}</option>
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-400">Brand *</label>
-              <input id="new-dev-brand" type="text" placeholder="e.g. Apple, Samsung" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+              <label class="mb-1 block text-xs font-medium text-slate-400">{{ _("Brand *") }}</label>
+              <input id="new-dev-brand" type="text" placeholder="{{ _("e.g. Apple, Samsung") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-400">Model *</label>
-              <input id="new-dev-model" type="text" placeholder="e.g. iPhone 14 Pro" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+              <label class="mb-1 block text-xs font-medium text-slate-400">{{ _("Model *") }}</label>
+              <input id="new-dev-model" type="text" placeholder="{{ _("e.g. iPhone 14 Pro") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-400">Serial Number</label>
-              <input id="new-dev-serial" type="text" placeholder="Optional" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+              <label class="mb-1 block text-xs font-medium text-slate-400">{{ _("Serial Number") }}</label>
+              <input id="new-dev-serial" type="text" placeholder="{{ _("Optional") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-400">IMEI</label>
-              <input id="new-dev-imei" type="text" placeholder="Optional" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
+              <label class="mb-1 block text-xs font-medium text-slate-400">{{ _("IMEI") }}</label>
+              <input id="new-dev-imei" type="text" placeholder="{{ _("Optional") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500" />
             </div>
           </div>
-          <button type="button" id="save-new-device" class="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">Add Device</button>
+          <button type="button" id="save-new-device" class="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Add Device") }}</button>
           <p id="new-device-error" class="hidden text-xs text-rose-400"></p>
         </div>
       </div>
 
       {# Step 3: Repair Service + Issue #}
       <div class="space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">3. Service &amp; Issue</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ _("3. Service &amp; Issue") }}</h2>
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.repair_service_id.label }}</label>
           {{ form.repair_service_id(id='service-select', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
@@ -112,7 +112,7 @@
         {# Part availability panel (populated via JS) #}
         <div id="part-availability" class="hidden rounded-xl border border-slate-800/60 bg-slate-800/30 p-4 space-y-2">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">Part Availability</span>
+            <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Part Availability") }}</span>
             <span id="pa-part-name" class="text-xs text-slate-300"></span>
           </div>
           <div id="pa-badges" class="flex flex-wrap gap-2"></div>
@@ -132,7 +132,7 @@
 
       {# Step 4: Device Condition & Accessories #}
       <div class="space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">4. Condition &amp; Accessories</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ _("4. Condition &amp; Accessories") }}</h2>
         <div>
           {{ form.device_condition.label(class='mb-1.5 block text-sm font-medium text-slate-300') }}
           {{ form.device_condition(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder='Scratches, dents, screen cracks, water damage signs…') }}
@@ -149,58 +149,58 @@
 
       {# Step 5: Estimated Completion #}
       <div class="space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">5. Promised Completion</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ _("5. Promised Completion") }}</h2>
         <div>
           <div class="mb-2 flex flex-wrap gap-2">
-            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="0">Today</button>
-            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="1">Tomorrow</button>
-            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="3">3 Days</button>
-            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="7">1 Week</button>
-            <button type="button" id="eta-clear" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-700 hover:text-slate-300 transition-colors">Clear</button>
+            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="0">{{ _("Today") }}</button>
+            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="1">{{ _("Tomorrow") }}</button>
+            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="3">{{ _("3 Days") }}</button>
+            <button type="button" class="eta-preset rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors" data-days="7">{{ _("1 Week") }}</button>
+            <button type="button" id="eta-clear" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-700 hover:text-slate-300 transition-colors">{{ _("Clear") }}</button>
           </div>
           {# ETA suggestion from service #}
           <div id="eta-suggestion" class="hidden mb-2 rounded-lg border border-indigo-800/40 bg-indigo-950/20 px-3 py-2 text-xs">
-            <span class="text-indigo-400">Suggested:</span>
+            <span class="text-indigo-400">{{ _("Suggested:") }}</span>
             <span id="eta-suggestion-text" class="text-indigo-300 font-medium ml-1"></span>
-            <button type="button" id="eta-use-suggestion" class="ml-2 text-indigo-400 hover:text-indigo-200 underline">Use this</button>
+            <button type="button" id="eta-use-suggestion" class="ml-2 text-indigo-400 hover:text-indigo-200 underline">{{ _("Use this") }}</button>
           </div>
           {{ form.quoted_completion_at(id='eta-input', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
-          <p class="mt-1 text-xs text-slate-500">Or pick a custom date/time above.</p>
+          <p class="mt-1 text-xs text-slate-500">{{ _("Or pick a custom date/time above.") }}</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3 pt-2">
         {{ form.submit(class='inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors') }}
-        <a href="{{ url_for('tickets.list_tickets') }}" class="text-sm text-slate-400 hover:text-slate-300 transition-colors">Cancel</a>
+        <a href="{{ url_for('tickets.list_tickets') }}" class="text-sm text-slate-400 hover:text-slate-300 transition-colors">{{ _("Cancel") }}</a>
       </div>
     </form>
 
     <aside class="space-y-6">
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-lg font-semibold text-white">Fast Check-In Guide</h2>
-        <p class="mt-1 text-sm text-slate-400">Follow these steps for a fast device intake.</p>
+        <h2 class="text-lg font-semibold text-white">{{ _("Fast Check-In Guide") }}</h2>
+        <p class="mt-1 text-sm text-slate-400">{{ _("Follow these steps for a fast device intake.") }}</p>
         <ul class="mt-4 space-y-3 text-sm text-slate-400">
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">1</span><span>Search and select customer.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>Confirm customer device.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>Select repair service — see part stock instantly.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">4</span><span>Note device condition and accessories.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">5</span><span>Review suggested ETA or set custom promise.</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">1</span><span>{{ _("Search and select customer.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>{{ _("Confirm customer device.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>{{ _("Select repair service — see part stock instantly.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">4</span><span>{{ _("Note device condition and accessories.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">5</span><span>{{ _("Review suggested ETA or set custom promise.") }}</span></li>
         </ul>
       </div>
 
       {# Service info card (populated by JS) #}
       <div id="service-info" class="hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Service Summary</h3>
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Service Summary") }}</h3>
         <dl class="mt-3 space-y-2 text-sm">
-          <div class="flex justify-between"><dt class="text-slate-400">Labour</dt><dd id="si-labour" class="text-white font-medium">—</dd></div>
-          <div class="flex justify-between"><dt class="text-slate-400">Price</dt><dd id="si-price" class="text-white font-medium">—</dd></div>
+          <div class="flex justify-between"><dt class="text-slate-400">{{ _("Labour") }}</dt><dd id="si-labour" class="text-white font-medium">—</dd></div>
+          <div class="flex justify-between"><dt class="text-slate-400">{{ _("Price") }}</dt><dd id="si-price" class="text-white font-medium">—</dd></div>
         </dl>
       </div>
 
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="text-sm font-semibold text-slate-400">Need full intake?</h3>
-        <p class="mt-1 text-xs text-slate-500">For new customers, new devices, or detailed diagnostics use the full intake form.</p>
-        <a href="{{ url_for('intake.new_intake') }}" class="mt-2 inline-block text-xs text-indigo-400 hover:text-indigo-300">Go to Full Intake</a>
+        <h3 class="text-sm font-semibold text-slate-400">{{ _("Need full intake?") }}</h3>
+        <p class="mt-1 text-xs text-slate-500">{{ _("For new customers, new devices, or detailed diagnostics use the full intake form.") }}</p>
+        <a href="{{ url_for('intake.new_intake') }}" class="mt-2 inline-block text-xs text-indigo-400 hover:text-indigo-300">{{ _("Go to Full Intake") }}</a>
       </div>
     </aside>
   </div>

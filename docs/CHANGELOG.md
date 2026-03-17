@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.16.0] - 2026-03-17
+### Added — Phase 15: Internationalization, Spanish Translation & Customer Language Preferences
+- **Full Staff UI Translation (15.1)**: All 68 Jinja2 templates wrapped with `{{ _("...") }}` for i18n. Covers navigation, page titles, headings, buttons, empty states, flash messages, dashboard labels, ticket/quote/inventory/settings text.
+- **Public Portal Localization (15.2)**: Public repair status page, quote approval page, check-in form, and thank-you page fully localized with `{{ _("...") }}`. Language switcher available on public pages.
+- **Customer Communication Template Localization (15.3)**: `customer_communication_service.py` refactored to resolve message templates via Flask-Babel gettext at render time. Supports `language` parameter to force a specific locale for outbound messages using `force_locale()`.
+- **Customer Language Preference (15.4)**: Customer model already had `preferred_language` field (String(5), default="en"). No schema migration needed. Communication generation now passes customer language to `force_locale()`.
+- **Locale Selection Behavior (15.5)**: Staff UI follows session → user preference → browser Accept-Language → English fallback. Customer messages use customer's `preferred_language` via `force_locale()`. Public portal uses session-based language switcher.
+- **Form Localization (15.6)**: All 16 WTForms form files updated with `lazy_gettext` for labels, choices, and submit buttons. Validation messages wrapped with `_()` in route handlers.
+- **Translation Catalog (15.7)**: Complete `es/LC_MESSAGES/messages.po` with 450+ Spanish translations. Proper catalog structure with `.po`/`.mo` files for `en` and `es`. Updated `app/translations/README.md` with maintenance instructions.
+- **Safe Fallbacks (15.8)**: Flask-Babel returns source English string when translation is missing. `customer_status_service.py` uses function-based lookups to resolve labels in active locale.
+- **Customer Status Service Localization**: `customer_status_service.py` refactored to use `gettext`/`lazy_gettext` for all customer-facing status labels, progress steps, communication messages, and timeline event labels.
+
+### Changed
+- `app/services/customer_communication_service.py` — templates now built dynamically via `_build_templates()` for locale resolution
+- `app/services/customer_status_service.py` — static dicts replaced with function-based lookups for locale-aware rendering
+- `app/blueprints/public_portal/routes.py` — uses `progress_steps()` function instead of module-level `PROGRESS_STEPS` constant
+
 ## [0.15.0] - 2026-03-16
 ### Added
 - **Reporting Service Layer (14.1)**: Centralized `app/services/reporting_service.py` with query/aggregation functions for all management reporting: `management_overview()`, `technician_workload()`, `ticket_throughput()`, `quote_report()`, `inventory_report()`, `communication_report()`, and filter helpers.

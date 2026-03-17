@@ -1,25 +1,25 @@
 {% extends 'base.html' %}
-{% block title %}New Category - IRONCore{% endblock %}
+{% block title %}{{ _("New Category") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Create Category</h1>
-    <p class="mt-1 text-sm text-slate-400">Add a new part category to organize your inventory.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Create Category") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Add a new part category to organize your inventory.") }}</p>
   </div>
 
   <form method="post" class="max-w-xl space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     {{ form.hidden_tag() }}
     <div>
-      <label class="mb-1.5 block text-sm font-medium text-slate-300">Name</label>
-      {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder='Category name') }}
+      <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Name") }}</label>
+      {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder=_('Category name')) }}
     </div>
     <div>
-      <label class="mb-1.5 block text-sm font-medium text-slate-300">Code</label>
-      {{ form.code(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder='Code (optional)') }}
+      <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Code") }}</label>
+      {{ form.code(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder=_('Code (optional)')) }}
     </div>
     <div>
-      <label class="mb-1.5 block text-sm font-medium text-slate-300">Description</label>
-      {{ form.description(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', rows='3', placeholder='Description') }}
+      <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Description") }}</label>
+      {{ form.description(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', rows='3', placeholder=_('Description')) }}
     </div>
     <div>
       {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500') }}

@@ -5,25 +5,25 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Operations Command</p>
-      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Repair Desk Dashboard</h1>
-      <p class="mt-1 text-sm text-slate-400">Live queue health for reception and bench technicians.</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ _("Operations Command") }}</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ _("Repair Desk Dashboard") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Live queue health for reception and bench technicians.") }}</p>
     </div>
     <div class="flex flex-wrap gap-2">
-      {% if perms.can_create_ticket %}<a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Fast Check-In</a>{% endif %}
-      <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Open Bench Board</a>
-      <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">My Queue</a>
-      {% if perms.can_view_reports %}<a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Reports</a>{% endif %}
-      <a href="{{ url_for('integrations.export_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">Exports</a>
+      {% if perms.can_create_ticket %}<a href="{{ url_for('tickets.create_ticket') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">{{ _("Fast Check-In") }}</a>{% endif %}
+      <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Open Bench Board") }}</a>
+      <a href="{{ url_for('tickets.my_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("My Queue") }}</a>
+      {% if perms.can_view_reports %}<a href="{{ url_for('reports.kpi_dashboard') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Reports") }}</a>{% endif %}
+      <a href="{{ url_for('integrations.export_queue') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors">{{ _("Exports") }}</a>
     </div>
   </div>
 
   {# ── Primary Stats Row ── #}
   <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-    {{ stat_card('Total Open Tickets', stats.open_tickets, 'Current active repairs', 'indigo') }}
-    {{ stat_card('Overdue', stats.overdue_tickets, 'Past SLA target date', 'rose') }}
-    {{ stat_card('Ready for Collection', stats.ready_for_collection, 'Awaiting customer pickup', 'emerald') }}
-    {{ stat_card("Today's New", stats.new_today, 'Intakes registered today', 'indigo') }}
+    {{ stat_card(_('Total Open Tickets'), stats.open_tickets, _('Current active repairs'), 'indigo') }}
+    {{ stat_card(_('Overdue'), stats.overdue_tickets, _('Past SLA target date'), 'rose') }}
+    {{ stat_card(_('Ready for Collection'), stats.ready_for_collection, _('Awaiting customer pickup'), 'emerald') }}
+    {{ stat_card(_("Today's New"), stats.new_today, _('Intakes registered today'), 'indigo') }}
   </div>
 
   {# ── Workshop Metrics Row (Phase 8I) ── #}
@@ -31,27 +31,27 @@
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
     <div class="rounded-xl border border-amber-800/30 bg-amber-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-amber-300">{{ metrics.in_diagnosis }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">In Diagnosis</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("In Diagnosis") }}</p>
     </div>
     <div class="rounded-xl border border-violet-800/30 bg-violet-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-violet-300">{{ metrics.awaiting_quote }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Quote</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Awaiting Quote") }}</p>
     </div>
     <div class="rounded-xl border border-fuchsia-800/30 bg-fuchsia-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-fuchsia-300">{{ metrics.awaiting_parts }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awaiting Parts</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Awaiting Parts") }}</p>
     </div>
     <div class="rounded-xl border border-indigo-800/30 bg-indigo-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-indigo-300">{{ metrics.in_repair }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">In Repair</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("In Repair") }}</p>
     </div>
     <div class="rounded-xl border border-cyan-800/30 bg-cyan-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-cyan-300">{{ metrics.in_testing }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Testing / QA</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Testing / QA") }}</p>
     </div>
     <div class="rounded-xl border border-amber-800/30 bg-amber-950/10 p-3 text-center">
       <p class="text-2xl font-bold text-amber-300">{{ metrics.unassigned }}</p>
-      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Unassigned</p>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ _("Unassigned") }}</p>
     </div>
   </div>
   {% endif %}
@@ -61,20 +61,20 @@
       {# ── Recent Tickets ── #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Tickets</h2>
-          <a href="{{ url_for('tickets.list_tickets') }}" class="text-xs text-indigo-300 hover:text-indigo-200">View all</a>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Recent Tickets") }}</h2>
+          <a href="{{ url_for('tickets.list_tickets') }}" class="text-xs text-indigo-300 hover:text-indigo-200">{{ _("View all") }}</a>
         </div>
         {% if recent_tickets %}
         <div class="overflow-x-auto">
           <table class="min-w-full text-left text-sm text-slate-200">
             <thead class="border-b border-slate-700/50 text-xs uppercase tracking-wider text-slate-400">
               <tr>
-                <th class="px-3 py-2.5">Ticket</th>
-                <th class="px-3 py-2.5">Customer</th>
-                <th class="px-3 py-2.5">Device</th>
-                <th class="px-3 py-2.5">Status</th>
-                <th class="px-3 py-2.5">Priority</th>
-                <th class="px-3 py-2.5">Created</th>
+                <th class="px-3 py-2.5">{{ _("Ticket") }}</th>
+                <th class="px-3 py-2.5">{{ _("Customer") }}</th>
+                <th class="px-3 py-2.5">{{ _("Device") }}</th>
+                <th class="px-3 py-2.5">{{ _("Status") }}</th>
+                <th class="px-3 py-2.5">{{ _("Priority") }}</th>
+                <th class="px-3 py-2.5">{{ _("Created") }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/60">
@@ -92,7 +92,7 @@
           </table>
         </div>
         {% else %}
-          {{ empty_state('No recent tickets yet', 'Create a new intake to start operations') }}
+          {{ empty_state(_('No recent tickets yet'), _('Create a new intake to start operations')) }}
         {% endif %}
       </div>
 
@@ -101,10 +101,10 @@
       <div class="rounded-2xl border border-rose-800/40 bg-rose-950/10 p-5 shadow-panel">
         <div class="mb-3 flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-rose-300">Overdue Tickets</h2>
-            <p class="text-[10px] text-slate-500">{{ overdue_tickets|length }} ticket{{ 's' if overdue_tickets|length != 1 }} past SLA target</p>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-rose-300">{{ _("Overdue Tickets") }}</h2>
+            <p class="text-[10px] text-slate-500">{{ _("%(count)s tickets past SLA target", count=overdue_tickets|length) }}</p>
           </div>
-          <a href="{{ url_for('tickets.repair_board', only_overdue='1') }}" class="text-xs text-rose-300 hover:text-rose-200">View on Board</a>
+          <a href="{{ url_for('tickets.repair_board', only_overdue='1') }}" class="text-xs text-rose-300 hover:text-rose-200">{{ _("View on Board") }}</a>
         </div>
         <div class="space-y-2">
           {% for ticket in overdue_tickets[:6] %}
@@ -115,7 +115,7 @@
             </div>
             <div class="flex items-center gap-2 shrink-0">
               {{ status_badge(ticket.internal_status) }}
-              <span class="rounded-full bg-rose-950/60 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-300">OVERDUE</span>
+              <span class="rounded-full bg-rose-950/60 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-300">{{ _("OVERDUE") }}</span>
             </div>
           </a>
           {% endfor %}
@@ -128,20 +128,20 @@
       <div class="rounded-2xl border border-emerald-800/40 bg-emerald-950/10 p-5 shadow-panel" id="approved-quotes-card">
         <div class="mb-3 flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-300">Recently Approved Quotes</h2>
-            <p class="text-[10px] text-slate-500">{{ recently_approved_quotes|length }} quote{{ 's' if recently_approved_quotes|length != 1 }} approved in the last 7 days</p>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-300">{{ _("Recently Approved Quotes") }}</h2>
+            <p class="text-[10px] text-slate-500">{{ _("%(count)s quotes approved in the last 7 days", count=recently_approved_quotes|length) }}</p>
           </div>
-          <a href="{{ url_for('quotes.list_quotes') }}" class="text-xs text-emerald-300 hover:text-emerald-200">View all quotes</a>
+          <a href="{{ url_for('quotes.list_quotes') }}" class="text-xs text-emerald-300 hover:text-emerald-200">{{ _("View all quotes") }}</a>
         </div>
         <div class="space-y-2">
           {% for quote in recently_approved_quotes[:5] %}
           <a href="{{ url_for('tickets.ticket_detail', ticket_id=quote.ticket_id) if quote.ticket_id else url_for('quotes.quote_detail', quote_id=quote.id) }}" class="flex items-center justify-between rounded-xl border border-emerald-800/30 bg-slate-900/60 p-3 hover:border-emerald-700/40 transition-colors">
             <div class="min-w-0">
-              <p class="text-sm font-semibold text-white">v{{ quote.version }} — {{ quote.ticket.ticket_number if quote.ticket else 'No ticket' }}</p>
-              <p class="text-xs text-slate-400 truncate">{{ quote.ticket.customer.display_name if quote.ticket and quote.ticket.customer else 'Unknown' }} · {{ quote.currency }} {{ '%.2f'|format(quote.total_amount or 0) }}</p>
+              <p class="text-sm font-semibold text-white">v{{ quote.version }} — {{ quote.ticket.ticket_number if quote.ticket else _('No ticket') }}</p>
+              <p class="text-xs text-slate-400 truncate">{{ quote.ticket.customer.display_name if quote.ticket and quote.ticket.customer else _('Unknown') }} · {{ quote.currency }} {{ '%.2f'|format(quote.total_amount or 0) }}</p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <span class="rounded-full bg-emerald-950/60 border border-emerald-700/40 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300">Approved</span>
+              <span class="rounded-full bg-emerald-950/60 border border-emerald-700/40 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-300">{{ _("Approved") }}</span>
               {% if quote.updated_at %}<span class="text-[10px] text-slate-500">{{ quote.updated_at.strftime('%b %d') }}</span>{% endif %}
             </div>
           </a>
@@ -154,8 +154,8 @@
     <section class="space-y-5">
       {# ── Tickets Need Attention (Phase 8G improved) ── #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Tickets Need Attention</h2>
-        <p class="mt-0.5 text-[10px] text-slate-500">Blocked, overdue, or stalled tickets requiring action</p>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Tickets Need Attention") }}</h2>
+        <p class="mt-0.5 text-[10px] text-slate-500">{{ _("Blocked, overdue, or stalled tickets requiring action") }}</p>
         <div class="mt-3 space-y-2">
           {% if attention_tickets %}
             {% for item in attention_tickets %}
@@ -175,7 +175,7 @@
               </a>
             {% endfor %}
           {% else %}
-            {{ empty_state('All clear', 'No overdue or blocked tickets right now') }}
+            {{ empty_state(_('All clear'), _('No overdue or blocked tickets right now')) }}
           {% endif %}
         </div>
       </div>
@@ -183,8 +183,8 @@
       {% if todays_bookings is defined %}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Today's Bookings</h2>
-          <a href="{{ url_for('bookings.list_bookings') }}" class="text-xs text-indigo-300 hover:text-indigo-200">View all</a>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Today's Bookings") }}</h2>
+          <a href="{{ url_for('bookings.list_bookings') }}" class="text-xs text-indigo-300 hover:text-indigo-200">{{ _("View all") }}</a>
         </div>
         {% if todays_bookings %}
         <div class="space-y-2">
@@ -207,14 +207,14 @@
           {% endfor %}
         </div>
         {% else %}
-          {{ empty_state('No bookings today', 'Schedule bookings from the Bookings page') }}
+          {{ empty_state(_('No bookings today'), _('Schedule bookings from the Bookings page')) }}
         {% endif %}
       </div>
       {% endif %}
 
       {# ── Recent Activity (Phase 8G improved) ── #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Recent Activity</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Recent Activity") }}</h2>
         {% if activity_items %}
         <ul class="mt-3 space-y-2 text-sm">
           {% for item in activity_items %}
@@ -244,7 +244,7 @@
           {% endfor %}
         </ul>
         {% else %}
-          {{ empty_state('No recent activity', 'Operational events will appear here as tickets are updated') }}
+          {{ empty_state(_('No recent activity'), _('Operational events will appear here as tickets are updated')) }}
         {% endif %}
       </div>
     </section>

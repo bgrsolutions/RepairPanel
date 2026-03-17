@@ -1,53 +1,53 @@
 {% extends 'base.html' %}
-{% block title %}{{ 'Edit Service' if editing else 'New Service' }} - IRONCore{% endblock %}
+{% block title %}{{ _('Edit Service') if editing else _('New Service') }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6 max-w-2xl">
   <div>
-    <h1 class="text-2xl font-semibold text-white">{{ 'Edit Service' if editing else 'New Repair Service' }}</h1>
-    <p class="mt-1 text-sm text-slate-400">{{ 'Update service details.' if editing else 'Add a repair service to the catalogue.' }}</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _('Edit Service') if editing else _('New Repair Service') }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _('Update service details.') if editing else _('Add a repair service to the catalogue.') }}</p>
   </div>
 
   <form method="post" class="space-y-6">
     {{ form.hidden_tag() }}
 
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Service Details</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Service Details") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">Service Name <span class="text-red-400">*</span></label>
-          {{ form.name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder="e.g. iPhone 13 Screen Repair") }}
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Service Name") }} <span class="text-red-400">*</span></label>
+          {{ form.name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder=_("e.g. iPhone 13 Screen Repair")) }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Device Category</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Device Category") }}</label>
           {{ form.device_category(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Default Part</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Default Part") }}</label>
           {{ form.default_part_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
-          <p class="text-xs text-slate-500 mt-1">Part automatically linked to this service for stock checks.</p>
+          <p class="text-xs text-slate-500 mt-1">{{ _("Part automatically linked to this service for stock checks.") }}</p>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Labour Time (minutes)</label>
-          {{ form.labour_minutes(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder="e.g. 45") }}
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Labour Time (minutes)") }}</label>
+          {{ form.labour_minutes(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder=_("e.g. 45")) }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Suggested Sale Price</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Suggested Sale Price") }}</label>
           {{ form.suggested_sale_price(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder="0.00") }}
         </div>
         <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">Description</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Description") }}</label>
           {{ form.description(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
         </div>
         <div class="flex items-center gap-2">
           {{ form.is_active(class="rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500") }}
-          <label class="text-sm text-slate-300">Active</label>
+          <label class="text-sm text-slate-300">{{ _("Active") }}</label>
         </div>
       </div>
     </div>
 
     <div class="flex gap-3">
       {{ form.submit(class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors cursor-pointer") }}
-      <a href="{{ url_for('services.list_services') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Cancel</a>
+      <a href="{{ url_for('services.list_services') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Cancel") }}</a>
     </div>
   </form>
 </section>

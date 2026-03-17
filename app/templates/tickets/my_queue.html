@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% from 'components/ui_macros.html' import status_badge, priority_badge, empty_state %}
-{% block title %}My Queue - IRONCore{% endblock %}
+{% block title %}{{ _("My Queue - IRONCore") }}{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Technician Workspace</p>
-      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">My Assigned Queue</h1>
-      <p class="mt-1 text-sm text-slate-400">Assigned tickets, with overdue and parts blockers surfaced first.</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">{{ _("Technician Workspace") }}</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ _("My Assigned Queue") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Assigned tickets, with overdue and parts blockers surfaced first.") }}</p>
     </div>
-    <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">Open Bench Board</a>
+    <a href="{{ url_for('tickets.repair_board') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">{{ _("Open Bench Board") }}</a>
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -29,18 +29,18 @@
             {{ priority_badge(ticket.priority) }}
           </div>
           <p class="mt-1.5 text-xs text-slate-400">{{ ticket.customer.full_name }} · {{ ticket.device.brand }} {{ ticket.device.model }}</p>
-          <div class="mt-2.5 flex flex-wrap gap-2">{{ status_badge(ticket.internal_status) }}{% if is_ticket_overdue(ticket, now) %}<span class='inline-flex items-center gap-1 rounded-full border border-rose-700/40 bg-rose-600/20 px-2 py-0.5 text-[11px] font-medium text-rose-200'><span class="h-2 w-2 rounded-full bg-rose-400"></span>Overdue SLA</span>{% endif %}</div>
+          <div class="mt-2.5 flex flex-wrap gap-2">{{ status_badge(ticket.internal_status) }}{% if is_ticket_overdue(ticket, now) %}<span class='inline-flex items-center gap-1 rounded-full border border-rose-700/40 bg-rose-600/20 px-2 py-0.5 text-[11px] font-medium text-rose-200'><span class="h-2 w-2 rounded-full bg-rose-400"></span>{{ _("Overdue SLA") }}</span>{% endif %}</div>
           {% set eta = eta_by_ticket.get(ticket.id|string) %}
           {% if eta %}
             {% set eta_overdue = eta < now %}
-            <p class="mt-1.5 text-xs {% if eta_overdue %}font-medium text-rose-300{% else %}text-amber-300{% endif %}">Parts ETA: {{ eta.strftime('%Y-%m-%d %H:%M') }}{% if eta_overdue %} · ETA overdue{% endif %}</p>
+            <p class="mt-1.5 text-xs {% if eta_overdue %}font-medium text-rose-300{% else %}text-amber-300{% endif %}">{{ _("Parts ETA:") }} {{ eta.strftime('%Y-%m-%d %H:%M') }}{% if eta_overdue %} · {{ _("ETA overdue") }}{% endif %}</p>
           {% endif %}
         </a>
         {% endfor %}
       </div>
       {% else %}
         <div class="rounded-xl border border-dashed border-slate-800 p-6 text-center">
-          {{ empty_state('No assigned tickets', 'You currently have no tickets in this group.') }}
+          {{ empty_state(_('No assigned tickets'), _('You currently have no tickets in this group.')) }}
         </div>
       {% endif %}
     </section>

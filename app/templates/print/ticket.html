@@ -1,5 +1,5 @@
 {% extends 'print/base_print.html' %}
-{% block title %}Ticket {{ ticket.ticket_number }}{% endblock %}
+{% block title %}{{ _("Ticket") }} {{ ticket.ticket_number }}{% endblock %}
 {% block document %}
 
 {# Header #}
@@ -8,13 +8,13 @@
     <div class="company">{{ identity.company_name }}</div>
     {% if identity.cif_nif %}<div class="company-detail">CIF/NIF: {{ identity.cif_nif }}</div>{% endif %}
     {% if identity.address %}<div class="company-detail">{{ identity.address }}</div>{% endif %}
-    {% if identity.phone %}<div class="company-detail">Tel: {{ identity.phone }}</div>{% endif %}
+    {% if identity.phone %}<div class="company-detail">{{ _("Tel:") }} {{ identity.phone }}</div>{% endif %}
   </div>
   <div class="doc-ref">
     <div class="ref-number">{{ ticket.ticket_number }}</div>
-    <div class="ref-date">Received: {{ ticket.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
-    <div class="ref-date">Branch: {{ identity.branch_name }} ({{ identity.branch_code }})</div>
-    <div class="ref-date">Status: {{ ticket.internal_status|replace('_',' ')|title }}</div>
+    <div class="ref-date">{{ _("Received:") }} {{ ticket.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+    <div class="ref-date">{{ _("Branch:") }} {{ identity.branch_name }} ({{ identity.branch_code }})</div>
+    <div class="ref-date">{{ _("Status:") }} {{ ticket.internal_status|replace('_',' ')|title }}</div>
     {% if qr_data_uri %}
     <div class="qr-code" style="margin-top: 8px;">
       <img src="{{ qr_data_uri }}" alt="QR" />
@@ -27,42 +27,42 @@
 {# Customer + Device #}
 <div class="info-row">
   <div class="info-block">
-    <h3>Customer</h3>
+    <h3>{{ _("Customer") }}</h3>
     {% if customer_info.is_business %}
     <p class="value">{{ customer_info.company_name }}</p>
-    <p>Contact: {{ customer_info.name }}</p>
+    <p>{{ _("Contact:") }} {{ customer_info.name }}</p>
     {% if customer_info.cif_vat %}<p>CIF/VAT: {{ customer_info.cif_vat }}</p>{% endif %}
     {% else %}
     <p class="value">{{ customer_info.display_name }}</p>
     {% endif %}
-    {% if customer_info.phone %}<p>Tel: {{ customer_info.phone }}</p>{% endif %}
-    {% if customer_info.email %}<p>Email: {{ customer_info.email }}</p>{% endif %}
+    {% if customer_info.phone %}<p>{{ _("Tel:") }} {{ customer_info.phone }}</p>{% endif %}
+    {% if customer_info.email %}<p>{{ _("Email:") }} {{ customer_info.email }}</p>{% endif %}
   </div>
   <div class="info-block">
-    <h3>Device</h3>
+    <h3>{{ _("Device") }}</h3>
     <p class="value">{{ ticket.device.brand }} {{ ticket.device.model }}</p>
-    <p>Category: {{ ticket.device.category|replace('_',' ')|title }}</p>
-    {% if ticket.device.serial_number %}<p>Serial: {{ ticket.device.serial_number }}</p>{% endif %}
-    {% if ticket.device.imei %}<p>IMEI: {{ ticket.device.imei }}</p>{% endif %}
+    <p>{{ _("Category:") }} {{ ticket.device.category|replace('_',' ')|title }}</p>
+    {% if ticket.device.serial_number %}<p>{{ _("Serial:") }} {{ ticket.device.serial_number }}</p>{% endif %}
+    {% if ticket.device.imei %}<p>{{ _("IMEI:") }} {{ ticket.device.imei }}</p>{% endif %}
   </div>
 </div>
 
 {# Issue + Repair Details #}
 <div class="info-row">
   <div class="info-block" style="flex: 1;">
-    <h3>Issue Summary</h3>
-    <p>{{ ticket.issue_summary or 'Not specified' }}</p>
+    <h3>{{ _("Issue Summary") }}</h3>
+    <p>{{ ticket.issue_summary or _('Not specified') }}</p>
   </div>
 </div>
 
 {% if ticket.quoted_completion_at %}
 <div class="info-row">
   <div class="info-block">
-    <h3>Promised Completion</h3>
+    <h3>{{ _("Promised Completion") }}</h3>
     <p class="value">{{ ticket.quoted_completion_at.strftime('%d/%m/%Y %H:%M') }}</p>
   </div>
   <div class="info-block">
-    <h3>Priority</h3>
+    <h3>{{ _("Priority") }}</h3>
     <p class="value">{{ ticket.priority|title }}</p>
   </div>
 </div>
@@ -70,7 +70,7 @@
 
 {# Intake notes (accessories, condition, etc.) #}
 {% if intake_notes %}
-<p class="section-header">Intake Notes</p>
+<p class="section-header">{{ _("Intake Notes") }}</p>
 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin-bottom: 16px;">
   {% for note in intake_notes %}
   <p style="font-size: 10pt; margin-bottom: 4px;">{{ note.content }}</p>
@@ -80,19 +80,19 @@
 
 {# Diagnostics #}
 {% if latest_diagnosis %}
-<p class="section-header">Diagnostics</p>
+<p class="section-header">{{ _("Diagnostics") }}</p>
 <table class="doc-table">
-  <tr><td style="width:30%; font-weight:600;">Customer Reported Fault</td><td>{{ latest_diagnosis.customer_reported_fault or '—' }}</td></tr>
-  <tr><td style="font-weight:600;">Technician Diagnosis</td><td>{{ latest_diagnosis.technician_diagnosis or '—' }}</td></tr>
-  <tr><td style="font-weight:600;">Recommended Repair</td><td>{{ latest_diagnosis.recommended_repair or '—' }}</td></tr>
+  <tr><td style="width:30%; font-weight:600;">{{ _("Customer Reported Fault") }}</td><td>{{ latest_diagnosis.customer_reported_fault or '—' }}</td></tr>
+  <tr><td style="font-weight:600;">{{ _("Technician Diagnosis") }}</td><td>{{ latest_diagnosis.technician_diagnosis or '—' }}</td></tr>
+  <tr><td style="font-weight:600;">{{ _("Recommended Repair") }}</td><td>{{ latest_diagnosis.recommended_repair or '—' }}</td></tr>
 </table>
 {% endif %}
 
 {# Pre-Check Summary #}
 {% if pre_checks %}
-<p class="section-header">Pre-Repair Check</p>
+<p class="section-header">{{ _("Pre-Repair Check") }}</p>
 <table class="doc-table">
-  <thead><tr><th>Check</th><th class="text-center">Status</th><th>Notes</th></tr></thead>
+  <thead><tr><th>{{ _("Check") }}</th><th class="text-center">{{ _("Status") }}</th><th>{{ _("Notes") }}</th></tr></thead>
   <tbody>
     {% for item in pre_checks %}
     <tr>
@@ -108,7 +108,7 @@
 {# Terms #}
 {% if identity.repair_terms %}
 <div class="doc-terms">
-  <h3>Repair Terms & Conditions</h3>
+  <h3>{{ _("Repair Terms & Conditions") }}</h3>
   <p>{{ identity.repair_terms }}</p>
 </div>
 {% endif %}
@@ -116,12 +116,12 @@
 {# Signatures #}
 <div class="signature-block">
   <div class="signature-line">
-    <div class="sig-label">Customer Signature</div>
-    <div class="sig-line">I acknowledge leaving the above device for repair.</div>
+    <div class="sig-label">{{ _("Customer Signature") }}</div>
+    <div class="sig-line">{{ _("I acknowledge leaving the above device for repair.") }}</div>
   </div>
   <div class="signature-line">
-    <div class="sig-label">Received By</div>
-    <div class="sig-line">Staff: ______________________ Date: __________</div>
+    <div class="sig-label">{{ _("Received By") }}</div>
+    <div class="sig-line">{{ _("Staff:") }} ______________________ {{ _("Date:") }} __________</div>
   </div>
 </div>
 

@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}{{ 'Edit' if mode == 'edit' else 'New' }} Part Order - IRONCore{% endblock %}
+{% block title %}{{ _('Edit') if mode == 'edit' else _('New') }} {{ _("Part Order") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ 'Edit' if mode == 'edit' else 'New' }} Order</p>
-    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ 'Edit' if mode == 'edit' else 'Create' }} Part Order</h1>
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ _('Edit') if mode == 'edit' else _('New') }} {{ _("Order") }}</p>
+    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ _('Edit') if mode == 'edit' else _('Create') }} {{ _("Part Order") }}</h1>
   </div>
 
   <div class="max-w-6xl rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
@@ -12,8 +12,8 @@
       {{ form.hidden_tag() }}
       <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Search Ticket (optional)</label>
-          <input id="ticket-search" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="Ticket #, customer name, email" />
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Search Ticket (optional)") }}</label>
+          <input id="ticket-search" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="{{ _('Ticket #, customer name, email') }}" />
           <div id="ticket-results" class="mt-1 space-y-1"></div>
           {{ form.ticket_id(class='mt-2 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
         </div>
@@ -56,33 +56,33 @@
       </div>
 
       <div>
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Order Lines</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Order Lines") }}</h2>
         <div id="order-lines" class="mt-4 space-y-3">
           {% for line in form.lines %}
           <div class="order-line grid grid-cols-1 gap-3 md:grid-cols-6 rounded-xl border border-slate-800/60 bg-slate-800/40 p-4" data-index="{{ loop.index0 }}">
             <div>
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Part</label>
-              <input type="text" class="part-search w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="Search part..." />
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">{{ _("Part") }}</label>
+              <input type="text" class="part-search w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="{{ _('Search part...') }}" />
               {{ line.form.part_id(class='part-select mt-2 w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs') }}
             </div>
             <div>
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Description</label>
-              {{ line.form.description_override(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Override') }}
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">{{ _("Description") }}</label>
+              {{ line.form.description_override(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder=_('Override')) }}
             </div>
             <div>
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Qty</label>
-              {{ line.form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Qty') }}
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">{{ _("Qty") }}</label>
+              {{ line.form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder=_('Qty')) }}
             </div>
             <div>
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Unit Cost</label>
-              {{ line.form.unit_cost(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Cost') }}
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">{{ _("Unit Cost") }}</label>
+              {{ line.form.unit_cost(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder=_('Cost')) }}
             </div>
             <div>
-              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">Sale Price</label>
-              {{ line.form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder='Sale price') }}
+              <label class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-600">{{ _("Sale Price") }}</label>
+              {{ line.form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs', placeholder=_('Sale price')) }}
             </div>
             <div class="flex items-end">
-              <button type="button" class="remove-line w-full rounded-lg border border-rose-800/60 bg-rose-950/60 px-2.5 py-1.5 text-[11px] font-medium text-rose-200 hover:bg-rose-900/60 transition-colors">Remove</button>
+              <button type="button" class="remove-line w-full rounded-lg border border-rose-800/60 bg-rose-950/60 px-2.5 py-1.5 text-[11px] font-medium text-rose-200 hover:bg-rose-900/60 transition-colors">{{ _("Remove") }}</button>
             </div>
           </div>
           {% endfor %}
@@ -90,37 +90,37 @@
       </div>
 
       <div class="flex items-center gap-3 border-t border-slate-800/60 pt-5">
-        <button type="button" id="add-line" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">+ Add Line</button>
-        <button type="button" id="add-new-part-btn" class="rounded-xl border border-indigo-700/40 bg-indigo-950/20 px-4 py-2.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/30 transition-colors">+ New Part</button>
+        <button type="button" id="add-line" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("+ Add Line") }}</button>
+        <button type="button" id="add-new-part-btn" class="rounded-xl border border-indigo-700/40 bg-indigo-950/20 px-4 py-2.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/30 transition-colors">{{ _("+ New Part") }}</button>
         {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors') }}
       </div>
     </form>
   </div>
   <dialog id="new-part-dialog" class="rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl backdrop:bg-black/60 max-w-md w-full">
-    <h3 class="text-lg font-bold text-white mb-4">Add New Part</h3>
+    <h3 class="text-lg font-bold text-white mb-4">{{ _("Add New Part") }}</h3>
     <div class="space-y-3">
       <div>
-        <label class="mb-1 block text-sm font-medium text-slate-300">SKU *</label>
+        <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("SKU") }} *</label>
         <input type="text" id="new-part-sku" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
       </div>
       <div>
-        <label class="mb-1 block text-sm font-medium text-slate-300">Name *</label>
+        <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("Name") }} *</label>
         <input type="text" id="new-part-name" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-300">Cost Price</label>
+          <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("Cost Price") }}</label>
           <input type="number" step="0.01" id="new-part-cost" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" />
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-300">Sale Price</label>
+          <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("Sale Price") }}</label>
           <input type="number" step="0.01" id="new-part-sale" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" />
         </div>
       </div>
       <div id="new-part-error" class="hidden text-xs text-rose-400"></div>
       <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" id="new-part-cancel" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</button>
-        <button type="button" id="new-part-save" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Create Part</button>
+        <button type="button" id="new-part-cancel" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">{{ _("Cancel") }}</button>
+        <button type="button" id="new-part-save" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Create Part") }}</button>
       </div>
     </div>
   </dialog>
