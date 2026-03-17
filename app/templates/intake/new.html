@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}New Intake - IRONCore{% endblock %}
+{% block title %}{{ _("New Intake") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Intake Workflow</p>
-      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">Device Intake &amp; Pre-Check</h1>
-      <p class="mt-1 text-sm text-slate-400">Complete intake form with customer, device, diagnostics, and pre-repair checks.</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">{{ _("Intake Workflow") }}</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ _("Device Intake &amp; Pre-Check") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Complete intake form with customer, device, diagnostics, and pre-repair checks.") }}</p>
     </div>
-    <a href="{{ url_for('intake.list_intakes') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">Back to Intakes</a>
+    <a href="{{ url_for('intake.list_intakes') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">{{ _("Back to Intakes") }}</a>
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -19,7 +19,7 @@
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-bold text-indigo-300">1</span>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Branch &amp; Customer</h2>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Branch &amp; Customer") }}</h2>
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -33,14 +33,14 @@
         </div>
         <div>
           {{ form.existing_customer_id(id='existing-customer-id') }}
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Find Existing Customer</label>
-          <input id="customer-search" type="text" autocomplete="off" placeholder="Search name, email, phone..." class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Find Existing Customer") }}</label>
+          <input id="customer-search" type="text" autocomplete="off" placeholder="{{ _("Search name, email, phone...") }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
           <div id="customer-results" class="mt-2 space-y-1"></div>
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_name.label }} <span class="text-rose-400">*</span></label>
-            {{ form.customer_name(id='customer-name', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='Full name') }}
+            {{ form.customer_name(id='customer-name', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Full name')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_phone.label }}</label>
@@ -57,16 +57,16 @@
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-bold text-indigo-300">2</span>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Device Details</h2>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Device Details") }}</h2>
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_brand.label }} <span class="text-rose-400">*</span></label>
-            {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='Apple, Samsung, etc.') }}
+            {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Apple, Samsung, etc.')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_model.label }} <span class="text-rose-400">*</span></label>
-            {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='iPhone 15 Pro, Galaxy S24, etc.') }}
+            {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('iPhone 15 Pro, Galaxy S24, etc.')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.serial_number.label }}</label>
@@ -83,24 +83,24 @@
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-bold text-indigo-300">3</span>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Fault &amp; Condition</h2>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Fault &amp; Condition") }}</h2>
         </div>
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.reported_fault.label }} <span class="text-rose-400">*</span></label>
-          {{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-24', placeholder='What is wrong with the device? Describe the customer reported issue...') }}
+          {{ form.reported_fault(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-24', placeholder=_('What is wrong with the device? Describe the customer reported issue...')) }}
         </div>
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_condition.label }}</label>
-          {{ form.device_condition(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-16', placeholder='Scratches, dents, screen cracks, water damage signs, cosmetic state...') }}
+          {{ form.device_condition(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-16', placeholder=_('Scratches, dents, screen cracks, water damage signs, cosmetic state...')) }}
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.accessories.label }}</label>
-            {{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-16', placeholder='Charger, case, SIM card, SD card, cables...') }}
+            {{ form.accessories(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-16', placeholder=_('Charger, case, SIM card, SD card, cables...')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.intake_notes.label }}</label>
-            {{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-16', placeholder='Any special instructions or observations...') }}
+            {{ form.intake_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-16', placeholder=_('Any special instructions or observations...')) }}
           </div>
         </div>
       </div>
@@ -110,17 +110,17 @@
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-bold text-amber-300">4</span>
           <div>
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Pre-Repair Quick Check</h2>
-            <p class="text-[11px] text-slate-500">Perform these basic checks while the customer is present</p>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Pre-Repair Quick Check") }}</h2>
+            <p class="text-[11px] text-slate-500">{{ _("Perform these basic checks while the customer is present") }}</p>
           </div>
         </div>
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {% set checks = [
-            (form.check_powers_on, 'Powers On', 'Device turns on and boots'),
-            (form.check_screen_condition, 'Screen OK', 'Display shows correctly, no dead pixels'),
-            (form.check_charging, 'Charging OK', 'Charging port accepts cable, charges'),
-            (form.check_buttons, 'Buttons OK', 'Volume, power, home buttons work'),
-            (form.check_water_damage, 'No Water Damage', 'No visible liquid indicators triggered'),
+            (form.check_powers_on, _('Powers On'), _('Device turns on and boots')),
+            (form.check_screen_condition, _('Screen OK'), _('Display shows correctly, no dead pixels')),
+            (form.check_charging, _('Charging OK'), _('Charging port accepts cable, charges')),
+            (form.check_buttons, _('Buttons OK'), _('Volume, power, home buttons work')),
+            (form.check_water_damage, _('No Water Damage'), _('No visible liquid indicators triggered')),
           ] %}
           {% for field, label, hint in checks %}
           <label class="flex items-start gap-3 rounded-xl border border-slate-800/60 bg-slate-950/40 px-3.5 py-3 cursor-pointer hover:border-slate-700 transition-colors">
@@ -139,18 +139,18 @@
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-600/20 text-xs font-bold text-violet-300">5</span>
           <div>
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Initial Diagnosis</h2>
-            <p class="text-[11px] text-slate-500">Optional — fill if the technician can make a quick assessment at intake</p>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Initial Diagnosis") }}</h2>
+            <p class="text-[11px] text-slate-500">{{ _("Optional — fill if the technician can make a quick assessment at intake") }}</p>
           </div>
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.initial_diagnosis.label }}</label>
-            {{ form.initial_diagnosis(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-20', placeholder='Quick assessment of the issue...') }}
+            {{ form.initial_diagnosis(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-20', placeholder=_('Quick assessment of the issue...')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.recommended_repair.label }}</label>
-            {{ form.recommended_repair(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-20', placeholder='Suggested repair approach...') }}
+            {{ form.recommended_repair(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 min-h-20', placeholder=_('Suggested repair approach...')) }}
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-bold text-indigo-300">6</span>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Attachments &amp; Disclaimer</h2>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Attachments &amp; Disclaimer") }}</h2>
         </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -167,42 +167,42 @@
             {{ form.photo(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-700 file:px-3 file:py-1 file:text-xs file:font-medium file:text-slate-300') }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Signature (Optional)</label>
-            {{ form.signature_data(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='Signature data') }}
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Signature (Optional)") }}</label>
+            {{ form.signature_data(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Signature data')) }}
           </div>
         </div>
         <div class="flex items-center gap-3 rounded-xl border border-slate-800/60 bg-slate-950/40 px-4 py-3">
           {{ form.accepted_disclaimer(class='h-4 w-4 rounded border-slate-600 bg-slate-800 text-indigo-600 focus:ring-indigo-500/30') }}
-          <span class="text-sm font-medium text-slate-300">I confirm the customer accepted the intake disclaimer. <span class="text-rose-400">*</span></span>
+          <span class="text-sm font-medium text-slate-300">{{ _("I confirm the customer accepted the intake disclaimer.") }} <span class="text-rose-400">*</span></span>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
         {{ form.submit(class='inline-flex items-center rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors') }}
-        <a href="{{ url_for('intake.list_intakes') }}" class="text-sm text-slate-400 hover:text-slate-300 transition-colors">Cancel</a>
+        <a href="{{ url_for('intake.list_intakes') }}" class="text-sm text-slate-400 hover:text-slate-300 transition-colors">{{ _("Cancel") }}</a>
       </div>
     </form>
 
     <aside class="space-y-5">
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="text-base font-semibold text-white">Intake Checklist</h3>
-        <p class="mt-1 text-xs text-slate-400">Follow these steps for a thorough intake.</p>
+        <h3 class="text-base font-semibold text-white">{{ _("Intake Checklist") }}</h3>
+        <p class="mt-1 text-xs text-slate-400">{{ _("Follow these steps for a thorough intake.") }}</p>
         <ul class="mt-4 space-y-3 text-sm text-slate-400">
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">1</span><span>Select branch and find or create customer record.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>Record device brand, model, serial/IMEI.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>Document the reported fault and device condition.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-semibold text-amber-300">4</span><span>Run pre-repair quick checks with customer present.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-600/20 text-xs font-semibold text-violet-300">5</span><span>Add initial diagnosis if a quick assessment is possible.</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">6</span><span>Upload photos, get disclaimer sign-off.</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">1</span><span>{{ _("Select branch and find or create customer record.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>{{ _("Record device brand, model, serial/IMEI.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>{{ _("Document the reported fault and device condition.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-semibold text-amber-300">4</span><span>{{ _("Run pre-repair quick checks with customer present.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-600/20 text-xs font-semibold text-violet-300">5</span><span>{{ _("Add initial diagnosis if a quick assessment is possible.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">6</span><span>{{ _("Upload photos, get disclaimer sign-off.") }}</span></li>
         </ul>
       </div>
 
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="text-sm font-semibold text-white">Need a faster flow?</h3>
-        <p class="mt-1 text-xs text-slate-400">Use Fast Check-In for returning customers with registered devices.</p>
+        <h3 class="text-sm font-semibold text-white">{{ _("Need a faster flow?") }}</h3>
+        <p class="mt-1 text-xs text-slate-400">{{ _("Use Fast Check-In for returning customers with registered devices.") }}</p>
         <a href="{{ url_for('tickets.create_ticket') }}" class="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-indigo-600/20 border border-indigo-700/40 px-3 py-2 text-xs font-semibold text-indigo-300 hover:bg-indigo-600/30 transition-colors">
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
-          Fast Check-In
+          {{ _("Fast Check-In") }}
         </a>
       </div>
     </aside>

@@ -1,49 +1,49 @@
 {% extends 'base.html' %}
-{% block title %}New Supplier - IRONCore{% endblock %}
+{% block title %}{{ _("New Supplier") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6 max-w-3xl">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Create Supplier</h1>
-    <p class="mt-1 text-sm text-slate-400">Add a new supplier to the system.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Create Supplier") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Add a new supplier to the system.") }}</p>
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2">
       {{ form.hidden_tag() }}
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Name</label>
-        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Supplier name') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Name") }}</label>
+        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Supplier name')) }}
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Contact Name</label>
-        {{ form.contact_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Contact name') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Contact Name") }}</label>
+        {{ form.contact_name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Contact name')) }}
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
-        {{ form.email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Email') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Email") }}</label>
+        {{ form.email(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Email')) }}
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Phone</label>
-        {{ form.phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Phone') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Phone") }}</label>
+        {{ form.phone(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Phone')) }}
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Website</label>
-        {{ form.website(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Website') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Website") }}</label>
+        {{ form.website(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Website')) }}
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Account Reference</label>
-        {{ form.account_reference(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Account reference') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Account Reference") }}</label>
+        {{ form.account_reference(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Account reference')) }}
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Lead Time (days)</label>
-        {{ form.default_lead_time_days(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder='Lead time days') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Lead Time (days)") }}</label>
+        {{ form.default_lead_time_days(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', placeholder=_('Lead time days')) }}
       </div>
       <div class="flex items-end pb-1">
-        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} Active</label>
+        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-300">{{ form.is_active() }} {{ _("Active") }}</label>
       </div>
       <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-slate-300 mb-1.5">Notes</label>
-        {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', rows='3', placeholder='Notes') }}
+        <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ _("Notes") }}</label>
+        {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors', rows='3', placeholder=_('Notes')) }}
       </div>
       <div class="md:col-span-2 pt-1">
         {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors') }}

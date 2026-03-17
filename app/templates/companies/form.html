@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}{{ 'Edit Company' if editing else 'New Company' }} - IRONCore{% endblock %}
+{% block title %}{{ _('Edit Company') if editing else _('New Company') }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6 max-w-3xl">
   <div>
-    <h1 class="text-2xl font-semibold text-white">{{ 'Edit Company' if editing else 'New Company' }}</h1>
-    <p class="mt-1 text-sm text-slate-400">{{ 'Update business entity details.' if editing else 'Add a new business/legal entity.' }}</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _('Edit Company') if editing else _('New Company') }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _('Update business entity details.') if editing else _('Add a new business/legal entity.') }}</p>
   </div>
 
   <form method="post" class="space-y-6">
@@ -12,22 +12,22 @@
 
     {# Section 1: Identity #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">1. Business Identity</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("1. Business Identity") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Legal Name <span class="text-red-400">*</span></label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Legal Name") }} <span class="text-red-400">*</span></label>
           {{ form.legal_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Trading Name</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Trading Name") }}</label>
           {{ form.trading_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">CIF / NIF</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("CIF / NIF") }}</label>
           {{ form.cif_nif(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Tax Mode</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Tax Mode") }}</label>
           {{ form.tax_mode(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
       </div>
@@ -35,18 +35,18 @@
 
     {# Section 2: Contact #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">2. Contact Information</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("2. Contact Information") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Phone</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Phone") }}</label>
           {{ form.phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Email") }}</label>
           {{ form.email(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">Website</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Website") }}</label>
           {{ form.website(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder="https://") }}
         </div>
       </div>
@@ -54,24 +54,24 @@
 
     {# Section 3: Document Defaults #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">3. Document Defaults</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("3. Document Defaults") }}</h2>
       <div>
-        <label class="block text-xs font-medium text-slate-400 mb-1">Default Quote Terms</label>
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Default Quote Terms") }}</label>
         {{ form.default_quote_terms(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-400 mb-1">Default Repair Terms</label>
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Default Repair Terms") }}</label>
         {{ form.default_repair_terms(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-400 mb-1">Document Footer</label>
-        {{ form.document_footer(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=2, placeholder="e.g. Company Reg. No. / Legal notice text") }}
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Document Footer") }}</label>
+        {{ form.document_footer(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=2, placeholder=_("e.g. Company Reg. No. / Legal notice text")) }}
       </div>
     </div>
 
     <div class="flex gap-3">
       {{ form.submit(class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors cursor-pointer") }}
-      <a href="{{ url_for('companies_admin.list_companies') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Cancel</a>
+      <a href="{{ url_for('companies_admin.list_companies') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Cancel") }}</a>
     </div>
   </form>
 </section>

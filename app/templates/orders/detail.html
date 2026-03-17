@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Part Order Detail - IRONCore{% endblock %}
+{% block title %}{{ _("Part Order Detail") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">Order Detail</p>
-        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">Order {{ order.reference or order.id }}</h1>
-        <p class="mt-1 text-sm text-slate-400">{{ 'Repair-linked: ' ~ order.ticket.ticket_number if order.ticket else 'General stock order' }} · Supplier {{ order.supplier.name }} · Status {{ order.status|replace('_',' ')|title }}</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">{{ _("Order Detail") }}</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ _("Order") }} {{ order.reference or order.id }}</h1>
+        <p class="mt-1 text-sm text-slate-400">{{ (_('Repair-linked:') ~ ' ' ~ order.ticket.ticket_number) if order.ticket else _('General stock order') }} · {{ _("Supplier") }} {{ order.supplier.name }} · {{ _("Status") }} {{ order.status|replace('_',' ')|title }}</p>
       </div>
-      <a href="{{ url_for('orders.edit_order', order_id=order.id) }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Edit</a>
+      <a href="{{ url_for('orders.edit_order', order_id=order.id) }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Edit") }}</a>
     </div>
   </div>
 
@@ -17,7 +17,7 @@
     <section class="xl:col-span-2 space-y-5">
       {# ── Order Lines ── #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Order Lines</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Order Lines") }}</h2>
         <div class="mt-4 space-y-3">
           {% for line in order.lines %}
           <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-4 text-sm">
@@ -25,9 +25,9 @@
               <div>
                 <p class="font-medium text-white">{{ line.part.sku }} · {{ line.description_override or line.part.name }}</p>
                 <p class="mt-1.5 text-xs text-slate-400">
-                  Qty {{ line.quantity }} · Received {{ line.received_quantity }} · Remaining {{ line_remaining_qty(line) }}
-                  · Unit Cost {{ line.unit_cost or '—' }}
-                  · Sale Price {{ line.sale_price or '—' }}
+                  {{ _("Qty") }} {{ line.quantity }} · {{ _("Received") }} {{ line.received_quantity }} · {{ _("Remaining") }} {{ line_remaining_qty(line) }}
+                  · {{ _("Unit Cost") }} {{ line.unit_cost or '—' }}
+                  · {{ _("Sale Price") }} {{ line.sale_price or '—' }}
                 </p>
               </div>
               <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium
@@ -39,27 +39,27 @@
           </div>
           {% endfor %}
         </div>
-        <p class="mt-4 text-right text-sm font-semibold text-white">Order total: {{ '%.2f'|format(order_total_cost(order)) }}</p>
+        <p class="mt-4 text-right text-sm font-semibold text-white">{{ _("Order total:") }} {{ '%.2f'|format(order_total_cost(order)) }}</p>
       </div>
 
       {# ── Receive All Stock (bulk) ── #}
       {% set receivable_lines = order.lines|selectattr('status', 'ne', 'received')|selectattr('status', 'ne', 'cancelled')|list %}
       {% if receivable_lines %}
       <div class="rounded-2xl border border-emerald-800/30 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-300">Receive All Stock</h2>
-        <p class="mt-1 text-xs text-slate-400">Receive all remaining quantities in one action. Choose the destination location.</p>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-300">{{ _("Receive All Stock") }}</h2>
+        <p class="mt-1 text-xs text-slate-400">{{ _("Receive all remaining quantities in one action. Choose the destination location.") }}</p>
         <form method="post" action="{{ url_for('orders.receive_all_lines', order_id=order.id) }}" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:items-end">
           {{ receive_form.hidden_tag() }}
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Location</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Location") }}</label>
             {{ receive_form.location_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Delivery Note</label>
-            <input type="text" name="bulk_note" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Optional note" />
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Delivery Note") }}</label>
+            <input type="text" name="bulk_note" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="{{ _('Optional note') }}" />
           </div>
           <div>
-            <button type="submit" class="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors">Receive All ({{ receivable_lines|length }} lines)</button>
+            <button type="submit" class="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors">{{ _("Receive All") }} ({{ receivable_lines|length }} {{ _("lines") }})</button>
           </div>
         </form>
       </div>
@@ -68,44 +68,44 @@
 
     <aside class="space-y-5">
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-300">Order Info</h2>
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Order Info") }}</h2>
         <div class="space-y-2.5 text-sm text-slate-300">
-          <div class="flex justify-between"><span class="text-slate-500">Ordered at</span><span>{{ order.ordered_at.strftime('%Y-%m-%d %H:%M') if order.ordered_at else '—' }}</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">ETA</span><span>{{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">Tracking</span><span>{{ order.tracking_number or '—' }}</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">Supplier ref</span><span>{{ order.supplier_reference or '—' }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("Ordered at") }}</span><span>{{ order.ordered_at.strftime('%Y-%m-%d %H:%M') if order.ordered_at else '—' }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("ETA") }}</span><span>{{ order.estimated_arrival_at.strftime('%Y-%m-%d %H:%M') if order.estimated_arrival_at else '—' }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("Tracking") }}</span><span>{{ order.tracking_number or '—' }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("Supplier ref") }}</span><span>{{ order.supplier_reference or '—' }}</span></div>
         </div>
       </div>
 
       {# ── Receive single line ── #}
       {% if receive_form.line_id.choices %}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Receive Single Line</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Receive Single Line") }}</h2>
         <form method="post" action="{{ url_for('orders.receive_order_line', order_id=order.id) }}" class="mt-4 space-y-3">
           {{ receive_form.hidden_tag() }}
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Line</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Line") }}</label>
             {{ receive_form.line_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Location</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Location") }}</label>
             {{ receive_form.location_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Quantity</label>
-            {{ receive_form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder='Qty') }}
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Quantity") }}</label>
+            {{ receive_form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder=_('Qty')) }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Delivery Note</label>
-            {{ receive_form.received_note(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder='Delivery note') }}
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Delivery Note") }}</label>
+            {{ receive_form.received_note(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder=_('Delivery note')) }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Cost Price</label>
-            {{ receive_form.cost_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder='Override cost price') }}
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Cost Price") }}</label>
+            {{ receive_form.cost_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder=_('Override cost price')) }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Sale Price</label>
-            {{ receive_form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder='Override sale price') }}
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Sale Price") }}</label>
+            {{ receive_form.sale_price(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', placeholder=_('Override sale price')) }}
           </div>
           {{ receive_form.submit(class='w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors') }}
         </form>
@@ -113,15 +113,15 @@
       {% endif %}
 
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Update Status</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Update Status") }}</h2>
         <form method="post" class="mt-4 space-y-3">
           {{ form.hidden_tag() }}
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Event Type</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Event Type") }}</label>
             {{ form.event_type(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm') }}
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-slate-300">Notes</label>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Notes") }}</label>
             {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm', rows='3') }}
           </div>
           {{ form.submit(class='w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors') }}

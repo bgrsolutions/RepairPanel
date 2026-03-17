@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Inventory Overview - IRONCore{% endblock %}
+{% block title %}{{ _("Inventory Overview") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Inventory</p>
-      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">Stock Overview</h1>
-      <p class="mt-1 text-sm text-slate-400">Aggregated stock by product. Click a row to see branch/location breakdown.</p>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">{{ _("Inventory") }}</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{{ _("Stock Overview") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Aggregated stock by product. Click a row to see branch/location breakdown.") }}</p>
     </div>
     <nav class="flex flex-wrap gap-2">
-      <a href="{{ url_for('inventory.list_parts') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Parts</a>
-      <a href="{{ url_for('inventory.list_categories') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Categories</a>
-      <a href="{{ url_for('inventory.list_locations') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">Locations</a>
-      <a href="{{ url_for('inventory.new_movement') }}" class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">+ Movement</a>
+      <a href="{{ url_for('inventory.list_parts') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">{{ _("Parts") }}</a>
+      <a href="{{ url_for('inventory.list_categories') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">{{ _("Categories") }}</a>
+      <a href="{{ url_for('inventory.list_locations') }}" class="rounded-lg border border-slate-600 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:border-slate-500 transition-colors">{{ _("Locations") }}</a>
+      <a href="{{ url_for('inventory.new_movement') }}" class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">{{ _("+ Movement") }}</a>
     </nav>
   </div>
 
@@ -21,11 +21,11 @@
       <table class="min-w-full text-left text-sm text-slate-200">
         <thead class="border-b border-slate-800 bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
           <tr>
-            <th class="px-5 py-3.5 font-semibold">Part</th>
-            <th class="px-5 py-3.5 font-semibold">Cost / Sale</th>
-            <th class="px-5 py-3.5 font-semibold text-right">On Hand</th>
-            <th class="px-5 py-3.5 font-semibold text-right">Reserved</th>
-            <th class="px-5 py-3.5 font-semibold text-right">Available</th>
+            <th class="px-5 py-3.5 font-semibold">{{ _("Part") }}</th>
+            <th class="px-5 py-3.5 font-semibold">{{ _("Cost / Sale") }}</th>
+            <th class="px-5 py-3.5 font-semibold text-right">{{ _("On Hand") }}</th>
+            <th class="px-5 py-3.5 font-semibold text-right">{{ _("Reserved") }}</th>
+            <th class="px-5 py-3.5 font-semibold text-right">{{ _("Available") }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-800/80">
@@ -46,9 +46,9 @@
               </div>
             </td>
             <td class="px-5 py-4 text-xs tabular-nums">
-              <span class="text-slate-500">Cost</span> <span class="text-slate-300">{{ part.cost_price or '—' }}</span>
+              <span class="text-slate-500">{{ _("Cost") }}</span> <span class="text-slate-300">{{ part.cost_price or '—' }}</span>
               <span class="mx-1 text-slate-700">|</span>
-              <span class="text-slate-500">Sale</span> <span class="text-slate-300">{{ part.sale_price or '—' }}</span>
+              <span class="text-slate-500">{{ _("Sale") }}</span> <span class="text-slate-300">{{ part.sale_price or '—' }}</span>
             </td>
             <td class="px-5 py-4 text-right tabular-nums font-medium">{{ '%.0f'|format(on_hand) }}</td>
             <td class="px-5 py-4 text-right tabular-nums text-slate-400">{{ '%.0f'|format(reserved) }}</td>
@@ -74,7 +74,7 @@
           {% endfor %}
           {% else %}
           <tr>
-            <td class="px-6 py-12 text-center text-slate-500" colspan="5">No stock levels yet.</td>
+            <td class="px-6 py-12 text-center text-slate-500" colspan="5">{{ _("No stock levels yet.") }}</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}Stock Locations - IRONCore{% endblock %}
+{% block title %}{{ _("Stock Locations") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-semibold text-white">Stock Locations</h1>
-    <a href="{{ url_for('inventory.new_location') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">+ New Location</a>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Stock Locations") }}</h1>
+    <a href="{{ url_for('inventory.new_location') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">{{ _("+ New Location") }}</a>
   </div>
   <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     <table class="min-w-full text-left text-sm text-slate-200">
       <thead class="bg-slate-900/80 text-xs uppercase tracking-wide text-slate-400">
         <tr>
-          <th class="px-5 py-3.5">Branch</th>
-          <th class="px-5 py-3.5">Code</th>
-          <th class="px-5 py-3.5">Name</th>
-          <th class="px-5 py-3.5">Type</th>
+          <th class="px-5 py-3.5">{{ _("Branch") }}</th>
+          <th class="px-5 py-3.5">{{ _("Code") }}</th>
+          <th class="px-5 py-3.5">{{ _("Name") }}</th>
+          <th class="px-5 py-3.5">{{ _("Type") }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-800/60">
@@ -26,7 +26,7 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="4" class="px-5 py-10 text-center text-slate-500">No locations yet.</td>
+          <td colspan="4" class="px-5 py-10 text-center text-slate-500">{{ _("No locations yet.") }}</td>
         </tr>
         {% endfor %}
       </tbody>

@@ -1,29 +1,29 @@
 {% extends 'base.html' %}
-{% block title %}New Stock Location - IRONCore{% endblock %}
+{% block title %}{{ _("New Stock Location") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Create Stock Location</h1>
-    <p class="mt-1 text-sm text-slate-400">Define a new storage location for inventory tracking.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Create Stock Location") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Define a new storage location for inventory tracking.") }}</p>
   </div>
 
   <form method="post" class="max-w-3xl space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     {{ form.hidden_tag() }}
     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Branch</label>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Branch") }}</label>
         {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Code</label>
-        {{ form.code(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder='Code') }}
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Code") }}</label>
+        {{ form.code(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder=_('Code')) }}
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Name</label>
-        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder='Location name') }}
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Name") }}</label>
+        {{ form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder=_('Location name')) }}
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Type</label>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Type") }}</label>
         {{ form.location_type(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
       </div>
     </div>

@@ -1,5 +1,5 @@
 {% extends 'print/base_print.html' %}
-{% block title %}Checklist - {{ ticket.ticket_number }}{% endblock %}
+{% block title %}{{ _("Checklist") }} - {{ ticket.ticket_number }}{% endblock %}
 {% block document %}
 
 <div class="doc-header">
@@ -10,22 +10,22 @@
   <div class="doc-ref">
     <div class="ref-number">{{ ticket.ticket_number }}</div>
     <div class="ref-date">{{ ticket.device.brand }} {{ ticket.device.model }}</div>
-    <div class="ref-date">Customer: {{ ticket.customer.display_name }}</div>
+    <div class="ref-date">{{ _("Customer:") }} {{ ticket.customer.display_name }}</div>
   </div>
 </div>
 
 {% for checklist in checklists %}
 <p class="section-header">
-  {{ checklist.checklist_type|replace('_',' ')|title }} Check #{{ loop.index }}
+  {{ checklist.checklist_type|replace('_',' ')|title }} {{ _("Check") }} #{{ loop.index }}
   {% if checklist.is_complete %}
-  <span style="font-size:9pt; color:#16a34a; font-weight:normal;">&#10003; Complete{% if checklist.completed_at %} — {{ checklist.completed_at.strftime('%d/%m/%Y %H:%M') }}{% endif %}</span>
+  <span style="font-size:9pt; color:#16a34a; font-weight:normal;">&#10003; {{ _("Complete") }}{% if checklist.completed_at %} — {{ checklist.completed_at.strftime('%d/%m/%Y %H:%M') }}{% endif %}</span>
   {% else %}
-  <span style="font-size:9pt; color:#d97706; font-weight:normal;">In Progress ({{ checklist.checked_count }}/{{ checklist.total_count }})</span>
+  <span style="font-size:9pt; color:#d97706; font-weight:normal;">{{ _("In Progress") }} ({{ checklist.checked_count }}/{{ checklist.total_count }})</span>
   {% endif %}
 </p>
 <table class="doc-table">
   <thead>
-    <tr><th style="width:5%">#</th><th>Check Item</th><th class="text-center" style="width:12%">Pass</th><th>Notes</th></tr>
+    <tr><th style="width:5%">#</th><th>{{ _("Check Item") }}</th><th class="text-center" style="width:12%">{{ _("Pass") }}</th><th>{{ _("Notes") }}</th></tr>
   </thead>
   <tbody>
     {% for item in checklist.items %}
@@ -39,7 +39,7 @@
   </tbody>
 </table>
 {% else %}
-<p style="text-align:center; color:#888; padding:20px;">No checklists recorded for this ticket.</p>
+<p style="text-align:center; color:#888; padding:20px;">{{ _("No checklists recorded for this ticket.") }}</p>
 {% endfor %}
 
 {% if identity.document_footer %}

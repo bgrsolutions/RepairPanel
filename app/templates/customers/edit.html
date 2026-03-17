@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Edit Customer - {{ customer.full_name }} - IRONCore{% endblock %}
+{% block title %}{{ _("Edit Customer") }} - {{ customer.full_name }} - IRONCore{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-3xl space-y-6">
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">Edit Customer</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">{{ _("Edit Customer") }}</p>
         <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{{ customer.full_name }}</h1>
       </div>
-      <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700">Back to Profile</a>
+      <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700">{{ _("Back to Profile") }}</a>
     </div>
   </div>
 
@@ -17,7 +17,7 @@
 
     {# Contact details #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Contact Details</h2>
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Contact Details") }}</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.full_name.label.text }}</label>
@@ -40,7 +40,7 @@
 
     {# Customer type toggle #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Customer Type</h2>
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Customer Type") }}</h2>
       <div>
         <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.customer_type.label.text }}</label>
         {{ form.customer_type(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200", id="customer-type-select") }}
@@ -49,7 +49,7 @@
 
     {# Business fields (shown/hidden by JS) #}
     <div id="business-fields" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel" style="display: none;">
-      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Business / Company Details</h2>
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Business / Company Details") }}</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.company_name.label.text }}</label>
@@ -64,7 +64,7 @@
 
     {# Billing address (shown/hidden by JS) #}
     <div id="billing-fields" class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel" style="display: none;">
-      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Billing Address</h2>
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Billing Address") }}</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div class="sm:col-span-2">
           <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.billing_address_line_1.label.text }}</label>
@@ -101,7 +101,7 @@
       </div>
     </div>
 
-    <button type="submit" class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">Save Changes</button>
+    <button type="submit" class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">{{ _("Save Changes") }}</button>
   </form>
 </section>
 

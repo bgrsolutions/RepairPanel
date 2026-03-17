@@ -1,25 +1,25 @@
 {% extends 'base.html' %}
-{% block title %}Users - IRONCore{% endblock %}
+{% block title %}{{ _("Users") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold text-white">Users / Staff</h1>
-      <p class="mt-1 text-sm text-slate-400">Manage technician and staff logins, roles, and active state.</p>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Users / Staff") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Manage technician and staff logins, roles, and active state.") }}</p>
     </div>
-    <a href="{{ url_for('users.create_user') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">+ Add User</a>
+    <a href="{{ url_for('users.create_user') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("+ Add User") }}</a>
   </div>
 
   <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     <table class="min-w-full text-left text-sm text-slate-200">
       <thead class="border-b border-slate-800/60 bg-slate-900/80 text-xs uppercase tracking-wide text-slate-400">
         <tr>
-          <th class="px-5 py-3.5">Name</th>
-          <th class="px-5 py-3.5">Email</th>
-          <th class="px-5 py-3.5">Roles</th>
-          <th class="px-5 py-3.5">Branches</th>
-          <th class="px-5 py-3.5">Status</th>
-          <th class="px-5 py-3.5">Actions</th>
+          <th class="px-5 py-3.5">{{ _("Name") }}</th>
+          <th class="px-5 py-3.5">{{ _("Email") }}</th>
+          <th class="px-5 py-3.5">{{ _("Roles") }}</th>
+          <th class="px-5 py-3.5">{{ _("Branches") }}</th>
+          <th class="px-5 py-3.5">{{ _("Status") }}</th>
+          <th class="px-5 py-3.5">{{ _("Actions") }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-800/60">
@@ -28,20 +28,20 @@
         <td class="px-5 py-3.5 font-medium text-white">{{ user.full_name }}</td>
         <td class="px-5 py-3.5 text-slate-300">{{ user.email }}</td>
         <td class="px-5 py-3.5 text-xs text-slate-400">{{ user.roles | map(attribute='name') | join(', ') or '—' }}</td>
-        <td class="px-5 py-3.5 text-xs text-slate-400">{{ user.branches | map(attribute='code') | join(', ') or 'All' }}</td>
+        <td class="px-5 py-3.5 text-xs text-slate-400">{{ user.branches | map(attribute='code') | join(', ') or _('All') }}</td>
         <td class="px-5 py-3.5">
           {% if user.is_active %}
-          <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">Active</span>
+          <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">{{ _("Active") }}</span>
           {% else %}
-          <span class="inline-flex items-center rounded-full bg-rose-950/50 px-2.5 py-0.5 text-xs font-medium text-rose-300 ring-1 ring-inset ring-rose-800/40">Inactive</span>
+          <span class="inline-flex items-center rounded-full bg-rose-950/50 px-2.5 py-0.5 text-xs font-medium text-rose-300 ring-1 ring-inset ring-rose-800/40">{{ _("Inactive") }}</span>
           {% endif %}
         </td>
         <td class="px-5 py-3.5">
-          <a href="{{ url_for('users.edit_user', user_id=user.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">Edit</a>
+          <a href="{{ url_for('users.edit_user', user_id=user.id) }}" class="inline-flex rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Edit") }}</a>
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">No users found.</td></tr>
+      <tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">{{ _("No users found.") }}</td></tr>
       {% endfor %}
       </tbody>
     </table>

@@ -1,32 +1,32 @@
 {% extends 'base.html' %}
-{% block title %}Settings - IRONCore{% endblock %}
+{% block title %}{{ _("Settings") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Admin / Settings</h1>
-    <p class="mt-1 text-sm text-slate-400">Manage branches, companies, services, and system configuration.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Admin / Settings") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Manage branches, companies, services, and system configuration.") }}</p>
   </div>
 
   <div class="flex flex-wrap gap-3">
-    <a href="{{ url_for('companies_admin.list_companies') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Companies</a>
-    <a href="{{ url_for('services.list_services') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Service Catalogue</a>
-    <a href="{{ url_for('bookings.list_bookings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Bookings</a>
-    <a href="{{ url_for('settings.portal_settings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Public Portal Settings</a>
-    <a href="{{ url_for('notifications.list_templates') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Notification Templates</a>
-    <a href="{{ url_for('settings.quote_settings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Quote Settings</a>
+    <a href="{{ url_for('companies_admin.list_companies') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Companies") }}</a>
+    <a href="{{ url_for('services.list_services') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Service Catalogue") }}</a>
+    <a href="{{ url_for('bookings.list_bookings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Bookings") }}</a>
+    <a href="{{ url_for('settings.portal_settings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Public Portal Settings") }}</a>
+    <a href="{{ url_for('notifications.list_templates') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Notification Templates") }}</a>
+    <a href="{{ url_for('settings.quote_settings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Quote Settings") }}</a>
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Create Branch / Store</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">{{ _("Create Branch / Store") }}</h2>
     <form method="post" action="{{ url_for('settings.create_branch') }}" class="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <input name="code" placeholder="Branch code" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
-      <input name="name" placeholder="Branch / Store name" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
-      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Create Branch</button>
+      <input name="code" placeholder="{{ _("Branch code") }}" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
+      <input name="name" placeholder="{{ _("Branch / Store name") }}" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Create Branch") }}</button>
     </form>
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Branches / Stores</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">{{ _("Branches / Stores") }}</h2>
     <div class="space-y-2">
       {% for branch in branches %}
       <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 flex items-center justify-between text-sm">
@@ -45,15 +45,15 @@
         </div>
         <div class="flex items-center gap-3">
           {% if branch.is_active %}
-          <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">Active</span>
+          <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2.5 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">{{ _("Active") }}</span>
           {% else %}
-          <span class="inline-flex items-center rounded-full bg-slate-800/50 px-2.5 py-0.5 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-700/40">Inactive</span>
+          <span class="inline-flex items-center rounded-full bg-slate-800/50 px-2.5 py-0.5 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-700/40">{{ _("Inactive") }}</span>
           {% endif %}
-          <a href="{{ url_for('settings.edit_branch', branch_id=branch.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium">Edit</a>
+          <a href="{{ url_for('settings.edit_branch', branch_id=branch.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium">{{ _("Edit") }}</a>
         </div>
       </div>
       {% else %}
-      <p class="text-sm text-slate-500 py-4 text-center">No branches configured.</p>
+      <p class="text-sm text-slate-500 py-4 text-center">{{ _("No branches configured.") }}</p>
       {% endfor %}
     </div>
   </div>

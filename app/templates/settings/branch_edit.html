@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}Edit Branch - {{ branch.name }} - IRONCore{% endblock %}
+{% block title %}{{ _("Edit Branch") }} - {{ branch.name }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6 max-w-3xl">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Edit Branch / Store</h1>
-    <p class="mt-1 text-sm text-slate-400">Update location and contact details for <strong class="text-white">{{ branch.name }}</strong>.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Edit Branch / Store") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Update location and contact details for") }} <strong class="text-white">{{ branch.name }}</strong>.</p>
   </div>
 
   <form method="post" class="space-y-6">
@@ -12,18 +12,18 @@
 
     {# Section 1: Identity #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">1. Branch Identity</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("1. Branch Identity") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Branch Code <span class="text-red-400">*</span></label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Branch Code") }} <span class="text-red-400">*</span></label>
           {{ form.code(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Store Name <span class="text-red-400">*</span></label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Store Name") }} <span class="text-red-400">*</span></label>
           {{ form.name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Company</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Company") }}</label>
           {{ form.company_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
       </div>
@@ -31,30 +31,30 @@
 
     {# Section 2: Address #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">2. Address</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("2. Address") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">Address Line 1</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Address Line 1") }}</label>
           {{ form.address_line_1(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">Address Line 2</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Address Line 2") }}</label>
           {{ form.address_line_2(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">City</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("City") }}</label>
           {{ form.city(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Postcode</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Postcode") }}</label>
           {{ form.postcode(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Island / Region</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Island / Region") }}</label>
           {{ form.island_or_region(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Country</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Country") }}</label>
           {{ form.country(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
       </div>
@@ -62,27 +62,27 @@
 
     {# Section 3: Contact & Operations #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">3. Contact & Operations</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("3. Contact & Operations") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Phone</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Phone") }}</label>
           {{ form.phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Email") }}</label>
           {{ form.email(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Ticket Prefix</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Ticket Prefix") }}</label>
           {{ form.ticket_prefix(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder="e.g. TF-") }}
-          <p class="text-xs text-slate-500 mt-1">Optional prefix for ticket numbers at this location.</p>
+          <p class="text-xs text-slate-500 mt-1">{{ _("Optional prefix for ticket numbers at this location.") }}</p>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Quote Prefix</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Quote Prefix") }}</label>
           {{ form.quote_prefix(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder="e.g. Q-TF-") }}
         </div>
         <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">Opening Hours</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Opening Hours") }}</label>
           {{ form.opening_hours(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3, placeholder="Mon-Fri: 09:00-18:00\nSat: 10:00-14:00") }}
         </div>
       </div>
@@ -90,7 +90,7 @@
 
     <div class="flex gap-3">
       {{ form.submit(class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors cursor-pointer") }}
-      <a href="{{ url_for('settings.index') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">Cancel</a>
+      <a href="{{ url_for('settings.index') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Cancel") }}</a>
     </div>
   </form>
 </section>

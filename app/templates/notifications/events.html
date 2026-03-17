@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Notification Events - IRONCore{% endblock %}
+{% block title %}{{ _("Notification Events") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Notification Events</h1>
-    <p class="mt-1 text-sm text-slate-400">Queue and monitor notification delivery.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Notification Events") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Queue and monitor notification delivery.") }}</p>
   </div>
 
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">Queue New Event</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-4">{{ _("Queue New Event") }}</h2>
     <form method="post" action="{{ url_for('notifications.create_event') }}" class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <select name="ticket_id" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
         {% for ticket in tickets %}<option value="{{ ticket.id }}">{{ ticket.ticket_number }}</option>{% endfor %}
@@ -16,13 +16,13 @@
       <select name="event_type" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
         {% for et in event_types %}<option value="{{ et }}">{{ et }}</option>{% endfor %}
       </select>
-      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Queue Event</button>
+      <button class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Queue Event") }}</button>
     </form>
   </div>
 
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Events</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Events") }}</h2>
       <div class="space-y-2">
         {% for e in events %}
         <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-sm text-slate-300 flex items-center justify-between">
@@ -30,13 +30,13 @@
           <span class="text-xs text-slate-500">{{ e.ticket.ticket_number if e.ticket else 'N/A' }}</span>
         </div>
         {% else %}
-        <p class="text-sm text-slate-500 py-4 text-center">No events yet.</p>
+        <p class="text-sm text-slate-500 py-4 text-center">{{ _("No events yet.") }}</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">Delivery Log</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Delivery Log") }}</h2>
       <div class="space-y-2">
         {% for d in deliveries %}
         <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3 text-sm text-slate-300 flex items-center justify-between">
@@ -44,7 +44,7 @@
           <span class="text-xs text-slate-500">{{ d.status }}</span>
         </div>
         {% else %}
-        <p class="text-sm text-slate-500 py-4 text-center">No deliveries yet.</p>
+        <p class="text-sm text-slate-500 py-4 text-center">{{ _("No deliveries yet.") }}</p>
         {% endfor %}
       </div>
     </div>

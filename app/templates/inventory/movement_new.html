@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}New Stock Movement - IRONCore{% endblock %}
+{% block title %}{{ _("New Stock Movement") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Record Stock Movement</h1>
-    <p class="mt-1 text-sm text-slate-400">Log a stock transfer, adjustment, or allocation.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Record Stock Movement") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Log a stock transfer, adjustment, or allocation.") }}</p>
   </div>
 
   <form method="post" class="max-w-4xl space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     {{ form.hidden_tag() }}
     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
       <div class="relative">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Part</label>
-        <input type="text" id="part-search" autocomplete="off" placeholder="Search by SKU, name, or barcode..." class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Part") }}</label>
+        <input type="text" id="part-search" autocomplete="off" placeholder="{{ _('Search by SKU, name, or barcode...') }}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
         <div id="part-results" class="absolute left-0 right-0 top-full z-30 mt-1 hidden max-h-48 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl"></div>
         {{ form.part_id(type='hidden', id='part-id-field') }}
         <div id="part-badge" class="mt-1.5 hidden">
@@ -23,25 +23,25 @@
         </div>
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Branch</label>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Branch") }}</label>
         {{ form.branch_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Location</label>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Location") }}</label>
         {{ form.location_id(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Movement Type</label>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Movement Type") }}</label>
         {{ form.movement_type(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Quantity</label>
-        {{ form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder='Quantity') }}
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Quantity") }}</label>
+        {{ form.quantity(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', placeholder=_('Quantity')) }}
       </div>
     </div>
     <div>
-      <label class="mb-1.5 block text-sm font-medium text-slate-300">Notes</label>
-      {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', rows='3', placeholder='Notes') }}
+      <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Notes") }}</label>
+      {{ form.notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500', rows='3', placeholder=_('Notes')) }}
     </div>
     <div>
       {{ form.submit(class='rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500') }}

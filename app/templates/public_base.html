@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Device Repair Service - IRONCore{% endblock %}</title>
+    <title>{% block title %}{{ _("Device Repair Service") }} - IRONCore{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
   </head>
@@ -18,7 +18,7 @@
               <svg class="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.049.58.024 1.194-.14 1.743" /></svg>
             </div>
             <div>
-              <p class="text-xs font-medium tracking-widest text-indigo-400">Device Repair Service</p>
+              <p class="text-xs font-medium tracking-widest text-indigo-400">{{ _("Device Repair Service") }}</p>
               <h1 class="text-xl font-bold tracking-tight text-white">IRONCore</h1>
             </div>
           </div>
@@ -60,8 +60,8 @@
       <footer class="border-t border-slate-800/40 py-8">
         <div class="mx-auto max-w-5xl px-4 sm:px-6">
           <div class="flex flex-col items-center gap-2">
-            <p class="text-center text-xs text-slate-600">Powered by <span class="font-semibold text-slate-500">IRONCore</span></p>
-            <p class="text-center text-[11px] text-slate-700">Professional device repair management</p>
+            <p class="text-center text-xs text-slate-600">{{ _("Powered by") }} <span class="font-semibold text-slate-500">IRONCore</span></p>
+            <p class="text-center text-[11px] text-slate-700">{{ _("Professional device repair management") }}</p>
           </div>
         </div>
       </footer>

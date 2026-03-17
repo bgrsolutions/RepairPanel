@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}{% if mode == 'edit' %}Edit Quote{% else %}New Standalone Quote{% endif %} - IRONCore{% endblock %}
+{% block title %}{% if mode == 'edit' %}{{ _("Edit Quote") }}{% else %}{{ _("New Standalone Quote") }}{% endif %} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6 max-w-6xl">
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-    <p class="text-xs font-bold uppercase tracking-widest text-indigo-400">{% if mode == 'edit' %}Edit Quote{% else %}Standalone Quote{% endif %}</p>
-    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{% if mode == 'edit' %}Edit Quote{% else %}Create Quote (No Ticket){% endif %}</h1>
-    <p class="mt-1.5 text-sm text-slate-400">For enquiries via WhatsApp, phone, walk-in, or other channels before a ticket is created.</p>
+    <p class="text-xs font-bold uppercase tracking-widest text-indigo-400">{% if mode == 'edit' %}{{ _("Edit Quote") }}{% else %}{{ _("Standalone Quote") }}{% endif %}</p>
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{% if mode == 'edit' %}{{ _("Edit Quote") }}{% else %}{{ _("Create Quote (No Ticket)") }}{% endif %}</h1>
+    <p class="mt-1.5 text-sm text-slate-400">{{ _("For enquiries via WhatsApp, phone, walk-in, or other channels before a ticket is created.") }}</p>
   </div>
 
   <form method="post" action="{% if mode == 'edit' %}{{ url_for('quotes.update_quote', quote_id=quote.id) }}{% else %}{{ url_for('quotes.create_standalone_quote') }}{% endif %}" class="space-y-6">
@@ -13,72 +13,72 @@
 
     {# ── Customer & device info ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Customer &amp; Device</h2>
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Customer & Device") }}</h2>
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Customer</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Customer") }}</label>
           <div class="relative">
             <input type="hidden" name="customer_id" id="customer-id" value="{% if mode == 'edit' and quote and quote.customer_id %}{{ quote.customer_id }}{% endif %}" />
-            <input type="text" id="customer-search" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Search by name, email, or phone..." value="{% if mode == 'edit' and quote and quote.customer_name %}{{ quote.customer_name }}{% endif %}" autocomplete="off" />
+            <input type="text" id="customer-search" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="{{ _('Search by name, email, or phone...') }}" value="{% if mode == 'edit' and quote and quote.customer_name %}{{ quote.customer_name }}{% endif %}" autocomplete="off" />
             <div id="customer-results" class="absolute left-0 right-0 top-full z-30 mt-1 hidden max-h-48 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl"></div>
           </div>
           <div class="mt-1.5 flex items-center gap-2">
-            <p class="text-xs text-slate-500">Or</p>
-            <button type="button" id="add-customer-btn" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">+ Add new customer</button>
+            <p class="text-xs text-slate-500">{{ _("Or") }}</p>
+            <button type="button" id="add-customer-btn" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">{{ _("+ Add new customer") }}</button>
           </div>
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Customer Name</label>
-          <input type="text" name="customer_name" id="customer-name-input" value="{% if mode == 'edit' and quote %}{{ quote.customer_name or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="Name for walk-in / phone enquiry" />
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Customer Name") }}</label>
+          <input type="text" name="customer_name" id="customer-name-input" value="{% if mode == 'edit' and quote %}{{ quote.customer_name or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="{{ _('Name for walk-in / phone enquiry') }}" />
         </div>
       </div>
       <div class="mt-4">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Device Description</label>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Device Description") }}</label>
         <input type="text" name="device_description" value="{% if mode == 'edit' and quote %}{{ quote.device_description or '' }}{% endif %}" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" placeholder="e.g. iPhone 15 Pro, Samsung Galaxy S24, MacBook Air M2" />
       </div>
     </div>
 
     {# ── Add New Customer Modal ── #}
     <dialog id="new-customer-dialog" class="rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl backdrop:bg-black/60 max-w-md w-full">
-      <h3 class="text-lg font-bold text-white mb-4">Add New Customer</h3>
+      <h3 class="text-lg font-bold text-white mb-4">{{ _("Add New Customer") }}</h3>
       <div class="space-y-3">
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-300">Full Name *</label>
+          <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("Full Name") }} *</label>
           <input type="text" id="new-cust-name" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-300">Phone *</label>
+          <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("Phone") }} *</label>
           <input type="text" id="new-cust-phone" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" required />
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-300">Email</label>
+          <label class="mb-1 block text-sm font-medium text-slate-300">{{ _("Email") }}</label>
           <input type="email" id="new-cust-email" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100" />
         </div>
         <div id="new-cust-error" class="hidden text-xs text-rose-400"></div>
         <div class="flex items-center justify-end gap-3 pt-2">
-          <button type="button" id="new-cust-cancel" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</button>
-          <button type="button" id="new-cust-save" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">Create Customer</button>
+          <button type="button" id="new-cust-cancel" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">{{ _("Cancel") }}</button>
+          <button type="button" id="new-cust-save" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Create Customer") }}</button>
         </div>
       </div>
     </dialog>
 
     {# ── Quote settings ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Quote Settings</h2>
+      <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Quote Settings") }}</h2>
       <input type="hidden" name="currency" value="EUR" />
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Language</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Language") }}</label>
           {{ form.language(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-300">Expires</label>
+          <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Expires") }}</label>
           {{ form.expires_at(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
         </div>
       </div>
       <div class="mt-4">
-        <label class="mb-1.5 block text-sm font-medium text-slate-300">Terms &amp; Conditions</label>
-        {{ form.terms_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder='Standard terms and conditions') }}
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ _("Terms & Conditions") }}</label>
+        {{ form.terms_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder=_('Standard terms and conditions')) }}
       </div>
     </div>
 
@@ -86,17 +86,17 @@
     {% for option in form.options %}
     <section class="quote-option rounded-2xl border border-indigo-800/30 bg-slate-900/60 p-5 shadow-panel space-y-4">
       <div class="flex items-center gap-3">
-        <h2 class="text-base font-bold text-indigo-300">Repair Option {{ loop.index }}</h2>
+        <h2 class="text-base font-bold text-indigo-300">{{ _("Repair Option") }} {{ loop.index }}</h2>
       </div>
       {{ option.form.name(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='e.g. Standard Repair, Premium Repair') }}
 
       <div class="quote-lines space-y-2" data-option-index="{{ loop.index0 }}">
         <div class="hidden md:grid md:grid-cols-12 gap-2 px-1 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-          <div class="col-span-2">Type</div>
-          <div class="col-span-5">Description / Part</div>
-          <div class="col-span-1 text-right">Qty</div>
-          <div class="col-span-2 text-right">Unit Price</div>
-          <div class="col-span-1 text-right">Total</div>
+          <div class="col-span-2">{{ _("Type") }}</div>
+          <div class="col-span-5">{{ _("Description / Part") }}</div>
+          <div class="col-span-1 text-right">{{ _("Qty") }}</div>
+          <div class="col-span-2 text-right">{{ _("Unit Price") }}</div>
+          <div class="col-span-1 text-right">{{ _("Total") }}</div>
           <div class="col-span-1"></div>
         </div>
 
@@ -128,7 +128,7 @@
               <span class="line-total text-xs font-semibold text-slate-300 tabular-nums">0.00</span>
             </div>
             <div class="md:col-span-1 flex items-center justify-end">
-              <button type="button" class="remove-quote-line rounded-lg p-1.5 text-slate-600 hover:bg-rose-950/40 hover:text-rose-400 transition-colors" title="Remove line">
+              <button type="button" class="remove-quote-line rounded-lg p-1.5 text-slate-600 hover:bg-rose-950/40 hover:text-rose-400 transition-colors" title="{{ _('Remove line') }}">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -140,10 +140,10 @@
       <div class="flex items-center justify-between pt-2">
         <button type="button" class="add-quote-line inline-flex items-center gap-1.5 rounded-lg border border-dashed border-indigo-700/40 bg-indigo-950/20 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-900/30 transition-colors">
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-          Add line
+          {{ _("Add line") }}
         </button>
         <div class="text-right">
-          <span class="text-xs text-slate-500">Option total</span>
+          <span class="text-xs text-slate-500">{{ _("Option total") }}</span>
           <span class="option-total ml-2 text-sm font-bold text-white tabular-nums">0.00</span>
         </div>
       </div>
@@ -152,14 +152,14 @@
 
     {# ── Notes + submit ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <label class="mb-2 block text-sm font-medium text-slate-300">Internal Notes</label>
-      {{ form.notes_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder='Internal notes (not shown to customers)') }}
+      <label class="mb-2 block text-sm font-medium text-slate-300">{{ _("Internal Notes") }}</label>
+      {{ form.notes_snapshot(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', rows='2', placeholder=_('Internal notes (not shown to customers)')) }}
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-      <div class="text-xs text-slate-500">Tax: IGIC {{ '%.0f'|format(igic_rate * 100) }}% applied to quote totals</div>
+      <div class="text-xs text-slate-500">{{ _("Tax:") }} IGIC {{ '%.0f'|format(igic_rate * 100) }}% {{ _("applied to quote totals") }}</div>
       <div class="flex items-center gap-4">
-        <a href="{{ url_for('quotes.list_quotes') }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">Cancel</a>
+        <a href="{{ url_for('quotes.list_quotes') }}" class="text-sm text-slate-400 hover:text-slate-200 transition-colors">{{ _("Cancel") }}</a>
         {{ form.submit(class='rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors') }}
       </div>
     </div>

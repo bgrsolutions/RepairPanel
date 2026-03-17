@@ -1,5 +1,5 @@
 {% extends 'print/base_print.html' %}
-{% block title %}Quote {{ quote.ticket.ticket_number if quote.ticket else 'Q' }}-v{{ quote.version }}{% endblock %}
+{% block title %}{{ _("Quote") }} {{ quote.ticket.ticket_number if quote.ticket else 'Q' }}-v{{ quote.version }}{% endblock %}
 {% block document %}
 
 {# Header: Company + Quote Reference #}
@@ -11,17 +11,17 @@
     {% endif %}
     {% if identity.cif_nif %}<div class="company-detail">CIF/NIF: {{ identity.cif_nif }}</div>{% endif %}
     {% if identity.address %}<div class="company-detail">{{ identity.address }}</div>{% endif %}
-    {% if identity.phone %}<div class="company-detail">Tel: {{ identity.phone }}</div>{% endif %}
+    {% if identity.phone %}<div class="company-detail">{{ _("Tel:") }} {{ identity.phone }}</div>{% endif %}
     {% if identity.email %}<div class="company-detail">{{ identity.email }}</div>{% endif %}
     {% if identity.website %}<div class="company-detail">{{ identity.website }}</div>{% endif %}
   </div>
   <div class="doc-ref">
     <div class="ref-number">
-      {% if quote.ticket %}{{ quote.ticket.ticket_number }} · v{{ quote.version }}{% else %}Quote v{{ quote.version }}{% endif %}
+      {% if quote.ticket %}{{ quote.ticket.ticket_number }} · v{{ quote.version }}{% else %}{{ _("Quote") }} v{{ quote.version }}{% endif %}
     </div>
-    <div class="ref-date">Date: {{ quote.created_at.strftime('%d/%m/%Y') }}</div>
-    {% if quote.expires_at %}<div class="ref-date">Valid until: {{ quote.expires_at.strftime('%d/%m/%Y') }}</div>{% endif %}
-    <div class="ref-date">Status: {{ quote.status|replace('_',' ')|title }}</div>
+    <div class="ref-date">{{ _("Date:") }} {{ quote.created_at.strftime('%d/%m/%Y') }}</div>
+    {% if quote.expires_at %}<div class="ref-date">{{ _("Valid until:") }} {{ quote.expires_at.strftime('%d/%m/%Y') }}</div>{% endif %}
+    <div class="ref-date">{{ _("Status:") }} {{ quote.status|replace('_',' ')|title }}</div>
     {% if qr_data_uri %}
     <div class="qr-code" style="margin-top: 8px;">
       <img src="{{ qr_data_uri }}" alt="QR" />
@@ -33,27 +33,27 @@
 {# Customer + Device Info #}
 <div class="info-row">
   <div class="info-block">
-    <h3>Customer</h3>
+    <h3>{{ _("Customer") }}</h3>
     {% if customer_info.is_business %}
     <p class="value">{{ customer_info.company_name }}</p>
-    <p>Contact: {{ customer_info.name }}</p>
+    <p>{{ _("Contact:") }} {{ customer_info.name }}</p>
     {% if customer_info.cif_vat %}<p>CIF/VAT: {{ customer_info.cif_vat }}</p>{% endif %}
     {% if customer_info.billing_address %}<p>{{ customer_info.billing_address }}</p>{% endif %}
     <p>{{ customer_info.billing_phone or customer_info.phone }}</p>
     <p>{{ customer_info.billing_email or customer_info.email }}</p>
     {% else %}
     <p class="value">{{ customer_info.display_name }}</p>
-    {% if customer_info.phone %}<p>Tel: {{ customer_info.phone }}</p>{% endif %}
+    {% if customer_info.phone %}<p>{{ _("Tel:") }} {{ customer_info.phone }}</p>{% endif %}
     {% if customer_info.email %}<p>{{ customer_info.email }}</p>{% endif %}
     {% endif %}
   </div>
   <div class="info-block">
-    <h3>Device</h3>
+    <h3>{{ _("Device") }}</h3>
     <p class="value">{{ quote.display_device or 'N/A' }}</p>
     {% if quote.ticket and quote.ticket.device %}
     {% set dev = quote.ticket.device %}
-    {% if dev.serial_number %}<p>Serial: {{ dev.serial_number }}</p>{% endif %}
-    {% if dev.imei %}<p>IMEI: {{ dev.imei }}</p>{% endif %}
+    {% if dev.serial_number %}<p>{{ _("Serial:") }} {{ dev.serial_number }}</p>{% endif %}
+    {% if dev.imei %}<p>{{ _("IMEI:") }} {{ dev.imei }}</p>{% endif %}
     {% endif %}
     {% if quote.device_description %}<p>{{ quote.device_description }}</p>{% endif %}
   </div>
@@ -63,10 +63,10 @@
 {% if latest_diag %}
 <div class="info-row">
   <div class="info-block" style="flex: 1;">
-    <h3>Diagnostic Summary</h3>
-    {% if latest_diag.customer_reported_fault %}<p><strong>Fault:</strong> {{ latest_diag.customer_reported_fault }}</p>{% endif %}
-    {% if latest_diag.technician_diagnosis %}<p><strong>Diagnosis:</strong> {{ latest_diag.technician_diagnosis }}</p>{% endif %}
-    {% if latest_diag.recommended_repair %}<p><strong>Recommended:</strong> {{ latest_diag.recommended_repair }}</p>{% endif %}
+    <h3>{{ _("Diagnostic Summary") }}</h3>
+    {% if latest_diag.customer_reported_fault %}<p><strong>{{ _("Fault:") }}</strong> {{ latest_diag.customer_reported_fault }}</p>{% endif %}
+    {% if latest_diag.technician_diagnosis %}<p><strong>{{ _("Diagnosis:") }}</strong> {{ latest_diag.technician_diagnosis }}</p>{% endif %}
+    {% if latest_diag.recommended_repair %}<p><strong>{{ _("Recommended:") }}</strong> {{ latest_diag.recommended_repair }}</p>{% endif %}
   </div>
 </div>
 {% endif %}
@@ -77,12 +77,12 @@
 <table class="doc-table">
   <thead>
     <tr>
-      <th>Type</th>
-      <th>Description</th>
-      <th class="text-center">Qty</th>
-      <th class="text-right">Unit Price</th>
+      <th>{{ _("Type") }}</th>
+      <th>{{ _("Description") }}</th>
+      <th class="text-center">{{ _("Qty") }}</th>
+      <th class="text-right">{{ _("Unit Price") }}</th>
       <th class="text-right">IGIC ({{ '%.0f'|format(igic_rate * 100) }}%)</th>
-      <th class="text-right">Line Total</th>
+      <th class="text-right">{{ _("Line Total") }}</th>
     </tr>
   </thead>
   <tbody>
@@ -104,7 +104,7 @@
 <div class="totals-block">
   <table>
     <tr>
-      <td>Subtotal</td>
+      <td>{{ _("Subtotal") }}</td>
       <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(quote_total) }}</td>
     </tr>
     <tr>
@@ -112,7 +112,7 @@
       <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(tax_total) }}</td>
     </tr>
     <tr class="total-row">
-      <td>Total</td>
+      <td>{{ _("Total") }}</td>
       <td class="text-right">{{ quote.currency }} {{ '%.2f'|format(grand_total) }}</td>
     </tr>
   </table>
@@ -121,14 +121,14 @@
 {# Terms #}
 {% if quote.terms_snapshot %}
 <div class="doc-terms">
-  <h3>Terms & Conditions</h3>
+  <h3>{{ _("Terms & Conditions") }}</h3>
   <p>{{ quote.terms_snapshot }}</p>
 </div>
 {% endif %}
 
 {% if quote.notes_snapshot %}
 <div class="doc-terms">
-  <h3>Notes</h3>
+  <h3>{{ _("Notes") }}</h3>
   <p>{{ quote.notes_snapshot }}</p>
 </div>
 {% endif %}
@@ -136,12 +136,12 @@
 {# Signature #}
 <div class="signature-block">
   <div class="signature-line">
-    <div class="sig-label">Customer Signature</div>
-    <div class="sig-line">Name: ______________________ Date: __________</div>
+    <div class="sig-label">{{ _("Customer Signature") }}</div>
+    <div class="sig-line">{{ _("Name:") }} ______________________ {{ _("Date:") }} __________</div>
   </div>
   <div class="signature-line">
-    <div class="sig-label">Store Representative</div>
-    <div class="sig-line">Name: ______________________ Date: __________</div>
+    <div class="sig-label">{{ _("Store Representative") }}</div>
+    <div class="sig-line">{{ _("Name:") }} ______________________ {{ _("Date:") }} __________</div>
   </div>
 </div>
 

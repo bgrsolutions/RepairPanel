@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}Service Catalogue - IRONCore{% endblock %}
+{% block title %}{{ _("Service Catalogue") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold text-white">Service Catalogue</h1>
-      <p class="mt-1 text-sm text-slate-400">Manage repair services, pricing, and linked parts.</p>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Service Catalogue") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Manage repair services, pricing, and linked parts.") }}</p>
     </div>
     <div class="flex gap-3 items-center">
       {% if not show_inactive %}
-      <a href="{{ url_for('services.list_services', show_inactive='1') }}" class="text-xs text-slate-400 hover:text-slate-300">Show inactive</a>
+      <a href="{{ url_for('services.list_services', show_inactive='1') }}" class="text-xs text-slate-400 hover:text-slate-300">{{ _("Show inactive") }}</a>
       {% else %}
-      <a href="{{ url_for('services.list_services') }}" class="text-xs text-slate-400 hover:text-slate-300">Hide inactive</a>
+      <a href="{{ url_for('services.list_services') }}" class="text-xs text-slate-400 hover:text-slate-300">{{ _("Hide inactive") }}</a>
       {% endif %}
-      <a href="{{ url_for('services.create_service') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">+ New Service</a>
+      <a href="{{ url_for('services.create_service') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("+ New Service") }}</a>
     </div>
   </div>
 
@@ -22,12 +22,12 @@
     <table class="w-full text-sm text-left">
       <thead class="border-b border-slate-800/60 bg-slate-800/30">
         <tr>
-          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Service</th>
-          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Category</th>
-          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Default Part</th>
-          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Labour</th>
-          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Price</th>
-          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Status</th>
+          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Service") }}</th>
+          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Category") }}</th>
+          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Default Part") }}</th>
+          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Labour") }}</th>
+          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Price") }}</th>
+          <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ _("Status") }}</th>
           <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400"></th>
         </tr>
       </thead>
@@ -39,7 +39,7 @@
             {% if svc.device_category %}
             <span class="inline-flex items-center rounded-full bg-cyan-950/40 px-2 py-0.5 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-800/40">{{ svc.device_category | replace('_', ' ') | title }}</span>
             {% else %}
-            <span class="text-slate-500">Any</span>
+            <span class="text-slate-500">{{ _("Any") }}</span>
             {% endif %}
           </td>
           <td class="px-4 py-3 text-slate-400">{{ svc.default_part.name if svc.default_part else '—' }}</td>
@@ -47,13 +47,13 @@
           <td class="px-4 py-3 text-slate-300">{{ '%.2f' % svc.suggested_sale_price if svc.suggested_sale_price else '—' }}</td>
           <td class="px-4 py-3">
             {% if svc.is_active %}
-            <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">Active</span>
+            <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-2 py-0.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-800/40">{{ _("Active") }}</span>
             {% else %}
-            <span class="inline-flex items-center rounded-full bg-slate-800/50 px-2 py-0.5 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-700/40">Inactive</span>
+            <span class="inline-flex items-center rounded-full bg-slate-800/50 px-2 py-0.5 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-700/40">{{ _("Inactive") }}</span>
             {% endif %}
           </td>
           <td class="px-4 py-3 text-right">
-            <a href="{{ url_for('services.edit_service', service_id=svc.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium">Edit</a>
+            <a href="{{ url_for('services.edit_service', service_id=svc.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium">{{ _("Edit") }}</a>
           </td>
         </tr>
         {% endfor %}
@@ -61,8 +61,8 @@
     </table>
     {% else %}
     <div class="py-12 text-center">
-      <p class="text-sm text-slate-500">No repair services configured yet.</p>
-      <a href="{{ url_for('services.create_service') }}" class="mt-2 inline-block text-sm text-indigo-400 hover:text-indigo-300">Create your first service</a>
+      <p class="text-sm text-slate-500">{{ _("No repair services configured yet.") }}</p>
+      <a href="{{ url_for('services.create_service') }}" class="mt-2 inline-block text-sm text-indigo-400 hover:text-indigo-300">{{ _("Create your first service") }}</a>
     </div>
     {% endif %}
   </div>

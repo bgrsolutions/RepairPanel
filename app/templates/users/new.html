@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}New User - IRONCore{% endblock %}
+{% block title %}{{ _("New User") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold text-white">Create Staff User</h1>
-    <p class="mt-1 text-sm text-slate-400">Add a new staff member to the system.</p>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Create Staff User") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Add a new staff member to the system.") }}</p>
   </div>
   {% include 'users/_form.html' %}
 </section>

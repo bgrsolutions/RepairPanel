@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
-{% block title %}{{ part.sku }} - Part Detail - IRONCore{% endblock %}
+{% block title %}{{ part.sku }} - {{ _("Part Detail") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-5">
   <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
     <div class="flex items-start justify-between gap-4">
       <div>
-        <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">Part/Product</p>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">{{ _("Part/Product") }}</p>
         <h1 class="mt-1 text-2xl font-bold tracking-tight text-white">{{ part.name }} <span class="text-slate-400">({{ part.sku }})</span></h1>
-        <p class="mt-1 text-sm text-slate-400">{{ part.description or 'No description' }}</p>
+        <p class="mt-1 text-sm text-slate-400">{{ part.description or _('No description') }}</p>
       </div>
       <div class="flex items-start gap-3">
-        <a href="{{ url_for('inventory.edit_part', part_id=part.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700">Edit Part</a>
+        <a href="{{ url_for('inventory.edit_part', part_id=part.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700">{{ _("Edit Part") }}</a>
         {% if part.image_url %}<img src="{{ part.image_url }}" alt="part image" class="h-24 w-24 rounded-xl border border-slate-800/60 object-cover" />{% endif %}
       </div>
     </div>
@@ -18,15 +18,15 @@
 
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel lg:col-span-2">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Stock by Location</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Stock by Location") }}</h2>
       <div class="mt-4 overflow-x-auto">
         <table class="min-w-full text-left text-sm text-slate-200">
           <thead class="border-b border-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
             <tr>
-              <th class="px-3 py-2.5 font-semibold">Branch/Location</th>
-              <th class="px-3 py-2.5 font-semibold text-right">On Hand</th>
-              <th class="px-3 py-2.5 font-semibold text-right">Reserved</th>
-              <th class="px-3 py-2.5 font-semibold text-right">Available</th>
+              <th class="px-3 py-2.5 font-semibold">{{ _("Branch/Location") }}</th>
+              <th class="px-3 py-2.5 font-semibold text-right">{{ _("On Hand") }}</th>
+              <th class="px-3 py-2.5 font-semibold text-right">{{ _("Reserved") }}</th>
+              <th class="px-3 py-2.5 font-semibold text-right">{{ _("Available") }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60">
@@ -40,7 +40,7 @@
             {% else %}
             <tr>
               <td class="px-3 py-8 text-center" colspan="4">
-                <div class="mx-auto max-w-xs rounded-xl border border-dashed border-slate-800 p-6 text-center text-sm text-slate-500">No stock levels yet.</div>
+                <div class="mx-auto max-w-xs rounded-xl border border-dashed border-slate-800 p-6 text-center text-sm text-slate-500">{{ _("No stock levels yet.") }}</div>
               </td>
             </tr>
             {% endfor %}
@@ -52,57 +52,57 @@
     <div class="space-y-5">
       {% set cost=(part.cost_price or 0) %}{% set sale=(part.sale_price or 0) %}{% set margin=(sale-cost) %}{% set margin_pct=((margin/sale*100) if sale else 0) %}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Details</h3>
+        <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Details") }}</h3>
         <dl class="space-y-2 text-sm text-slate-400">
           <div class="flex items-baseline justify-between gap-2">
-            <dt>Default supplier</dt>
+            <dt>{{ _("Default supplier") }}</dt>
             <dd class="text-right text-slate-200">{% if part.default_supplier %}<a class="transition hover:text-indigo-300" href="{{ url_for('suppliers.supplier_detail', supplier_id=part.default_supplier.id) }}">{{ part.default_supplier.name }}</a>{% else %}—{% endif %}</dd>
           </div>
           <div class="flex items-baseline justify-between gap-2">
-            <dt>Other suppliers</dt>
+            <dt>{{ _("Other suppliers") }}</dt>
             <dd class="text-right text-slate-200">{% for l in part.supplier_links %}<a class="transition hover:text-indigo-300" href="{{ url_for('suppliers.supplier_detail', supplier_id=l.supplier.id) }}">{{ l.supplier.name }}</a>{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</dd>
           </div>
           <div class="flex items-baseline justify-between gap-2">
-            <dt>Lead time</dt>
+            <dt>{{ _("Lead time") }}</dt>
             <dd class="text-right text-slate-200">{{ part.lead_time_days ~ ' days' if part.lead_time_days is not none else '—' }}</dd>
           </div>
           <div class="flex items-baseline justify-between gap-2">
-            <dt>Cost price</dt>
+            <dt>{{ _("Cost price") }}</dt>
             <dd class="text-right tabular-nums text-slate-200">{{ part.cost_price or '—' }}</dd>
           </div>
           <div class="flex items-baseline justify-between gap-2">
-            <dt>Sale price</dt>
+            <dt>{{ _("Sale price") }}</dt>
             <dd class="text-right tabular-nums text-slate-200">{{ part.sale_price or '—' }}</dd>
           </div>
           <div class="flex items-baseline justify-between gap-2 border-t border-slate-800/60 pt-2">
-            <dt class="font-medium text-slate-300">Gross margin</dt>
+            <dt class="font-medium text-slate-300">{{ _("Gross margin") }}</dt>
             <dd class="text-right tabular-nums font-medium text-white">{{ '%.2f'|format(margin) }} ({{ '%.1f'|format(margin_pct) }}%)</dd>
           </div>
           <div class="flex items-baseline justify-between gap-2">
-            <dt>Categories</dt>
+            <dt>{{ _("Categories") }}</dt>
             <dd class="text-right text-slate-200">{{ part.categories|map(attribute='name')|join(', ') or (part.category or '—') }}</dd>
           </div>
         </dl>
       </div>
 
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Recent Purchase Price History</h3>
+        <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Recent Purchase Price History") }}</h3>
         <ul class="space-y-2 text-xs text-slate-300">
           {% for line in recent_order_lines %}
-          <li class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3">{{ line.created_at.strftime('%Y-%m-%d') }} · Cost {{ line.unit_cost or '—' }} · Qty {{ line.quantity }}</li>
+          <li class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3">{{ line.created_at.strftime('%Y-%m-%d') }} · {{ _("Cost") }} {{ line.unit_cost or '—' }} · {{ _("Qty") }} {{ line.quantity }}</li>
           {% else %}
-          <li class="rounded-xl border border-dashed border-slate-800 p-4 text-center text-slate-500">No order history yet.</li>
+          <li class="rounded-xl border border-dashed border-slate-800 p-4 text-center text-slate-500">{{ _("No order history yet.") }}</li>
           {% endfor %}
         </ul>
       </div>
 
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
-        <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Recent FIFO Layers</h3>
+        <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">{{ _("Recent FIFO Layers") }}</h3>
         <ul class="space-y-2 text-xs text-slate-300">
           {% for layer in stock_layers %}
-          <li class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3">Remaining {{ layer.quantity_remaining }} / {{ layer.quantity_received }} {% if layer.unit_cost %}· Cost {{ layer.unit_cost }}{% endif %}</li>
+          <li class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-3">{{ _("Remaining") }} {{ layer.quantity_remaining }} / {{ layer.quantity_received }} {% if layer.unit_cost %}· {{ _("Cost") }} {{ layer.unit_cost }}{% endif %}</li>
           {% else %}
-          <li class="rounded-xl border border-dashed border-slate-800 p-4 text-center text-slate-500">No receipt layers yet.</li>
+          <li class="rounded-xl border border-dashed border-slate-800 p-4 text-center text-slate-500">{{ _("No receipt layers yet.") }}</li>
           {% endfor %}
         </ul>
       </div>

@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
 {% from 'components/ui_macros.html' import status_badge %}
-{% block title %}Intake Submissions - IRONCore{% endblock %}
+{% block title %}{{ _("Intake Submissions") }} - IRONCore{% endblock %}
 {% block content %}
 <section class="space-y-6">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold text-white">Intake Submissions</h1>
-      <p class="mt-1 text-sm text-slate-400">Pre-check-ins and internal intake records.</p>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Intake Submissions") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Pre-check-ins and internal intake records.") }}</p>
     </div>
-    <a href="{{ url_for('intake.new_intake') }}" class="inline-flex rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">+ New Intake</a>
+    <a href="{{ url_for('intake.new_intake') }}" class="inline-flex rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">{{ _("+ New Intake") }}</a>
   </div>
 
   <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     <table class="min-w-full text-left text-sm text-slate-200">
       <thead class="bg-slate-900/80 text-xs uppercase tracking-wide text-slate-400">
         <tr>
-          <th class="px-5 py-3.5">Reference</th>
-          <th class="px-5 py-3.5">Source</th>
-          <th class="px-5 py-3.5">Customer</th>
-          <th class="px-5 py-3.5">Device</th>
-          <th class="px-5 py-3.5">Status</th>
-          <th class="px-5 py-3.5">Actions</th>
+          <th class="px-5 py-3.5">{{ _("Reference") }}</th>
+          <th class="px-5 py-3.5">{{ _("Source") }}</th>
+          <th class="px-5 py-3.5">{{ _("Customer") }}</th>
+          <th class="px-5 py-3.5">{{ _("Device") }}</th>
+          <th class="px-5 py-3.5">{{ _("Status") }}</th>
+          <th class="px-5 py-3.5">{{ _("Actions") }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-800/60">
@@ -31,10 +31,10 @@
           <td class="px-5 py-3.5 text-slate-300">{% if intake.customer_id %}<a class="hover:text-indigo-300" href="{{ url_for('customers.customer_detail', customer_id=intake.customer_id) }}">{{ intake.customer_name }}</a>{% else %}{{ intake.customer_name }}{% endif %}</td>
           <td class="px-5 py-3.5 text-slate-400">{{ intake.device_brand }} {{ intake.device_model }}</td>
           <td class="px-5 py-3.5">{{ status_badge(intake.status|replace('_', ' ')|title) }}</td>
-          <td class="px-5 py-3.5"><a href="{{ url_for('intake.intake_detail', intake_id=intake.id) }}" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-700">Open</a></td>
+          <td class="px-5 py-3.5"><a href="{{ url_for('intake.intake_detail', intake_id=intake.id) }}" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-700">{{ _("Open") }}</a></td>
         </tr>
       {% else %}
-        <tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">No intake submissions yet.</td></tr>
+        <tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">{{ _("No intake submissions yet.") }}</td></tr>
       {% endfor %}
       </tbody>
     </table>
