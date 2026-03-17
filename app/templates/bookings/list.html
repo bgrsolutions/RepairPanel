@@ -7,7 +7,12 @@
       <h1 class="text-2xl font-semibold text-white">{{ _("Bookings") }}</h1>
       <p class="mt-1 text-sm text-slate-400">{{ _("View and manage repair bookings by date and location.") }}</p>
     </div>
-    <a href="{{ url_for('bookings.create_booking') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("+ New Booking") }}</a>
+    <div class="flex gap-2">
+      <a href="{{ url_for('bookings.list_bookings', view='queue') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Intake Queue") }}</a>
+      {% if perms.can_manage_bookings %}
+      <a href="{{ url_for('bookings.create_booking') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("+ New Booking") }}</a>
+      {% endif %}
+    </div>
   </div>
 
   {# Date navigation & filters #}
@@ -19,20 +24,40 @@
         {% if selected_location %}
         <input type="hidden" name="location_id" value="{{ selected_location }}" />
         {% endif %}
+        {% if selected_status %}
+        <input type="hidden" name="status" value="{{ selected_status }}" />
+        {% endif %}
       </form>
 
       {# Quick date links #}
       <div class="flex gap-1">
         {% set today = view_date.__class__.today() %}
-        <a href="{{ url_for('bookings.list_bookings', date=today.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == today %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ _("Today") }}</a>
+        <a href="{{ url_for('bookings.list_bookings', date=today.strftime('%Y-%m-%d'), location_id=selected_location, status=selected_status) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == today %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ _("Today") }}</a>
         {% for wd in week_dates %}
-        <a href="{{ url_for('bookings.list_bookings', date=wd.strftime('%Y-%m-%d'), location_id=selected_location) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == wd %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ wd.strftime('%a %d') }}</a>
+        <a href="{{ url_for('bookings.list_bookings', date=wd.strftime('%Y-%m-%d'), location_id=selected_location, status=selected_status) }}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium {% if view_date == wd %}bg-indigo-600 text-white{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800{% endif %} transition-colors">{{ wd.strftime('%a %d') }}</a>
         {% endfor %}
       </div>
+
+      {# Status filter #}
+      <form method="get" class="flex items-center gap-2">
+        <input type="hidden" name="date" value="{{ view_date.strftime('%Y-%m-%d') }}" />
+        {% if selected_location %}
+        <input type="hidden" name="location_id" value="{{ selected_location }}" />
+        {% endif %}
+        <select name="status" onchange="this.form.submit()" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+          <option value="">{{ _("All statuses") }}</option>
+          {% for s in all_statuses %}
+          <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ status_label(s) }}</option>
+          {% endfor %}
+        </select>
+      </form>
 
       {# Location filter #}
       <form method="get" class="ml-auto flex items-center gap-2">
         <input type="hidden" name="date" value="{{ view_date.strftime('%Y-%m-%d') }}" />
+        {% if selected_status %}
+        <input type="hidden" name="status" value="{{ selected_status }}" />
+        {% endif %}
         <select name="location_id" onchange="this.form.submit()" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
           <option value="">{{ _("All locations") }}</option>
           {% for b in branches %}
@@ -53,7 +78,7 @@
     {% if bookings %}
     <div class="divide-y divide-slate-800/40">
       {% for booking in bookings %}
-      <div class="px-4 py-3 flex items-center gap-4 hover:bg-slate-800/30 transition-colors">
+      <a href="{{ url_for('bookings.booking_detail', booking_id=booking.id) }}" class="px-4 py-3 flex items-center gap-4 hover:bg-slate-800/30 transition-colors block">
         {# Time #}
         <div class="w-28 flex-shrink-0 text-center">
           <span class="text-sm font-medium text-white">{{ booking.start_time.strftime('%H:%M') }}</span>
@@ -66,11 +91,16 @@
           <div class="flex items-center gap-2">
             {% if booking.customer %}
             <span class="text-sm text-slate-200 font-medium">{{ booking.customer.full_name }}</span>
+            {% elif booking.customer_name %}
+            <span class="text-sm text-slate-200 font-medium">{{ booking.customer_name }}</span>
             {% else %}
             <span class="text-sm text-slate-500 italic">{{ _("No customer") }}</span>
             {% endif %}
             {% if booking.repair_service %}
             <span class="inline-flex items-center rounded-full bg-cyan-950/40 px-2 py-0.5 text-xs text-cyan-300 ring-1 ring-inset ring-cyan-800/40">{{ booking.repair_service.name }}</span>
+            {% endif %}
+            {% if booking.device %}
+            <span class="text-xs text-slate-500">{{ booking.device.brand }} {{ booking.device.model }}</span>
             {% endif %}
           </div>
           {% if booking.notes %}
@@ -83,21 +113,37 @@
           <span class="text-xs text-slate-400">{{ booking.location.name }}</span>
         </div>
 
-        {# Status #}
+        {# Status badge #}
         <div class="flex-shrink-0">
-          {% set status_colors = {'scheduled': 'bg-blue-950/40 text-blue-300 ring-blue-800/40', 'confirmed': 'bg-emerald-950/40 text-emerald-300 ring-emerald-800/40', 'in_progress': 'bg-amber-950/40 text-amber-300 ring-amber-800/40', 'completed': 'bg-slate-800/50 text-slate-400 ring-slate-700/40', 'cancelled': 'bg-red-950/40 text-red-300 ring-red-800/40', 'no_show': 'bg-red-950/40 text-red-300 ring-red-800/40'} %}
-          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset {{ status_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ booking.status | replace('_', ' ') | title }}</span>
+          {% set status_colors = {
+            'new': 'bg-blue-950/40 text-blue-300 ring-blue-800/40',
+            'confirmed': 'bg-emerald-950/40 text-emerald-300 ring-emerald-800/40',
+            'arrived': 'bg-amber-950/40 text-amber-300 ring-amber-800/40',
+            'converted': 'bg-violet-950/40 text-violet-300 ring-violet-800/40',
+            'cancelled': 'bg-red-950/40 text-red-300 ring-red-800/40',
+            'no_show': 'bg-red-950/40 text-red-300 ring-red-800/40',
+            'scheduled': 'bg-blue-950/40 text-blue-300 ring-blue-800/40',
+            'in_progress': 'bg-amber-950/40 text-amber-300 ring-amber-800/40',
+            'completed': 'bg-slate-800/50 text-slate-400 ring-slate-700/40',
+          } %}
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset {{ status_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ booking_status_label(booking.status) }}</span>
         </div>
 
-        {# Actions #}
-        <a href="{{ url_for('bookings.edit_booking', booking_id=booking.id) }}" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium flex-shrink-0">{{ _("Edit") }}</a>
-      </div>
+        {# Linked ticket indicator #}
+        {% if booking.converted_ticket %}
+        <div class="flex-shrink-0">
+          <span class="text-xs text-indigo-400">{{ booking.converted_ticket.ticket_number }}</span>
+        </div>
+        {% endif %}
+      </a>
       {% endfor %}
     </div>
     {% else %}
     <div class="py-12 text-center">
       <p class="text-sm text-slate-500">{{ _("No bookings for this date.") }}</p>
+      {% if perms.can_manage_bookings %}
       <a href="{{ url_for('bookings.create_booking') }}" class="mt-2 inline-block text-sm text-indigo-400 hover:text-indigo-300">{{ _("Create a booking") }}</a>
+      {% endif %}
     </div>
     {% endif %}
   </div>

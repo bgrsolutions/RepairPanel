@@ -33,11 +33,37 @@
           <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Status") }}</label>
           {{ form.status(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
-        {{ form.customer_id }}
-        <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Notes") }}</label>
-          {{ form.notes(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Device") }}</label>
+          {{ form.device_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
+        {{ form.customer_id }}
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Customer Contact") }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Customer Name") }}</label>
+          {{ form.customer_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Customer Phone") }}</label>
+          {{ form.customer_phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Notes") }}</h2>
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Notes") }}</label>
+        {{ form.notes(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Staff Notes") }}</label>
+        {{ form.staff_notes(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=3) }}
       </div>
     </div>
 

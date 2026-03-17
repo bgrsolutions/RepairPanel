@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}{{ _("Convert Booking to Ticket") }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6 max-w-2xl">
+  <div>
+    <h1 class="text-2xl font-semibold text-white">{{ _("Convert Booking to Ticket") }}</h1>
+    <p class="mt-1 text-sm text-slate-400">{{ _("Create a repair ticket from this booking. Review and adjust the details below.") }}</p>
+  </div>
+
+  {# Booking summary #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-3">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Booking Summary") }}</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+      <div>
+        <dt class="text-slate-500">{{ _("Date / Time") }}</dt>
+        <dd class="text-slate-200">{{ booking.start_time.strftime('%d %b %Y %H:%M') }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">{{ _("Customer") }}</dt>
+        <dd class="text-slate-200">{{ booking.customer.full_name if booking.customer else booking.customer_name or '-' }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">{{ _("Location") }}</dt>
+        <dd class="text-slate-200">{{ booking.location.name }}</dd>
+      </div>
+      {% if booking.repair_service %}
+      <div>
+        <dt class="text-slate-500">{{ _("Service") }}</dt>
+        <dd class="text-slate-200">{{ booking.repair_service.name }}</dd>
+      </div>
+      {% endif %}
+      <div>
+        <dt class="text-slate-500">{{ _("Status") }}</dt>
+        <dd>
+          {% set status_colors = {
+            'arrived': 'bg-amber-950/40 text-amber-300 ring-amber-800/40',
+          } %}
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset {{ status_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ status_label(booking.status) }}</span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  {# Conversion form #}
+  <form method="post" class="space-y-6">
+    {{ form.hidden_tag() }}
+
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Ticket Details") }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Device") }} <span class="text-red-400">*</span></label>
+          {{ form.device_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+          {% for error in form.device_id.errors %}
+          <p class="mt-1 text-xs text-red-400">{{ error }}</p>
+          {% endfor %}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Repair Service") }}</label>
+          {{ form.repair_service_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Issue / Summary") }}</label>
+          {{ form.issue_summary(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=4) }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Device Condition") }}</label>
+          {{ form.device_condition(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", rows=2) }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Accessories Received") }}</label>
+          {{ form.accessories(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      {{ form.submit(class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors cursor-pointer") }}
+      <a href="{{ url_for('bookings.booking_detail', booking_id=booking.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Cancel") }}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}{{ _("Intake Queue") }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Intake Queue") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("Expected arrivals, today's bookings, and upcoming appointments.") }}</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{{ url_for('bookings.list_bookings') }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Day View") }}</a>
+      {% if perms.can_manage_bookings %}
+      <a href="{{ url_for('bookings.create_booking') }}" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("+ New Booking") }}</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Filters #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-4 shadow-panel">
+    <form method="get" class="flex flex-wrap items-center gap-4">
+      <input type="hidden" name="view" value="queue" />
+      <select name="status" onchange="this.form.submit()" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+        <option value="">{{ _("All statuses") }}</option>
+        {% for s in all_statuses %}
+        <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ status_label(s) }}</option>
+        {% endfor %}
+      </select>
+      <select name="location_id" onchange="this.form.submit()" class="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+        <option value="">{{ _("All locations") }}</option>
+        {% for b in branches %}
+        <option value="{{ b.id }}" {% if selected_location == b.id|string %}selected{% endif %}>{{ b.name }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {# Overdue bookings #}
+  {% if queue.overdue %}
+  <div class="rounded-2xl border border-red-900/40 bg-red-950/20 shadow-panel overflow-hidden">
+    <div class="border-b border-red-900/40 bg-red-950/30 px-4 py-3">
+      <h2 class="text-sm font-semibold text-red-300">{{ _("Overdue") }}</h2>
+      <p class="text-xs text-red-400/70">{{ queue.overdue | length }} {{ _("booking") }}{{ 's' if queue.overdue | length != 1 else '' }} {{ _("past due without resolution") }}</p>
+    </div>
+    <div class="divide-y divide-red-900/20">
+      {% for booking in queue.overdue %}
+      {% include 'bookings/_queue_row.html' %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Today's bookings #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel overflow-hidden">
+    <div class="border-b border-slate-800/60 bg-slate-800/30 px-4 py-3">
+      <h2 class="text-sm font-semibold text-white">{{ _("Today") }}</h2>
+      <p class="text-xs text-slate-400">{{ queue.today | length }} {{ _("booking") }}{{ 's' if queue.today | length != 1 else '' }}</p>
+    </div>
+    {% if queue.today %}
+    <div class="divide-y divide-slate-800/40">
+      {% for booking in queue.today %}
+      {% include 'bookings/_queue_row.html' %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="py-8 text-center">
+      <p class="text-sm text-slate-500">{{ _("No bookings today.") }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  {# Upcoming bookings #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel overflow-hidden">
+    <div class="border-b border-slate-800/60 bg-slate-800/30 px-4 py-3">
+      <h2 class="text-sm font-semibold text-white">{{ _("Upcoming (next 7 days)") }}</h2>
+      <p class="text-xs text-slate-400">{{ queue.upcoming | length }} {{ _("booking") }}{{ 's' if queue.upcoming | length != 1 else '' }}</p>
+    </div>
+    {% if queue.upcoming %}
+    <div class="divide-y divide-slate-800/40">
+      {% for booking in queue.upcoming %}
+      {% include 'bookings/_queue_row.html' %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="py-8 text-center">
+      <p class="text-sm text-slate-500">{{ _("No upcoming bookings.") }}</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

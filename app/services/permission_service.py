@@ -148,6 +148,22 @@ def can_view_reports(user=None) -> bool:
     return is_management(user)
 
 
+def can_view_bookings(user=None) -> bool:
+    """View booking list and intake queue."""
+    roles = _user_roles(user)
+    return bool(roles & _ALL_STAFF_ROLES)
+
+
+def can_manage_bookings(user=None) -> bool:
+    """Create, edit, cancel bookings, mark arrived/no-show."""
+    return is_management(user) or is_frontdesk(user)
+
+
+def can_convert_booking(user=None) -> bool:
+    """Convert a booking into a repair ticket."""
+    return is_management(user) or is_frontdesk(user)
+
+
 # ---------------------------------------------------------------------------
 # Template context injection
 # ---------------------------------------------------------------------------
@@ -237,3 +253,15 @@ class _PermissionProxy:
     @property
     def can_view_reports(self) -> bool:
         return can_view_reports()
+
+    @property
+    def can_view_bookings(self) -> bool:
+        return can_view_bookings()
+
+    @property
+    def can_manage_bookings(self) -> bool:
+        return can_manage_bookings()
+
+    @property
+    def can_convert_booking(self) -> bool:
+        return can_convert_booking()
