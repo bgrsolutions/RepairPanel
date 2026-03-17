@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}{{ _("Email Settings") }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">{{ _("Settings") }}</p>
+      <h1 class="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ _("Email Transport Configuration") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ _("View current email delivery settings and send a test email.") }}</p>
+    </div>
+    <a href="{{ url_for('settings.index') }}" class="inline-flex items-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">{{ _("Back to Settings") }}</a>
+  </div>
+
+  {# Current transport status #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Transport Status") }}</h2>
+    <div class="flex items-center gap-3">
+      {% if transport == 'smtp' %}
+      <span class="inline-flex items-center rounded-full bg-emerald-950/50 px-3 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-inset ring-emerald-800/40">SMTP</span>
+      <span class="text-sm text-slate-300">{{ _("Production SMTP delivery is active.") }}</span>
+      {% else %}
+      <span class="inline-flex items-center rounded-full bg-amber-950/50 px-3 py-1 text-xs font-semibold text-amber-300 ring-1 ring-inset ring-amber-800/40">LOG</span>
+      <span class="text-sm text-slate-300">{{ _("Development mode — emails are logged but not delivered.") }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {# SMTP Configuration (read-only view of env vars) #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("SMTP Configuration") }}</h2>
+    <p class="text-xs text-slate-500">{{ _("SMTP settings are configured via environment variables. Values shown below are read-only.") }}</p>
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_SMTP_HOST</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{{ smtp_host or '—' }}</div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_SMTP_PORT</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{{ smtp_port }}</div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_SMTP_USERNAME</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{{ smtp_username or '—' }}</div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_SMTP_PASSWORD</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{% if smtp_has_password %}••••••••{% else %}{{ _("Not set") }}{% endif %}</div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">TLS / SSL</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">
+          {% if use_tls %}STARTTLS{% elif use_ssl %}SSL{% else %}{{ _("None") }}{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Sender / Branding #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Sender Details") }}</h2>
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_DEFAULT_SENDER_EMAIL</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{{ sender_email or '—' }}</div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_DEFAULT_SENDER_NAME</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{{ sender_name or '—' }}</div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-500 mb-1">MAIL_DEFAULT_REPLY_TO</label>
+        <div class="rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-300">{{ reply_to or '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  {# Test email #}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Send Test Email") }}</h2>
+    <p class="text-xs text-slate-500">{{ _("Send a test email to verify the current transport configuration.") }}</p>
+    <form method="post" action="{{ url_for('settings.send_test_email_action') }}" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <div class="flex-1">
+        <label for="to_email" class="block text-xs font-medium text-slate-500 mb-1">{{ _("Recipient Email") }}</label>
+        <input type="email" name="to_email" id="to_email" required placeholder="admin@example.com" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
+      </div>
+      <button type="submit" class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors whitespace-nowrap">{{ _("Send Test Email") }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

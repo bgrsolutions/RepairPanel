@@ -9,6 +9,7 @@ from app.extensions import db
 from app.forms.branch_forms import BranchEditForm
 from app.models import AppSetting, Branch, Company
 from app.services.permission_service import can_manage_settings
+from app.services.branded_email_service import send_test_email
 from app.utils.permissions import permission_required
 
 
@@ -164,3 +165,54 @@ def save_quote_settings():
     db.session.commit()
     flash(_("Quote settings saved"), "success")
     return redirect(url_for("settings.quote_settings"))
+
+
+@settings_bp.get("/email")
+@login_required
+@permission_required(can_manage_settings)
+def email_settings():
+    transport = current_app.config.get("MAIL_TRANSPORT", "log")
+    smtp_host = current_app.config.get("MAIL_SMTP_HOST", "")
+    smtp_port = current_app.config.get("MAIL_SMTP_PORT", 587)
+    smtp_username = current_app.config.get("MAIL_SMTP_USERNAME", "")
+    use_tls = current_app.config.get("MAIL_SMTP_USE_TLS", True)
+    use_ssl = current_app.config.get("MAIL_SMTP_USE_SSL", False)
+    sender_email = current_app.config.get("MAIL_DEFAULT_SENDER_EMAIL", "")
+    sender_name = current_app.config.get("MAIL_DEFAULT_SENDER_NAME", "")
+    reply_to = current_app.config.get("MAIL_DEFAULT_REPLY_TO", "")
+    return render_template(
+        "settings/email.html",
+        transport=transport,
+        smtp_host=smtp_host,
+        smtp_port=smtp_port,
+        smtp_username=smtp_username,
+        smtp_has_password=bool(current_app.config.get("MAIL_SMTP_PASSWORD", "")),
+        use_tls=use_tls,
+        use_ssl=use_ssl,
+        sender_email=sender_email,
+        sender_name=sender_name,
+        reply_to=reply_to,
+    )
+
+
+@settings_bp.post("/email/test")
+@login_required
+@permission_required(can_manage_settings)
+def send_test_email_action():
+    to_email = (request.form.get("to_email") or "").strip()
+    if not to_email or "@" not in to_email:
+        flash(_("Please enter a valid email address"), "error")
+        return redirect(url_for("settings.email_settings"))
+
+    result = send_test_email(to_email)
+    if result.success:
+        flash(
+            _("Test email sent to %(email)s via %(transport)s", email=to_email, transport=result.transport),
+            "success",
+        )
+    else:
+        flash(
+            _("Test email failed: %(error)s", error=result.error or result.message),
+            "error",
+        )
+    return redirect(url_for("settings.email_settings"))

@@ -3,13 +3,19 @@
 Provides a structured email-sending architecture with:
 - Company branding (name, logo, terms)
 - Template-based email generation
-- Safe fallback/logging when no transport is configured
+- Log transport for development/testing
+- SMTP transport for production delivery
 - Language-aware template selection (EN/ES)
+- Delivery result tracking
 """
 from __future__ import annotations
 
 import logging
+import smtplib
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formataddr
 
 from flask import current_app, render_template
 
@@ -21,16 +27,18 @@ logger = logging.getLogger(__name__)
 class EmailResult:
     """Result of an email send attempt."""
 
-    def __init__(self, success: bool, message: str = "", error: str | None = None):
+    def __init__(self, success: bool, message: str = "", error: str | None = None,
+                 transport: str = "unknown"):
         self.success = success
         self.message = message
         self.error = error
+        self.transport = transport
 
     def __bool__(self):
         return self.success
 
     def __repr__(self):
-        return f"<EmailResult success={self.success} message={self.message!r}>"
+        return f"<EmailResult success={self.success} transport={self.transport!r} message={self.message!r}>"
 
 
 def _get_company_branding() -> dict:
@@ -57,6 +65,105 @@ def _get_company_branding() -> dict:
     }
 
 
+def _get_sender_info() -> tuple[str, str, str]:
+    """Return (sender_email, sender_name, reply_to) from config/company.
+
+    Priority: config env vars > company record > fallback defaults.
+    """
+    branding = _get_company_branding()
+    sender_email = (
+        current_app.config.get("MAIL_DEFAULT_SENDER_EMAIL")
+        or branding.get("company_email")
+        or "noreply@example.com"
+    )
+    sender_name = (
+        current_app.config.get("MAIL_DEFAULT_SENDER_NAME")
+        or branding.get("company_name")
+        or "IRONCore RepairPanel"
+    )
+    reply_to = (
+        current_app.config.get("MAIL_DEFAULT_REPLY_TO")
+        or sender_email
+    )
+    return sender_email, sender_name, reply_to
+
+
+def _send_via_smtp(
+    *,
+    to_email: str,
+    to_name: str | None,
+    subject: str,
+    html_body: str,
+) -> EmailResult:
+    """Send an email via SMTP.
+
+    Reads SMTP configuration from Flask app config. Fails gracefully on
+    connection or authentication errors — never raises.
+    """
+    host = current_app.config.get("MAIL_SMTP_HOST", "localhost")
+    port = current_app.config.get("MAIL_SMTP_PORT", 587)
+    username = current_app.config.get("MAIL_SMTP_USERNAME", "")
+    password = current_app.config.get("MAIL_SMTP_PASSWORD", "")
+    use_tls = current_app.config.get("MAIL_SMTP_USE_TLS", True)
+    use_ssl = current_app.config.get("MAIL_SMTP_USE_SSL", False)
+    timeout = current_app.config.get("MAIL_SMTP_TIMEOUT", 10)
+
+    sender_email, sender_name, reply_to = _get_sender_info()
+
+    if not sender_email or sender_email == "noreply@example.com":
+        return EmailResult(
+            False,
+            "SMTP sender email not configured",
+            error="missing_sender",
+            transport="smtp",
+        )
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = formataddr((sender_name, sender_email))
+    msg["To"] = formataddr((to_name or "", to_email))
+    if reply_to and reply_to != sender_email:
+        msg["Reply-To"] = reply_to
+
+    # Attach plain-text fallback (stripped HTML) and HTML body
+    from html import unescape
+    import re
+    plain_text = unescape(re.sub(r"<[^>]+>", "", html_body))
+    msg.attach(MIMEText(plain_text, "plain", "utf-8"))
+    msg.attach(MIMEText(html_body, "html", "utf-8"))
+
+    try:
+        if use_ssl:
+            server = smtplib.SMTP_SSL(host, port, timeout=timeout)
+        else:
+            server = smtplib.SMTP(host, port, timeout=timeout)
+        with server:
+            if use_tls and not use_ssl:
+                server.starttls()
+            if username and password:
+                server.login(username, password)
+            server.sendmail(sender_email, [to_email], msg.as_string())
+
+        logger.info(
+            "Branded email [SMTP]: to=%s subject=%s sender=%s",
+            to_email, subject, sender_email,
+        )
+        return EmailResult(True, "Sent via SMTP", transport="smtp")
+
+    except smtplib.SMTPAuthenticationError as e:
+        error_msg = f"SMTP authentication failed: {e}"
+        logger.error("Branded email SMTP auth error: %s", error_msg)
+        return EmailResult(False, "SMTP authentication failed", error=error_msg, transport="smtp")
+    except smtplib.SMTPException as e:
+        error_msg = f"SMTP error: {e}"
+        logger.error("Branded email SMTP error: %s", error_msg)
+        return EmailResult(False, "SMTP delivery failed", error=error_msg, transport="smtp")
+    except OSError as e:
+        error_msg = f"SMTP connection error: {e}"
+        logger.error("Branded email SMTP connection error: %s", error_msg)
+        return EmailResult(False, "SMTP connection failed", error=error_msg, transport="smtp")
+
+
 def send_branded_email(
     *,
     to_email: str,
@@ -65,12 +172,11 @@ def send_branded_email(
     template_name: str,
     template_context: dict | None = None,
     language: str = "en",
+    event_type: str | None = None,
 ) -> EmailResult:
     """Send a branded email using a Jinja2 template.
 
-    Currently logs intent and returns success=False when no mail transport
-    is configured. When a transport (SMTP, SendGrid, etc.) is configured
-    via MAIL_TRANSPORT in app config, it will dispatch accordingly.
+    Dispatches to the configured transport (log or smtp).
 
     Args:
         to_email: Recipient email address.
@@ -79,9 +185,10 @@ def send_branded_email(
         template_name: Name of the email template (without path prefix).
         template_context: Additional context variables for the template.
         language: Language code for template selection (default: "en").
+        event_type: Optional label for delivery logging (e.g. "warranty_confirmation").
 
     Returns:
-        EmailResult with success status.
+        EmailResult with success status and transport used.
     """
     if not to_email:
         return EmailResult(False, "No recipient email", error="missing_email")
@@ -109,7 +216,14 @@ def send_branded_email(
 
     transport = current_app.config.get("MAIL_TRANSPORT", "log")
 
-    if transport == "log":
+    if transport == "smtp":
+        result = _send_via_smtp(
+            to_email=to_email,
+            to_name=to_name,
+            subject=subject,
+            html_body=html_body,
+        )
+    elif transport == "log":
         logger.info(
             "Branded email [LOG]: to=%s subject=%s template=%s chars=%d",
             to_email,
@@ -117,17 +231,68 @@ def send_branded_email(
             template_name,
             len(html_body),
         )
-        return EmailResult(True, "Logged (no transport configured)")
+        result = EmailResult(True, "Logged (dev mode)", transport="log")
+    else:
+        logger.warning("Unknown mail transport: %s — falling back to log", transport)
+        logger.info(
+            "Branded email [FALLBACK]: to=%s subject=%s template=%s",
+            to_email,
+            subject,
+            template_name,
+        )
+        result = EmailResult(True, "Logged (unknown transport fallback)", transport="log")
 
-    # Future: SMTP, SendGrid, etc.
-    logger.warning("Unknown mail transport: %s — falling back to log", transport)
-    logger.info(
-        "Branded email [FALLBACK]: to=%s subject=%s template=%s",
-        to_email,
-        subject,
-        template_name,
+    # Delivery logging
+    _log_delivery(
+        to_email=to_email,
+        subject=subject,
+        template_name=template_name,
+        event_type=event_type,
+        transport=result.transport,
+        success=result.success,
+        error=result.error,
     )
-    return EmailResult(True, "Logged (unknown transport fallback)")
+
+    return result
+
+
+def _log_delivery(
+    *,
+    to_email: str,
+    subject: str,
+    template_name: str,
+    event_type: str | None,
+    transport: str,
+    success: bool,
+    error: str | None,
+) -> None:
+    """Log email delivery attempt for audit trail."""
+    status = "success" if success else "failed"
+    logger.info(
+        "EMAIL_DELIVERY: status=%s transport=%s to=%s subject=%s "
+        "template=%s event=%s error=%s",
+        status, transport, to_email, subject,
+        template_name, event_type or "-", error or "-",
+    )
+
+
+def send_test_email(to_email: str) -> EmailResult:
+    """Send a test email to verify transport configuration.
+
+    Uses a minimal built-in template that does not require any ticket/customer
+    context, making it safe to send from the settings page.
+    """
+    return send_branded_email(
+        to_email=to_email,
+        to_name="",
+        subject="IRONCore RepairPanel — Test Email",
+        template_name="test_email.html",
+        template_context={
+            "transport": current_app.config.get("MAIL_TRANSPORT", "log"),
+        },
+        language="en",
+        event_type="test_email",
+    )
 
 
 def send_warranty_confirmation_email(warranty, language: str = "en") -> EmailResult:
@@ -148,6 +313,7 @@ def send_warranty_confirmation_email(warranty, language: str = "en") -> EmailRes
             "customer": customer,
         },
         language=language,
+        event_type="warranty_confirmation",
     )
 
     if result.success:
@@ -176,6 +342,7 @@ def send_warranty_expiry_reminder_email(warranty, language: str = "en") -> Email
             "customer": customer,
         },
         language=language,
+        event_type="warranty_expiry_reminder",
     )
 
 
@@ -201,6 +368,7 @@ def send_aftercare_email(
             "message": message,
         },
         language=language,
+        event_type="aftercare_followup",
     )
 
 

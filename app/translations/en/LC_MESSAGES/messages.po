@@ -5804,3 +5804,52 @@ msgstr ""
 
 msgid "Change"
 msgstr ""
+
+#: Phase 17.3 — Email Transport Configuration
+msgid "Email Settings"
+msgstr ""
+
+msgid "Email Transport Configuration"
+msgstr ""
+
+msgid "View current email delivery settings and send a test email."
+msgstr ""
+
+msgid "Transport Status"
+msgstr ""
+
+msgid "Production SMTP delivery is active."
+msgstr ""
+
+msgid "Development mode — emails are logged but not delivered."
+msgstr ""
+
+msgid "SMTP Configuration"
+msgstr ""
+
+msgid "SMTP settings are configured via environment variables. Values shown below are read-only."
+msgstr ""
+
+msgid "Not set"
+msgstr ""
+
+msgid "Sender Details"
+msgstr ""
+
+msgid "Send Test Email"
+msgstr ""
+
+msgid "Send a test email to verify the current transport configuration."
+msgstr ""
+
+msgid "Recipient Email"
+msgstr ""
+
+msgid "Please enter a valid email address"
+msgstr ""
+
+msgid "Test email sent to %(email)s via %(transport)s"
+msgstr ""
+
+msgid "Test email failed: %(error)s"
+msgstr ""
