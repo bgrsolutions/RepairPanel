@@ -20,7 +20,9 @@ from app.services.permission_service import (
     can_consume_reservation,
     can_create_ticket,
     can_manage_customer_portal,
+    can_manage_warranty,
     can_progress_workflow,
+    can_send_branded_email,
     can_send_customer_updates,
 )
 from app.utils.permissions import permission_required
@@ -314,6 +316,29 @@ def ticket_detail(ticket_id):
 
     portal_token_active = public_status_url is not None
 
+    # Warranty context (Phase 17)
+    from app.forms.warranty_forms import WarrantyForm, WarrantyClaimForm, WarrantyVoidForm
+    warranty_form = WarrantyForm()
+    warranty_claim_form = WarrantyClaimForm()
+    warranty_void_form = WarrantyVoidForm()
+    try:
+        from app.services.warranty_service import evaluate_warranty, get_ticket_parts_summary
+        warranty_info = evaluate_warranty(ticket)
+        # Pre-fill warranty days from company defaults
+        if not warranty_info["has_warranty"]:
+            from app.models import Company
+            company = Company.query.filter_by(is_active=True, deleted_at=None).first()
+            if company and company.default_warranty_days:
+                warranty_form.warranty_days.data = company.default_warranty_days
+            if company and company.default_warranty_terms:
+                warranty_form.terms.data = company.default_warranty_terms
+            # Auto-fill parts used summary
+            parts_summary = get_ticket_parts_summary(ticket)
+            if parts_summary:
+                warranty_form.repair_summary.data = parts_summary
+    except Exception:
+        warranty_info = {"has_warranty": False, "warranty": None, "is_active": False, "days_remaining": 0, "prior_repairs": []}
+
     return render_template(
         "tickets/detail.html",
         ticket=ticket,
@@ -343,6 +368,10 @@ def ticket_detail(ticket_id):
         suggested_tpl=suggested_tpl,
         communication_notes=communication_notes,
         portal_token_active=portal_token_active,
+        warranty_info=warranty_info,
+        warranty_form=warranty_form,
+        warranty_claim_form=warranty_claim_form,
+        warranty_void_form=warranty_void_form,
     )
 
 
@@ -1191,3 +1220,232 @@ def log_communication_action(ticket_id):
     db.session.commit()
     log_action(f"ticket.comm.{action_type}", "Ticket", str(ticket.id), details={"action_type": action_type, "detail": detail})
     return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
+# Phase 17: Warranty management routes
+# ---------------------------------------------------------------------------
+
+@tickets_bp.post("/<uuid:ticket_id>/warranty")
+@login_required
+@permission_required(can_manage_warranty)
+def create_warranty_record(ticket_id):
+    """Create a warranty record for a completed/closed ticket."""
+    from app.forms.warranty_forms import WarrantyForm
+    from app.services.warranty_service import create_warranty, get_ticket_parts_summary
+
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    form = WarrantyForm()
+    if form.validate_on_submit():
+        warranty_type = form.warranty_type.data
+        warranty_days = form.warranty_days.data or 0
+        if warranty_type == "no_warranty":
+            warranty_days = 0
+
+        parts_summary = get_ticket_parts_summary(ticket)
+        warranty = create_warranty(
+            ticket=ticket,
+            warranty_type=warranty_type,
+            warranty_days=warranty_days,
+            covers_labour=form.covers_labour.data if warranty_type != "no_warranty" else False,
+            covers_parts=form.covers_parts.data if warranty_type != "no_warranty" else False,
+            terms=form.terms.data,
+            repair_summary=form.repair_summary.data or parts_summary,
+            parts_used=parts_summary,
+            created_by_id=str(current_user.id),
+        )
+        db.session.add(TicketNote(
+            ticket_id=ticket.id,
+            author_user_id=current_user.id,
+            note_type="internal",
+            content=f"Warranty recorded: {warranty.type_label} ({warranty.warranty_days} days)",
+        ))
+        db.session.commit()
+        log_action("ticket.warranty.create", "Ticket", str(ticket.id), details={
+            "warranty_type": warranty_type, "warranty_days": warranty_days,
+        })
+        flash(_("Warranty recorded successfully"), "success")
+    else:
+        flash(_("Invalid warranty submission"), "error")
+
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/warranty/send-email")
+@login_required
+@permission_required(can_send_branded_email)
+def send_warranty_email(ticket_id):
+    """Send warranty confirmation email to the customer."""
+    from app.services.branded_email_service import send_warranty_confirmation_email
+
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    from app.models.warranty import TicketWarranty
+    warranty = TicketWarranty.query.filter_by(ticket_id=ticket.id, deleted_at=None).first()
+    if not warranty:
+        flash(_("No warranty found for this ticket"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    language = ticket.customer.preferred_language if ticket.customer else "en"
+    result = send_warranty_confirmation_email(warranty, language=language)
+    db.session.commit()
+
+    db.session.add(TicketNote(
+        ticket_id=ticket.id,
+        author_user_id=current_user.id,
+        note_type="communication",
+        content=f"Warranty confirmation email: {result.message}",
+    ))
+    db.session.commit()
+    log_action("ticket.warranty.email", "Ticket", str(ticket.id), details={
+        "result": result.message, "success": result.success,
+    })
+
+    if result.success:
+        flash(_("Warranty confirmation email sent"), "success")
+    else:
+        flash(_("Email could not be sent: %(error)s", error=result.message), "warning")
+
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/warranty/claim")
+@login_required
+@permission_required(can_manage_warranty)
+def warranty_claim(ticket_id):
+    """Record a warranty claim."""
+    from app.forms.warranty_forms import WarrantyClaimForm
+    from app.services.warranty_service import record_claim
+
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    from app.models.warranty import TicketWarranty
+    warranty = TicketWarranty.query.filter_by(ticket_id=ticket.id, deleted_at=None).first()
+    if not warranty:
+        flash(_("No warranty found for this ticket"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    form = WarrantyClaimForm()
+    if form.validate_on_submit():
+        record_claim(warranty, notes=form.claim_notes.data)
+        db.session.add(TicketNote(
+            ticket_id=ticket.id,
+            author_user_id=current_user.id,
+            note_type="internal",
+            content=f"Warranty claim #{warranty.claim_count} recorded",
+        ))
+        db.session.commit()
+        log_action("ticket.warranty.claim", "Ticket", str(ticket.id), details={
+            "claim_count": warranty.claim_count,
+        })
+        flash(_("Warranty claim recorded"), "success")
+    else:
+        flash(_("Invalid claim submission"), "error")
+
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/warranty/void")
+@login_required
+@permission_required(can_manage_warranty)
+def warranty_void(ticket_id):
+    """Void a warranty."""
+    from app.forms.warranty_forms import WarrantyVoidForm
+    from app.services.warranty_service import void_warranty
+
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    from app.models.warranty import TicketWarranty
+    warranty = TicketWarranty.query.filter_by(ticket_id=ticket.id, deleted_at=None).first()
+    if not warranty:
+        flash(_("No warranty found for this ticket"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    form = WarrantyVoidForm()
+    if form.validate_on_submit():
+        void_warranty(warranty, reason=form.voided_reason.data, voided_by_id=str(current_user.id))
+        db.session.add(TicketNote(
+            ticket_id=ticket.id,
+            author_user_id=current_user.id,
+            note_type="internal",
+            content=f"Warranty voided: {form.voided_reason.data}",
+        ))
+        db.session.commit()
+        log_action("ticket.warranty.void", "Ticket", str(ticket.id), details={
+            "reason": form.voided_reason.data,
+        })
+        flash(_("Warranty voided"), "success")
+    else:
+        flash(_("Invalid void submission"), "error")
+
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+
+@tickets_bp.post("/<uuid:ticket_id>/send-branded-email")
+@login_required
+@permission_required(can_send_branded_email)
+def send_branded_update_email(ticket_id):
+    """Send a branded email update to the customer."""
+    from app.services.branded_email_service import send_branded_email
+
+    ticket = db.session.get(Ticket, ticket_id)
+    if not ticket or ticket.deleted_at is not None:
+        flash(_("Ticket not found"), "error")
+        return redirect(url_for("tickets.list_tickets"))
+
+    content = (request.form.get("content") or "").strip()
+    if not content:
+        flash(_("Email content is required"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    if not ticket.customer or not ticket.customer.email:
+        flash(_("Customer has no email address"), "error")
+        return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
+
+    language = ticket.customer.preferred_language or "en"
+    status_text = ticket.internal_status.replace("_", " ").title()
+
+    result = send_branded_email(
+        to_email=ticket.customer.email,
+        to_name=ticket.customer.full_name,
+        subject=_("Repair Update — %(ticket)s", ticket=ticket.ticket_number),
+        template_name="ticket_update.html",
+        template_context={
+            "ticket": ticket,
+            "customer": ticket.customer,
+            "message": content,
+            "status_text": status_text,
+        },
+        language=language,
+    )
+
+    db.session.add(TicketNote(
+        ticket_id=ticket.id,
+        author_user_id=current_user.id,
+        note_type="communication",
+        content=f"Branded email sent to {ticket.customer.email}: {result.message}",
+    ))
+    db.session.commit()
+    log_action("ticket.branded_email", "Ticket", str(ticket.id), details={
+        "result": result.message, "success": result.success,
+    })
+
+    if result.success:
+        flash(_("Branded email sent successfully"), "success")
+    else:
+        flash(_("Email could not be sent: %(error)s", error=result.message), "warning")
+
+    return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))

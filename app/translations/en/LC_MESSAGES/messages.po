@@ -5583,3 +5583,157 @@ msgstr ""
 msgid "Accessories Received"
 msgstr ""
 
+#: Phase 17 — Warranty, Branded Communications, Customer Aftercare
+msgid "Warranty"
+msgstr ""
+
+msgid "Repair warranty and aftercare terms"
+msgstr ""
+
+msgid "No warranty recorded."
+msgstr ""
+
+msgid "Warranty terms are captured when the ticket is completed or closed."
+msgstr ""
+
+msgid "Record warranty terms for this completed repair."
+msgstr ""
+
+msgid "Warranty Type"
+msgstr ""
+
+msgid "Standard"
+msgstr ""
+
+msgid "Custom"
+msgstr ""
+
+msgid "No Warranty"
+msgstr ""
+
+msgid "Warranty Days"
+msgstr ""
+
+msgid "Covers Labour"
+msgstr ""
+
+msgid "Covers Parts"
+msgstr ""
+
+msgid "Terms / Exclusions"
+msgstr ""
+
+msgid "Repair Summary"
+msgstr ""
+
+msgid "Parts Used"
+msgstr ""
+
+msgid "Save Warranty"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Period"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "Coverage"
+msgstr ""
+
+msgid "Remaining"
+msgstr ""
+
+msgid "Expired"
+msgstr ""
+
+msgid "Start Date"
+msgstr ""
+
+msgid "Expiry Date"
+msgstr ""
+
+msgid "Terms"
+msgstr ""
+
+msgid "Prior Device Warranties"
+msgstr ""
+
+msgid "Record Claim"
+msgstr ""
+
+msgid "Void Warranty"
+msgstr ""
+
+msgid "Send Warranty Email"
+msgstr ""
+
+msgid "Email sent"
+msgstr ""
+
+msgid "Record Warranty Claim"
+msgstr ""
+
+msgid "Claim Notes"
+msgstr ""
+
+msgid "Describe the issue covered by this warranty claim..."
+msgstr ""
+
+msgid "Submit Claim"
+msgstr ""
+
+msgid "This action cannot be undone. The warranty will be permanently voided."
+msgstr ""
+
+msgid "Reason for Voiding"
+msgstr ""
+
+msgid "Explain why this warranty is being voided..."
+msgstr ""
+
+msgid "Are you sure you want to void this warranty?"
+msgstr ""
+
+msgid "Warranty recorded successfully"
+msgstr ""
+
+msgid "Invalid warranty submission"
+msgstr ""
+
+msgid "No warranty found for this ticket"
+msgstr ""
+
+msgid "Warranty confirmation email sent"
+msgstr ""
+
+msgid "Warranty claim recorded"
+msgstr ""
+
+msgid "Invalid claim submission"
+msgstr ""
+
+msgid "Warranty voided"
+msgstr ""
+
+msgid "Invalid void submission"
+msgstr ""
+
+msgid "Email content is required"
+msgstr ""
+
+msgid "Customer has no email address"
+msgstr ""
+
+msgid "Branded email sent successfully"
+msgstr ""
+
+msgid "Email could not be sent: %(error)s"
+msgstr ""
+
+msgid "Repair Update — %(ticket)s"
+msgstr ""
+

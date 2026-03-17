@@ -1,0 +1,16 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Actualización de Reparación — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Actualización de Su Reparación</h2>
+<p>Estimado/a {{ recipient_name or customer.full_name }},</p>
+
+<table class="info-table">
+  <tr><td>Ticket</td><td>{{ ticket.ticket_number }}</td></tr>
+  <tr><td>Dispositivo</td><td>{{ ticket.device.brand }} {{ ticket.device.model }}</td></tr>
+  <tr><td>Estado</td><td>{{ status_text }}</td></tr>
+</table>
+
+<p>{{ message }}</p>
+
+<p>Atentamente,<br>{{ branding.company_name }}</p>
+{% endblock %}

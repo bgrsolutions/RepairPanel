@@ -7,7 +7,7 @@ from flask_login import login_required
 
 from app.extensions import db
 from app.forms.customer_forms import CustomerEditForm
-from app.models import Customer, Device, StockReservation, Ticket
+from app.models import Customer, Device, StockReservation, Ticket, TicketWarranty
 
 
 customers_bp = Blueprint("customers", __name__, url_prefix="/customers")
@@ -127,4 +127,14 @@ def customer_detail(customer_id):
 
     customer_choices = Customer.query.filter(Customer.deleted_at.is_(None), Customer.id != customer.id).order_by(Customer.full_name.asc()).all()
 
-    return render_template("customers/detail.html", customer=customer, devices=devices, tickets=tickets, fitted_parts=fitted_parts, customer_choices=customer_choices)
+    # Phase 17: Warranty information per ticket
+    ticket_warranties = {}
+    try:
+        for ticket in tickets:
+            w = TicketWarranty.query.filter_by(ticket_id=ticket.id, deleted_at=None).first()
+            if w:
+                ticket_warranties[str(ticket.id)] = w
+    except Exception:
+        ticket_warranties = {}
+
+    return render_template("customers/detail.html", customer=customer, devices=devices, tickets=tickets, fitted_parts=fitted_parts, customer_choices=customer_choices, ticket_warranties=ticket_warranties)

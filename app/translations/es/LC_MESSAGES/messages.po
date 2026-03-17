@@ -6584,3 +6584,157 @@ msgstr "Estado del dispositivo"
 msgid "Accessories Received"
 msgstr "Accesorios recibidos"
 
+#: Phase 17 — Warranty, Branded Communications, Customer Aftercare
+msgid "Warranty"
+msgstr "Garantía"
+
+msgid "Repair warranty and aftercare terms"
+msgstr "Garantía de reparación y términos de postventa"
+
+msgid "No warranty recorded."
+msgstr "No se registró garantía."
+
+msgid "Warranty terms are captured when the ticket is completed or closed."
+msgstr "Los términos de garantía se capturan cuando el ticket se completa o cierra."
+
+msgid "Record warranty terms for this completed repair."
+msgstr "Registrar términos de garantía para esta reparación completada."
+
+msgid "Warranty Type"
+msgstr "Tipo de garantía"
+
+msgid "Standard"
+msgstr "Estándar"
+
+msgid "Custom"
+msgstr "Personalizada"
+
+msgid "No Warranty"
+msgstr "Sin garantía"
+
+msgid "Warranty Days"
+msgstr "Días de garantía"
+
+msgid "Covers Labour"
+msgstr "Cubre mano de obra"
+
+msgid "Covers Parts"
+msgstr "Cubre piezas"
+
+msgid "Terms / Exclusions"
+msgstr "Términos / Exclusiones"
+
+msgid "Repair Summary"
+msgstr "Resumen de reparación"
+
+msgid "Parts Used"
+msgstr "Piezas utilizadas"
+
+msgid "Save Warranty"
+msgstr "Guardar garantía"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Period"
+msgstr "Período"
+
+msgid "days"
+msgstr "días"
+
+msgid "Coverage"
+msgstr "Cobertura"
+
+msgid "Remaining"
+msgstr "Restante"
+
+msgid "Expired"
+msgstr "Expirada"
+
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+msgid "Expiry Date"
+msgstr "Fecha de vencimiento"
+
+msgid "Terms"
+msgstr "Términos"
+
+msgid "Prior Device Warranties"
+msgstr "Garantías anteriores del dispositivo"
+
+msgid "Record Claim"
+msgstr "Registrar reclamación"
+
+msgid "Void Warranty"
+msgstr "Anular garantía"
+
+msgid "Send Warranty Email"
+msgstr "Enviar correo de garantía"
+
+msgid "Email sent"
+msgstr "Correo enviado"
+
+msgid "Record Warranty Claim"
+msgstr "Registrar reclamación de garantía"
+
+msgid "Claim Notes"
+msgstr "Notas de reclamación"
+
+msgid "Describe the issue covered by this warranty claim..."
+msgstr "Describa el problema cubierto por esta reclamación de garantía..."
+
+msgid "Submit Claim"
+msgstr "Enviar reclamación"
+
+msgid "This action cannot be undone. The warranty will be permanently voided."
+msgstr "Esta acción no se puede deshacer. La garantía se anulará permanentemente."
+
+msgid "Reason for Voiding"
+msgstr "Motivo de anulación"
+
+msgid "Explain why this warranty is being voided..."
+msgstr "Explique por qué se anula esta garantía..."
+
+msgid "Are you sure you want to void this warranty?"
+msgstr "¿Está seguro de que desea anular esta garantía?"
+
+msgid "Warranty recorded successfully"
+msgstr "Garantía registrada correctamente"
+
+msgid "Invalid warranty submission"
+msgstr "Envío de garantía inválido"
+
+msgid "No warranty found for this ticket"
+msgstr "No se encontró garantía para este ticket"
+
+msgid "Warranty confirmation email sent"
+msgstr "Correo de confirmación de garantía enviado"
+
+msgid "Warranty claim recorded"
+msgstr "Reclamación de garantía registrada"
+
+msgid "Invalid claim submission"
+msgstr "Envío de reclamación inválido"
+
+msgid "Warranty voided"
+msgstr "Garantía anulada"
+
+msgid "Invalid void submission"
+msgstr "Envío de anulación inválido"
+
+msgid "Email content is required"
+msgstr "El contenido del correo es obligatorio"
+
+msgid "Customer has no email address"
+msgstr "El cliente no tiene dirección de correo"
+
+msgid "Branded email sent successfully"
+msgstr "Correo de marca enviado correctamente"
+
+msgid "Email could not be sent: %(error)s"
+msgstr "No se pudo enviar el correo: %(error)s"
+
+msgid "Repair Update — %(ticket)s"
+msgstr "Actualización de reparación — %(ticket)s"
+

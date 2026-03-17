@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, String, Text
+from sqlalchemy import Boolean, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
@@ -19,6 +19,8 @@ class Company(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
     default_quote_terms: Mapped[str | None] = mapped_column(Text, nullable=True)
     default_repair_terms: Mapped[str | None] = mapped_column(Text, nullable=True)
     document_footer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    default_warranty_days: Mapped[int | None] = mapped_column(Integer, nullable=True, default=90)
+    default_warranty_terms: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Relationships
