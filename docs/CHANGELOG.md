@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.2] - 2026-03-17
+### Fixed — Phase 17.2: Intake Entry Flow and Navigation Stabilisation
+- **Intake Form POST Fix**: Resolved `KeyError` crash when submitting the intake form (`/intake/new`) caused by `current_app.config["DEFAULT_INTAKE_DISCLAIMER_TEXT"]` failing when config key was absent. Now uses `.get()` with sensible default fallback.
+- **Upload Config Fix**: Same safe-access pattern applied to `UPLOAD_ROOT` config key in file upload path.
+- **Verified Fast Check-In Flow**: Confirmed `/tickets/new` POST works end-to-end — creates ticket, intake notes, portal token, and handles technician assignment correctly.
+- **Verified Navigation**: All three entry points (New Booking → `/bookings/new`, Create New Ticket → `/intake/new`, Fast Check-In → `/tickets/new`) confirmed working with correct permission gates.
+- **38 New Tests**: Comprehensive test coverage for intake form GET/POST, fast check-in GET/POST, config fallback resilience, AJAX endpoints (customer search, device search/create), intake conversion, navigation links, permission enforcement, and two full end-to-end flows.
+
 ## [0.18.1] - 2026-03-17
 ### Fixed — Phase 17.1: Booking Intake UX and Navigation Corrections
 - **Customer Search on Booking Form**: Added live customer search by name, phone, or email on booking create/edit forms with autocomplete dropdown (reuses existing project pattern)

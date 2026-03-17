@@ -181,7 +181,10 @@ def new_intake():
             IntakeDisclaimerAcceptance(
                 intake_submission_id=intake.id,
                 disclaimer_key="general_intake",
-                disclaimer_text=current_app.config["DEFAULT_INTAKE_DISCLAIMER_TEXT"],
+                disclaimer_text=current_app.config.get(
+                    "DEFAULT_INTAKE_DISCLAIMER_TEXT",
+                    "I confirm the provided details are accurate and accept the intake terms.",
+                ),
                 accepted=bool(form.accepted_disclaimer.data),
             )
         )
@@ -198,7 +201,7 @@ def new_intake():
 
         if form.photo.data:
             try:
-                storage_path, size = save_intake_file(current_app.config["UPLOAD_ROOT"], intake.reference, form.photo.data)
+                storage_path, size = save_intake_file(current_app.config.get("UPLOAD_ROOT", "uploads"), intake.reference, form.photo.data)
                 db.session.add(
                     Attachment(
                         intake_submission_id=intake.id,
