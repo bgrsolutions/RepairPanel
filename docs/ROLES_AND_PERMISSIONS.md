@@ -45,6 +45,8 @@ All sensitive routes are protected with `@permission_required(check_fn)` decorat
 
 **Protected route groups:**
 - `tickets/new`, `tickets/*/quick-status`, `tickets/*/assign-to-me`, `tickets/*/quick-note` — `can_progress_workflow` / `can_create_ticket`
+- `tickets/*/assign`, `tickets/*/status`, `tickets/*/meta`, `tickets/*/notes`, `tickets/*/archive`, `tickets/*/reopen`, `tickets/*/reserve` — `can_progress_workflow`
+- `tickets/*/send-update` — `can_send_customer_updates`
 - `tickets/*/consume-reservation` — `can_consume_reservation`
 - `tickets/*/regenerate-portal-token`, `tickets/*/revoke-portal-token` — `can_manage_customer_portal`
 - `tickets/*/generate-message`, `tickets/*/log-communication` — `can_send_customer_updates`

@@ -378,6 +378,15 @@ def public_quote_approval(token):
                 log_action("quote.public_decision", "QuoteApproval", str(approval.id), details={"quote_id": str(quote.id), "decision": decision, "payment_choice": approval.payment_choice})
             except Exception:
                 pass
+            # Fire notification event so staff dashboards pick up the change
+            try:
+                from app.services.notification_service import create_notification_event
+                if quote.ticket:
+                    event_type = "quote_approved" if decision == "approved" else "quote_declined"
+                    create_notification_event(event_type=event_type, ticket=quote.ticket, context={"source": "portal", "quote_id": str(quote.id)})
+                    db.session.commit()
+            except Exception:
+                db.session.rollback()
             flash(_("Your quote decision has been recorded"), "success")
             return redirect(url_for("public_portal.public_quote_approval", token=token))
 

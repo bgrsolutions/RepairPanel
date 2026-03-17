@@ -348,6 +348,7 @@ def ticket_detail(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/assign")
 @login_required
+@permission_required(can_progress_workflow)
 def assign_ticket(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -373,6 +374,7 @@ def assign_ticket(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/status")
 @login_required
+@permission_required(can_progress_workflow)
 def update_status(ticket_id):
     from app.services.workflow_service import is_valid_transition
 
@@ -416,6 +418,7 @@ def update_status(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/meta")
 @login_required
+@permission_required(can_progress_workflow)
 def update_ticket_meta(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -436,6 +439,7 @@ def update_ticket_meta(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/notes")
 @login_required
+@permission_required(can_progress_workflow)
 def add_note(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -456,6 +460,7 @@ def add_note(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/send-update")
 @login_required
+@permission_required(can_send_customer_updates)
 def send_customer_update(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -483,6 +488,7 @@ def send_customer_update(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/archive")
 @login_required
+@permission_required(can_progress_workflow)
 def archive_ticket(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -504,6 +510,7 @@ def archive_ticket(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/reopen")
 @login_required
+@permission_required(can_progress_workflow)
 def reopen_ticket(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
@@ -525,6 +532,7 @@ def reopen_ticket(ticket_id):
 
 @tickets_bp.post("/<uuid:ticket_id>/reserve")
 @login_required
+@permission_required(can_progress_workflow)
 def reserve_part(ticket_id):
     ticket = db.session.get(Ticket, ticket_id)
     if not ticket or ticket.deleted_at is not None:
