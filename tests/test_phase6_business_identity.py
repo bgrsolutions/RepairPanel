@@ -388,8 +388,9 @@ def test_booking_create(monkeypatch):
         'location_id': str(ids['branch_id']),
         'start_time': start,
         'end_time': end,
-        'status': 'scheduled',
+        'status': 'new',
         'repair_service_id': '',
+        'device_id': '',
         'notes': 'Test booking',
     }, follow_redirects=True)
     assert resp.status_code == 200
@@ -397,7 +398,7 @@ def test_booking_create(monkeypatch):
         bookings = Booking.query.all()
         assert len(bookings) == 1
         assert bookings[0].notes == 'Test booking'
-        assert bookings[0].status == 'scheduled'
+        assert bookings[0].status == 'new'
 
 
 def test_booking_edit(monkeypatch):
@@ -407,7 +408,7 @@ def test_booking_edit(monkeypatch):
             location_id=ids['branch_id'],  # already UUID object
             start_time=datetime.utcnow() + timedelta(hours=1),
             end_time=datetime.utcnow() + timedelta(hours=2),
-            status='scheduled',
+            status='new',
         )
         db.session.add(booking)
         db.session.commit()
@@ -420,6 +421,7 @@ def test_booking_edit(monkeypatch):
         'end_time': end,
         'status': 'confirmed',
         'repair_service_id': '',
+        'device_id': '',
         'notes': 'Updated',
     }, follow_redirects=True)
     assert resp.status_code == 200

@@ -5293,3 +5293,293 @@ msgstr ""
 msgid "Some string that probably has no translation"
 msgstr ""
 
+# --- Phase 16: Booking Operations ---
+
+#: app/services/booking_service.py
+msgid "New"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "Confirmed"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "Arrived"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "No Show"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "Converted"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "Cancelled"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "Scheduled"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "In Progress"
+msgstr ""
+
+#: app/services/booking_service.py
+msgid "Completed"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "-- None --"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "-- Select Device --"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Booking created"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Booking updated"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Booking confirmed"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Cannot confirm this booking"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Customer marked as arrived"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Cannot mark this booking as arrived"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Booking marked as no-show"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Cannot mark this booking as no-show"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Booking cancelled"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Cannot cancel this booking"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "This booking has already been converted to a ticket"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "This booking cannot be converted in its current state"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "A customer must be assigned to the booking before conversion"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "Ticket %(number)s created from booking"
+msgstr ""
+
+#: app/blueprints/bookings/routes.py
+msgid "An error occurred during conversion"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "Intake Queue"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "Expected arrivals, today's bookings, and upcoming appointments."
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "Day View"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "All statuses"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "Overdue"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "past due without resolution"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "Today"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "No bookings today."
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "Upcoming (next 7 days)"
+msgstr ""
+
+#: app/templates/bookings/intake_queue.html
+msgid "No upcoming bookings."
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Booking Detail"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Back to List"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Booking Information"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Customer"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "No customer assigned"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Device"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Brand / Model"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Serial Number"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Customer Notes"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Staff Notes"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Linked Ticket"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "View Ticket"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Actions"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Edit Booking"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Confirm"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Mark Arrived"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Mark No-Show"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Cancel Booking"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Create Ticket"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Convert this booking into a repair ticket."
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Create Ticket from Booking"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Metadata"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Created"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "Updated"
+msgstr ""
+
+#: app/templates/bookings/detail.html
+msgid "ID"
+msgstr ""
+
+#: app/templates/bookings/convert.html
+msgid "Convert Booking to Ticket"
+msgstr ""
+
+#: app/templates/bookings/convert.html
+msgid "Create a repair ticket from this booking. Review and adjust the details below."
+msgstr ""
+
+#: app/templates/bookings/convert.html
+msgid "Booking Summary"
+msgstr ""
+
+#: app/templates/bookings/convert.html
+msgid "Ticket Details"
+msgstr ""
+
+#: app/templates/bookings/form.html
+msgid "Customer Contact"
+msgstr ""
+
+#: app/forms/booking_forms.py
+msgid "Customer Name"
+msgstr ""
+
+#: app/forms/booking_forms.py
+msgid "Customer Phone"
+msgstr ""
+
+#: app/forms/booking_forms.py
+msgid "Staff Notes"
+msgstr ""
+
+#: app/forms/booking_forms.py
+msgid "Create Ticket from Booking"
+msgstr ""
+
+#: app/forms/booking_forms.py
+msgid "Device Condition"
+msgstr ""
+
+#: app/forms/booking_forms.py
+msgid "Accessories Received"
+msgstr ""
+

@@ -1,0 +1,58 @@
+<a href="{{ url_for('bookings.booking_detail', booking_id=booking.id) }}" class="px-4 py-3 flex items-center gap-4 hover:bg-slate-800/30 transition-colors block">
+  {# Date + Time #}
+  <div class="w-36 flex-shrink-0">
+    <div class="text-xs text-slate-500">{{ booking.start_time.strftime('%a %d %b') }}</div>
+    <div>
+      <span class="text-sm font-medium text-white">{{ booking.start_time.strftime('%H:%M') }}</span>
+      <span class="text-slate-500 mx-1">-</span>
+      <span class="text-sm text-slate-400">{{ booking.end_time.strftime('%H:%M') }}</span>
+    </div>
+  </div>
+
+  {# Customer + Details #}
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2">
+      {% if booking.customer %}
+      <span class="text-sm text-slate-200 font-medium">{{ booking.customer.full_name }}</span>
+      {% elif booking.customer_name %}
+      <span class="text-sm text-slate-200 font-medium">{{ booking.customer_name }}</span>
+      {% else %}
+      <span class="text-sm text-slate-500 italic">{{ _("No customer") }}</span>
+      {% endif %}
+      {% if booking.repair_service %}
+      <span class="inline-flex items-center rounded-full bg-cyan-950/40 px-2 py-0.5 text-xs text-cyan-300 ring-1 ring-inset ring-cyan-800/40">{{ booking.repair_service.name }}</span>
+      {% endif %}
+    </div>
+    {% if booking.device %}
+    <p class="text-xs text-slate-500 mt-0.5">{{ booking.device.brand }} {{ booking.device.model }}</p>
+    {% endif %}
+    {% if booking.notes %}
+    <p class="text-xs text-slate-500 mt-0.5 truncate">{{ booking.notes }}</p>
+    {% endif %}
+  </div>
+
+  {# Location #}
+  <div class="flex-shrink-0">
+    <span class="text-xs text-slate-400">{{ booking.location.name }}</span>
+  </div>
+
+  {# Status #}
+  <div class="flex-shrink-0">
+    {% set status_colors = {
+      'new': 'bg-blue-950/40 text-blue-300 ring-blue-800/40',
+      'confirmed': 'bg-emerald-950/40 text-emerald-300 ring-emerald-800/40',
+      'arrived': 'bg-amber-950/40 text-amber-300 ring-amber-800/40',
+      'converted': 'bg-violet-950/40 text-violet-300 ring-violet-800/40',
+      'cancelled': 'bg-red-950/40 text-red-300 ring-red-800/40',
+      'no_show': 'bg-red-950/40 text-red-300 ring-red-800/40',
+    } %}
+    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset {{ status_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ booking_status_label(booking.status) }}</span>
+  </div>
+
+  {# Converted ticket indicator #}
+  {% if booking.converted_ticket %}
+  <div class="flex-shrink-0">
+    <span class="text-xs text-indigo-400">{{ booking.converted_ticket.ticket_number }}</span>
+  </div>
+  {% endif %}
+</a>

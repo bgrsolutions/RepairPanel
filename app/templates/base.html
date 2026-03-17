@@ -53,6 +53,7 @@
               <summary class="cursor-pointer rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white inline-flex items-center gap-1">{{ _("Operations") }} <svg class="h-3 w-3 text-slate-500 transition group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></summary>
               <div class="absolute left-0 mt-1 w-52 rounded-xl border border-slate-700/60 bg-slate-900 p-1.5 shadow-xl shadow-black/30 z-50">
                 <a class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white" href="{{ url_for('bookings.list_bookings') }}">{{ _("Bookings") }}</a>
+                <a class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white" href="{{ url_for('bookings.list_bookings', view='queue') }}">{{ _("Intake Queue") }}</a>
                 <a class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white" href="{{ url_for('services.list_services') }}">{{ _("Services") }}</a>
                 <div class="my-1 border-t border-slate-800/60"></div>
                 {% if perms.can_view_reports %}<a class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white" href="{{ url_for('reports.kpi_dashboard') }}">{{ _("Reports") }}</a>{% endif %}

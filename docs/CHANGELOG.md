@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.17.0] - 2026-03-17
+### Added — Phase 16: Booking Operations, Intake Queue & Service Scheduling Foundations
+- **Booking Lifecycle (16.1)**: Structured booking lifecycle with statuses: new, confirmed, arrived, no_show, converted, cancelled. Explicit validated transitions via `booking_service.py`. Terminal states prevent further changes.
+- **Booking Data Enhancements (16.2)**: New fields: `device_id` (FK→devices), `staff_notes`, `customer_name`, `customer_phone`, `converted_ticket_id` (FK→tickets). Alembic migration with status data migration (scheduled→new, in_progress→arrived, completed→converted).
+- **Intake Queue (16.3)**: Staff-facing `/bookings/?view=queue` showing overdue, today's, and upcoming bookings. Overdue section highlighted in red. Filters by status and location.
+- **Booking Detail (16.4)**: Full booking detail page at `/bookings/<id>` with customer info, device info, notes, linked ticket display, and action sidebar with status transition buttons.
+- **Status Actions (16.5)**: POST-only routes for confirm, arrive, no-show, cancel with server-side permission enforcement and transition validation.
+- **Assisted Conversion (16.6)**: Manual staff action to create repair ticket from arrived booking. Pre-fills customer, device, service, notes. Creates ticket, portal token, intake note. Transaction-safe with duplicate prevention.
+- **Permissions (16.7)**: Three new permission functions: `can_view_bookings` (all staff), `can_manage_bookings` (management + front desk), `can_convert_booking` (management + front desk). All routes server-side protected.
+- **Internationalization (16.8)**: All new strings in EN/ES. Status labels, headings, buttons, flash messages, form labels fully translatable.
+- **Navigation (16.9)**: Added "Intake Queue" link to Operations nav dropdown.
+- **Reporting Compatibility (16.10)**: `get_booking_counts()` service function for future dashboard integration. Does not break Phase 14 dashboards.
+- **72 New Tests**: Comprehensive test coverage for model, service, routes, permissions, conversion flow, status transitions, translations, and migration validation.
+
+### Changed
+- `app/models/booking.py` — expanded with new fields, lifecycle statuses, transition rules
+- `app/forms/booking_forms.py` — updated status choices, added new fields, added `BookingConvertForm`
+- `app/blueprints/bookings/routes.py` — full rewrite with permissions, detail page, status actions, conversion flow
+- `app/services/permission_service.py` — added booking permissions and proxy properties
+- `app/templates/bookings/` — new templates: detail.html, intake_queue.html, convert.html, _queue_row.html; updated list.html and form.html
+- `app/templates/base.html` — added Intake Queue nav link
+- `tests/test_phase6_business_identity.py` — updated booking tests for new status values
+
 ## [0.16.0] - 2026-03-17
 ### Added — Phase 15: Internationalization, Spanish Translation & Customer Language Preferences
 - **Full Staff UI Translation (15.1)**: All 68 Jinja2 templates wrapped with `{{ _("...") }}` for i18n. Covers navigation, page titles, headings, buttons, empty states, flash messages, dashboard labels, ticket/quote/inventory/settings text.

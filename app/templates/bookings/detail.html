@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% block title %}{{ _("Booking Detail") }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6 max-w-4xl">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-white">{{ _("Booking Detail") }}</h1>
+      <p class="mt-1 text-sm text-slate-400">{{ booking.start_time.strftime('%A, %d %B %Y at %H:%M') }}</p>
+    </div>
+    <a href="{{ url_for('bookings.list_bookings', date=booking.start_time.strftime('%Y-%m-%d')) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Back to List") }}</a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {# Main info #}
+    <div class="lg:col-span-2 space-y-6">
+      {# Booking info card #}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Booking Information") }}</h2>
+          {% set status_colors = {
+            'new': 'bg-blue-950/40 text-blue-300 ring-blue-800/40',
+            'confirmed': 'bg-emerald-950/40 text-emerald-300 ring-emerald-800/40',
+            'arrived': 'bg-amber-950/40 text-amber-300 ring-amber-800/40',
+            'converted': 'bg-violet-950/40 text-violet-300 ring-violet-800/40',
+            'cancelled': 'bg-red-950/40 text-red-300 ring-red-800/40',
+            'no_show': 'bg-red-950/40 text-red-300 ring-red-800/40',
+          } %}
+          <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset {{ status_colors.get(booking.status, 'bg-slate-800/50 text-slate-400 ring-slate-700/40') }}">{{ status_label(booking.status) }}</span>
+        </div>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div>
+            <dt class="text-slate-500">{{ _("Date") }}</dt>
+            <dd class="text-slate-200">{{ booking.start_time.strftime('%d %B %Y') }}</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">{{ _("Time") }}</dt>
+            <dd class="text-slate-200">{{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">{{ _("Location") }}</dt>
+            <dd class="text-slate-200">{{ booking.location.name }}</dd>
+          </div>
+          {% if booking.repair_service %}
+          <div>
+            <dt class="text-slate-500">{{ _("Service") }}</dt>
+            <dd class="text-slate-200">{{ booking.repair_service.name }}</dd>
+          </div>
+          {% endif %}
+        </dl>
+      </div>
+
+      {# Customer info card #}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Customer") }}</h2>
+        {% if booking.customer %}
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div>
+            <dt class="text-slate-500">{{ _("Name") }}</dt>
+            <dd class="text-slate-200">{{ booking.customer.full_name }}</dd>
+          </div>
+          {% if booking.customer.phone %}
+          <div>
+            <dt class="text-slate-500">{{ _("Phone") }}</dt>
+            <dd class="text-slate-200">{{ booking.customer.phone }}</dd>
+          </div>
+          {% endif %}
+          {% if booking.customer.email %}
+          <div>
+            <dt class="text-slate-500">{{ _("Email") }}</dt>
+            <dd class="text-slate-200">{{ booking.customer.email }}</dd>
+          </div>
+          {% endif %}
+        </dl>
+        {% elif booking.customer_name %}
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div>
+            <dt class="text-slate-500">{{ _("Name") }}</dt>
+            <dd class="text-slate-200">{{ booking.customer_name }}</dd>
+          </div>
+          {% if booking.customer_phone %}
+          <div>
+            <dt class="text-slate-500">{{ _("Phone") }}</dt>
+            <dd class="text-slate-200">{{ booking.customer_phone }}</dd>
+          </div>
+          {% endif %}
+        </dl>
+        {% else %}
+        <p class="text-sm text-slate-500 italic">{{ _("No customer assigned") }}</p>
+        {% endif %}
+      </div>
+
+      {# Device info card #}
+      {% if booking.device %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Device") }}</h2>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div>
+            <dt class="text-slate-500">{{ _("Brand / Model") }}</dt>
+            <dd class="text-slate-200">{{ booking.device.brand }} {{ booking.device.model }}</dd>
+          </div>
+          {% if booking.device.serial_number %}
+          <div>
+            <dt class="text-slate-500">{{ _("Serial Number") }}</dt>
+            <dd class="text-slate-200">{{ booking.device.serial_number }}</dd>
+          </div>
+          {% endif %}
+        </dl>
+      </div>
+      {% endif %}
+
+      {# Notes #}
+      {% if booking.notes or booking.staff_notes %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Notes") }}</h2>
+        {% if booking.notes %}
+        <div>
+          <dt class="text-xs text-slate-500 mb-1">{{ _("Customer Notes") }}</dt>
+          <dd class="text-sm text-slate-200 whitespace-pre-wrap">{{ booking.notes }}</dd>
+        </div>
+        {% endif %}
+        {% if booking.staff_notes %}
+        <div>
+          <dt class="text-xs text-slate-500 mb-1">{{ _("Staff Notes") }}</dt>
+          <dd class="text-sm text-slate-200 whitespace-pre-wrap">{{ booking.staff_notes }}</dd>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# Linked ticket #}
+      {% if booking.converted_ticket %}
+      <div class="rounded-2xl border border-violet-900/40 bg-violet-950/20 p-5 shadow-panel space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-violet-300">{{ _("Linked Ticket") }}</h2>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-slate-200 font-medium">{{ booking.converted_ticket.ticket_number }}</span>
+          <span class="inline-flex items-center rounded-full bg-slate-800/50 px-2 py-0.5 text-xs text-slate-400 ring-1 ring-inset ring-slate-700/40">{{ booking.converted_ticket.internal_status | replace('_', ' ') | title }}</span>
+          <a href="{{ url_for('tickets.ticket_detail', ticket_id=booking.converted_ticket.id) }}" class="text-sm text-indigo-400 hover:text-indigo-300">{{ _("View Ticket") }}</a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {# Actions sidebar #}
+    <div class="space-y-4">
+      {% if can_manage %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Actions") }}</h2>
+
+        <a href="{{ url_for('bookings.edit_booking', booking_id=booking.id) }}" class="w-full flex items-center justify-center rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">{{ _("Edit Booking") }}</a>
+
+        {% if booking.status in ['new', 'scheduled'] %}
+        <form method="post" action="{{ url_for('bookings.confirm_booking', booking_id=booking.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 transition-colors cursor-pointer">{{ _("Confirm") }}</button>
+        </form>
+        {% endif %}
+
+        {% if booking.status in ['new', 'confirmed', 'scheduled'] %}
+        <form method="post" action="{{ url_for('bookings.mark_arrived', booking_id=booking.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-500 transition-colors cursor-pointer">{{ _("Mark Arrived") }}</button>
+        </form>
+        {% endif %}
+
+        {% if booking.status in ['new', 'confirmed', 'scheduled'] %}
+        <form method="post" action="{{ url_for('bookings.mark_no_show', booking_id=booking.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="w-full rounded-xl border border-red-800 bg-red-950/50 px-4 py-2.5 text-sm font-medium text-red-300 hover:bg-red-900/50 transition-colors cursor-pointer">{{ _("Mark No-Show") }}</button>
+        </form>
+        {% endif %}
+
+        {% if booking.status not in ['cancelled', 'converted', 'no_show', 'completed'] %}
+        <form method="post" action="{{ url_for('bookings.cancel_booking', booking_id=booking.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="w-full rounded-xl border border-red-800 bg-red-950/50 px-4 py-2.5 text-sm font-medium text-red-300 hover:bg-red-900/50 transition-colors cursor-pointer">{{ _("Cancel Booking") }}</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# Convert to ticket #}
+      {% if can_convert and booking.status in ['arrived', 'in_progress'] and not booking.converted_ticket_id %}
+      <div class="rounded-2xl border border-indigo-900/40 bg-indigo-950/20 p-5 shadow-panel space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-300">{{ _("Create Ticket") }}</h2>
+        <p class="text-xs text-slate-400">{{ _("Convert this booking into a repair ticket.") }}</p>
+        <a href="{{ url_for('bookings.convert_to_ticket', booking_id=booking.id) }}" class="w-full flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Create Ticket from Booking") }}</a>
+      </div>
+      {% endif %}
+
+      {# Metadata #}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-2">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Metadata") }}</h2>
+        <dl class="space-y-2 text-xs">
+          <div>
+            <dt class="text-slate-500">{{ _("Created") }}</dt>
+            <dd class="text-slate-300">{{ booking.created_at.strftime('%d %b %Y %H:%M') if booking.created_at else '-' }}</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">{{ _("Updated") }}</dt>
+            <dd class="text-slate-300">{{ booking.updated_at.strftime('%d %b %Y %H:%M') if booking.updated_at else '-' }}</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">{{ _("ID") }}</dt>
+            <dd class="text-slate-500 font-mono text-[10px]">{{ booking.id }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
