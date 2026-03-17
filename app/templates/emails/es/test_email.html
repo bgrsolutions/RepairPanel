@@ -1,0 +1,16 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Correo de Prueba — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Prueba de Configuración de Correo</h2>
+<p>Este es un correo de prueba de <strong>{{ branding.company_name }}</strong>.</p>
+<p>Si está leyendo esto, la entrega de correo electrónico funciona correctamente.</p>
+
+<table class="info-table">
+  <tr><td>Transporte</td><td>{{ transport }}</td></tr>
+  <tr><td>Enviado a las</td><td>{{ now().strftime('%Y-%m-%d %H:%M UTC') if now is defined else '—' }}</td></tr>
+</table>
+
+<p>No se requiere ninguna acción — este correo fue enviado para verificar la configuración del transporte de correo.</p>
+
+<p>Atentamente,<br>{{ branding.company_name }}</p>
+{% endblock %}

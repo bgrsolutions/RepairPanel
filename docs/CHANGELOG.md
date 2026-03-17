@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.18.3] - 2026-03-17
+### Added — Phase 17.3: Email Transport Configuration and SMTP Delivery
+- **Email Transport Configuration**: Config-driven email transport with environment variables for SMTP host, port, username, password, TLS/SSL, timeout, sender email/name, and reply-to
+- **SMTP Transport**: Production-ready SMTP delivery via Python `smtplib` with STARTTLS and SSL support, HTML + plain-text multipart messages, and graceful error handling
+- **Log Transport**: Preserved development/testing log-only mode (default) — emails logged but not delivered
+- **Delivery Logging**: All email send attempts logged with recipient, subject, template, transport, success/failure, and error details
+- **Test Email**: Admin-only test email capability at `/settings/email` — verifies transport configuration by sending a real test email
+- **Email Settings UI**: Read-only admin settings page showing current transport status, SMTP configuration, sender details, and test email form
+- **Sender/Reply-To**: Configurable sender email, sender name, and reply-to address with fallback to company record
+- **Test Email Templates**: New EN/ES test email templates extending the branded base template
+- **Internationalization**: 17 new EN/ES translation strings for email settings UI
+- **39 New Tests**: Config defaults, transport switching, SMTP mocked send/TLS/SSL, failure handling (connection/auth/generic), sender fallback, test email function, settings page rendering, test email route, permissions, delivery logging, template rendering, backward compatibility
+
 ## [0.18.2] - 2026-03-17
 ### Fixed — Phase 17.2: Intake Entry Flow and Navigation Stabilisation
 - **Intake Form POST Fix**: Resolved `KeyError` crash when submitting the intake form (`/intake/new`) caused by `current_app.config["DEFAULT_INTAKE_DISCLAIMER_TEXT"]` failing when config key was absent. Now uses `.get()` with sensible default fallback.

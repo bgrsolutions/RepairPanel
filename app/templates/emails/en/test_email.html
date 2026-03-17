@@ -1,0 +1,16 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Test Email — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Email Configuration Test</h2>
+<p>This is a test email from <strong>{{ branding.company_name }}</strong>.</p>
+<p>If you are reading this, email delivery is working correctly.</p>
+
+<table class="info-table">
+  <tr><td>Transport</td><td>{{ transport }}</td></tr>
+  <tr><td>Sent at</td><td>{{ now().strftime('%Y-%m-%d %H:%M UTC') if now is defined else '—' }}</td></tr>
+</table>
+
+<p>No action is required — this email was sent to verify the email transport configuration.</p>
+
+<p>Best regards,<br>{{ branding.company_name }}</p>
+{% endblock %}

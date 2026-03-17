@@ -6805,3 +6805,52 @@ msgstr "Correo del Cliente"
 
 msgid "Change"
 msgstr "Cambiar"
+
+#: Phase 17.3 — Email Transport Configuration
+msgid "Email Settings"
+msgstr "Configuración de Correo"
+
+msgid "Email Transport Configuration"
+msgstr "Configuración de Transporte de Correo"
+
+msgid "View current email delivery settings and send a test email."
+msgstr "Ver la configuración actual de envío de correo y enviar un correo de prueba."
+
+msgid "Transport Status"
+msgstr "Estado del Transporte"
+
+msgid "Production SMTP delivery is active."
+msgstr "La entrega SMTP de producción está activa."
+
+msgid "Development mode — emails are logged but not delivered."
+msgstr "Modo desarrollo — los correos se registran pero no se entregan."
+
+msgid "SMTP Configuration"
+msgstr "Configuración SMTP"
+
+msgid "SMTP settings are configured via environment variables. Values shown below are read-only."
+msgstr "La configuración SMTP se establece mediante variables de entorno. Los valores mostrados son de solo lectura."
+
+msgid "Not set"
+msgstr "No configurado"
+
+msgid "Sender Details"
+msgstr "Datos del Remitente"
+
+msgid "Send Test Email"
+msgstr "Enviar Correo de Prueba"
+
+msgid "Send a test email to verify the current transport configuration."
+msgstr "Enviar un correo de prueba para verificar la configuración actual del transporte."
+
+msgid "Recipient Email"
+msgstr "Correo del Destinatario"
+
+msgid "Please enter a valid email address"
+msgstr "Por favor, introduzca una dirección de correo válida"
+
+msgid "Test email sent to %(email)s via %(transport)s"
+msgstr "Correo de prueba enviado a %(email)s vía %(transport)s"
+
+msgid "Test email failed: %(error)s"
+msgstr "Error al enviar correo de prueba: %(error)s"
