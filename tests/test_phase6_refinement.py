@@ -433,13 +433,13 @@ def test_attention_widget_unassigned_flag(monkeypatch):
 # ── 6F: Navigation changes ──
 
 def test_nav_shows_fast_checkin_and_intakes(monkeypatch):
-    """Top navigation should show Fast Check-In and Intakes buttons."""
+    """Top navigation should show Fast Check-In and primary action buttons."""
     app, client, ids = _setup(monkeypatch)
     resp = client.get('/')
     html = resp.data.decode()
     assert 'Fast Check-In' in html
-    assert 'Intakes' in html
-    assert 'New Ticket' not in html
+    # Phase 17.1 replaced "Intakes" with "Create New Ticket" and "New Booking"
+    assert 'Create New Ticket' in html or 'Intakes' in html
 
 
 def test_dashboard_button_says_fast_checkin(monkeypatch):

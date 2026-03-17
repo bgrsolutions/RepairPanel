@@ -6738,3 +6738,70 @@ msgstr "No se pudo enviar el correo: %(error)s"
 msgid "Repair Update — %(ticket)s"
 msgstr "Actualización de reparación — %(ticket)s"
 
+
+# Phase 17.1 — Booking Intake UX and Navigation Corrections
+msgid "Search Customer"
+msgstr "Buscar Cliente"
+
+msgid "Name, phone or email..."
+msgstr "Nombre, teléfono o correo..."
+
+msgid "No customers found"
+msgstr "No se encontraron clientes"
+
+msgid "Can't find the customer?"
+msgstr "¿No encuentra al cliente?"
+
+msgid "Create new customer"
+msgstr "Crear nuevo cliente"
+
+msgid "New Customer"
+msgstr "Nuevo Cliente"
+
+msgid "Full Name"
+msgstr "Nombre Completo"
+
+msgid "Create & Select Customer"
+msgstr "Crear y Seleccionar Cliente"
+
+msgid "Customer name is required"
+msgstr "El nombre del cliente es obligatorio"
+
+msgid "Existing customer matched and selected"
+msgstr "Cliente existente encontrado y seleccionado"
+
+msgid "Error creating customer"
+msgstr "Error al crear el cliente"
+
+msgid "Select Existing Device"
+msgstr "Seleccionar Dispositivo Existente"
+
+msgid "Select a customer first to see their devices"
+msgstr "Seleccione un cliente primero para ver sus dispositivos"
+
+msgid "Device Description"
+msgstr "Descripción del Dispositivo"
+
+msgid "e.g. iPhone 15 Pro, cracked screen"
+msgstr "ej. iPhone 15 Pro, pantalla rota"
+
+msgid "Use this for a quick description if the device is not yet registered"
+msgstr "Use esto para una descripción rápida si el dispositivo aún no está registrado"
+
+msgid "Customer has %(count)s registered device(s)"
+msgstr "El cliente tiene %(count)s dispositivo(s) registrado(s)"
+
+msgid "No registered devices — use the description field below"
+msgstr "Sin dispositivos registrados — use el campo de descripción abajo"
+
+msgid "New Booking"
+msgstr "Nueva Reserva"
+
+msgid "Create New Ticket"
+msgstr "Crear Nuevo Ticket"
+
+msgid "Customer Email"
+msgstr "Correo del Cliente"
+
+msgid "Change"
+msgstr "Cambiar"
