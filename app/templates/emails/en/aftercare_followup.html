@@ -1,0 +1,17 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Follow-up — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Follow-up on Your Repair</h2>
+<p>Dear {{ recipient_name or customer.full_name }},</p>
+
+<table class="info-table">
+  <tr><td>Ticket</td><td>{{ ticket.ticket_number }}</td></tr>
+  <tr><td>Device</td><td>{{ ticket.device.brand }} {{ ticket.device.model }}</td></tr>
+</table>
+
+<p>{{ message }}</p>
+
+<p>If you have any questions, please don't hesitate to contact us.</p>
+
+<p>Best regards,<br>{{ branding.company_name }}</p>
+{% endblock %}

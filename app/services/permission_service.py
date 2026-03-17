@@ -164,6 +164,16 @@ def can_convert_booking(user=None) -> bool:
     return is_management(user) or is_frontdesk(user)
 
 
+def can_manage_warranty(user=None) -> bool:
+    """Create, edit, void, and claim warranties on tickets."""
+    return is_management(user) or is_workshop(user)
+
+
+def can_send_branded_email(user=None) -> bool:
+    """Send branded email communications to customers."""
+    return is_management(user) or is_frontdesk(user) or is_workshop(user)
+
+
 # ---------------------------------------------------------------------------
 # Template context injection
 # ---------------------------------------------------------------------------
@@ -265,3 +275,11 @@ class _PermissionProxy:
     @property
     def can_convert_booking(self) -> bool:
         return can_convert_booking()
+
+    @property
+    def can_manage_warranty(self) -> bool:
+        return can_manage_warranty()
+
+    @property
+    def can_send_branded_email(self) -> bool:
+        return can_send_branded_email()

@@ -82,7 +82,7 @@
       <div class="overflow-x-auto">
         <table class="min-w-full text-left text-sm text-slate-200">
           <thead class="text-xs uppercase tracking-wide text-slate-400">
-            <tr><th class="px-3 py-2.5">{{ _("Ticket") }}</th><th class="px-3 py-2.5">{{ _("Device") }}</th><th class="px-3 py-2.5">{{ _("Status") }}</th><th class="px-3 py-2.5">{{ _("Priority") }}</th><th class="px-3 py-2.5">{{ _("Fitted Parts") }}</th><th class="px-3 py-2.5">{{ _("Created") }}</th></tr>
+            <tr><th class="px-3 py-2.5">{{ _("Ticket") }}</th><th class="px-3 py-2.5">{{ _("Device") }}</th><th class="px-3 py-2.5">{{ _("Status") }}</th><th class="px-3 py-2.5">{{ _("Priority") }}</th><th class="px-3 py-2.5">{{ _("Warranty") }}</th><th class="px-3 py-2.5">{{ _("Fitted Parts") }}</th><th class="px-3 py-2.5">{{ _("Created") }}</th></tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60">
             {% for ticket in tickets %}
@@ -91,6 +91,7 @@
               <td class="px-3 py-3 text-slate-400">{{ ticket.device.brand }} {{ ticket.device.model }}</td>
               <td class="px-3 py-3">{{ status_badge(ticket.internal_status) }}</td>
               <td class="px-3 py-3">{{ priority_badge(ticket.priority) }}</td>
+              <td class="px-3 py-3 text-xs">{% if ticket.id|string in ticket_warranties %}{% set tw = ticket_warranties[ticket.id|string] %}<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold {% if tw.is_active %}border border-emerald-700 bg-emerald-950/40 text-emerald-300{% elif tw.warranty_type == 'no_warranty' %}border border-slate-700 bg-slate-800 text-slate-400{% elif tw.status == 'voided' %}border border-rose-700 bg-rose-950/40 text-rose-300{% else %}border border-amber-700 bg-amber-950/40 text-amber-300{% endif %}">{{ tw.status_label }}</span>{% else %}<span class="text-slate-500">—</span>{% endif %}</td>
               <td class="px-3 py-3 text-xs text-slate-400">{{ fitted_parts[ticket.id|string]|join(', ') or '—' }}</td>
               <td class="px-3 py-3 text-slate-500">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             </tr>

@@ -19,6 +19,7 @@ from app.models.setting import AppSetting
 from app.models.supplier import Supplier
 from app.models.ticket import Ticket
 from app.models.user import User
+from app.models.warranty import TicketWarranty
 
 __all__ = [
     "AuditLog",
@@ -60,5 +61,6 @@ __all__ = [
     "Role",
     "AppSetting",
     "Ticket",
+    "TicketWarranty",
     "User",
 ]

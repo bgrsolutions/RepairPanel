@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.18.0] - 2026-03-17
+### Added — Phase 17: Warranty, Branded Communications & Customer Aftercare
+- **Warranty Model (17.1)**: New `TicketWarranty` model with warranty type (no_warranty/standard/custom), days, coverage (labour/parts), terms, repair summary, parts used, claim tracking, and email notification status. Migration creates `ticket_warranties` table.
+- **Warranty Capture (17.2)**: Warranty capture form on ticket detail page for completed/closed tickets. Auto-fills warranty days and terms from company defaults. Auto-populates parts used from stock reservations.
+- **Warranty Evaluation (17.3)**: Reusable warranty service with evaluate, create, claim, void, expire, and device/customer history lookup functions. Status logic: active, expired, claimed, voided, no warranty.
+- **Warranty Visibility (17.4)**: Full warranty section on ticket detail page with status badge, type, period, coverage, remaining days, dates, terms, repair summary, parts used, and prior device warranties. Warranty column added to customer detail repair history table.
+- **Parts History Awareness (17.5)**: `get_ticket_parts_summary()` builds readable summary of fitted parts from stock reservations. Auto-populated in warranty records for future warranty claim reference.
+- **Branded Email Architecture (17.6)**: `branded_email_service.py` provides centralized, template-based email sending with company branding, language-aware template selection (EN/ES), safe fallback logging, and communication note creation.
+- **Branded Email Templates (17.7)**: Four email templates in EN/ES: warranty confirmation, warranty expiry reminder, aftercare follow-up, and ticket update. All extend a professional branded base template with company header/footer.
+- **Email Configuration (17.8)**: `MAIL_TRANSPORT` config for transport selection. Default `log` transport logs email intent safely. Clean extension points for SMTP/SendGrid.
+- **Communication Logging (17.9)**: All warranty and email actions create ticket notes for audit trail. Warranty email sends tracked with `email_sent` flag and timestamp.
+- **Permissions (17.10)**: Two new permissions: `can_manage_warranty` (management + workshop), `can_send_branded_email` (management + front desk + workshop). All routes server-side protected.
+- **Internationalization (17.11)**: 70+ new EN/ES translation strings for warranty UI, flash messages, email subjects, form labels, and status labels.
+- **Company Warranty Defaults (17.12)**: Companies can set `default_warranty_days` and `default_warranty_terms` for auto-filling warranty forms.
+- **Warranty Actions (17.13)**: Record claim, void warranty, and send warranty email actions with modal dialogs, validation, and audit logging.
+- **60+ New Tests**: Comprehensive test coverage for warranty model, service, routes, permissions, email templates, communication logging, parts history, translations, and edge cases.
+
+### Changed
+- `app/models/company.py` — added `default_warranty_days` and `default_warranty_terms` fields
+- `app/models/__init__.py` — added `TicketWarranty` import and export
+- `app/services/permission_service.py` — added `can_manage_warranty` and `can_send_branded_email` permissions with proxy properties
+- `app/blueprints/tickets/routes.py` — added warranty context to ticket detail, 5 new warranty/email POST routes
+- `app/blueprints/customers/routes.py` — added warranty data to customer detail context
+- `app/templates/tickets/detail.html` — added warranty section, claim/void modals
+- `app/templates/customers/detail.html` — added warranty column to repair history table
+- `app/translations/en/LC_MESSAGES/messages.po` — added Phase 17 strings
+- `app/translations/es/LC_MESSAGES/messages.po` — added Phase 17 Spanish translations
+
 ## [0.17.0] - 2026-03-17
 ### Added — Phase 16: Booking Operations, Intake Queue & Service Scheduling Foundations
 - **Booking Lifecycle (16.1)**: Structured booking lifecycle with statuses: new, confirmed, arrived, no_show, converted, cancelled. Explicit validated transitions via `booking_service.py`. Terminal states prevent further changes.

@@ -1,0 +1,18 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Warranty Expiry Reminder — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Warranty Expiry Reminder</h2>
+<p>Dear {{ recipient_name or customer.full_name }},</p>
+<p>This is a reminder that the warranty on your repair is expiring soon:</p>
+
+<table class="info-table">
+  <tr><td>Ticket</td><td>{{ ticket.ticket_number }}</td></tr>
+  <tr><td>Device</td><td>{{ device.brand }} {{ device.model }}</td></tr>
+  <tr><td>Warranty Expires</td><td>{{ warranty.expires_at.strftime('%d %B %Y') }}</td></tr>
+  <tr><td>Days Remaining</td><td>{{ warranty.days_remaining }}</td></tr>
+</table>
+
+<p>If you are experiencing any issues related to the original repair, please contact us before the warranty expires.</p>
+
+<p>Best regards,<br>{{ branding.company_name }}</p>
+{% endblock %}

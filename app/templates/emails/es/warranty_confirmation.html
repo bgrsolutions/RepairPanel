@@ -1,0 +1,31 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Confirmación de Garantía — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Confirmación de Garantía</h2>
+<p>Estimado/a {{ recipient_name or customer.full_name }},</p>
+<p>Gracias por elegir {{ branding.company_name }} para su reparación. Nos complace confirmar la siguiente garantía para su reparación completada:</p>
+
+<table class="info-table">
+  <tr><td>Ticket</td><td>{{ ticket.ticket_number }}</td></tr>
+  <tr><td>Dispositivo</td><td>{{ device.brand }} {{ device.model }}{% if device.serial_number %} (N/S: {{ device.serial_number }}){% endif %}</td></tr>
+  <tr><td>Tipo de Garantía</td><td>{{ warranty.type_label }}</td></tr>
+  <tr><td>Cobertura</td><td>{{ warranty.coverage_description }}</td></tr>
+  <tr><td>Período de Garantía</td><td>{{ warranty.warranty_days }} días</td></tr>
+  <tr><td>Fecha de Inicio</td><td>{{ warranty.starts_at.strftime('%d %B %Y') }}</td></tr>
+  <tr><td>Fecha de Vencimiento</td><td>{{ warranty.expires_at.strftime('%d %B %Y') }}</td></tr>
+</table>
+
+{% if warranty.terms %}
+<p><strong>Términos y Condiciones:</strong></p>
+<p>{{ warranty.terms }}</p>
+{% endif %}
+
+{% if warranty.repair_summary %}
+<p><strong>Resumen de Reparación:</strong></p>
+<p>{{ warranty.repair_summary }}</p>
+{% endif %}
+
+<p>Por favor, conserve este correo electrónico para sus registros. Si experimenta algún problema relacionado con esta reparación dentro del período de garantía, contáctenos y haga referencia a su número de ticket <strong>{{ ticket.ticket_number }}</strong>.</p>
+
+<p>Atentamente,<br>{{ branding.company_name }}</p>
+{% endblock %}

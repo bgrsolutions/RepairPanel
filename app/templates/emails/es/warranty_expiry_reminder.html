@@ -1,0 +1,18 @@
+{% extends 'emails/base_email.html' %}
+{% block title %}Recordatorio de Vencimiento de Garantía — {{ branding.company_name }}{% endblock %}
+{% block body %}
+<h2>Recordatorio de Vencimiento de Garantía</h2>
+<p>Estimado/a {{ recipient_name or customer.full_name }},</p>
+<p>Este es un recordatorio de que la garantía de su reparación vence pronto:</p>
+
+<table class="info-table">
+  <tr><td>Ticket</td><td>{{ ticket.ticket_number }}</td></tr>
+  <tr><td>Dispositivo</td><td>{{ device.brand }} {{ device.model }}</td></tr>
+  <tr><td>Vencimiento de Garantía</td><td>{{ warranty.expires_at.strftime('%d %B %Y') }}</td></tr>
+  <tr><td>Días Restantes</td><td>{{ warranty.days_remaining }}</td></tr>
+</table>
+
+<p>Si está experimentando algún problema relacionado con la reparación original, contáctenos antes de que expire la garantía.</p>
+
+<p>Atentamente,<br>{{ branding.company_name }}</p>
+{% endblock %}
