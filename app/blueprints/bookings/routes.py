@@ -2,9 +2,10 @@ import secrets
 import uuid as _uuid
 from datetime import datetime, timedelta
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from app.extensions import db
 from app.forms.booking_forms import BookingConvertForm, BookingForm
@@ -84,6 +85,123 @@ def _get_booking_or_404(booking_id):
 @bookings_bp.app_context_processor
 def booking_context():
     return {"booking_status_label": status_label}
+
+
+# ---------------------------------------------------------------------------
+# Customer search (JSON) — reuses same pattern as intake/tickets
+# ---------------------------------------------------------------------------
+
+@bookings_bp.get("/customer-search")
+@login_required
+def booking_customer_search():
+    q = (request.args.get("q") or "").strip()
+    if len(q) < 2:
+        return jsonify({"items": []})
+    like = f"%{q}%"
+    customers = (
+        Customer.query.filter(
+            Customer.deleted_at.is_(None),
+            or_(
+                Customer.full_name.ilike(like),
+                Customer.phone.ilike(like),
+                Customer.email.ilike(like),
+            ),
+        )
+        .order_by(Customer.full_name)
+        .limit(25)
+        .all()
+    )
+    items = []
+    for c in customers:
+        detail = c.phone or c.email or ""
+        items.append({
+            "id": str(c.id),
+            "label": f"{c.full_name} · {detail}" if detail else c.full_name,
+            "name": c.full_name,
+            "phone": c.phone or "",
+            "email": c.email or "",
+        })
+    return jsonify({"items": items})
+
+
+# ---------------------------------------------------------------------------
+# Customer create (JSON) — inline customer creation from booking form
+# ---------------------------------------------------------------------------
+
+@bookings_bp.post("/customer-create")
+@login_required
+@permission_required(can_manage_bookings)
+def booking_customer_create():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    phone = (data.get("phone") or "").strip()
+    email = (data.get("email") or "").strip()
+
+    if not name:
+        return jsonify({"ok": False, "error": _("Customer name is required")}), 400
+
+    # Duplicate detection: check email first, then phone
+    if email:
+        existing = Customer.query.filter(
+            Customer.deleted_at.is_(None),
+            Customer.email.ilike(email),
+        ).first()
+        if existing:
+            return jsonify({
+                "ok": True,
+                "id": str(existing.id),
+                "name": existing.full_name,
+                "phone": existing.phone or "",
+                "email": existing.email or "",
+                "existing": True,
+            })
+
+    if phone:
+        existing = Customer.query.filter(
+            Customer.deleted_at.is_(None),
+            Customer.phone == phone,
+        ).first()
+        if existing:
+            return jsonify({
+                "ok": True,
+                "id": str(existing.id),
+                "name": existing.full_name,
+                "phone": existing.phone or "",
+                "email": existing.email or "",
+                "existing": True,
+            })
+
+    customer = Customer(
+        full_name=name,
+        phone=phone or None,
+        email=email or None,
+    )
+    db.session.add(customer)
+    db.session.commit()
+    return jsonify({
+        "ok": True,
+        "id": str(customer.id),
+        "name": customer.full_name,
+        "phone": customer.phone or "",
+        "email": customer.email or "",
+        "existing": False,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Customer devices (JSON) — load devices for selected customer
+# ---------------------------------------------------------------------------
+
+@bookings_bp.get("/customer/<uuid:customer_id>/devices")
+@login_required
+def booking_customer_devices(customer_id):
+    devices = Device.query.filter(
+        Device.customer_id == customer_id, Device.deleted_at.is_(None)
+    ).order_by(Device.brand).all()
+    return jsonify([
+        {"id": str(d.id), "label": f"{d.brand} {d.model} ({d.serial_number or 'N/A'})"}
+        for d in devices
+    ])
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +303,8 @@ def create_booking():
             staff_notes=(form.staff_notes.data or "").strip() or None,
             customer_name=(form.customer_name.data or "").strip() or None,
             customer_phone=(form.customer_phone.data or "").strip() or None,
+            customer_email=(form.customer_email.data or "").strip() or None,
+            device_description=(form.device_description.data or "").strip() or None,
         )
         db.session.add(booking)
         db.session.commit()
@@ -231,8 +351,10 @@ def edit_booking(booking_id):
         form.repair_service_id.data = str(booking.repair_service_id) if booking.repair_service_id else ""
         form.customer_id.data = str(booking.customer_id) if booking.customer_id else ""
         form.device_id.data = str(booking.device_id) if booking.device_id else ""
-        form.customer_name.data = booking.customer_name or ""
-        form.customer_phone.data = booking.customer_phone or ""
+        form.customer_name.data = booking.customer_name or (booking.customer.full_name if booking.customer else "")
+        form.customer_phone.data = booking.customer_phone or (booking.customer.phone if booking.customer else "")
+        form.customer_email.data = booking.customer_email or (booking.customer.email if booking.customer else "")
+        form.device_description.data = booking.device_description or ""
         form.staff_notes.data = booking.staff_notes or ""
 
     if form.validate_on_submit():
@@ -250,6 +372,8 @@ def edit_booking(booking_id):
         booking.staff_notes = (form.staff_notes.data or "").strip() or None
         booking.customer_name = (form.customer_name.data or "").strip() or None
         booking.customer_phone = (form.customer_phone.data or "").strip() or None
+        booking.customer_email = (form.customer_email.data or "").strip() or None
+        booking.device_description = (form.device_description.data or "").strip() or None
         db.session.commit()
         flash(_("Booking updated"), "success")
         return redirect(url_for("bookings.booking_detail", booking_id=booking.id))
@@ -344,7 +468,6 @@ def convert_to_ticket(booking_id):
     form = BookingConvertForm()
     customer_id = str(booking.customer_id) if booking.customer_id else ""
     form.device_id.choices = _device_choices(customer_id)
-    # Remove the "-- Select --" placeholder if there's only one device
     form.repair_service_id.choices = _service_choices()
 
     if request.method == "GET":
@@ -382,7 +505,8 @@ def convert_to_ticket(booking_id):
             )
             db.session.commit()
             flash(_("Ticket %(number)s created from booking", number=ticket.ticket_number), "success")
-            return redirect(url_for("bookings.booking_detail", booking_id=booking.id))
+            # Redirect to the new ticket for seamless workflow continuation
+            return redirect(url_for("tickets.ticket_detail", ticket_id=ticket.id))
         except (InvalidTransitionError, ValueError) as e:
             db.session.rollback()
             flash(str(e), "danger")

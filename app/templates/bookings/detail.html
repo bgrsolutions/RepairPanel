@@ -90,9 +90,10 @@
       </div>
 
       {# Device info card #}
-      {% if booking.device %}
+      {% if booking.device or booking.device_description %}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Device") }}</h2>
+        {% if booking.device %}
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <div>
             <dt class="text-slate-500">{{ _("Brand / Model") }}</dt>
@@ -105,6 +106,13 @@
           </div>
           {% endif %}
         </dl>
+        {% endif %}
+        {% if booking.device_description %}
+        <div class="text-sm">
+          <dt class="text-slate-500">{{ _("Device Description") }}</dt>
+          <dd class="text-slate-200">{{ booking.device_description }}</dd>
+        </div>
+        {% endif %}
       </div>
       {% endif %}
 
@@ -179,7 +187,7 @@
       {% endif %}
 
       {# Convert to ticket #}
-      {% if can_convert and booking.status in ['arrived', 'in_progress'] and not booking.converted_ticket_id %}
+      {% if can_convert and booking.status in ['confirmed', 'arrived', 'in_progress'] and not booking.converted_ticket_id %}
       <div class="rounded-2xl border border-indigo-900/40 bg-indigo-950/20 p-5 shadow-panel space-y-3">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-300">{{ _("Create Ticket") }}</h2>
         <p class="text-xs text-slate-400">{{ _("Convert this booking into a repair ticket.") }}</p>

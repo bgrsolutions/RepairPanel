@@ -1,7 +1,7 @@
 from flask_babel import lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import DateTimeLocalField, HiddenField, SelectField, StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Email, Length, Optional
 
 
 class BookingForm(FlaskForm):
@@ -25,6 +25,8 @@ class BookingForm(FlaskForm):
     )
     customer_name = StringField(_l("Customer Name"), validators=[Optional(), Length(max=200)])
     customer_phone = StringField(_l("Customer Phone"), validators=[Optional(), Length(max=50)])
+    customer_email = StringField(_l("Customer Email"), validators=[Optional(), Email(), Length(max=255)])
+    device_description = StringField(_l("Device Description"), validators=[Optional(), Length(max=500)])
     notes = TextAreaField(_l("Notes"), validators=[Optional()])
     staff_notes = TextAreaField(_l("Staff Notes"), validators=[Optional()])
     submit = SubmitField(_l("Save Booking"))

@@ -5737,3 +5737,70 @@ msgstr ""
 msgid "Repair Update — %(ticket)s"
 msgstr ""
 
+
+# Phase 17.1 — Booking Intake UX and Navigation Corrections
+msgid "Search Customer"
+msgstr ""
+
+msgid "Name, phone or email..."
+msgstr ""
+
+msgid "No customers found"
+msgstr ""
+
+msgid "Can't find the customer?"
+msgstr ""
+
+msgid "Create new customer"
+msgstr ""
+
+msgid "New Customer"
+msgstr ""
+
+msgid "Full Name"
+msgstr ""
+
+msgid "Create & Select Customer"
+msgstr ""
+
+msgid "Customer name is required"
+msgstr ""
+
+msgid "Existing customer matched and selected"
+msgstr ""
+
+msgid "Error creating customer"
+msgstr ""
+
+msgid "Select Existing Device"
+msgstr ""
+
+msgid "Select a customer first to see their devices"
+msgstr ""
+
+msgid "Device Description"
+msgstr ""
+
+msgid "e.g. iPhone 15 Pro, cracked screen"
+msgstr ""
+
+msgid "Use this for a quick description if the device is not yet registered"
+msgstr ""
+
+msgid "Customer has %(count)s registered device(s)"
+msgstr ""
+
+msgid "No registered devices — use the description field below"
+msgstr ""
+
+msgid "New Booking"
+msgstr ""
+
+msgid "Create New Ticket"
+msgstr ""
+
+msgid "Customer Email"
+msgstr ""
+
+msgid "Change"
+msgstr ""

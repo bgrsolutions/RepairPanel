@@ -7,9 +7,65 @@
     <p class="mt-1 text-sm text-slate-400">{{ _('Update booking details.') if editing else _('Schedule a repair booking.') }}</p>
   </div>
 
-  <form method="post" class="space-y-6">
+  <form method="post" class="space-y-6" id="booking-form">
     {{ form.hidden_tag() }}
 
+    {# ── Customer Search / Selection ── #}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Customer") }}</h2>
+
+      {# Selected customer display #}
+      <div id="selected-customer" class="{% if not form.customer_id.data %}hidden{% endif %} rounded-xl border border-emerald-800/40 bg-emerald-950/30 p-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-emerald-200" id="sel-customer-name">{% if editing and booking is defined and booking.customer %}{{ booking.customer.full_name }}{% endif %}</p>
+            <p class="text-xs text-slate-400" id="sel-customer-detail">{% if editing and booking is defined and booking.customer %}{{ booking.customer.phone or '' }} {{ booking.customer.email or '' }}{% endif %}</p>
+          </div>
+          <button type="button" id="clear-customer-btn" class="text-xs text-slate-400 hover:text-red-300 transition-colors">{{ _("Change") }}</button>
+        </div>
+      </div>
+
+      {# Search input #}
+      <div id="customer-search-wrap" class="{% if form.customer_id.data %}hidden{% endif %} space-y-3">
+        <div class="relative">
+          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Search Customer") }}</label>
+          <input type="text" id="customer-search" autocomplete="off" placeholder="{{ _('Name, phone or email...') }}"
+            class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+          <div id="customer-results" class="absolute z-30 mt-1 w-full max-h-48 overflow-y-auto rounded-xl border border-slate-700/60 bg-slate-900 shadow-xl hidden"></div>
+        </div>
+
+        <p class="text-xs text-slate-500">{{ _("Can't find the customer?") }}
+          <button type="button" id="show-new-customer-btn" class="text-indigo-400 hover:text-indigo-300">{{ _("Create new customer") }}</button>
+        </p>
+      </div>
+
+      {# Inline new customer creation #}
+      <div id="new-customer-section" class="hidden space-y-3 rounded-xl border border-indigo-800/40 bg-indigo-950/20 p-4">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-indigo-300">{{ _("New Customer") }}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Full Name") }} <span class="text-red-400">*</span></label>
+            {{ form.customer_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", id="new-customer-name") }}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Phone") }}</label>
+            {{ form.customer_phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", id="new-customer-phone") }}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Email") }}</label>
+            {{ form.customer_email(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", id="new-customer-email") }}
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" id="create-customer-btn" class="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors cursor-pointer">{{ _("Create & Select Customer") }}</button>
+          <button type="button" id="cancel-new-customer-btn" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer">{{ _("Cancel") }}</button>
+        </div>
+      </div>
+
+      {{ form.customer_id(id="customer-id-field") }}
+    </div>
+
+    {# ── Booking Details ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Booking Details") }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -33,28 +89,29 @@
           <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Status") }}</label>
           {{ form.status(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
         </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Device") }}</label>
-          {{ form.device_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
-        </div>
-        {{ form.customer_id }}
       </div>
     </div>
 
+    {# ── Device ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Customer Contact") }}</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Customer Name") }}</label>
-          {{ form.customer_name(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Customer Phone") }}</label>
-          {{ form.customer_phone(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500") }}
-        </div>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Device") }}</h2>
+
+      {# Existing device dropdown — populated dynamically when customer selected #}
+      <div id="device-select-wrap">
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Select Existing Device") }}</label>
+        {{ form.device_id(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", id="device-select") }}
+        <p class="mt-1 text-xs text-slate-500" id="device-hint">{{ _("Select a customer first to see their devices") }}</p>
+      </div>
+
+      {# Free-text device description for booking stage #}
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1">{{ _("Device Description") }}</label>
+        {{ form.device_description(class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500", placeholder=_("e.g. iPhone 15 Pro, cracked screen"), id="device-description") }}
+        <p class="mt-1 text-xs text-slate-500">{{ _("Use this for a quick description if the device is not yet registered") }}</p>
       </div>
     </div>
 
+    {# ── Notes ── #}
     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ _("Notes") }}</h2>
       <div>
@@ -73,4 +130,143 @@
     </div>
   </form>
 </section>
+
+<script>
+(function() {
+  const csrfToken = document.querySelector('[name=csrf_token]').value;
+  const customerIdField = document.getElementById('customer-id-field');
+  const customerSearch = document.getElementById('customer-search');
+  const customerResults = document.getElementById('customer-results');
+  const selectedCustomer = document.getElementById('selected-customer');
+  const customerSearchWrap = document.getElementById('customer-search-wrap');
+  const selName = document.getElementById('sel-customer-name');
+  const selDetail = document.getElementById('sel-customer-detail');
+  const clearBtn = document.getElementById('clear-customer-btn');
+  const newCustomerSection = document.getElementById('new-customer-section');
+  const showNewBtn = document.getElementById('show-new-customer-btn');
+  const cancelNewBtn = document.getElementById('cancel-new-customer-btn');
+  const createBtn = document.getElementById('create-customer-btn');
+  const deviceSelect = document.getElementById('device-select');
+  const deviceHint = document.getElementById('device-hint');
+  let searchTimeout;
+
+  // ── Customer search autocomplete ──
+  customerSearch.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const q = this.value.trim();
+    if (q.length < 2) { customerResults.classList.add('hidden'); return; }
+    searchTimeout = setTimeout(function() {
+      fetch('/bookings/customer-search?q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+          if (!data.items || data.items.length === 0) {
+            customerResults.innerHTML = '<div class="px-3 py-2 text-xs text-slate-500">{{ _("No customers found") }}</div>';
+          } else {
+            customerResults.innerHTML = data.items.map(item =>
+              '<button type="button" class="block w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-700" ' +
+              'data-id="' + item.id + '" data-name="' + item.name.replace(/"/g, '&quot;') + '" data-phone="' + item.phone + '" data-email="' + item.email + '">' +
+              item.label + '</button>'
+            ).join('');
+          }
+          customerResults.classList.remove('hidden');
+        });
+    }, 250);
+  });
+
+  // ── Select customer from results ──
+  customerResults.addEventListener('click', function(e) {
+    const btn = e.target.closest('button[data-id]');
+    if (!btn) return;
+    selectCustomer(btn.dataset.id, btn.dataset.name, btn.dataset.phone + ' ' + btn.dataset.email);
+  });
+
+  function selectCustomer(id, name, detail) {
+    customerIdField.value = id;
+    selName.textContent = name;
+    selDetail.textContent = detail.trim();
+    selectedCustomer.classList.remove('hidden');
+    customerSearchWrap.classList.add('hidden');
+    newCustomerSection.classList.add('hidden');
+    customerResults.classList.add('hidden');
+    customerSearch.value = '';
+    loadDevices(id);
+  }
+
+  // ── Clear customer ──
+  clearBtn.addEventListener('click', function() {
+    customerIdField.value = '';
+    selectedCustomer.classList.add('hidden');
+    customerSearchWrap.classList.remove('hidden');
+    resetDevices();
+  });
+
+  // ── New customer creation ──
+  showNewBtn.addEventListener('click', function() {
+    newCustomerSection.classList.remove('hidden');
+  });
+  cancelNewBtn.addEventListener('click', function() {
+    newCustomerSection.classList.add('hidden');
+  });
+  createBtn.addEventListener('click', function() {
+    const name = document.getElementById('new-customer-name').value.trim();
+    const phone = document.getElementById('new-customer-phone').value.trim();
+    const email = document.getElementById('new-customer-email').value.trim();
+    if (!name) { alert('{{ _("Customer name is required") }}'); return; }
+    fetch('/bookings/customer-create', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+      body: JSON.stringify({name: name, phone: phone, email: email})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        selectCustomer(data.id, data.name, (data.phone + ' ' + data.email).trim());
+        if (data.existing) {
+          // Flash-like notification for duplicate match
+          const notice = document.createElement('div');
+          notice.className = 'flex items-center gap-2 rounded-xl border border-amber-700/60 bg-amber-950/60 px-4 py-2 text-sm text-amber-100 mb-2';
+          notice.textContent = '{{ _("Existing customer matched and selected") }}';
+          document.getElementById('booking-form').prepend(notice);
+          setTimeout(() => notice.remove(), 4000);
+        }
+      } else {
+        alert(data.error || '{{ _("Error creating customer") }}');
+      }
+    });
+  });
+
+  // ── Device loading ──
+  function loadDevices(customerId) {
+    if (!customerId) { resetDevices(); return; }
+    fetch('/bookings/customer/' + customerId + '/devices')
+      .then(r => r.json())
+      .then(devices => {
+        deviceSelect.innerHTML = '<option value="">{{ _("-- Select Device --") }}</option>';
+        devices.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.label;
+          deviceSelect.appendChild(opt);
+        });
+        if (devices.length > 0) {
+          deviceHint.textContent = devices.length + ' {{ _("registered device(s)") }}';
+        } else {
+          deviceHint.textContent = '{{ _("No registered devices") }}';
+        }
+      });
+  }
+
+  function resetDevices() {
+    deviceSelect.innerHTML = '<option value="">{{ _("-- Select Device --") }}</option>';
+    deviceHint.textContent = '{{ _("Select a customer first to see their devices") }}';
+  }
+
+  // ── Close dropdown on outside click ──
+  document.addEventListener('click', function(e) {
+    if (!customerResults.contains(e.target) && e.target !== customerSearch) {
+      customerResults.classList.add('hidden');
+    }
+  });
+})();
+</script>
 {% endblock %}

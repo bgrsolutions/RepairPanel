@@ -33,6 +33,8 @@ class Booking(UUIDMixin, TimestampMixin, db.Model):
     staff_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     customer_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     customer_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    customer_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    device_description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     converted_ticket_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("tickets.id"), nullable=True, index=True
     )
@@ -56,7 +58,7 @@ class Booking(UUIDMixin, TimestampMixin, db.Model):
     # Valid status transitions
     VALID_TRANSITIONS = {
         STATUS_NEW: {STATUS_CONFIRMED, STATUS_ARRIVED, STATUS_CANCELLED, STATUS_NO_SHOW},
-        STATUS_CONFIRMED: {STATUS_ARRIVED, STATUS_CANCELLED, STATUS_NO_SHOW},
+        STATUS_CONFIRMED: {STATUS_ARRIVED, STATUS_CONVERTED, STATUS_CANCELLED, STATUS_NO_SHOW},
         STATUS_ARRIVED: {STATUS_CONVERTED, STATUS_CANCELLED},
         # Legacy scheduled maps same as new
         STATUS_SCHEDULED: {STATUS_CONFIRMED, STATUS_ARRIVED, STATUS_CANCELLED, STATUS_NO_SHOW},

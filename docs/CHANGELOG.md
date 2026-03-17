@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.18.1] - 2026-03-17
+### Fixed — Phase 17.1: Booking Intake UX and Navigation Corrections
+- **Customer Search on Booking Form**: Added live customer search by name, phone, or email on booking create/edit forms with autocomplete dropdown (reuses existing project pattern)
+- **Inline Customer Creation**: Staff can create new customers directly within the booking workflow; duplicate detection by email/phone prevents duplicates
+- **Device Handling**: Dynamic device dropdown populated when customer is selected; new free-text `device_description` field for booking-stage device info
+- **Navigation Clarity**: Replaced vague "Intakes" button with "New Booking", "Create New Ticket" (→ `/intake/new`), and "Fast Check-In" (→ `/tickets/create`) for clearer staff actions
+- **Conversion from Confirmed**: Bookings in `confirmed` status can now be converted to tickets (previously required `arrived` status)
+- **Post-Conversion Flow**: After converting a booking, redirect goes to ticket detail page instead of booking detail, enabling seamless workflow continuation
+- **New API Endpoints**: `GET /bookings/customer-search`, `POST /bookings/customer-create`, `GET /bookings/customer/<id>/devices`
+- **Migration**: `b2c3d4e5f6a7` adds `customer_email` and `device_description` columns to bookings table
+- **40+ New Tests**: Customer search/create, device handling, conversion eligibility, post-conversion redirect, navigation, permissions, translations
+
 ## [0.18.0] - 2026-03-17
 ### Added — Phase 17: Warranty, Branded Communications & Customer Aftercare
 - **Warranty Model (17.1)**: New `TicketWarranty` model with warranty type (no_warranty/standard/custom), days, coverage (labour/parts), terms, repair summary, parts used, claim tracking, and email notification status. Migration creates `ticket_warranties` table.
