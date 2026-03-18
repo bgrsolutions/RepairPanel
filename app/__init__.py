@@ -89,6 +89,10 @@ def create_app(config_class=Config):
             session["locale"] = locale
         return redirect(request.referrer or "/")
 
+    # Validate configuration on startup (logs warnings, never crashes)
+    from app.utils.config_check import validate_config
+    validate_config(app)
+
     return app
 
 
