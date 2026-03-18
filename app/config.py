@@ -64,6 +64,7 @@ class Config:
     IMEICHECK_API_KEY = os.getenv("IMEICHECK_API_KEY", "")
     IMEICHECK_API_URL = os.getenv("IMEICHECK_API_URL", "https://api.imeicheck.net")
     IMEICHECK_BASE_URL = os.getenv("IMEICHECK_BASE_URL", "https://imeicheck.net/api")
+    IMEICHECK_SERVICE_ID = int(os.getenv("IMEICHECK_SERVICE_ID", "12"))
     IMEICHECK_TIMEOUT = int(os.getenv("IMEICHECK_TIMEOUT", "10"))
 
     # --- Device Security ------------------------------------------------------

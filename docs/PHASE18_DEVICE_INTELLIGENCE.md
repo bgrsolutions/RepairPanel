@@ -67,10 +67,36 @@ All fields are nullable — manual entry is always possible regardless of device
 
 ### Configuration
 ```bash
-IMEICHECK_API_KEY=your-api-key-here    # Empty = disabled
-IMEICHECK_API_URL=https://api.imeicheck.net  # Default
-IMEICHECK_TIMEOUT=10                    # Seconds
+IMEICHECK_ENABLED=true                    # Master switch
+IMEICHECK_API_KEY=your-api-key-here       # Bearer token (empty = disabled)
+IMEICHECK_API_URL=https://api.imeicheck.net  # Base URL
+IMEICHECK_SERVICE_ID=12                   # Service ID for checks (see below)
+IMEICHECK_TIMEOUT=10                      # Request timeout in seconds
 ```
+
+### API Request Format (Phase 18.2)
+The integration uses the IMEIcheck.net REST API v1:
+
+```
+POST https://api.imeicheck.net/v1/checks
+Authorization: Bearer <IMEICHECK_API_KEY>
+Accept: application/json
+Content-Type: application/json
+
+{"deviceId": "<IMEI>", "serviceId": <IMEICHECK_SERVICE_ID>}
+```
+
+The API returns **201 Created** on success with a check object containing device properties.
+
+### Service ID (`IMEICHECK_SERVICE_ID`)
+Each service ID corresponds to a different type of device check (Apple Info, Samsung Info, etc.).
+To list available services for your account, use `GET /v1/services` or the `list_services()` helper.
+The default is `12`. Set `IMEICHECK_SERVICE_ID` in your `.env` to match your account's available services.
+
+### Service Discovery
+The service module provides helpers for debugging:
+- `list_services()` — lists all services available on your account
+- `get_account_balance()` — checks your account balance
 
 ### Behavior
 - **Optional**: Lookup is never required; staff can always enter details manually
@@ -78,6 +104,30 @@ IMEICHECK_TIMEOUT=10                    # Seconds
 - **Endpoints**: `POST /tickets/imei-lookup` and `POST /intake/imei-lookup`
 - **Caching**: Successful results stored as JSON on `device.imei_lookup_data`
 - **Data flow**: Brand, model, storage, color, carrier lock, FMI status, serial number parsed from response
+- **Async handling**: If the API returns a pending check, one polling request is made automatically
+
+### Error Handling
+The service provides detailed, human-readable error messages for:
+
+| HTTP Status | Meaning | Error shown to staff |
+|------------|---------|----------------------|
+| 401 | Bad API key | "IMEI API authentication failed" |
+| 403 | IP blocked / account blocked | "IMEI API access denied: ..." |
+| 404 | Wrong endpoint URL | "IMEI API endpoint not found" |
+| 422 | Validation error (bad serviceId, bad IMEI) | "IMEI API validation error: serviceId: ..." |
+| 429 | Rate limited | "IMEI API rate limit exceeded" |
+| 500+ | Provider outage | "IMEI provider is experiencing issues" |
+
+API keys are **never** logged or included in error messages.
+
+### Common Failure Modes
+1. **"IMEI API validation error: serviceId: invalid"** — Your `IMEICHECK_SERVICE_ID` is not available on your account. Use `list_services()` to find valid IDs.
+2. **"IMEI API authentication failed"** — Your `IMEICHECK_API_KEY` is wrong or expired. Regenerate it at [imeicheck.net/developer-api](https://imeicheck.net/developer-api).
+3. **"IMEI API access denied: IP not whitelisted"** — Add your server's IP to the API whitelist in your IMEIcheck account.
+4. **"IMEI lookup service unreachable"** — Network issue between your server and the API.
+
+### When Lookup Fails
+Staff should proceed with manual device entry. All device fields are editable regardless of whether the IMEI lookup succeeds. The lookup is a convenience feature, not a requirement.
 
 ### Response Adapter
 The service uses a flexible response parser that handles multiple API response formats (`properties`, `result`, or flat dict) to accommodate IMEIcheck.net API variations.

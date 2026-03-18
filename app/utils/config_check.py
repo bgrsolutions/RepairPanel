@@ -73,6 +73,14 @@ def validate_config(app) -> list[str]:
         logger.warning(msg)
         warnings.append(msg)
 
+    if imei_enabled and imei_key:
+        service_id = cfg.get("IMEICHECK_SERVICE_ID", 12)
+        logger.info(
+            "IMEIcheck.net configured: url=%s service_id=%s",
+            cfg.get("IMEICHECK_API_URL", "https://api.imeicheck.net"),
+            service_id,
+        )
+
     # Also warn if an API key is set but enabled flag is off (likely oversight)
     if imei_key and not imei_enabled:
         msg = "IMEICHECK_API_KEY is set but IMEICHECK_ENABLED is false — set IMEICHECK_ENABLED=true to activate."
