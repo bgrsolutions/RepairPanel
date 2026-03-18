@@ -86,6 +86,17 @@
           </div>
         </div>
 
+        {# IMEI Lookup Result Summary — shown after successful lookup #}
+        <div id="imei-result-panel" class="hidden border-t border-slate-800 pt-3 mt-2">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">{{ _("IMEI Lookup Result") }}</span>
+            <span id="imei-fields-count" class="text-[10px] text-slate-500"></span>
+          </div>
+          <div id="imei-result-badges" class="flex flex-wrap gap-1.5"></div>
+          <div id="imei-result-extras" class="mt-2 flex flex-wrap gap-1.5"></div>
+          <p class="mt-2 text-[10px] text-slate-500">{{ _("All fields remain editable. Edit any value above to override.") }}</p>
+        </div>
+
         {# Richer device details — phone/tablet fields #}
         <div id="phone-tablet-fields" class="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-slate-800 pt-4 mt-2" style="display:none;">
           <div>
@@ -325,6 +336,18 @@ search?.addEventListener('input', async ()=>{
 const imeiBtn=document.getElementById('imei-lookup-btn');
 const imeiField=document.getElementById('imei-field');
 const imeiStatus=document.getElementById('imei-status');
+const imeiResultPanel=document.getElementById('imei-result-panel');
+const imeiResultBadges=document.getElementById('imei-result-badges');
+const imeiResultExtras=document.getElementById('imei-result-extras');
+const imeiFieldsCount=document.getElementById('imei-fields-count');
+
+function makeBadge(label, value, colorClass) {
+  if (!value) return '';
+  const safe = String(value).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const safeLabel = String(label).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<span class="inline-flex items-center gap-1 rounded-lg border ${colorClass} px-2 py-0.5 text-[11px]"><span class="font-medium text-slate-400">${safeLabel}:</span><span class="text-slate-200">${safe}</span></span>`;
+}
+
 if(imeiBtn && imeiField){
   imeiBtn.addEventListener('click', async ()=>{
     const imei=imeiField.value.trim();
@@ -338,15 +361,19 @@ if(imeiBtn && imeiField){
     imeiStatus.textContent='{{ _("Looking up IMEI...") }}';
     imeiStatus.className='mt-1.5 text-xs text-cyan-400 animate-pulse';
     imeiStatus.classList.remove('hidden');
+    if(imeiResultPanel) imeiResultPanel.classList.add('hidden');
     try{
       const csrfToken = document.querySelector('input[name=csrf_token]')?.value || '';
+      /* Pass brand_hint from current brand field value */
+      const brandHint = document.getElementById('device-brand')?.value || '';
       const r=await fetch('/intake/imei-lookup',{
         method:'POST',
         headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken},
-        body:JSON.stringify({imei})
+        body:JSON.stringify({imei, brand_hint: brandHint})
       });
       const data=await r.json();
       if(data.ok && data.success){
+        /* Auto-fill core fields (only if non-empty from API) */
         if(data.brand) document.getElementById('device-brand').value=data.brand;
         if(data.model) document.getElementById('device-model').value=data.model;
         if(data.serial_number) document.getElementById('serial-number').value=data.serial_number;
@@ -356,8 +383,36 @@ if(imeiBtn && imeiField){
         if(data.fmi_status) document.getElementById('device-fmi-status').value=data.fmi_status;
         /* Show phone/tablet fields since IMEI implies a mobile device */
         showCategoryFields('phones');
-        imeiStatus.textContent='{{ _("Device details populated from IMEI lookup") }}';
-        imeiStatus.className='mt-1.5 text-xs text-emerald-400';
+
+        /* Build result summary badges */
+        const total = data.fields_populated || 0;
+        const bc = 'border-slate-700/50 bg-slate-800/40';
+        let badges = '';
+        badges += makeBadge('{{ _("Brand") }}', data.brand, bc);
+        badges += makeBadge('{{ _("Model") }}', data.model, bc);
+        badges += makeBadge('{{ _("Storage") }}', data.storage, bc);
+        badges += makeBadge('{{ _("Color") }}', data.color, bc);
+        badges += makeBadge('{{ _("S/N") }}', data.serial_number, bc);
+        badges += makeBadge('{{ _("SIM Lock") }}', data.carrier_lock, data.carrier_lock === 'Locked' ? 'border-amber-700/50 bg-amber-950/30' : bc);
+        badges += makeBadge('{{ _("FMI") }}', data.fmi_status, data.fmi_status === 'ON' ? 'border-rose-700/50 bg-rose-950/30' : bc);
+        if(imeiResultBadges) imeiResultBadges.innerHTML = badges;
+
+        /* Extra metadata badges */
+        let extras = '';
+        extras += makeBadge('{{ _("Warranty") }}', data.warranty_status, bc);
+        extras += makeBadge('{{ _("Blacklist") }}', data.blacklist_status, data.blacklist_status === 'Blacklisted' ? 'border-rose-700/50 bg-rose-950/30' : bc);
+        extras += makeBadge('{{ _("Country") }}', data.purchase_country, bc);
+        extras += makeBadge('{{ _("Model #") }}', data.model_number, bc);
+        if(imeiResultExtras) imeiResultExtras.innerHTML = extras;
+
+        if(imeiFieldsCount) imeiFieldsCount.textContent = total + ' {{ _("fields populated") }}';
+        if(imeiResultPanel) imeiResultPanel.classList.remove('hidden');
+
+        const partial = total < 5;
+        imeiStatus.textContent = partial
+          ? '{{ _("Partial device details populated — verify and complete manually") }}'
+          : '{{ _("Device details populated from IMEI lookup") }}';
+        imeiStatus.className = 'mt-1.5 text-xs ' + (partial ? 'text-amber-400' : 'text-emerald-400');
       } else {
         imeiStatus.textContent=data.error || '{{ _("IMEI lookup failed") }}';
         imeiStatus.className='mt-1.5 text-xs text-amber-400';

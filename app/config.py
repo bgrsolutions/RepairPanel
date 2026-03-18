@@ -67,6 +67,22 @@ class Config:
     IMEICHECK_SERVICE_ID = int(os.getenv("IMEICHECK_SERVICE_ID", "12"))
     IMEICHECK_TIMEOUT = int(os.getenv("IMEICHECK_TIMEOUT", "10"))
 
+    # Brand-aware service mapping (JSON): {"apple": 12, "samsung": 3, ...}
+    # If a brand matches a key, that service ID is used instead of the default.
+    # Keys are matched case-insensitively. Use "*" or "default" for fallback.
+    @staticmethod
+    def _parse_service_map():
+        raw = os.getenv("IMEICHECK_SERVICE_MAP", "")
+        if not raw:
+            return {}
+        try:
+            import json
+            return {k.lower(): int(v) for k, v in json.loads(raw).items()}
+        except Exception:
+            return {}
+
+    IMEICHECK_SERVICE_MAP = _parse_service_map()
+
     # --- Device Security ------------------------------------------------------
     DEVICE_UNLOCK_KEY = os.getenv("DEVICE_UNLOCK_KEY", "")
 
