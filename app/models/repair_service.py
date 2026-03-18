@@ -12,17 +12,24 @@ class RepairService(UUIDMixin, TimestampMixin, db.Model):
     __tablename__ = "repair_services"
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
+    service_code: Mapped[str | None] = mapped_column(String(40), nullable=True, unique=True, index=True)
     device_category: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     default_part_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("parts.id"), nullable=True, index=True
     )
     labour_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    labour_price: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     suggested_sale_price: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Relationships
     default_part = relationship("Part", foreign_keys=[default_part_id], lazy="selectin")
+    parts = relationship(
+        "Part",
+        secondary="service_part_links",
+        lazy="select",
+    )
 
     def __repr__(self):
         return f"<RepairService {self.name}>"

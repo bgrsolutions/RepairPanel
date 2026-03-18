@@ -7,9 +7,11 @@ from wtforms.validators import DataRequired, Email, Length, Optional
 
 CATEGORY_CHOICES = [
     ("phones", _l("Phones")),
+    ("tablets", _l("Tablets")),
     ("laptops", _l("Laptops")),
     ("desktops", _l("Desktops")),
     ("game_consoles", _l("Game Consoles")),
+    ("smartwatches", _l("Smartwatches")),
     ("other", _l("Other")),
 ]
 
@@ -29,6 +31,33 @@ class InternalIntakeForm(FlaskForm):
     serial_number = StringField(_l("Serial Number"), validators=[Optional(), Length(max=120)])
     imei = StringField(_l("IMEI"), validators=[Optional(), Length(max=60)])
 
+    # Phase 18: Richer device details
+    storage = StringField(_l("Storage"), validators=[Optional(), Length(max=60)])
+    color = StringField(_l("Color"), validators=[Optional(), Length(max=60)])
+    carrier_lock = StringField(_l("Carrier/Network Lock"), validators=[Optional(), Length(max=120)])
+    fmi_status = StringField(_l("Find My / FMI Status"), validators=[Optional(), Length(max=60)])
+    battery_health = StringField(_l("Battery Health"), validators=[Optional(), Length(max=60)])
+    cosmetic_condition = TextAreaField(_l("Cosmetic Condition"), validators=[Optional(), Length(max=2000)])
+    # Laptop/desktop fields
+    cpu = StringField(_l("CPU/Processor"), validators=[Optional(), Length(max=120)])
+    ram = StringField(_l("RAM"), validators=[Optional(), Length(max=60)])
+    storage_type = StringField(_l("Storage Type"), validators=[Optional(), Length(max=60)])
+    gpu = StringField(_l("GPU"), validators=[Optional(), Length(max=120)])
+    os_info = StringField(_l("OS/System Info"), validators=[Optional(), Length(max=200)])
+
+    # Phase 18: Secure access data
+    unlock_type = SelectField(_l("Unlock Type"), choices=[
+        ("", _l("None")),
+        ("pin", _l("PIN")),
+        ("password", _l("Password")),
+        ("pattern", _l("Pattern")),
+        ("passcode", _l("Passcode")),
+        ("biometric", _l("Biometric Only")),
+        ("other", _l("Other")),
+    ], validators=[Optional()])
+    unlock_value = StringField(_l("Unlock Code/Value"), validators=[Optional(), Length(max=200)])
+    unlock_notes = TextAreaField(_l("Access Notes"), validators=[Optional(), Length(max=2000)])
+
     reported_fault = TextAreaField(_l("Reported Fault"), validators=[DataRequired(), Length(max=5000)])
     device_condition = TextAreaField(_l("Device Condition at Intake"), validators=[Optional(), Length(max=2000)])
     accessories = TextAreaField(_l("Accessories Included"), validators=[Optional(), Length(max=2000)])
@@ -38,12 +67,15 @@ class InternalIntakeForm(FlaskForm):
     initial_diagnosis = TextAreaField(_l("Initial Diagnosis"), validators=[Optional(), Length(max=5000)])
     recommended_repair = TextAreaField(_l("Recommended Repair"), validators=[Optional(), Length(max=5000)])
 
-    # Pre-repair check items (common quick checks at intake)
+    # Pre-repair check items (legacy — kept for backward compat, dynamic checks also supported)
     check_powers_on = BooleanField(_l("Device powers on"))
     check_screen_condition = BooleanField(_l("Screen displays correctly"))
     check_charging = BooleanField(_l("Charging port functional"))
     check_buttons = BooleanField(_l("Physical buttons work"))
     check_water_damage = BooleanField(_l("No visible water damage"))
+
+    # Phase 18: Pre-check results stored as hidden JSON
+    precheck_results_json = HiddenField(_l("Pre-Check Results"))
 
     accepted_disclaimer = BooleanField(_l("Customer accepted intake disclaimer"), validators=[DataRequired()])
     signature_data = HiddenField(_l("Signature Data"), validators=[Optional()])

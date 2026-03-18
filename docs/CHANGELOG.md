@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.19.0] - 2026-03-18
+### Added — Phase 18: Device Intelligence, Secure Access, Service Catalog
+- **Secure Access Data**: Encrypted device unlock/access storage (PIN, password, pattern, passcode) with XOR+base64 obfuscation, masked display, role-restricted visibility (`can_view_secure_access`)
+- **Archived Ticket Exclusion**: Dashboard and reporting stats now exclude archived tickets from operational KPIs/counts; archived tickets remain searchable
+- **Device-Type Pre-Checks**: 7 device categories (phones, tablets, laptops, desktops, game consoles, smartwatches, other) with category-specific pre-check templates stored in database with EN/ES labels, fallback defaults
+- **Richer Device Details**: 12 new device fields (storage, color, carrier_lock, fmi_status, cosmetic_condition, battery_health, cpu, ram, storage_type, gpu, os_info, device_notes) for structured capture
+- **IMEIcheck.net Integration**: Optional IMEI lookup service with config-driven API key, graceful failure handling, manual fallback always available, result caching on device
+- **Service Catalog Enhancement**: RepairService model extended with `service_code`, `labour_price`, and many-to-many `parts` relationship via `service_part_links` table
+- **Service Detail API**: `/tickets/service-detail-json/<id>` endpoint returns service with linked parts for quote population
+- **Pre-Check API**: `/tickets/prechecks/<category>` and `/intake/prechecks/<category>` endpoints return device-type-specific checks
+- **IMEI Lookup API**: `/tickets/imei-lookup` and `/intake/imei-lookup` POST endpoints for AJAX IMEI lookup
+- **Permissions**: 3 new permission functions (`can_view_secure_access`, `can_manage_service_catalog`, `can_lookup_imei`) with template proxy
+- **Migration**: `a1b2c3d4e5f7` adds device detail columns, unlock fields, pre-check templates table, service_part_links table, service_code/labour_price on repair_services, seeds default pre-checks
+- **34 New Tests**: Secure unlock encryption/masking, archived stats exclusion, device-type pre-checks, IMEI lookup (mocked success/failure/timeout), service catalog, permissions, backward compatibility
+- **22 New EN/ES Translation Strings**: Device detail fields, unlock types, IMEI lookup labels
+
 ## [0.18.3] - 2026-03-17
 ### Added — Phase 17.3: Email Transport Configuration and SMTP Delivery
 - **Email Transport Configuration**: Config-driven email transport with environment variables for SMTP host, port, username, password, TLS/SSL, timeout, sender email/name, and reply-to

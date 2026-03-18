@@ -36,3 +36,8 @@ class Config:
     MAIL_DEFAULT_SENDER_EMAIL = os.getenv("MAIL_DEFAULT_SENDER_EMAIL", "")
     MAIL_DEFAULT_SENDER_NAME = os.getenv("MAIL_DEFAULT_SENDER_NAME", "")
     MAIL_DEFAULT_REPLY_TO = os.getenv("MAIL_DEFAULT_REPLY_TO", "")
+
+    # IMEIcheck.net integration (optional)
+    IMEICHECK_API_KEY = os.getenv("IMEICHECK_API_KEY", "")
+    IMEICHECK_API_URL = os.getenv("IMEICHECK_API_URL", "https://api.imeicheck.net")
+    IMEICHECK_TIMEOUT = int(os.getenv("IMEICHECK_TIMEOUT", "10"))
