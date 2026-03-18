@@ -8,7 +8,7 @@ from flask_login import login_required
 
 from app.extensions import db
 from app.forms.quote_forms import QuoteCreateForm
-from app.models import AppSetting, Branch, Customer, Device, Diagnostic, Part, Quote, QuoteApproval, QuoteLine, QuoteOption, Ticket
+from app.models import AppSetting, Branch, Customer, Device, Diagnostic, Part, Quote, QuoteApproval, QuoteLine, QuoteOption, RepairService, Ticket
 from app.services.audit_service import log_action
 from app.services.permission_service import can_create_quote, can_create_ticket, can_manage_quote
 from app.services.quote_service import compute_quote_totals, set_quote_status
@@ -93,6 +93,24 @@ def _save_quote_from_form(quote: Quote, form: QuoteCreateForm):
             db.session.delete(option)
 
 
+def _get_services_data():
+    """Return active repair services for the service selector."""
+    try:
+        services = RepairService.query.filter(RepairService.is_active.is_(True)).order_by(RepairService.name.asc()).all()
+        return [
+            {
+                "id": str(s.id),
+                "name": s.name,
+                "service_code": s.service_code or "",
+                "labour_price": float(s.labour_price) if s.labour_price else (float(s.suggested_sale_price) if s.suggested_sale_price else 0),
+                "labour_minutes": s.labour_minutes,
+            }
+            for s in services
+        ]
+    except Exception:
+        return []
+
+
 def _render_quote_form(ticket, form, mode, parts_data, quote=None):
     """Render the quote builder template with all required context."""
     ctx = {
@@ -100,6 +118,7 @@ def _render_quote_form(ticket, form, mode, parts_data, quote=None):
         "mode": mode,
         "igic_rate": current_app.config.get("DEFAULT_IGIC_RATE", 0.07),
         "parts_data": parts_data,
+        "services_data": _get_services_data(),
     }
     if ticket:
         ctx["ticket"] = ticket

@@ -6924,3 +6924,109 @@ msgstr "Consulta IMEI"
 
 msgid "Look Up"
 msgstr "Consultar"
+
+#: Phase 18.1 — Device Intelligence Hardening
+msgid "Lookup"
+msgstr "Consultar"
+
+msgid "Look up IMEI"
+msgstr "Consultar IMEI"
+
+msgid "Enter a valid IMEI (14+ digits)"
+msgstr "Ingrese un IMEI válido (14+ dígitos)"
+
+msgid "Looking up IMEI..."
+msgstr "Consultando IMEI..."
+
+msgid "Device details populated from IMEI lookup"
+msgstr "Detalles del dispositivo completados desde consulta IMEI"
+
+msgid "IMEI lookup failed"
+msgstr "La consulta IMEI falló"
+
+msgid "IMEI lookup request failed"
+msgstr "La solicitud de consulta IMEI falló"
+
+msgid "Loading checks..."
+msgstr "Cargando verificaciones..."
+
+msgid "Select a device category to load pre-checks..."
+msgstr "Seleccione una categoría de dispositivo para cargar las verificaciones..."
+
+msgid "No pre-checks defined for this category"
+msgstr "No hay verificaciones definidas para esta categoría"
+
+msgid "Failed to load pre-checks"
+msgstr "Error al cargar las verificaciones"
+
+msgid "Checks update automatically based on device category"
+msgstr "Las verificaciones se actualizan automáticamente según la categoría del dispositivo"
+
+msgid "Secure Access Data"
+msgstr "Datos de Acceso Seguro"
+
+msgid "Device unlock codes are stored encrypted. Only authorized staff can view."
+msgstr "Los códigos de desbloqueo se almacenan encriptados. Solo personal autorizado puede verlos."
+
+msgid "PIN, password, pattern..."
+msgstr "PIN, contraseña, patrón..."
+
+msgid "Fingerprint registered, Face ID, etc."
+msgstr "Huella digital registrada, Face ID, etc."
+
+msgid "128GB, 256GB..."
+msgstr "128GB, 256GB..."
+
+msgid "Black, Silver..."
+msgstr "Negro, Plata..."
+
+msgid "Unlocked, Carrier-locked..."
+msgstr "Desbloqueado, Bloqueado por operador..."
+
+msgid "ON / OFF"
+msgstr "ON / OFF"
+
+msgid "85%..."
+msgstr "85%..."
+
+msgid "Scratches, dents..."
+msgstr "Arañazos, abolladuras..."
+
+msgid "i7-13700, M2 Pro..."
+msgstr "i7-13700, M2 Pro..."
+
+msgid "16GB, 32GB..."
+msgstr "16GB, 32GB..."
+
+msgid "512GB SSD, 1TB HDD..."
+msgstr "512GB SSD, 1TB HDD..."
+
+msgid "RTX 4060, Integrated..."
+msgstr "RTX 4060, Integrada..."
+
+msgid "Windows 11, macOS 14..."
+msgstr "Windows 11, macOS 14..."
+
+msgid "Record device brand, model, serial/IMEI. Use IMEI Lookup to auto-fill details."
+msgstr "Registre marca, modelo, serial/IMEI del dispositivo. Use Consulta IMEI para autocompletar."
+
+msgid "Quick Fill from Service Catalog"
+msgstr "Llenado rápido desde Catálogo de Servicios"
+
+msgid "Select a service to auto-populate labour and linked parts. You can edit all values after."
+msgstr "Seleccione un servicio para autocompletar mano de obra y repuestos vinculados. Puede editar todos los valores después."
+
+msgid "Service"
+msgstr "Servicio"
+
+msgid "-- Select a service --"
+msgstr "-- Seleccione un servicio --"
+
+msgid "Apply Service"
+msgstr "Aplicar Servicio"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Labour"
+msgstr "Mano de obra"

@@ -26,7 +26,13 @@
       {% if booking.repair_service %}
       <div>
         <dt class="text-slate-500">{{ _("Service") }}</dt>
-        <dd class="text-slate-200">{{ booking.repair_service.name }}</dd>
+        <dd class="text-slate-200">{{ booking.repair_service.name }}{% if booking.repair_service.service_code %} <span class="text-xs text-slate-500">({{ booking.repair_service.service_code }})</span>{% endif %}</dd>
+      </div>
+      {% endif %}
+      {% if booking.device %}
+      <div>
+        <dt class="text-slate-500">{{ _("Device") }}</dt>
+        <dd class="text-slate-200">{{ booking.device.brand }} {{ booking.device.model }}{% if booking.device.storage %} · {{ booking.device.storage }}{% endif %}{% if booking.device.color %} · {{ booking.device.color }}{% endif %}</dd>
       </div>
       {% endif %}
       <div>

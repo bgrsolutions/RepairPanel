@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.19.1] - 2026-03-18
+### Changed — Phase 18.1: Device Intelligence Hardening, Secure Access Fixes, UI Completion
+- **Authenticated Encryption**: Replaced XOR+base64 obfuscation for device unlock values with proper authenticated encryption using HMAC-SHA256 CTR-mode stream cipher with HMAC authentication tag. Wire format: version byte (0x01) + random nonce (16 bytes) + ciphertext + HMAC-SHA256 tag (32 bytes). Backward-compatible: legacy XOR values are auto-detected and decrypted transparently.
+- **Dedicated Encryption Key**: New `DEVICE_UNLOCK_KEY` config option for separating unlock encryption key from `SECRET_KEY`. Falls back to `SECRET_KEY` if not set.
+- **IMEI Lookup UI**: Fully wired IMEI lookup into the staff-facing intake form with inline lookup button, AJAX request, auto-population of device brand/model/serial/storage/color/carrier/FMI fields, and graceful fallback on API errors.
+- **Device-Specific Pre-Check UI**: Dynamic pre-check checkboxes in the intake form that auto-load based on selected device category via AJAX, replacing the static legacy checks. Category changes trigger fresh pre-check load.
+- **Richer Device Details UI**: Category-dependent device detail sections in the intake form — phone/tablet fields (storage, color, carrier lock, FMI, battery health, cosmetic condition) and laptop/desktop fields (CPU, RAM, storage type, GPU, OS) shown/hidden based on category selection.
+- **Secure Access UI**: Encrypted unlock code entry section in the intake form, visible only to authorized staff (`can_view_secure_access` permission), with unlock type selector, value input, and notes field.
+- **Quote Service Catalog Selector**: Service catalog quick-fill in the quote builder — staff can select a repair service to auto-populate labour line + linked parts into the first repair option. Service detail fetched via existing `/tickets/service-detail-json/<id>` endpoint.
+- **Booking Device Details Carry-Through**: Booking conversion summary now displays richer device details (storage, color) alongside service code. All Phase 18 device fields carry through via shared device record.
+- **Internationalization**: 35+ new EN/ES translation strings for IMEI lookup, pre-checks, device details, secure access, service catalog, and quote builder UI.
+- **35 New Tests**: Authenticated encryption roundtrip, v1 format verification, nonce uniqueness, tamper detection, legacy backward compatibility, mask/display, IMEI endpoints, pre-check endpoints (all categories + Spanish), service detail JSON, intake form rendering (IMEI button, category fields, unlock fields, pre-checks), quote service selection, booking carry-through, permissions (3 permission functions × multiple roles), config keys, dedicated key isolation, precheck parsing/formatting, intake POST with rich fields.
+
 ## [0.19.0] - 2026-03-18
 ### Added — Phase 18: Device Intelligence, Secure Access, Service Catalog
 - **Secure Access Data**: Encrypted device unlock/access storage (PIN, password, pattern, passcode) with XOR+base64 obfuscation, masked display, role-restricted visibility (`can_view_secure_access`)

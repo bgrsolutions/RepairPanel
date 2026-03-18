@@ -28,7 +28,7 @@
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.category.label }}</label>
-            {{ form.category(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+            {{ form.category(id='category-select', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
           </div>
         </div>
         <div>
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      {# Step 2: Device Details #}
+      {# Step 2: Device Details + IMEI Lookup #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-bold text-indigo-300">2</span>
@@ -62,22 +62,111 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_brand.label }} <span class="text-rose-400">*</span></label>
-            {{ form.device_brand(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Apple, Samsung, etc.')) }}
+            {{ form.device_brand(id='device-brand', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Apple, Samsung, etc.')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.device_model.label }} <span class="text-rose-400">*</span></label>
-            {{ form.device_model(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('iPhone 15 Pro, Galaxy S24, etc.')) }}
+            {{ form.device_model(id='device-model', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('iPhone 15 Pro, Galaxy S24, etc.')) }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.serial_number.label }}</label>
-            {{ form.serial_number(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+            {{ form.serial_number(id='serial-number', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.imei.label }}</label>
-            {{ form.imei(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+            <div class="flex gap-2">
+              {{ form.imei(id='imei-field', class='flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+              {% if perms.can_lookup_imei %}
+              <button type="button" id="imei-lookup-btn" class="rounded-xl border border-cyan-700/50 bg-cyan-950/30 px-3 py-2.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-900/40 transition-colors whitespace-nowrap" title="{{ _('Look up IMEI') }}">
+                <svg class="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>{{ _("Lookup") }}
+              </button>
+              {% endif %}
+            </div>
+            <div id="imei-status" class="mt-1.5 text-xs hidden"></div>
+          </div>
+        </div>
+
+        {# Richer device details — phone/tablet fields #}
+        <div id="phone-tablet-fields" class="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-slate-800 pt-4 mt-2" style="display:none;">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.storage.label }}</label>
+            {{ form.storage(id='device-storage', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('128GB, 256GB...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.color.label }}</label>
+            {{ form.color(id='device-color', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Black, Silver...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.carrier_lock.label }}</label>
+            {{ form.carrier_lock(id='device-carrier-lock', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Unlocked, Carrier-locked...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.fmi_status.label }}</label>
+            {{ form.fmi_status(id='device-fmi-status', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('ON / OFF')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.battery_health.label }}</label>
+            {{ form.battery_health(id='device-battery-health', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder='85%...') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.cosmetic_condition.label }}</label>
+            {{ form.cosmetic_condition(id='device-cosmetic', class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Scratches, dents...')) }}
+          </div>
+        </div>
+
+        {# Richer device details — laptop/desktop fields #}
+        <div id="laptop-desktop-fields" class="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-slate-800 pt-4 mt-2" style="display:none;">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.cpu.label }}</label>
+            {{ form.cpu(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('i7-13700, M2 Pro...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.ram.label }}</label>
+            {{ form.ram(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('16GB, 32GB...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.storage_type.label }}</label>
+            {{ form.storage_type(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('512GB SSD, 1TB HDD...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.gpu.label }}</label>
+            {{ form.gpu(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('RTX 4060, Integrated...')) }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.os_info.label }}</label>
+            {{ form.os_info(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Windows 11, macOS 14...')) }}
           </div>
         </div>
       </div>
+
+      {# Step 2b: Secure Access / Unlock Data #}
+      {% if perms.can_view_secure_access %}
+      <div class="rounded-2xl border border-amber-800/30 bg-slate-900/60 p-5 shadow-panel space-y-4">
+        <div class="flex items-center gap-3">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-bold text-amber-300">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+          </span>
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Secure Access Data") }}</h2>
+            <p class="text-[11px] text-slate-500">{{ _("Device unlock codes are stored encrypted. Only authorized staff can view.") }}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.unlock_type.label }}</label>
+            {{ form.unlock_type(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.unlock_value.label }}</label>
+            {{ form.unlock_value(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('PIN, password, pattern...'), autocomplete='off') }}
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-300">{{ form.unlock_notes.label }}</label>
+            {{ form.unlock_notes(class='w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100', placeholder=_('Fingerprint registered, Face ID, etc.'), rows='1') }}
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
       {# Step 3: Fault & Condition #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
@@ -105,32 +194,31 @@
         </div>
       </div>
 
-      {# Step 4: Pre-Repair Quick Check #}
+      {# Step 4: Device-Specific Pre-Check #}
       <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel space-y-4">
         <div class="flex items-center gap-3">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-bold text-amber-300">4</span>
           <div>
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">{{ _("Pre-Repair Quick Check") }}</h2>
-            <p class="text-[11px] text-slate-500">{{ _("Perform these basic checks while the customer is present") }}</p>
+            <p class="text-[11px] text-slate-500">{{ _("Checks update automatically based on device category") }}</p>
           </div>
         </div>
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {% set checks = [
-            (form.check_powers_on, _('Powers On'), _('Device turns on and boots')),
-            (form.check_screen_condition, _('Screen OK'), _('Display shows correctly, no dead pixels')),
-            (form.check_charging, _('Charging OK'), _('Charging port accepts cable, charges')),
-            (form.check_buttons, _('Buttons OK'), _('Volume, power, home buttons work')),
-            (form.check_water_damage, _('No Water Damage'), _('No visible liquid indicators triggered')),
-          ] %}
-          {% for field, label, hint in checks %}
-          <label class="flex items-start gap-3 rounded-xl border border-slate-800/60 bg-slate-950/40 px-3.5 py-3 cursor-pointer hover:border-slate-700 transition-colors">
-            {{ field(class='mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40') }}
-            <div>
-              <span class="text-sm font-medium text-slate-200">{{ label }}</span>
-              <p class="text-[11px] text-slate-500">{{ hint }}</p>
-            </div>
-          </label>
-          {% endfor %}
+
+        {# Dynamic pre-checks container — populated via JS based on category #}
+        <div id="dynamic-prechecks" class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <p class="text-xs text-slate-500 col-span-full" id="prechecks-loading">{{ _("Select a device category to load pre-checks...") }}</p>
+        </div>
+
+        {# Hidden field to store JSON results for backend processing #}
+        {{ form.precheck_results_json(id='precheck-results-json') }}
+
+        {# Legacy static checks (hidden, still submitted for backward compat) #}
+        <div class="hidden">
+          {{ form.check_powers_on() }}
+          {{ form.check_screen_condition() }}
+          {{ form.check_charging() }}
+          {{ form.check_buttons() }}
+          {{ form.check_water_damage() }}
         </div>
       </div>
 
@@ -189,7 +277,7 @@
         <p class="mt-1 text-xs text-slate-400">{{ _("Follow these steps for a thorough intake.") }}</p>
         <ul class="mt-4 space-y-3 text-sm text-slate-400">
           <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">1</span><span>{{ _("Select branch and find or create customer record.") }}</span></li>
-          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>{{ _("Record device brand, model, serial/IMEI.") }}</span></li>
+          <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">2</span><span>{{ _("Record device brand, model, serial/IMEI. Use IMEI Lookup to auto-fill details.") }}</span></li>
           <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-300">3</span><span>{{ _("Document the reported fault and device condition.") }}</span></li>
           <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600/20 text-xs font-semibold text-amber-300">4</span><span>{{ _("Run pre-repair quick checks with customer present.") }}</span></li>
           <li class="flex gap-3 items-start"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-600/20 text-xs font-semibold text-violet-300">5</span><span>{{ _("Add initial diagnosis if a quick assessment is possible.") }}</span></li>
@@ -209,6 +297,7 @@
   </div>
 </section>
 <script>
+/* ── Customer search ── */
 const search=document.getElementById('customer-search');
 const results=document.getElementById('customer-results');
 search?.addEventListener('input', async ()=>{
@@ -229,6 +318,117 @@ search?.addEventListener('input', async ()=>{
       results.innerHTML='';
     }
     results.appendChild(btn);
+  }
+});
+
+/* ── IMEI Lookup ── */
+const imeiBtn=document.getElementById('imei-lookup-btn');
+const imeiField=document.getElementById('imei-field');
+const imeiStatus=document.getElementById('imei-status');
+if(imeiBtn && imeiField){
+  imeiBtn.addEventListener('click', async ()=>{
+    const imei=imeiField.value.trim();
+    if(!imei || imei.length < 14){
+      imeiStatus.textContent='{{ _("Enter a valid IMEI (14+ digits)") }}';
+      imeiStatus.className='mt-1.5 text-xs text-rose-400';
+      imeiStatus.classList.remove('hidden');
+      return;
+    }
+    imeiBtn.disabled=true;
+    imeiStatus.textContent='{{ _("Looking up IMEI...") }}';
+    imeiStatus.className='mt-1.5 text-xs text-cyan-400 animate-pulse';
+    imeiStatus.classList.remove('hidden');
+    try{
+      const csrfToken = document.querySelector('input[name=csrf_token]')?.value || '';
+      const r=await fetch('/intake/imei-lookup',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken},
+        body:JSON.stringify({imei})
+      });
+      const data=await r.json();
+      if(data.ok && data.success){
+        if(data.brand) document.getElementById('device-brand').value=data.brand;
+        if(data.model) document.getElementById('device-model').value=data.model;
+        if(data.serial_number) document.getElementById('serial-number').value=data.serial_number;
+        if(data.storage) document.getElementById('device-storage').value=data.storage;
+        if(data.color) document.getElementById('device-color').value=data.color;
+        if(data.carrier_lock) document.getElementById('device-carrier-lock').value=data.carrier_lock;
+        if(data.fmi_status) document.getElementById('device-fmi-status').value=data.fmi_status;
+        /* Show phone/tablet fields since IMEI implies a mobile device */
+        showCategoryFields('phones');
+        imeiStatus.textContent='{{ _("Device details populated from IMEI lookup") }}';
+        imeiStatus.className='mt-1.5 text-xs text-emerald-400';
+      } else {
+        imeiStatus.textContent=data.error || '{{ _("IMEI lookup failed") }}';
+        imeiStatus.className='mt-1.5 text-xs text-amber-400';
+      }
+    }catch(e){
+      imeiStatus.textContent='{{ _("IMEI lookup request failed") }}';
+      imeiStatus.className='mt-1.5 text-xs text-rose-400';
+    }
+    imeiBtn.disabled=false;
+  });
+}
+
+/* ── Category-dependent UI: device fields + pre-checks ── */
+const catSelect=document.getElementById('category-select');
+const phoneFields=document.getElementById('phone-tablet-fields');
+const laptopFields=document.getElementById('laptop-desktop-fields');
+const precheckContainer=document.getElementById('dynamic-prechecks');
+
+function showCategoryFields(cat){
+  const isPhone = ['phones','tablets','smartwatches'].includes(cat);
+  const isLaptop = ['laptops','desktops'].includes(cat);
+  if(phoneFields) phoneFields.style.display = isPhone ? '' : 'none';
+  if(laptopFields) laptopFields.style.display = isLaptop ? '' : 'none';
+}
+
+async function loadPrechecks(cat){
+  if(!precheckContainer) return;
+  precheckContainer.innerHTML='<p class="text-xs text-slate-500 col-span-full animate-pulse">{{ _("Loading checks...") }}</p>';
+  try{
+    const r=await fetch(`/intake/prechecks/${encodeURIComponent(cat)}`);
+    const data=await r.json();
+    precheckContainer.innerHTML='';
+    if(data.checks && data.checks.length > 0){
+      for(const c of data.checks){
+        const label=document.createElement('label');
+        label.className='flex items-start gap-3 rounded-xl border border-slate-800/60 bg-slate-950/40 px-3.5 py-3 cursor-pointer hover:border-slate-700 transition-colors';
+        label.innerHTML=`<input type="checkbox" name="precheck_${c.check_key}" class="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/40 precheck-item" /><div><span class="text-sm font-medium text-slate-200">${c.label}</span></div>`;
+        precheckContainer.appendChild(label);
+      }
+    } else {
+      precheckContainer.innerHTML='<p class="text-xs text-slate-500 col-span-full">{{ _("No pre-checks defined for this category") }}</p>';
+    }
+  }catch(e){
+    precheckContainer.innerHTML='<p class="text-xs text-rose-400 col-span-full">{{ _("Failed to load pre-checks") }}</p>';
+  }
+}
+
+if(catSelect){
+  catSelect.addEventListener('change', ()=>{
+    const cat=catSelect.value;
+    showCategoryFields(cat);
+    loadPrechecks(cat);
+  });
+  /* Load initial state */
+  if(catSelect.value){
+    showCategoryFields(catSelect.value);
+    loadPrechecks(catSelect.value);
+  }
+}
+
+/* ── Serialize precheck results to JSON before submit ── */
+document.getElementById('intake-form')?.addEventListener('submit', ()=>{
+  const checks=document.querySelectorAll('.precheck-item');
+  const resultsField=document.getElementById('precheck-results-json');
+  if(resultsField && checks.length > 0){
+    const results={};
+    checks.forEach(cb=>{
+      const key=cb.name.replace('precheck_','');
+      results[key]=cb.checked;
+    });
+    resultsField.value=JSON.stringify(results);
   }
 });
 </script>
