@@ -358,8 +358,10 @@ def test_imei_lookup_success_mocked(monkeypatch):
         app.config["IMEICHECK_API_KEY"] = "test-key"
 
     mock_response = MagicMock()
-    mock_response.status_code = 200
+    mock_response.status_code = 201  # API returns 201 Created
     mock_response.json.return_value = {
+        "id": 12345,
+        "status": "completed",
         "properties": {
             "brand": "Apple",
             "modelName": "iPhone 14 Pro",
@@ -379,6 +381,29 @@ def test_imei_lookup_success_mocked(monkeypatch):
     assert data["brand"] == "Apple"
     assert data["model"] == "iPhone 14 Pro"
     assert data["storage"] == "256GB"
+
+
+def test_imei_lookup_200_also_accepted(monkeypatch):
+    """IMEI lookup should also accept HTTP 200 responses."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "properties": {
+            "brand": "Samsung",
+            "modelName": "Galaxy S24",
+        }
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup",
+                           json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert data["brand"] == "Samsung"
 
 
 def test_imei_lookup_api_failure(monkeypatch):
@@ -638,3 +663,253 @@ def test_existing_services_still_work(monkeypatch):
         svc = db.session.get(RepairService, ids["service_id"])
         assert svc.name == "Screen Repair"
         assert svc.is_active is True
+
+
+# ===========================================================================
+# M. Phase 18.2 — IMEIcheck API integration hardening
+# ===========================================================================
+
+def test_imei_lookup_uses_correct_endpoint(monkeypatch):
+    """Verify the service posts to /v1/checks with correct path."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_API_URL"] = "https://api.imeicheck.net"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    mock_post.assert_called_once()
+    call_url = mock_post.call_args[0][0]
+    assert call_url == "https://api.imeicheck.net/v1/checks"
+
+
+def test_imei_lookup_sends_correct_payload(monkeypatch):
+    """Verify the request body has deviceId and serviceId from config."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_ID"] = 42
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    call_kwargs = mock_post.call_args[1]
+    assert call_kwargs["json"]["deviceId"] == "356938035643809"
+    assert call_kwargs["json"]["serviceId"] == 42
+
+
+def test_imei_lookup_sends_bearer_auth(monkeypatch):
+    """Verify Authorization: Bearer header is sent correctly."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "my-secret-token"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    call_kwargs = mock_post.call_args[1]
+    assert call_kwargs["headers"]["Authorization"] == "Bearer my-secret-token"
+
+
+def test_imei_lookup_422_surfaces_validation_errors(monkeypatch):
+    """422 response with validation errors should show field-level details."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 422
+    mock_response.json.return_value = {
+        "message": "The given data was invalid.",
+        "errors": {
+            "serviceId": ["The selected service id is invalid."],
+        },
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is False
+    assert "serviceId" in data["error"]
+    assert "invalid" in data["error"].lower()
+
+
+def test_imei_lookup_422_method_not_found(monkeypatch):
+    """422/404 with 'method not found' message should be surfaced."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_response.json.return_value = {
+        "message": "The requested method was not found",
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is False
+    assert "not found" in data["error"].lower()
+
+
+def test_imei_lookup_401_auth_error(monkeypatch):
+    """401 response should surface authentication error."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "bad-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 401
+    mock_response.json.return_value = {"message": "Unauthenticated."}
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is False
+    assert "authentication" in data["error"].lower()
+
+
+def test_imei_lookup_403_blocked(monkeypatch):
+    """403 response should surface access denied details."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 403
+    mock_response.json.return_value = {
+        "error": "ip_not_allowed",
+        "message": "Your IP is not whitelisted.",
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is False
+    assert "ip" in data["error"].lower() or "denied" in data["error"].lower()
+
+
+def test_imei_lookup_no_secrets_in_error(monkeypatch):
+    """Error responses should never contain API keys."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "super-secret-key-123"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 500
+    mock_response.json.return_value = {"message": "Internal Server Error"}
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert "super-secret-key-123" not in str(data)
+    assert data["ok"] is False
+
+
+def test_imei_lookup_manual_fallback_after_failure(monkeypatch):
+    """After IMEI lookup failure, the intake form should still work."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    # Simulate API failure
+    import requests as req_lib
+    with patch("app.services.imei_lookup_service.requests.post",
+               side_effect=req_lib.ConnectionError("down")):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is False
+
+    # Manual intake should still work
+    intake_data = {
+        "branch_id": str(ids["branch_id"]),
+        "category": "phones",
+        "customer_name": "Manual Entry Customer",
+        "customer_phone": "555-9999",
+        "device_brand": "Xiaomi",
+        "device_model": "Redmi Note 13",
+        "serial_number": "SN-MANUAL-001",
+        "reported_fault": "Cracked screen",
+        "accepted_disclaimer": "y",
+    }
+    resp = client.post("/intake/new", data=intake_data, follow_redirects=False)
+    assert resp.status_code == 302
+
+
+def test_imei_service_id_from_config(monkeypatch):
+    """IMEICHECK_SERVICE_ID config should be used in requests."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_ID"] = 99
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    assert mock_post.call_args[1]["json"]["serviceId"] == 99
+
+
+def test_imei_list_services(monkeypatch):
+    """list_services() should call GET /v1/services."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {"serviceId": 1, "name": "Basic Check", "price": 0.5},
+            {"serviceId": 12, "name": "Apple Info", "price": 1.0},
+        ]
+
+        from app.services.imei_lookup_service import list_services
+        with patch("app.services.imei_lookup_service.requests.get", return_value=mock_response) as mock_get:
+            result = list_services()
+
+        assert result["success"] is True
+        assert len(result["services"]) == 2
+        mock_get.assert_called_once()
+        assert "/v1/services" in mock_get.call_args[0][0]
+
+
+def test_imei_lookup_server_error(monkeypatch):
+    """500+ responses should surface provider-issue message."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 503
+    mock_response.json.return_value = {"message": "Service Unavailable"}
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is False
+    assert "provider" in data["error"].lower() or "issues" in data["error"].lower()

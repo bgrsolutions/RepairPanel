@@ -98,24 +98,31 @@ MAIL_DEFAULT_SENDER_NAME=IRONCore RepairPanel
 
 The application integrates with [imeicheck.net](https://imeicheck.net) for automatic device information lookup during intake. When enabled, staff can scan or type an IMEI and auto-fill brand, model, storage, colour, FMI status, and more.
 
-| Variable             | Default                       | Description              |
-|----------------------|-------------------------------|--------------------------|
-| `IMEICHECK_ENABLED`  | `false`                       | Enable IMEI lookups      |
-| `IMEICHECK_API_KEY`  |                               | Your API key             |
-| `IMEICHECK_API_URL`  | `https://api.imeicheck.net`   | API base URL             |
-| `IMEICHECK_TIMEOUT`  | `10`                          | Request timeout (seconds)|
+| Variable               | Default                       | Description                        |
+|------------------------|-------------------------------|-------------------------------------|
+| `IMEICHECK_ENABLED`    | `false`                       | Enable IMEI lookups                 |
+| `IMEICHECK_API_KEY`    |                               | Bearer token API key                |
+| `IMEICHECK_API_URL`    | `https://api.imeicheck.net`   | API base URL                        |
+| `IMEICHECK_SERVICE_ID` | `12`                          | Service type for checks (see below) |
+| `IMEICHECK_TIMEOUT`    | `10`                          | Request timeout (seconds)           |
+
+**`IMEICHECK_SERVICE_ID`** determines what type of device information is returned. Each service ID corresponds to a specific check type (e.g., Apple Info, Samsung Info). To find available services for your account, you can use the `list_services()` helper in `app/services/imei_lookup_service.py` or call `GET /v1/services` directly.
 
 To enable:
 
 1. Register at [imeicheck.net](https://imeicheck.net) and obtain an API key.
-2. Set the environment variables:
+2. Whitelist your server IP in the [API Manager](https://imeicheck.net/developer-api).
+3. Set the environment variables:
 
 ```env
 IMEICHECK_ENABLED=true
 IMEICHECK_API_KEY=your_api_key_here
+IMEICHECK_SERVICE_ID=12
 ```
 
-3. Restart the application. IMEI lookup buttons will appear on the intake and ticket forms.
+4. Restart the application. IMEI lookup buttons will appear on the intake and ticket forms.
+
+When lookup fails, staff can always proceed with manual device entry. See `docs/PHASE18_DEVICE_INTELLIGENCE.md` for detailed error codes and troubleshooting.
 
 > **Note:** When the API is disabled or unavailable, staff can always enter device details manually — the lookup is a convenience, not a requirement.
 
