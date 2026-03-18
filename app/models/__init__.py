@@ -4,7 +4,7 @@ from app.models.branch import Branch
 from app.models.checklist import ChecklistItem, RepairChecklist
 from app.models.company import Company
 from app.models.customer import Customer
-from app.models.device import Device
+from app.models.device import Device, DevicePreCheckTemplate, service_part_links
 from app.models.diagnostic import Diagnostic
 from app.models.intake import Attachment, IntakeDisclaimerAcceptance, IntakeSignature, IntakeSubmission, PortalToken
 from app.models.integration import ExportQueueItem
@@ -29,6 +29,8 @@ __all__ = [
     "Company",
     "Customer",
     "Device",
+    "DevicePreCheckTemplate",
+    "service_part_links",
     "Diagnostic",
     "IntakeSubmission",
     "IntakeDisclaimerAcceptance",

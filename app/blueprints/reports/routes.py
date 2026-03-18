@@ -57,7 +57,10 @@ def kpi_dashboard():
     now = f["now"]
     sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
 
-    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
+    tickets = Ticket.query.filter(
+        Ticket.deleted_at.is_(None),
+        Ticket.internal_status != Ticket.STATUS_ARCHIVED,
+    ).all()
     tickets = _apply_ticket_filters(
         tickets,
         branch_id=f["branch_id"] or None,
@@ -107,7 +110,10 @@ def technician_workload_detail():
     now = f["now"]
     sla_days = current_app.config.get("DEFAULT_TICKET_SLA_DAYS", 5)
 
-    tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
+    tickets = Ticket.query.filter(
+        Ticket.deleted_at.is_(None),
+        Ticket.internal_status != Ticket.STATUS_ARCHIVED,
+    ).all()
     tickets = _apply_ticket_filters(
         tickets,
         branch_id=f["branch_id"] or None,

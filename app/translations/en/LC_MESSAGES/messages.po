@@ -5853,3 +5853,73 @@ msgstr ""
 
 msgid "Test email failed: %(error)s"
 msgstr ""
+
+#: Phase 18 — Device Intelligence
+msgid "Tablets"
+msgstr ""
+
+msgid "Smartwatches"
+msgstr ""
+
+msgid "Storage"
+msgstr ""
+
+msgid "Color"
+msgstr ""
+
+msgid "Carrier/Network Lock"
+msgstr ""
+
+msgid "Find My / FMI Status"
+msgstr ""
+
+msgid "Battery Health"
+msgstr ""
+
+msgid "Cosmetic Condition"
+msgstr ""
+
+msgid "CPU/Processor"
+msgstr ""
+
+msgid "RAM"
+msgstr ""
+
+msgid "Storage Type"
+msgstr ""
+
+msgid "GPU"
+msgstr ""
+
+msgid "OS/System Info"
+msgstr ""
+
+msgid "Unlock Type"
+msgstr ""
+
+msgid "PIN"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Pattern"
+msgstr ""
+
+msgid "Passcode"
+msgstr ""
+
+msgid "Biometric Only"
+msgstr ""
+
+msgid "Unlock Code/Value"
+msgstr ""
+
+msgid "Access Notes"
+msgstr ""
+
+msgid "IMEI Lookup"
+msgstr ""
+
+msgid "Look Up"
+msgstr ""

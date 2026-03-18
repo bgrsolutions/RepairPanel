@@ -219,6 +219,39 @@ def device_create_json():
     })
 
 
+# ---------------------------------------------------------------------------
+# Phase 18 — IMEI Lookup (JSON)
+# ---------------------------------------------------------------------------
+
+@tickets_bp.post("/imei-lookup")
+@login_required
+def imei_lookup_json():
+    """AJAX endpoint: look up device details by IMEI via IMEIcheck.net."""
+    from app.services.imei_lookup_service import is_imei_lookup_configured, lookup_imei
+    data = request.get_json(silent=True) or {}
+    imei_value = (data.get("imei") or "").strip()
+    if not imei_value:
+        return jsonify({"ok": False, "error": "IMEI is required"}), 400
+    if not is_imei_lookup_configured():
+        return jsonify({"ok": False, "error": "IMEI lookup not configured"})
+    result = lookup_imei(imei_value)
+    return jsonify({"ok": result.success, **result.to_dict()})
+
+
+# ---------------------------------------------------------------------------
+# Phase 18 — Device pre-checks by category (JSON)
+# ---------------------------------------------------------------------------
+
+@tickets_bp.get("/prechecks/<category>")
+@login_required
+def get_prechecks_json(category):
+    """Return pre-check items for a given device category."""
+    from app.services.precheck_service import get_prechecks_for_category
+    language = request.args.get("lang", "en")
+    checks = get_prechecks_for_category(category, language=language)
+    return jsonify({"checks": checks, "category": category})
+
+
 @tickets_bp.get("/<uuid:ticket_id>")
 @login_required
 def ticket_detail(ticket_id):
@@ -1017,6 +1050,41 @@ def service_availability():
         result["part_in_stock"] = True
 
     return jsonify(result)
+
+
+@tickets_bp.get("/service-detail-json/<uuid:service_id>")
+@login_required
+def service_detail_json(service_id):
+    """Return service details including linked parts for quote population."""
+    svc = db.session.get(RepairService, service_id)
+    if not svc:
+        return jsonify({"ok": False}), 404
+    parts_list = []
+    for part in (svc.parts or []):
+        parts_list.append({
+            "id": str(part.id),
+            "sku": part.sku,
+            "name": part.name,
+            "sale_price": float(part.sale_price) if part.sale_price else 0,
+        })
+    # Include default_part if not already in parts list
+    if svc.default_part and str(svc.default_part.id) not in {p["id"] for p in parts_list}:
+        parts_list.insert(0, {
+            "id": str(svc.default_part.id),
+            "sku": svc.default_part.sku,
+            "name": svc.default_part.name,
+            "sale_price": float(svc.default_part.sale_price) if svc.default_part.sale_price else 0,
+        })
+    return jsonify({
+        "ok": True,
+        "id": str(svc.id),
+        "name": svc.name,
+        "service_code": svc.service_code or "",
+        "description": svc.description or "",
+        "labour_minutes": svc.labour_minutes,
+        "labour_price": float(svc.labour_price) if svc.labour_price else (float(svc.suggested_sale_price) if svc.suggested_sale_price else 0),
+        "parts": parts_list,
+    })
 
 
 @tickets_bp.route("/new", methods=["GET", "POST"])

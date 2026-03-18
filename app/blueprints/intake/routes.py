@@ -46,7 +46,7 @@ def _find_or_create_customer(name: str, phone: str | None, email: str | None, la
     return customer
 
 
-def _find_or_create_device(customer: Customer, category: str, brand: str, model: str, serial_number: str | None, imei: str | None) -> Device:
+def _find_or_create_device(customer: Customer, category: str, brand: str, model: str, serial_number: str | None, imei: str | None, **extra) -> Device:
     device = None
     if serial_number:
         device = Device.query.filter_by(serial_number=serial_number.strip()).first()
@@ -63,6 +63,12 @@ def _find_or_create_device(customer: Customer, category: str, brand: str, model:
         )
         db.session.add(device)
         db.session.flush()
+    # Update extra device detail fields if provided
+    for field in ("storage", "color", "carrier_lock", "fmi_status", "cosmetic_condition",
+                  "battery_health", "cpu", "ram", "storage_type", "gpu", "os_info"):
+        val = extra.get(field)
+        if val:
+            setattr(device, field, val)
     return device
 
 
@@ -98,6 +104,32 @@ def customer_detail_json(customer_id):
         return {"ok": False}, 404
     return {"ok": True, "id": str(customer.id), "full_name": customer.full_name, "phone": customer.phone or "", "email": customer.email or ""}
 
+
+@intake_bp.post("/imei-lookup")
+@login_required
+def imei_lookup_json():
+    """AJAX: IMEI lookup via IMEIcheck.net."""
+    from app.services.imei_lookup_service import is_imei_lookup_configured, lookup_imei
+    data = request.get_json(silent=True) or {}
+    imei_value = (data.get("imei") or "").strip()
+    if not imei_value:
+        return {"ok": False, "error": "IMEI is required"}, 400
+    if not is_imei_lookup_configured():
+        return {"ok": False, "error": "IMEI lookup not configured"}
+    result = lookup_imei(imei_value)
+    return {"ok": result.success, **result.to_dict()}
+
+
+@intake_bp.get("/prechecks/<category>")
+@login_required
+def get_prechecks_json(category):
+    """Return pre-check items for a device category."""
+    from app.services.precheck_service import get_prechecks_for_category
+    language = request.args.get("lang", "en")
+    checks = get_prechecks_for_category(category, language=language)
+    return {"checks": checks, "category": category}
+
+
 @intake_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def new_intake():
@@ -123,7 +155,26 @@ def new_intake():
             model=form.device_model.data,
             serial_number=form.serial_number.data,
             imei=form.imei.data,
+            storage=getattr(form, 'storage', None) and form.storage.data,
+            color=getattr(form, 'color', None) and form.color.data,
+            carrier_lock=getattr(form, 'carrier_lock', None) and form.carrier_lock.data,
+            fmi_status=getattr(form, 'fmi_status', None) and form.fmi_status.data,
+            cosmetic_condition=getattr(form, 'cosmetic_condition', None) and form.cosmetic_condition.data,
+            battery_health=getattr(form, 'battery_health', None) and form.battery_health.data,
+            cpu=getattr(form, 'cpu', None) and form.cpu.data,
+            ram=getattr(form, 'ram', None) and form.ram.data,
+            storage_type=getattr(form, 'storage_type', None) and form.storage_type.data,
+            gpu=getattr(form, 'gpu', None) and form.gpu.data,
+            os_info=getattr(form, 'os_info', None) and form.os_info.data,
         )
+
+        # Phase 18: Save secure access/unlock data
+        unlock_type = getattr(form, 'unlock_type', None) and form.unlock_type.data
+        unlock_value = getattr(form, 'unlock_value', None) and form.unlock_value.data
+        unlock_notes = getattr(form, 'unlock_notes', None) and form.unlock_notes.data
+        if unlock_type:
+            from app.services.device_unlock_service import set_device_unlock
+            set_device_unlock(device, unlock_type, unlock_value, unlock_notes)
 
         # Build enriched intake notes including pre-check results and diagnosis
         notes_parts = []
@@ -146,6 +197,12 @@ def new_intake():
                 pre_checks.append(f"[ ] {label}")
         if any(getattr(form, f).data for f in ["check_powers_on", "check_screen_condition", "check_charging", "check_buttons", "check_water_damage"]):
             notes_parts.append("Pre-check: " + ", ".join(pre_checks))
+        # Phase 18: Dynamic pre-checks from device-type-specific forms
+        from app.services.precheck_service import parse_precheck_results, format_precheck_notes
+        dynamic_checks = parse_precheck_results(request.form, form.category.data)
+        any_checked = any(c["passed"] for c in dynamic_checks)
+        if any_checked:
+            notes_parts.append(format_precheck_notes(dynamic_checks))
         if form.initial_diagnosis.data:
             notes_parts.append(f"Initial diagnosis: {form.initial_diagnosis.data}")
         if form.recommended_repair.data:

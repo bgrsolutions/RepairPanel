@@ -174,6 +174,21 @@ def can_send_branded_email(user=None) -> bool:
     return is_management(user) or is_frontdesk(user) or is_workshop(user)
 
 
+def can_view_secure_access(user=None) -> bool:
+    """View device unlock/access data (sensitive)."""
+    return is_management(user) or is_workshop(user)
+
+
+def can_manage_service_catalog(user=None) -> bool:
+    """Create/edit repair service catalog entries."""
+    return is_management(user)
+
+
+def can_lookup_imei(user=None) -> bool:
+    """Trigger IMEI lookups via external API."""
+    return is_management(user) or is_frontdesk(user) or is_workshop(user)
+
+
 # ---------------------------------------------------------------------------
 # Template context injection
 # ---------------------------------------------------------------------------
@@ -283,3 +298,15 @@ class _PermissionProxy:
     @property
     def can_send_branded_email(self) -> bool:
         return can_send_branded_email()
+
+    @property
+    def can_view_secure_access(self) -> bool:
+        return can_view_secure_access()
+
+    @property
+    def can_manage_service_catalog(self) -> bool:
+        return can_manage_service_catalog()
+
+    @property
+    def can_lookup_imei(self) -> bool:
+        return can_lookup_imei()

@@ -137,7 +137,10 @@ def _fetch_activity_items(limit: int = 12) -> list[dict]:
 def dashboard():
     from app.services.workflow_service import detect_blockers, workshop_metrics
 
-    active_tickets = Ticket.query.filter(Ticket.deleted_at.is_(None)).all()
+    active_tickets = Ticket.query.filter(
+        Ticket.deleted_at.is_(None),
+        Ticket.internal_status != Ticket.STATUS_ARCHIVED,
+    ).all()
 
     now = datetime.utcnow()
     today = now.date()

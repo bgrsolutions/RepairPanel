@@ -6854,3 +6854,73 @@ msgstr "Correo de prueba enviado a %(email)s vía %(transport)s"
 
 msgid "Test email failed: %(error)s"
 msgstr "Error al enviar correo de prueba: %(error)s"
+
+#: Phase 18 — Device Intelligence
+msgid "Tablets"
+msgstr "Tablets"
+
+msgid "Smartwatches"
+msgstr "Relojes inteligentes"
+
+msgid "Storage"
+msgstr "Almacenamiento"
+
+msgid "Color"
+msgstr "Color"
+
+msgid "Carrier/Network Lock"
+msgstr "Bloqueo de operador/red"
+
+msgid "Find My / FMI Status"
+msgstr "Estado de Find My / FMI"
+
+msgid "Battery Health"
+msgstr "Salud de batería"
+
+msgid "Cosmetic Condition"
+msgstr "Condición estética"
+
+msgid "CPU/Processor"
+msgstr "CPU/Procesador"
+
+msgid "RAM"
+msgstr "RAM"
+
+msgid "Storage Type"
+msgstr "Tipo de almacenamiento"
+
+msgid "GPU"
+msgstr "GPU"
+
+msgid "OS/System Info"
+msgstr "SO/Información del sistema"
+
+msgid "Unlock Type"
+msgstr "Tipo de desbloqueo"
+
+msgid "PIN"
+msgstr "PIN"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Pattern"
+msgstr "Patrón"
+
+msgid "Passcode"
+msgstr "Código de acceso"
+
+msgid "Biometric Only"
+msgstr "Solo biométrico"
+
+msgid "Unlock Code/Value"
+msgstr "Código/Valor de desbloqueo"
+
+msgid "Access Notes"
+msgstr "Notas de acceso"
+
+msgid "IMEI Lookup"
+msgstr "Consulta IMEI"
+
+msgid "Look Up"
+msgstr "Consultar"
