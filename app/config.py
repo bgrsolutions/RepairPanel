@@ -37,6 +37,9 @@ class Config:
     MAIL_DEFAULT_SENDER_NAME = os.getenv("MAIL_DEFAULT_SENDER_NAME", "")
     MAIL_DEFAULT_REPLY_TO = os.getenv("MAIL_DEFAULT_REPLY_TO", "")
 
+    # Device unlock encryption key (defaults to SECRET_KEY if not set)
+    DEVICE_UNLOCK_KEY = os.getenv("DEVICE_UNLOCK_KEY", "")
+
     # IMEIcheck.net integration (optional)
     IMEICHECK_API_KEY = os.getenv("IMEICHECK_API_KEY", "")
     IMEICHECK_API_URL = os.getenv("IMEICHECK_API_URL", "https://api.imeicheck.net")
