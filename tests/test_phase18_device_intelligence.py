@@ -913,3 +913,270 @@ def test_imei_lookup_server_error(monkeypatch):
     data = resp.get_json()
     assert data["ok"] is False
     assert "provider" in data["error"].lower() or "issues" in data["error"].lower()
+
+
+# ===========================================================================
+# N. Phase 18.3 — Richer autofill, brand-aware service selection
+# ===========================================================================
+
+def test_imei_lookup_returns_extended_fields(monkeypatch):
+    """Successful lookup should return warranty, blacklist, and other metadata."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {
+            "brand": "Apple",
+            "modelName": "iPhone 15 Pro Max",
+            "storage": "512GB",
+            "color": "Natural Titanium",
+            "simLock": False,
+            "fmiStatus": "OFF",
+            "serialNumber": "DNQXYZ12345",
+            "warrantyStatus": "Active",
+            "blacklistStatus": "Clean",
+            "purchaseCountry": "Spain",
+            "modelNumber": "A3106",
+        }
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert data["brand"] == "Apple"
+    assert data["model"] == "iPhone 15 Pro Max"
+    assert data["storage"] == "512GB"
+    assert data["color"] == "Natural Titanium"
+    assert data["carrier_lock"] == "Unlocked"
+    assert data["fmi_status"] == "OFF"
+    assert data["serial_number"] == "DNQXYZ12345"
+    assert data["warranty_status"] == "Active"
+    assert data["blacklist_status"] == "Clean"
+    assert data["purchase_country"] == "Spain"
+    assert data["model_number"] == "A3106"
+    assert data["fields_populated"] >= 7
+    assert data["service_id_used"] > 0
+
+
+def test_imei_lookup_partial_data(monkeypatch):
+    """Lookup with only brand/model should still succeed but report partial."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {
+            "brand": "Samsung",
+            "modelName": "Galaxy A54",
+        }
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert data["brand"] == "Samsung"
+    assert data["model"] == "Galaxy A54"
+    assert data["fields_populated"] == 2
+    assert data["storage"] == ""
+    assert data["color"] == ""
+
+
+def test_imei_brand_hint_uses_service_map(monkeypatch):
+    """brand_hint should select the correct service ID from IMEICHECK_SERVICE_MAP."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_ID"] = 1
+        app.config["IMEICHECK_SERVICE_MAP"] = {"apple": 12, "samsung": 3, "default": 1}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup",
+                     json={"imei": "356938035643809", "brand_hint": "Apple"})
+    assert mock_post.call_args[1]["json"]["serviceId"] == 12
+
+
+def test_imei_brand_hint_fallback_to_default(monkeypatch):
+    """Unknown brand should fall back to the 'default' key in service map."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_ID"] = 99
+        app.config["IMEICHECK_SERVICE_MAP"] = {"apple": 12, "default": 5}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Xiaomi", "modelName": "Redmi Note 13"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup",
+                     json={"imei": "356938035643809", "brand_hint": "Xiaomi"})
+    assert mock_post.call_args[1]["json"]["serviceId"] == 5
+
+
+def test_imei_explicit_service_id_override(monkeypatch):
+    """Explicit service_id in request should override all config."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_ID"] = 1
+        app.config["IMEICHECK_SERVICE_MAP"] = {"apple": 12}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup",
+                     json={"imei": "356938035643809", "service_id": 77, "brand_hint": "Apple"})
+    # Explicit service_id=77 should win over map's apple=12
+    assert mock_post.call_args[1]["json"]["serviceId"] == 77
+
+
+def test_imei_no_service_map_uses_default(monkeypatch):
+    """Without service map, default IMEICHECK_SERVICE_ID should be used."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_ID"] = 42
+        app.config["IMEICHECK_SERVICE_MAP"] = {}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/tickets/imei-lookup",
+                     json={"imei": "356938035643809", "brand_hint": "Apple"})
+    assert mock_post.call_args[1]["json"]["serviceId"] == 42
+
+
+def test_imei_normalize_boolean_carrier_lock(monkeypatch):
+    """Boolean simLock values should normalize to Locked/Unlocked."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 14", "simLock": True},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["carrier_lock"] == "Locked"
+
+
+def test_imei_normalize_fmi_boolean(monkeypatch):
+    """Boolean fmiStatus values should normalize to ON/OFF."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 14", "fmiStatus": True},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["fmi_status"] == "ON"
+
+
+def test_imei_normalize_blacklist_boolean(monkeypatch):
+    """Boolean blacklist values should normalize to Clean/Blacklisted."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {
+            "brand": "Apple", "modelName": "iPhone 14",
+            "blacklisted": False,
+        },
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response):
+        resp = client.post("/tickets/imei-lookup", json={"imei": "356938035643809"})
+    data = resp.get_json()
+    assert data["blacklist_status"] == "Clean"
+
+
+def test_imei_result_summary_in_intake_html(monkeypatch):
+    """Intake form template should contain the IMEI result panel."""
+    app, client, ids = _setup(monkeypatch)
+    resp = client.get("/intake/new")
+    html = resp.data.decode()
+    assert 'id="imei-result-panel"' in html
+    assert 'id="imei-result-badges"' in html
+    assert 'id="imei-fields-count"' in html
+
+
+def test_imei_resolve_service_id_unit(monkeypatch):
+    """resolve_service_id() should resolve correctly from service map."""
+    app, client, ids = _setup(monkeypatch)
+    from app.services.imei_lookup_service import resolve_service_id
+    with app.app_context():
+        app.config["IMEICHECK_SERVICE_ID"] = 1
+        app.config["IMEICHECK_SERVICE_MAP"] = {
+            "apple": 12, "samsung": 3, "huawei": 7, "default": 5,
+        }
+        assert resolve_service_id("Apple") == 12
+        assert resolve_service_id("samsung") == 3
+        assert resolve_service_id("HUAWEI") == 7
+        assert resolve_service_id("Nokia") == 5   # falls back to default
+        assert resolve_service_id("") == 1          # no hint = config default
+
+
+def test_imei_intake_brand_hint_passed(monkeypatch):
+    """Intake endpoint should pass brand_hint from request body."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SERVICE_MAP"] = {"samsung": 3}
+        app.config["IMEICHECK_SERVICE_ID"] = 1
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Samsung", "modelName": "Galaxy S24"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        client.post("/intake/imei-lookup",
+                     json={"imei": "356938035643809", "brand_hint": "Samsung"})
+    assert mock_post.call_args[1]["json"]["serviceId"] == 3

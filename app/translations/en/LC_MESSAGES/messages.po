@@ -5923,3 +5923,39 @@ msgstr ""
 
 msgid "Look Up"
 msgstr ""
+
+msgid "IMEI Lookup Result"
+msgstr "IMEI Lookup Result"
+
+msgid "fields populated"
+msgstr "fields populated"
+
+msgid "All fields remain editable. Edit any value above to override."
+msgstr "All fields remain editable. Edit any value above to override."
+
+msgid "Partial device details populated — verify and complete manually"
+msgstr "Partial device details populated — verify and complete manually"
+
+msgid "Brand"
+msgstr "Brand"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "SIM Lock"
+msgstr "SIM Lock"
+
+msgid "FMI"
+msgstr "FMI"
+
+msgid "Warranty"
+msgstr "Warranty"
+
+msgid "Blacklist"
+msgstr "Blacklist"
+
+msgid "Country"
+msgstr "Country"
+
+msgid "Model #"
+msgstr "Model #"

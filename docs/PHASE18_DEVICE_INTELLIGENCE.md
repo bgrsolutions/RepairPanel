@@ -70,8 +70,10 @@ All fields are nullable — manual entry is always possible regardless of device
 IMEICHECK_ENABLED=true                    # Master switch
 IMEICHECK_API_KEY=your-api-key-here       # Bearer token (empty = disabled)
 IMEICHECK_API_URL=https://api.imeicheck.net  # Base URL
-IMEICHECK_SERVICE_ID=12                   # Service ID for checks (see below)
+IMEICHECK_SERVICE_ID=12                   # Default service ID for checks
 IMEICHECK_TIMEOUT=10                      # Request timeout in seconds
+# Brand-aware service mapping (optional, JSON):
+IMEICHECK_SERVICE_MAP={"apple": 12, "samsung": 3, "default": 1}
 ```
 
 ### API Request Format (Phase 18.2)
@@ -131,6 +133,50 @@ Staff should proceed with manual device entry. All device fields are editable re
 
 ### Response Adapter
 The service uses a flexible response parser that handles multiple API response formats (`properties`, `result`, or flat dict) to accommodate IMEIcheck.net API variations.
+
+### Phase 18.3 — Richer Autofill and Brand-Aware Service Selection
+
+#### Auto-Populated Fields
+When an IMEI lookup succeeds, the following fields can be populated:
+
+| Field | Source Key(s) | Notes |
+|-------|--------------|-------|
+| Brand | `brand`, `deviceBrand`, `manufacturer` | |
+| Model | `modelName`, `model`, `deviceName`, `marketName` | |
+| Storage | `storage`, `internalMemory`, `capacity` | |
+| Color | `color`, `colour`, `deviceColor` | |
+| Serial Number | `serialNumber`, `serial`, `sn` | |
+| Carrier/SIM Lock | `simLock`, `carrierLock`, `networkLock` | Normalized: Locked/Unlocked |
+| FMI Status | `fmiStatus`, `findMyIphone`, `fmi` | Normalized: ON/OFF |
+| Warranty | `warrantyStatus`, `warranty`, `appleCareEligible` | |
+| Blacklist | `blacklistStatus`, `blacklisted`, `gsmaBlacklisted` | Normalized: Clean/Blacklisted |
+| Purchase Country | `purchaseCountry`, `country`, `firstActivationCountry` | |
+| Model Number | `modelNumber`, `partNumber`, `appleModelNumber` | |
+| Device Image | `image`, `deviceImage`, `imageUrl` | URL if available |
+
+All fields remain editable after autofill. Staff can always override any value.
+
+#### Brand-Aware Service Selection
+Different IMEIcheck services return different data. The app supports automatic service selection based on device brand:
+
+1. **`IMEICHECK_SERVICE_MAP`** (env var, JSON): Maps brand names to service IDs.
+   ```json
+   {"apple": 12, "samsung": 3, "default": 1}
+   ```
+2. When staff types a brand before clicking "Lookup", the `brand_hint` is sent with the request.
+3. The service resolver checks: explicit `service_id` override > brand match in service map > `default` key > `IMEICHECK_SERVICE_ID` config.
+
+#### Partial Data Handling
+When the API returns only some fields, the UI indicates this:
+- Shows "Partial device details populated — verify and complete manually" in amber
+- Displays a field count badge (e.g., "3 fields populated")
+- Missing fields remain empty for manual entry
+
+#### Lookup Result Panel
+After a successful lookup, a summary panel appears in the intake form showing:
+- Color-coded badges for each populated field
+- Warning badges for security-sensitive values (SIM Locked, FMI ON, Blacklisted)
+- A reminder that all fields are editable
 
 ## Service Catalog
 

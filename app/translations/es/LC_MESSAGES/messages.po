@@ -7030,3 +7030,39 @@ msgstr "Cargando..."
 
 msgid "Labour"
 msgstr "Mano de obra"
+
+msgid "IMEI Lookup Result"
+msgstr "Resultado de Consulta IMEI"
+
+msgid "fields populated"
+msgstr "campos completados"
+
+msgid "All fields remain editable. Edit any value above to override."
+msgstr "Todos los campos son editables. Edite cualquier valor arriba para modificar."
+
+msgid "Partial device details populated — verify and complete manually"
+msgstr "Datos parciales del dispositivo obtenidos — verifique y complete manualmente"
+
+msgid "Brand"
+msgstr "Marca"
+
+msgid "Model"
+msgstr "Modelo"
+
+msgid "SIM Lock"
+msgstr "Bloqueo SIM"
+
+msgid "FMI"
+msgstr "FMI"
+
+msgid "Warranty"
+msgstr "Garantía"
+
+msgid "Blacklist"
+msgstr "Lista negra"
+
+msgid "Country"
+msgstr "País"
+
+msgid "Model #"
+msgstr "Modelo #"

@@ -234,7 +234,14 @@ def imei_lookup_json():
         return jsonify({"ok": False, "error": "IMEI is required"}), 400
     if not is_imei_lookup_configured():
         return jsonify({"ok": False, "error": "IMEI lookup not configured"})
-    result = lookup_imei(imei_value)
+    service_id = data.get("service_id")
+    if service_id is not None:
+        try:
+            service_id = int(service_id)
+        except (ValueError, TypeError):
+            service_id = None
+    brand_hint = (data.get("brand_hint") or "").strip()
+    result = lookup_imei(imei_value, service_id=service_id, brand_hint=brand_hint)
     return jsonify({"ok": result.success, **result.to_dict()})
 
 
