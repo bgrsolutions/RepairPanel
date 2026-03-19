@@ -65,7 +65,10 @@ def _find_or_create_device(customer: Customer, category: str, brand: str, model:
         db.session.flush()
     # Update extra device detail fields if provided
     for field in ("storage", "color", "carrier_lock", "fmi_status", "cosmetic_condition",
-                  "battery_health", "cpu", "ram", "storage_type", "gpu", "os_info"):
+                  "battery_health", "cpu", "ram", "storage_type", "gpu", "os_info",
+                  "model_number", "purchase_country", "warranty_status", "blacklist_status",
+                  "imei2", "eid", "activation_status", "applecare_eligible",
+                  "technical_support", "sold_by", "production_date", "buyer_code"):
         val = extra.get(field)
         if val:
             setattr(device, field, val)
@@ -75,8 +78,14 @@ def _find_or_create_device(customer: Customer, category: str, brand: str, model:
 @intake_bp.get("/")
 @login_required
 def list_intakes():
-    intakes = IntakeSubmission.query.filter(IntakeSubmission.deleted_at.is_(None)).order_by(IntakeSubmission.created_at.desc()).all()
-    return render_template("intake/list.html", intakes=intakes)
+    show_archived = request.args.get("archived") == "1"
+    query = IntakeSubmission.query.filter(IntakeSubmission.deleted_at.is_(None))
+    if show_archived:
+        query = query.filter(IntakeSubmission.archived_at.isnot(None))
+    else:
+        query = query.filter(IntakeSubmission.archived_at.is_(None))
+    intakes = query.order_by(IntakeSubmission.created_at.desc()).all()
+    return render_template("intake/list.html", intakes=intakes, show_archived=show_archived)
 
 
 
@@ -146,6 +155,28 @@ def imei_secondary_check_json():
         return {"ok": False, "error": "Secondary checks not configured"}
     result = secondary_check(imei_value, check_type)
     return {"ok": result.success, "check_type": check_type, **result.to_dict()}
+
+
+@intake_bp.post("/serial-lookup")
+@login_required
+def serial_lookup_json():
+    """AJAX: Serial number lookup."""
+    from app.services.imei_lookup_service import is_imei_lookup_configured, lookup_serial
+    data = request.get_json(silent=True) or {}
+    serial_value = (data.get("serial") or "").strip()
+    if not serial_value:
+        return {"ok": False, "error": "Serial number is required"}, 400
+    if not is_imei_lookup_configured():
+        return {"ok": False, "error": "Lookup service not configured"}
+    brand_hint = (data.get("brand_hint") or "").strip()
+    service_id = data.get("service_id")
+    if service_id is not None:
+        try:
+            service_id = int(service_id)
+        except (ValueError, TypeError):
+            service_id = None
+    result = lookup_serial(serial_value, service_id=service_id, brand_hint=brand_hint)
+    return {"ok": result.success, **result.to_dict()}
 
 
 @intake_bp.get("/prechecks/<category>")
@@ -235,6 +266,21 @@ def new_intake():
             notes_parts.append(f"Initial diagnosis: {form.initial_diagnosis.data}")
         if form.recommended_repair.data:
             notes_parts.append(f"Recommended repair: {form.recommended_repair.data}")
+        # Phase 18.5: Store structured pre-check data as JSON
+        import json as _json
+        all_precheck_items = []
+        for field_name, label in [
+            ("check_powers_on", "Powers on"),
+            ("check_screen_condition", "Screen OK"),
+            ("check_charging", "Charging OK"),
+            ("check_buttons", "Buttons OK"),
+            ("check_water_damage", "No water damage"),
+        ]:
+            field = getattr(form, field_name)
+            all_precheck_items.append({"check_key": field_name, "label": label, "passed": bool(field.data)})
+        all_precheck_items.extend(dynamic_checks)
+        precheck_json = _json.dumps(all_precheck_items) if all_precheck_items else None
+
         combined_notes = "\n".join(notes_parts) if notes_parts else form.intake_notes.data
 
         intake = IntakeSubmission(
@@ -256,6 +302,7 @@ def new_intake():
             reported_fault=form.reported_fault.data,
             accessories=form.accessories.data,
             intake_notes=combined_notes,
+            precheck_data=precheck_json,
             preferred_language=getattr(current_user, "preferred_language", "en") or "en",
             preferred_contact_method="phone",
         )
@@ -330,6 +377,19 @@ def intake_detail(intake_id):
     signatures = IntakeSignature.query.filter_by(intake_submission_id=intake.id).all()
     technicians = User.query.filter(User.deleted_at.is_(None), User.is_active.is_(True)).order_by(User.full_name.asc()).all()
     technicians = [u for u in technicians if any(r.name.lower() in {"technician", "manager", "admin", "super admin"} for r in u.roles)]
+
+    # Phase 18.5: Parse structured pre-check data
+    precheck_items = []
+    if intake.precheck_data:
+        try:
+            import json
+            precheck_items = json.loads(intake.precheck_data)
+        except (ValueError, TypeError):
+            precheck_items = []
+
+    # Phase 18.5: Load linked device for rich info display
+    device = db.session.get(Device, intake.device_id) if intake.device_id else None
+
     return render_template(
         "intake/detail.html",
         intake=intake,
@@ -337,6 +397,8 @@ def intake_detail(intake_id):
         disclaimers=disclaimers,
         signatures=signatures,
         technicians=technicians,
+        precheck_items=precheck_items,
+        device=device,
     )
 
 
@@ -372,9 +434,48 @@ def convert_intake(intake_id):
     db.session.add(ticket)
     db.session.flush()
 
+    # Phase 18.5: Create pre-repair checklist from intake pre-checks
+    import json as _json
+    if intake.precheck_data:
+        try:
+            from app.models import RepairChecklist
+            from app.models.checklist import ChecklistItem
+            precheck_items = _json.loads(intake.precheck_data)
+            if precheck_items:
+                nested = db.session.begin_nested()
+                try:
+                    checklist = RepairChecklist(
+                        ticket_id=ticket.id,
+                        intake_submission_id=intake.id,
+                        checklist_type="pre_repair",
+                        device_category=intake.category,
+                        completed_at=datetime.utcnow(),
+                        completed_by_user_id=current_user.id,
+                    )
+                    db.session.add(checklist)
+                    db.session.flush()
+                    for idx, item in enumerate(precheck_items):
+                        db.session.add(ChecklistItem(
+                            checklist_id=checklist.id,
+                            position=idx,
+                            label=item.get("label", item.get("check_key", "")),
+                            is_checked=item.get("passed", False),
+                            checked_at=datetime.utcnow() if item.get("passed") else None,
+                            checked_by_user_id=current_user.id if item.get("passed") else None,
+                        ))
+                    nested.commit()
+                except Exception:
+                    nested.rollback()
+        except Exception:
+            pass  # Don't fail conversion over checklist errors
+
     intake.converted_ticket_id = ticket.id
     intake.converted_at = datetime.utcnow()
     intake.status = "converted"
+
+    # Create public status token for the new ticket
+    db.session.add(PortalToken(token=secrets.token_urlsafe(24), token_type="public_status_lookup", ticket_id=ticket.id))
+
     db.session.commit()
 
     log_action("intake.convert", "IntakeSubmission", str(intake.id), details={"ticket_id": str(ticket.id)})
@@ -390,3 +491,44 @@ def intake_receipt(intake_id):
         flash(_("Intake not found"), "error")
         return redirect(url_for("intake.list_intakes"))
     return render_template("intake/receipt.html", intake=intake)
+
+
+@intake_bp.post("/<uuid:intake_id>/archive")
+@login_required
+def archive_intake(intake_id):
+    from app.services.permission_service import can_manage_bookings
+    if not can_manage_bookings():
+        flash(_("Permission denied"), "error")
+        return redirect(url_for("intake.list_intakes"))
+    intake = db.session.get(IntakeSubmission, intake_id)
+    if not intake or intake.deleted_at is not None:
+        flash(_("Intake not found"), "error")
+        return redirect(url_for("intake.list_intakes"))
+    if intake.is_archived:
+        flash(_("Intake is already archived"), "info")
+        return redirect(url_for("intake.intake_detail", intake_id=intake.id))
+    intake.archived_at = datetime.utcnow()
+    intake.archived_by_user_id = current_user.id
+    db.session.commit()
+    log_action("intake.archive", "IntakeSubmission", str(intake.id))
+    flash(_("Intake archived"), "success")
+    return redirect(url_for("intake.intake_detail", intake_id=intake.id))
+
+
+@intake_bp.post("/<uuid:intake_id>/unarchive")
+@login_required
+def unarchive_intake(intake_id):
+    from app.services.permission_service import can_manage_bookings
+    if not can_manage_bookings():
+        flash(_("Permission denied"), "error")
+        return redirect(url_for("intake.list_intakes"))
+    intake = db.session.get(IntakeSubmission, intake_id)
+    if not intake or intake.deleted_at is not None:
+        flash(_("Intake not found"), "error")
+        return redirect(url_for("intake.list_intakes"))
+    intake.archived_at = None
+    intake.archived_by_user_id = None
+    db.session.commit()
+    log_action("intake.unarchive", "IntakeSubmission", str(intake.id))
+    flash(_("Intake unarchived"), "success")
+    return redirect(url_for("intake.intake_detail", intake_id=intake.id))

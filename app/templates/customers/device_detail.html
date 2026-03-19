@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% from 'components/ui_macros.html' import status_badge %}
+{% block title %}{{ device.brand }} {{ device.model }} - {{ _("Device Detail") }} - IRONCore{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-400">{{ _("Device Detail") }}</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white">{{ device.brand }} {{ device.model }}</h1>
+        <p class="mt-1 text-sm text-slate-400">{{ device.category|replace('_', ' ')|title }}{% if customer %} · <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="hover:text-indigo-300 transition-colors">{{ customer.display_name }}</a>{% endif %}</p>
+      </div>
+      {% if customer %}
+      <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700">{{ _("Back to Customer") }}</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    {# Core device info #}
+    <div class="space-y-6 lg:col-span-2">
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Identification") }}</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {% macro info_cell(label, value) %}
+          {% if value %}<div class="rounded-xl border border-slate-800/60 bg-slate-800/40 px-4 py-3"><p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">{{ label }}</p><p class="mt-1 text-sm text-slate-200">{{ value }}</p></div>{% endif %}
+          {% endmacro %}
+          {{ info_cell(_("Brand"), device.brand) }}
+          {{ info_cell(_("Model"), device.model) }}
+          {{ info_cell(_("Category"), device.category|replace('_', ' ')|title) }}
+          {{ info_cell(_("Serial Number"), device.serial_number) }}
+          {{ info_cell(_("IMEI"), device.imei) }}
+          {{ info_cell(_("IMEI 2"), device.imei2) }}
+          {{ info_cell(_("EID"), device.eid) }}
+          {{ info_cell(_("Model Number"), device.model_number) }}
+          {{ info_cell(_("Storage"), device.storage) }}
+          {{ info_cell(_("Color"), device.color) }}
+        </div>
+      </div>
+
+      {# Extended device details - phones/tablets #}
+      {% if device.category in ('phones', 'tablets', 'smartwatches') %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Status & Security") }}</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {{ info_cell(_("Carrier Lock"), device.carrier_lock) }}
+          {{ info_cell(_("FMI Status"), device.fmi_status) }}
+          {{ info_cell(_("Blacklist"), device.blacklist_status) }}
+          {{ info_cell(_("Battery Health"), device.battery_health) }}
+          {{ info_cell(_("Activation"), device.activation_status) }}
+          {{ info_cell(_("Warranty"), device.warranty_status) }}
+          {{ info_cell(_("AppleCare"), device.applecare_eligible) }}
+          {{ info_cell(_("Tech Support"), device.technical_support) }}
+          {{ info_cell(_("SIM Lock"), device.carrier_lock) }}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Extended device details - laptops/desktops #}
+      {% if device.category in ('laptops', 'desktops') %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Hardware Specs") }}</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {{ info_cell(_("CPU"), device.cpu) }}
+          {{ info_cell(_("RAM"), device.ram) }}
+          {{ info_cell(_("Storage Type"), device.storage_type) }}
+          {{ info_cell(_("GPU"), device.gpu) }}
+          {{ info_cell(_("OS"), device.os_info) }}
+          {{ info_cell(_("Battery Health"), device.battery_health) }}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Purchase/provenance info #}
+      {% if device.purchase_country or device.sold_by or device.production_date or device.buyer_code %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Provenance") }}</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {{ info_cell(_("Purchase Country"), device.purchase_country) }}
+          {{ info_cell(_("Sold By"), device.sold_by) }}
+          {{ info_cell(_("Production Date"), device.production_date) }}
+          {{ info_cell(_("Buyer Code"), device.buyer_code) }}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Cosmetic condition and notes #}
+      {% if device.cosmetic_condition or device.device_notes %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-4">{{ _("Condition & Notes") }}</h2>
+        {% if device.cosmetic_condition %}<p class="text-sm text-slate-300 mb-2"><span class="font-medium text-slate-400">{{ _("Cosmetic:") }}</span> {{ device.cosmetic_condition }}</p>{% endif %}
+        {% if device.device_notes %}<p class="text-sm text-slate-300"><span class="font-medium text-slate-400">{{ _("Notes:") }}</span> {{ device.device_notes }}</p>{% endif %}
+      </div>
+      {% endif %}
+
+      {# Raw lookup data (collapsible) #}
+      {% if lookup_data and perms.can_lookup_imei %}
+      <details class="rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
+        <summary class="cursor-pointer p-5 text-sm font-semibold uppercase tracking-wide text-slate-300">{{ _("Raw Lookup Data") }}</summary>
+        <div class="border-t border-slate-800/60 p-5">
+          <pre class="text-xs text-slate-400 overflow-x-auto max-h-80 whitespace-pre-wrap">{{ lookup_data|tojson(indent=2) }}</pre>
+        </div>
+      </details>
+      {% endif %}
+    </div>
+
+    {# Sidebar #}
+    <aside class="space-y-6">
+      {# Lookup action #}
+      {% if perms.can_lookup_imei and (device.imei or device.serial_number) %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-3">{{ _("Device Lookup") }}</h2>
+        {% if device.last_lookup_at %}
+        <p class="text-xs text-slate-500 mb-3">{{ _("Last lookup:") }} {{ device.last_lookup_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% endif %}
+        <button type="button" id="btn-device-lookup" class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Run Lookup") }}</button>
+        <p id="lookup-status" class="mt-2 text-xs text-slate-500 hidden"></p>
+      </div>
+      {% endif %}
+
+      {# Related tickets #}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-3">{{ _("Related Tickets") }}</h2>
+        {% for ticket in tickets %}
+        <div class="{% if not loop.first %}mt-2.5 pt-2.5 border-t border-slate-800/60{% endif %}">
+          <a href="{{ url_for('tickets.ticket_detail', ticket_id=ticket.id) }}" class="text-sm font-medium text-white hover:text-indigo-300 transition-colors">{{ ticket.ticket_number }}</a>
+          <p class="text-xs text-slate-500">{{ ticket.internal_status|replace('_', ' ')|title }} · {{ ticket.created_at.strftime('%Y-%m-%d') }}</p>
+        </div>
+        {% else %}
+        <p class="text-sm text-slate-500">{{ _("No tickets for this device.") }}</p>
+        {% endfor %}
+      </div>
+
+      {# Related intakes #}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-panel">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300 mb-3">{{ _("Related Intakes") }}</h2>
+        {% for intake in intakes %}
+        <div class="{% if not loop.first %}mt-2.5 pt-2.5 border-t border-slate-800/60{% endif %}">
+          <a href="{{ url_for('intake.intake_detail', intake_id=intake.id) }}" class="text-sm font-medium text-white hover:text-indigo-300 transition-colors">{{ intake.reference }}</a>
+          <p class="text-xs text-slate-500">{{ intake.status|replace('_', ' ')|title }} · {{ intake.created_at.strftime('%Y-%m-%d') }}</p>
+        </div>
+        {% else %}
+        <p class="text-sm text-slate-500">{{ _("No intakes for this device.") }}</p>
+        {% endfor %}
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('btn-device-lookup');
+  if (!btn) return;
+  btn.addEventListener('click', async function() {
+    btn.disabled = true;
+    btn.textContent = '{{ _("Looking up...") }}';
+    const status = document.getElementById('lookup-status');
+    try {
+      const resp = await fetch('{{ url_for("customers.device_lookup", device_id=device.id) }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
+        body: JSON.stringify({brand_hint: '{{ device.brand }}'})
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        status.textContent = '{{ _("Lookup successful! Refreshing...") }}';
+        status.classList.remove('hidden');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        status.textContent = data.error || '{{ _("Lookup failed") }}';
+        status.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = '{{ _("Run Lookup") }}';
+      }
+    } catch(e) {
+      status.textContent = '{{ _("Network error") }}';
+      status.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = '{{ _("Run Lookup") }}';
+    }
+  });
+});
+</script>
+{% endblock %}

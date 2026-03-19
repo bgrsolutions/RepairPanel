@@ -17,8 +17,10 @@ class RepairChecklist(UUIDMixin, TimestampMixin, db.Model):
     device_category: Mapped[str | None] = mapped_column(String(50), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_by_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    intake_submission_id: Mapped[str | None] = mapped_column(ForeignKey("intake_submissions.id"), nullable=True, index=True)
 
     ticket = relationship("Ticket", foreign_keys=[ticket_id])
+    intake_submission = relationship("IntakeSubmission", foreign_keys=[intake_submission_id])
     completed_by = relationship("User", foreign_keys=[completed_by_user_id])
     items = relationship("ChecklistItem", back_populates="checklist", cascade="all, delete-orphan", lazy="selectin",
                          order_by="ChecklistItem.position")

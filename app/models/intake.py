@@ -40,11 +40,23 @@ class IntakeSubmission(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
     preferred_language: Mapped[str] = mapped_column(String(5), default="en", nullable=False)
     preferred_contact_method: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
+    # --- Phase 18.5: Structured pre-check data ---
+    precheck_data: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+
+    # --- Phase 18.5: Intake archiving ---
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    archived_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+
     branch = relationship("Branch")
     customer = relationship("Customer")
     device = relationship("Device")
     submitted_by_user = relationship("User", foreign_keys=[submitted_by_user_id])
     converted_ticket = relationship("Ticket", foreign_keys=[converted_ticket_id])
+    archived_by_user = relationship("User", foreign_keys=[archived_by_user_id])
+
+    @property
+    def is_archived(self) -> bool:
+        return self.archived_at is not None
 
 
 class IntakeDisclaimerAcceptance(UUIDMixin, TimestampMixin, db.Model):

@@ -582,6 +582,53 @@
     </div>
 
     <aside class="space-y-6">
+      {# ── Phase 18.5: Rich Device Info ── #}
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-panel">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold uppercase tracking-widest text-violet-400">{{ _("Device Information") }}</h2>
+          {% if ticket.device %}<a href="{{ url_for('customers.device_detail', device_id=ticket.device.id) }}" class="text-[10px] text-indigo-400 hover:text-indigo-300">{{ _("Full details") }} →</a>{% endif %}
+        </div>
+        {% if ticket.device %}
+        {% set d = ticket.device %}
+        <p class="text-sm font-semibold text-white">{{ d.brand }} {{ d.model }}</p>
+        <p class="mt-1 text-xs text-slate-500">{{ d.category|replace('_', ' ')|title }}</p>
+        <div class="mt-3 space-y-1.5 text-xs">
+          {% if d.serial_number %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Serial") }}</span><span class="text-slate-300">{{ d.serial_number }}</span></div>{% endif %}
+          {% if d.imei %}<div class="flex justify-between"><span class="text-slate-500">{{ _("IMEI") }}</span><span class="text-slate-300">{{ d.imei }}</span></div>{% endif %}
+          {% if d.imei2 %}<div class="flex justify-between"><span class="text-slate-500">{{ _("IMEI 2") }}</span><span class="text-slate-300">{{ d.imei2 }}</span></div>{% endif %}
+          {% if d.storage %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Storage") }}</span><span class="text-slate-300">{{ d.storage }}</span></div>{% endif %}
+          {% if d.color %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Color") }}</span><span class="text-slate-300">{{ d.color }}</span></div>{% endif %}
+          {% if d.model_number %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Model #") }}</span><span class="text-slate-300">{{ d.model_number }}</span></div>{% endif %}
+          {% if d.carrier_lock %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Carrier Lock") }}</span><span class="text-slate-300 {% if d.carrier_lock == 'Locked' %}text-amber-300{% elif d.carrier_lock == 'Unlocked' %}text-emerald-300{% endif %}">{{ d.carrier_lock }}</span></div>{% endif %}
+          {% if d.fmi_status %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Find My") }}</span><span class="text-slate-300 {% if d.fmi_status == 'ON' %}text-amber-300{% else %}text-emerald-300{% endif %}">{{ d.fmi_status }}</span></div>{% endif %}
+          {% if d.blacklist_status %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Blacklist") }}</span><span class="{% if d.blacklist_status == 'Blacklisted' %}text-rose-300{% else %}text-emerald-300{% endif %}">{{ d.blacklist_status }}</span></div>{% endif %}
+          {% if d.battery_health %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Battery") }}</span><span class="text-slate-300">{{ d.battery_health }}</span></div>{% endif %}
+          {% if d.warranty_status %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Warranty") }}</span><span class="text-slate-300">{{ d.warranty_status }}</span></div>{% endif %}
+          {% if d.applecare_eligible %}<div class="flex justify-between"><span class="text-slate-500">{{ _("AppleCare") }}</span><span class="text-slate-300">{{ d.applecare_eligible }}</span></div>{% endif %}
+          {% if d.purchase_country %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Country") }}</span><span class="text-slate-300">{{ d.purchase_country }}</span></div>{% endif %}
+          {% if d.activation_status %}<div class="flex justify-between"><span class="text-slate-500">{{ _("Activation") }}</span><span class="text-slate-300">{{ d.activation_status }}</span></div>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      {# ── Phase 18.5: SLA / Promise Visibility ── #}
+      <div class="rounded-2xl border {% if is_overdue %}border-rose-700/40 bg-rose-950/10{% else %}border-slate-800{% endif %} bg-slate-900/70 p-4 shadow-panel">
+        <h2 class="text-xs font-bold uppercase tracking-widest {% if is_overdue %}text-rose-400{% else %}text-slate-400{% endif %} mb-3">{{ _("Timing & SLA") }}</h2>
+        <div class="space-y-2.5 text-xs">
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("Created") }}</span><span class="text-slate-300">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') if ticket.created_at else '—' }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("Age") }}</span><span class="text-slate-300">{{ age_days }} {{ _("days") }}</span></div>
+          {% if ticket.sla_target_at %}
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("SLA Target") }}</span><span class="{% if is_overdue %}text-rose-300 font-semibold{% else %}text-slate-300{% endif %}">{{ ticket.sla_target_at.strftime('%Y-%m-%d %H:%M') }}</span></div>
+          {% endif %}
+          {% if ticket.quoted_completion_at %}
+          <div class="flex justify-between"><span class="text-slate-500">{{ _("Promised") }}</span><span class="text-emerald-300">{{ ticket.quoted_completion_at.strftime('%Y-%m-%d %H:%M') }}</span></div>
+          {% endif %}
+          {% if is_overdue %}
+          <div class="mt-2 rounded-lg border border-rose-700/40 bg-rose-950/30 px-3 py-2 text-rose-300 font-semibold text-center">{{ _("OVERDUE") }}</div>
+          {% endif %}
+        </div>
+      </div>
+
       {# ── Phase 8H: Workflow Panel ── #}
       {% if blockers or next_action %}
       <section class="rounded-2xl border {% if blockers %}border-amber-700/40{% else %}border-emerald-700/40{% endif %} bg-slate-900/60 p-5 shadow-panel">

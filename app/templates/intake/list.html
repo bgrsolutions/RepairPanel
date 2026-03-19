@@ -11,6 +11,11 @@
     <a href="{{ url_for('intake.new_intake') }}" class="inline-flex rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">{{ _("+ New Intake") }}</a>
   </div>
 
+  <div class="mb-4 flex items-center gap-3">
+    <a href="{{ url_for('intake.list_intakes') }}" class="rounded-lg px-3 py-1.5 text-xs font-medium {% if not show_archived %}bg-indigo-600 text-white{% else %}border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700{% endif %}">{{ _("Active") }}</a>
+    <a href="{{ url_for('intake.list_intakes', archived='1') }}" class="rounded-lg px-3 py-1.5 text-xs font-medium {% if show_archived %}bg-amber-600 text-white{% else %}border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700{% endif %}">{{ _("Archived") }}</a>
+  </div>
+
   <div class="overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/60 shadow-panel">
     <table class="min-w-full text-left text-sm text-slate-200">
       <thead class="bg-slate-900/80 text-xs uppercase tracking-wide text-slate-400">

@@ -176,6 +176,22 @@ def public_checkin_thank_you():
     return render_template("public/thank_you.html", reference=reference, kiosk_mode=kiosk_mode)
 
 
+@public_portal_bp.get("/check-in/customer-search")
+def public_customer_search():
+    """Public customer search by phone or email for prefill (privacy-safe)."""
+    q = (request.args.get("q") or "").strip()
+    if len(q) < 3:
+        return {"ok": False, "message": "Query too short"}
+    customer = _safe_exact_customer_match(q, q)
+    if customer:
+        return {"ok": True, "customer": {
+            "full_name": customer.full_name,
+            "phone": customer.phone or "",
+            "email": customer.email or "",
+        }}
+    return {"ok": False, "message": "No matching customer found"}
+
+
 def _build_lookup_result(ticket):
     """Build the customer-safe lookup result dict for a ticket."""
     internal_status = normalize_ticket_status(ticket.internal_status)
@@ -197,6 +213,11 @@ def _build_lookup_result(ticket):
         "ticket": ticket,
         "ticket_number": ticket.ticket_number,
         "device_summary": f"{ticket.device.brand} {ticket.device.model}",
+        "device_detail": {
+            "storage": ticket.device.storage or "",
+            "color": ticket.device.color or "",
+            "serial_short": (ticket.device.serial_number[-4:] if ticket.device.serial_number and len(ticket.device.serial_number) >= 4 else ""),
+        } if ticket.device else None,
         "customer_status": ticket.customer_status,
         "internal_status": internal_status,
         "friendly_status": customer_friendly_status(internal_status),

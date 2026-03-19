@@ -5959,3 +5959,180 @@ msgstr "Country"
 
 msgid "Model #"
 msgstr "Model #"
+
+# ===================================================================
+# Phase 18.5 – Device Intelligence, Archiving, Structured Checks
+# ===================================================================
+
+# -- Intake archiving --
+msgid "Intake archived"
+msgstr "Intake archived"
+
+msgid "Intake unarchived"
+msgstr "Intake unarchived"
+
+msgid "Intake is already archived"
+msgstr "Intake is already archived"
+
+msgid "Archive"
+msgstr "Archive"
+
+msgid "Unarchive"
+msgstr "Unarchive"
+
+msgid "Archived Intakes"
+msgstr "Archived Intakes"
+
+msgid "Active Intakes"
+msgstr "Active Intakes"
+
+msgid "Show Archived"
+msgstr "Show Archived"
+
+msgid "Show Active"
+msgstr "Show Active"
+
+msgid "Archived by"
+msgstr "Archived by"
+
+msgid "Archived"
+msgstr "Archived"
+
+# -- Device detail page --
+msgid "Device Detail"
+msgstr "Device Detail"
+
+msgid "Device Information"
+msgstr "Device Information"
+
+msgid "Identification"
+msgstr "Identification"
+
+msgid "Status & Security"
+msgstr "Status & Security"
+
+msgid "Hardware Specs"
+msgstr "Hardware Specs"
+
+msgid "Provenance"
+msgstr "Provenance"
+
+msgid "Condition & Notes"
+msgstr "Condition & Notes"
+
+msgid "Raw Lookup Data"
+msgstr "Raw Lookup Data"
+
+msgid "Run Lookup"
+msgstr "Run Lookup"
+
+msgid "No related tickets"
+msgstr "No related tickets"
+
+msgid "No related intakes"
+msgstr "No related intakes"
+
+msgid "Purchase Country"
+msgstr "Purchase Country"
+
+msgid "Sold By"
+msgstr "Sold By"
+
+msgid "Production Date"
+msgstr "Production Date"
+
+msgid "Warranty Status"
+msgstr "Warranty Status"
+
+msgid "Activation Status"
+msgstr "Activation Status"
+
+msgid "AppleCare Eligible"
+msgstr "AppleCare Eligible"
+
+msgid "Technical Support"
+msgstr "Technical Support"
+
+msgid "Blacklist Status"
+msgstr "Blacklist Status"
+
+msgid "Buyer Code"
+msgstr "Buyer Code"
+
+msgid "Last Lookup"
+msgstr "Last Lookup"
+
+# -- Serial lookup --
+msgid "Serial Lookup"
+msgstr "Serial Lookup"
+
+msgid "Serial number required"
+msgstr "Serial number required"
+
+msgid "Serial number lookup is not enabled for this brand"
+msgstr "Serial number lookup is not enabled for this brand"
+
+# -- Timing / SLA panel --
+msgid "Timing & SLA"
+msgstr "Timing & SLA"
+
+msgid "Created"
+msgstr "Created"
+
+msgid "Ticket Age"
+msgstr "Ticket Age"
+
+msgid "SLA Target"
+msgstr "SLA Target"
+
+msgid "Promise Date"
+msgstr "Promise Date"
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Overdue"
+msgstr "Overdue"
+
+msgid "days"
+msgstr "days"
+
+msgid "day"
+msgstr "day"
+
+# -- Pre-check display --
+msgid "Pre-Check Results"
+msgstr "Pre-Check Results"
+
+msgid "Structured Pre-Checks"
+msgstr "Structured Pre-Checks"
+
+msgid "No pre-check data recorded"
+msgstr "No pre-check data recorded"
+
+# -- Public status – device info --
+msgid "Device Details"
+msgstr "Device Details"
+
+msgid "Storage"
+msgstr "Storage"
+
+msgid "Color"
+msgstr "Color"
+
+# -- Public check-in --
+msgid "Search Existing Customer"
+msgstr "Search Existing Customer"
+
+msgid "Search by name, email, or phone"
+msgstr "Search by name, email, or phone"
+
+msgid "Select Customer"
+msgstr "Select Customer"
+
+msgid "New Customer"
+msgstr "New Customer"
+
+# -- Permission denied --
+msgid "Permission denied"
+msgstr "Permission denied"

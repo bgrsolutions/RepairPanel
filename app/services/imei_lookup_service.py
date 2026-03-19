@@ -59,6 +59,17 @@ class IMEILookupResult:
     service_id_used: int = 0
     fields_populated: int = 0
     raw_data: dict = field(default_factory=dict)
+    # Phase 18.5: Richer provider-specific fields
+    imei2: str = ""
+    eid: str = ""
+    activation_status: str = ""
+    estimated_purchase_date: str = ""
+    applecare_eligible: str = ""
+    technical_support: str = ""
+    sold_by: str = ""
+    production_date: str = ""
+    buyer_code: str = ""
+    sim_lock_country: str = ""
 
     def to_dict(self) -> dict:
         d = {
@@ -79,6 +90,16 @@ class IMEILookupResult:
             "device_image": self.device_image,
             "service_id_used": self.service_id_used,
             "fields_populated": self.fields_populated,
+            "imei2": self.imei2,
+            "eid": self.eid,
+            "activation_status": self.activation_status,
+            "estimated_purchase_date": self.estimated_purchase_date,
+            "applecare_eligible": self.applecare_eligible,
+            "technical_support": self.technical_support,
+            "sold_by": self.sold_by,
+            "production_date": self.production_date,
+            "buyer_code": self.buyer_code,
+            "sim_lock_country": self.sim_lock_country,
         }
         return d
 
@@ -187,6 +208,23 @@ def lookup_imei(imei: str, service_id: int | None = None, brand_hint: str = "") 
             imei=imei,
             service_id_used=service_id,
         )
+
+
+def lookup_serial(serial: str, service_id: int | None = None, brand_hint: str = "") -> IMEILookupResult:
+    """Look up device details by serial number.
+
+    Some providers support serial-based lookup (especially for iPads,
+    Samsung tablets, etc.). Uses the same API endpoint with the serial
+    as the device identifier.
+    """
+    if not serial or len(serial) < 8:
+        return IMEILookupResult(
+            success=False,
+            error="Invalid serial number format",
+            serial_number=serial,
+        )
+    # Serial lookup uses the same API — deviceId can be IMEI or serial
+    return lookup_imei(serial, service_id=service_id, brand_hint=brand_hint)
 
 
 def _handle_response(imei: str, resp: requests.Response) -> IMEILookupResult:
@@ -337,6 +375,18 @@ def _parse_response(imei: str, data: dict) -> IMEILookupResult:
         image_url = _pick(properties, "image", "deviceImage", "imageUrl",
                           "thumbnail") or data.get("deviceImage", "")
 
+        # --- Phase 18.5: Richer Apple/Samsung fields ---
+        imei2 = _pick(properties, "imei2", "secondImei", "IMEI2")
+        eid = _pick(properties, "eid", "EID", "esimId")
+        activation_status = _pick(properties, "activationStatus", "activation", "activationState")
+        est_purchase_date = _pick(properties, "estimatedPurchaseDate", "purchaseDate", "soldDate", "warrantyStartDate")
+        applecare = _pick(properties, "appleCareEligible", "appleCareStatus", "acEligible", "appleCare")
+        tech_support = _pick(properties, "technicalSupportStatus", "telephoneSupport", "techSupport")
+        sold_by_info = _pick(properties, "soldBy", "sellerName", "buyerName", "salesBuyerName")
+        prod_date = _pick(properties, "productionDate", "manufactureDate", "mfgDate")
+        buyer_info = _pick(properties, "buyerCode", "salesBuyerCode", "buyerName")
+        sim_country = _pick(properties, "simLockCountry", "lockCountry", "carrierCountry")
+
         # --- Normalize boolean-ish values ---
         carrier = _normalize_lock(carrier_raw)
         fmi = _normalize_fmi(fmi_raw)
@@ -368,6 +418,16 @@ def _parse_response(imei: str, data: dict) -> IMEILookupResult:
             device_image=str(image_url) if image_url else "",
             fields_populated=fields_populated,
             raw_data=data,
+            imei2=str(imei2) if imei2 else "",
+            eid=str(eid) if eid else "",
+            activation_status=str(activation_status) if activation_status else "",
+            estimated_purchase_date=str(est_purchase_date) if est_purchase_date else "",
+            applecare_eligible=str(applecare) if applecare else "",
+            technical_support=str(tech_support) if tech_support else "",
+            sold_by=str(sold_by_info) if sold_by_info else "",
+            production_date=str(prod_date) if prod_date else "",
+            buyer_code=str(buyer_info) if buyer_info else "",
+            sim_lock_country=str(sim_country) if sim_country else "",
         )
     except Exception as e:
         logger.error("IMEI response parse error: %s", e)
@@ -555,6 +615,9 @@ def merge_results(base: IMEILookupResult, extra: IMEILookupResult) -> IMEILookup
         "brand", "model", "storage", "color", "carrier_lock", "fmi_status",
         "serial_number", "warranty_status", "blacklist_status",
         "purchase_country", "model_number", "device_image",
+        "imei2", "eid", "activation_status", "estimated_purchase_date",
+        "applecare_eligible", "technical_support", "sold_by",
+        "production_date", "buyer_code", "sim_lock_country",
     ]
     for field in merge_fields:
         base_val = getattr(base, field, "")
@@ -574,5 +637,27 @@ def merge_results(base: IMEILookupResult, extra: IMEILookupResult) -> IMEILookup
 
 def cache_lookup_result(device, result: IMEILookupResult) -> None:
     """Store the raw lookup result JSON on the device for reference."""
+    import json
+    from datetime import datetime
     if result.raw_data:
         device.imei_lookup_data = json.dumps(result.raw_data, default=str)
+    device.last_lookup_at = datetime.utcnow()
+    # Phase 18.5: Persist richer fields to device
+    _field_map = {
+        "imei2": "imei2",
+        "model_number": "model_number",
+        "purchase_country": "purchase_country",
+        "sold_by": "sold_by",
+        "production_date": "production_date",
+        "warranty_status": "warranty_status",
+        "activation_status": "activation_status",
+        "applecare_eligible": "applecare_eligible",
+        "technical_support": "technical_support",
+        "blacklist_status": "blacklist_status",
+        "buyer_code": "buyer_code",
+        "eid": "eid",
+    }
+    for result_field, device_field in _field_map.items():
+        val = getattr(result, result_field, "")
+        if val and hasattr(device, device_field):
+            setattr(device, device_field, str(val))

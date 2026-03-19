@@ -7,7 +7,7 @@ from flask_login import login_required
 
 from app.extensions import db
 from app.forms.customer_forms import CustomerEditForm
-from app.models import Customer, Device, StockReservation, Ticket, TicketWarranty
+from app.models import Customer, Device, IntakeSubmission, StockReservation, Ticket, TicketWarranty
 
 
 customers_bp = Blueprint("customers", __name__, url_prefix="/customers")
@@ -89,6 +89,68 @@ def create_customer_json():
     db.session.add(customer)
     db.session.commit()
     return jsonify({"ok": True, "id": str(customer.id), "label": f"{customer.full_name} · {phone}"})
+
+
+@customers_bp.get("/devices/<uuid:device_id>")
+@login_required
+def device_detail(device_id):
+    """Dedicated device detail page showing all structured data and lookup history."""
+    device = Device.query.filter(Device.id == device_id, Device.deleted_at.is_(None)).first_or_404()
+    customer = device.customer
+    tickets = Ticket.query.filter(Ticket.device_id == device.id, Ticket.deleted_at.is_(None)).order_by(Ticket.created_at.desc()).all()
+
+    # Parse stored IMEI lookup data
+    lookup_data = None
+    if device.imei_lookup_data:
+        try:
+            import json
+            lookup_data = json.loads(device.imei_lookup_data)
+        except (ValueError, TypeError):
+            lookup_data = None
+
+    # Load related intakes
+    intakes = IntakeSubmission.query.filter(
+        IntakeSubmission.device_id == device.id,
+        IntakeSubmission.deleted_at.is_(None)
+    ).order_by(IntakeSubmission.created_at.desc()).all()
+
+    return render_template(
+        "customers/device_detail.html",
+        device=device,
+        customer=customer,
+        tickets=tickets,
+        intakes=intakes,
+        lookup_data=lookup_data,
+    )
+
+
+@customers_bp.post("/devices/<uuid:device_id>/lookup")
+@login_required
+def device_lookup(device_id):
+    """Trigger IMEI/serial lookup for a device and persist results."""
+    from app.services.permission_service import can_lookup_imei
+    if not can_lookup_imei():
+        return jsonify({"ok": False, "error": "Permission denied"}), 403
+    device = db.session.get(Device, device_id)
+    if not device:
+        return jsonify({"ok": False, "error": "Device not found"}), 404
+    from app.services.imei_lookup_service import is_imei_lookup_configured, lookup_imei, lookup_serial, cache_lookup_result
+    if not is_imei_lookup_configured():
+        return jsonify({"ok": False, "error": "Lookup service not configured"})
+    data = request.get_json(silent=True) or {}
+    identifier = (data.get("identifier") or device.imei or device.serial_number or "").strip()
+    brand_hint = (data.get("brand_hint") or device.brand or "").strip()
+    if not identifier:
+        return jsonify({"ok": False, "error": "No IMEI or serial number available"})
+    # Determine if this is a serial or IMEI lookup
+    if len(identifier) >= 14 and identifier.isdigit():
+        result = lookup_imei(identifier, brand_hint=brand_hint)
+    else:
+        result = lookup_serial(identifier, brand_hint=brand_hint)
+    if result.success:
+        cache_lookup_result(device, result)
+        db.session.commit()
+    return jsonify({"ok": result.success, **result.to_dict()})
 
 
 @customers_bp.route("/<uuid:customer_id>/edit", methods=["GET", "POST"])

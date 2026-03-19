@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.19.2] - 2026-03-19
+### Added — Phase 18.5: Intake/Device Enrichment, Structured Pre-Checks, and Archiving
+- **Richer Device Fields**: 13 new columns on `devices` table — `imei2`, `eid`, `model_number`, `purchase_country`, `sold_by`, `production_date`, `warranty_status`, `activation_status`, `applecare_eligible`, `technical_support`, `blacklist_status`, `buyer_code`, `last_lookup_at`. These capture Apple/Samsung-specific data returned by deeper IMEI/serial lookups.
+- **Serial Number Lookup**: New `lookup_serial()` service function and `POST /intake/serial-lookup` route allow serial-based device lookups via the same IMEIcheck.net API. `IMEICHECK_SERIAL_LOOKUP_BRANDS` config (JSON list, default `["apple", "samsung"]`) controls which brands show the serial lookup option in the UI.
+- **`cache_lookup_result` Enrichment**: The IMEI cache function now persists all 12 Phase 18.5 device fields to the `Device` record alongside the raw JSON cache and `last_lookup_at` timestamp.
+- **Structured Pre-Check Storage**: New `precheck_data` (JSON Text) column on `intake_submissions` stores all pre-check results — both legacy static checks and dynamic device-type checks — as a structured JSON array at intake time. Data is stored alongside the human-readable note text for backward compatibility.
+- **Intake Archiving**: New archive/unarchive workflow on intakes. `archived_at` and `archived_by_user_id` columns added to `intake_submissions`. `POST /intake/<id>/archive` and `POST /intake/<id>/unarchive` routes with full audit logging. Intake list defaults to active-only; `?archived=1` shows archived. Permission: `can_archive_intake` (Management + Front Desk).
+- **Pre-Check Carry-Through on Conversion**: When an intake with `precheck_data` is converted to a ticket, a completed `pre_repair` `RepairChecklist` is automatically created and linked to both the ticket and the intake (`intake_submission_id` column added to `repair_checklists`).
+- **Device Detail Page**: New dedicated page at `/customers/devices/<id>` showing all structured device fields, raw lookup data, `last_lookup_at`, linked ticket list, linked intake list, and a "Trigger Lookup" action. Customer detail device list links to this page.
+- **Rich Device Info on Ticket Detail**: New "Device Information" sidebar panel on ticket detail showing all populated Phase 18/18.5 fields with color-coded security indicators (carrier lock, FMI, blacklist). "Full details →" link to device detail page. New "Timing & SLA" sidebar panel showing ticket age, SLA target, promised completion, and an OVERDUE badge when applicable.
+- **Rich Device Info on Intake Detail**: Sidebar device panel mirroring ticket detail, with "Full details →" link. Structured pre-check display rendered from parsed `precheck_data` JSON. Archived state badge and archive/unarchive action buttons.
+- **Public Portal Device Info**: Status page now shows storage, color, and last-4 of serial number as pill badges below the device name when available.
+- **Public Check-In Customer Prefill**: New `GET /public/check-in/customer-search` endpoint (no auth required) performs an exact-match privacy-safe lookup by phone or email. Public check-in form includes a prefill search field that auto-fills customer name/phone/email on match.
+- **Public Check-In / Kiosk Consolidation**: Both `/public/check-in` and `/public/kiosk/check-in` routes now share a single `_render_public_checkin(kiosk_mode)` function. The `kiosk_mode` flag sets `intake.source` to `"public"` or `"kiosk"` and controls thank-you page behavior for unattended kiosk resets.
+- **`can_archive_intake` Permission**: New permission function in `permission_service.py` for Management and Front Desk roles. Exposed as `perms.can_archive_intake` in templates.
+- **`IMEICHECK_SECONDARY_SERVICES` Config**: Formally documented and parsed at startup. JSON map of check type to service ID (`{"fmi": 18, "carrier": 17, "warranty": 25, "blacklist": 16}`). Introduced in Phase 18.4, now part of the canonical config.
+- **Migration**: `c4d5e6f7a8b9` adds 13 columns to `devices`, 3 columns to `intake_submissions`, and 1 column + index to `repair_checklists`.
+
 ## [0.19.1] - 2026-03-18
 ### Changed — Phase 18.1: Device Intelligence Hardening, Secure Access Fixes, UI Completion
 - **Authenticated Encryption**: Replaced XOR+base64 obfuscation for device unlock values with proper authenticated encryption using HMAC-SHA256 CTR-mode stream cipher with HMAC authentication tag. Wire format: version byte (0x01) + random nonce (16 bytes) + ciphertext + HMAC-SHA256 tag (32 bytes). Backward-compatible: legacy XOR values are auto-detected and decrypted transparently.
