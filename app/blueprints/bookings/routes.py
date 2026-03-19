@@ -503,6 +503,22 @@ def convert_to_ticket(booking_id):
                 device_condition=form.device_condition.data,
                 accessories=form.accessories.data,
             )
+
+            # Phase 18.5: Create pre-repair checklist from device category
+            try:
+                from app.models.checklist import RepairChecklist, ChecklistItem, DEFAULT_CHECKLISTS
+                device = db.session.get(Device, ticket.device_id) if ticket.device_id else None
+                cat = device.category if device else "other"
+                default_items = DEFAULT_CHECKLISTS.get(cat, DEFAULT_CHECKLISTS.get("other", {})).get("pre_repair", [])
+                if default_items:
+                    cl = RepairChecklist(ticket_id=ticket.id, checklist_type="pre_repair", device_category=cat)
+                    db.session.add(cl)
+                    db.session.flush()
+                    for i, label in enumerate(default_items):
+                        db.session.add(ChecklistItem(checklist_id=cl.id, position=i, label=label))
+            except Exception:
+                pass
+
             db.session.commit()
             flash(_("Ticket %(number)s created from booking", number=ticket.ticket_number), "success")
             # Redirect to the new ticket for seamless workflow continuation

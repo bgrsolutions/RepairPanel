@@ -189,6 +189,11 @@ def can_lookup_imei(user=None) -> bool:
     return is_management(user) or is_frontdesk(user) or is_workshop(user)
 
 
+def can_archive_intake(user=None) -> bool:
+    """Archive intake submissions."""
+    return is_management(user) or is_frontdesk(user)
+
+
 # ---------------------------------------------------------------------------
 # Template context injection
 # ---------------------------------------------------------------------------
@@ -310,3 +315,7 @@ class _PermissionProxy:
     @property
     def can_lookup_imei(self) -> bool:
         return can_lookup_imei()
+
+    @property
+    def can_archive_intake(self) -> bool:
+        return can_archive_intake()

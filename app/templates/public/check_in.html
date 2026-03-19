@@ -32,6 +32,22 @@
         </div>
       </div>
 
+      {# Phase 18.5: Returning customer quick-find #}
+      <div class="rounded-xl border border-indigo-500/20 bg-indigo-950/20 p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <svg class="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+          <div>
+            <p class="text-sm font-medium text-indigo-300">{{ _("Returning customer?") }}</p>
+            <p class="text-xs text-slate-500">{{ _("Enter your phone or email to prefill your details") }}</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="customer-prefill-search" placeholder="{{ _('Phone or email') }}" class="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+          <button type="button" id="customer-prefill-btn" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors">{{ _("Find") }}</button>
+        </div>
+        <p id="customer-prefill-status" class="mt-2 text-xs text-slate-500 hidden"></p>
+      </div>
+
       <!-- Section 1: Your Details -->
       <fieldset class="space-y-5">
         <div class="border-b border-slate-800/60 pb-4">
@@ -175,4 +191,41 @@
     </form>
   </div>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('customer-prefill-search');
+  const searchBtn = document.getElementById('customer-prefill-btn');
+  const status = document.getElementById('customer-prefill-status');
+  if (!searchBtn) return;
+  searchBtn.addEventListener('click', async function() {
+    const q = (searchInput.value || '').trim();
+    if (q.length < 3) { status.textContent = '{{ _("Enter at least 3 characters") }}'; status.classList.remove('hidden'); return; }
+    searchBtn.disabled = true;
+    searchBtn.textContent = '{{ _("Searching...") }}';
+    try {
+      const resp = await fetch('/public/check-in/customer-search?q=' + encodeURIComponent(q));
+      const data = await resp.json();
+      if (data.ok && data.customer) {
+        const c = data.customer;
+        const nameEl = document.querySelector('[name="customer_name"]');
+        const phoneEl = document.querySelector('[name="customer_phone"]');
+        const emailEl = document.querySelector('[name="customer_email"]');
+        if (nameEl && c.full_name) nameEl.value = c.full_name;
+        if (phoneEl && c.phone) phoneEl.value = c.phone;
+        if (emailEl && c.email) emailEl.value = c.email;
+        status.textContent = '{{ _("Details prefilled!") }}';
+        status.classList.remove('hidden');
+      } else {
+        status.textContent = data.message || '{{ _("No matching customer found") }}';
+        status.classList.remove('hidden');
+      }
+    } catch(e) {
+      status.textContent = '{{ _("Search error") }}';
+      status.classList.remove('hidden');
+    }
+    searchBtn.disabled = false;
+    searchBtn.textContent = '{{ _("Find") }}';
+  });
+});
+</script>
 {% endblock %}

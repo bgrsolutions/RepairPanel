@@ -1,6 +1,8 @@
 import uuid
 
-from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, String, Text
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import db
@@ -42,6 +44,21 @@ class Device(UUIDMixin, TimestampMixin, SoftDeleteMixin, db.Model):
 
     # --- Phase 18: IMEI lookup cache ---
     imei_lookup_data: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # --- Phase 18.5: Richer device data ---
+    imei2: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    eid: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    model_number: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    purchase_country: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    sold_by: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    production_date: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    warranty_status: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    activation_status: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    applecare_eligible: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    technical_support: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    blacklist_status: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    buyer_code: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    last_lookup_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 # --- Phase 18: Device-type pre-check definitions ---

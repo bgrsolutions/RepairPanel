@@ -280,6 +280,28 @@ def get_prechecks_json(category):
     return jsonify({"checks": checks, "category": category})
 
 
+@tickets_bp.post("/serial-lookup")
+@login_required
+def serial_lookup_json():
+    """AJAX endpoint: look up device details by serial number."""
+    from app.services.imei_lookup_service import is_imei_lookup_configured, lookup_serial
+    data = request.get_json(silent=True) or {}
+    serial_value = (data.get("serial") or "").strip()
+    if not serial_value:
+        return jsonify({"ok": False, "error": "Serial number is required"}), 400
+    if not is_imei_lookup_configured():
+        return jsonify({"ok": False, "error": "Lookup service not configured"})
+    brand_hint = (data.get("brand_hint") or "").strip()
+    service_id = data.get("service_id")
+    if service_id is not None:
+        try:
+            service_id = int(service_id)
+        except (ValueError, TypeError):
+            service_id = None
+    result = lookup_serial(serial_value, service_id=service_id, brand_hint=brand_hint)
+    return jsonify({"ok": result.success, **result.to_dict()})
+
+
 @tickets_bp.get("/<uuid:ticket_id>")
 @login_required
 def ticket_detail(ticket_id):
@@ -400,9 +422,19 @@ def ticket_detail(ticket_id):
     except Exception:
         warranty_info = {"has_warranty": False, "warranty": None, "is_active": False, "days_remaining": 0, "prior_repairs": []}
 
+    # Phase 18.5: Parse device lookup data for rich info display
+    device_lookup_data = None
+    if ticket.device and ticket.device.imei_lookup_data:
+        try:
+            import json
+            device_lookup_data = json.loads(ticket.device.imei_lookup_data)
+        except (ValueError, TypeError):
+            device_lookup_data = None
+
     return render_template(
         "tickets/detail.html",
         ticket=ticket,
+        device_lookup_data=device_lookup_data,
         diagnosis_entries=diagnosis_entries,
         latest_diagnosis=latest_diagnosis,
         diagnostic_form=diagnostic_form,

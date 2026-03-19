@@ -50,10 +50,12 @@
       <div class="mt-4 space-y-3">
         {% for device in devices %}
         <div class="rounded-xl border border-slate-800/60 bg-slate-800/40 p-4">
-          <p class="text-sm font-medium text-white">{{ device.brand }} {{ device.model }}</p>
+          <a href="{{ url_for('customers.device_detail', device_id=device.id) }}" class="text-sm font-medium text-white hover:text-indigo-300 transition-colors">{{ device.brand }} {{ device.model }}</a>
           <p class="mt-1 text-xs text-slate-500">{{ device.category|replace('_', ' ')|title }}</p>
           <p class="text-xs text-slate-400">{{ _("Serial:") }} {{ device.serial_number or '—' }}</p>
           <p class="text-xs text-slate-400">{{ _("IMEI:") }} {{ device.imei or '—' }}</p>
+          {% if device.storage %}<p class="text-xs text-slate-400">{{ _("Storage:") }} {{ device.storage }}</p>{% endif %}
+          {% if device.color %}<p class="text-xs text-slate-400">{{ _("Color:") }} {{ device.color }}</p>{% endif %}
           <div class="mt-3 flex gap-2">
             <form method="post" action="{{ url_for('customers.unlink_device', device_id=device.id) }}">
               <input type="hidden" name="redirect_customer_id" value="{{ customer.id }}" />

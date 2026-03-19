@@ -97,6 +97,18 @@ class Config:
 
     IMEICHECK_SECONDARY_SERVICES = _parse_secondary_services()
 
+    # Serial lookup enabled brands (JSON list): ["apple", "samsung"]
+    @staticmethod
+    def _parse_serial_lookup_brands():
+        raw = os.getenv("IMEICHECK_SERIAL_LOOKUP_BRANDS", '["apple", "samsung"]')
+        try:
+            import json
+            return [b.lower() for b in json.loads(raw)]
+        except Exception:
+            return ["apple", "samsung"]
+
+    IMEICHECK_SERIAL_LOOKUP_BRANDS = _parse_serial_lookup_brands()
+
     # --- Device Security ------------------------------------------------------
     DEVICE_UNLOCK_KEY = os.getenv("DEVICE_UNLOCK_KEY", "")
 
