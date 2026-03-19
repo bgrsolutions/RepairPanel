@@ -493,11 +493,21 @@ document.querySelectorAll('.imei-secondary-btn').forEach(btn => {
         btn.textContent = '✓ ' + checkType.charAt(0).toUpperCase() + checkType.slice(1);
         btn.className = btn.className.replace('border-indigo-700/40 bg-indigo-950/30 text-indigo-300', 'border-emerald-700/40 bg-emerald-950/30 text-emerald-300');
       } else {
-        btn.textContent = data.error || '{{ _("Failed") }}';
-        btn.className = btn.className.replace('border-indigo-700/40 bg-indigo-950/30 text-indigo-300', 'border-rose-700/40 bg-rose-950/30 text-rose-300');
+        /* Distinguish failure types for clearer staff messaging */
+        let errMsg = data.error || '{{ _("Failed") }}';
+        let errClass = 'border-rose-700/40 bg-rose-950/30 text-rose-300';
+        if(errMsg.toLowerCase().includes('not configured') || errMsg.toLowerCase().includes('no service configured')) {
+          errMsg = '{{ _("Not configured") }}';
+          errClass = 'border-amber-700/40 bg-amber-950/30 text-amber-300';
+        } else if(errMsg.toLowerCase().includes('timeout') || errMsg.toLowerCase().includes('timed out')) {
+          errMsg = '{{ _("Timeout — retry") }}';
+          errClass = 'border-amber-700/40 bg-amber-950/30 text-amber-300';
+        }
+        btn.textContent = '✗ ' + errMsg;
+        btn.className = btn.className.replace('border-indigo-700/40 bg-indigo-950/30 text-indigo-300', errClass);
       }
     } catch(e) {
-      btn.textContent = '{{ _("Error") }}';
+      btn.textContent = '{{ _("Network error") }}';
     }
     /* Re-enable after 3s for retry */
     setTimeout(() => { btn.disabled = false; }, 3000);

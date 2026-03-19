@@ -434,40 +434,56 @@ def convert_intake(intake_id):
     db.session.add(ticket)
     db.session.flush()
 
-    # Phase 18.5: Create pre-repair checklist from intake pre-checks
+    # Phase 18.5.1: Create pre-repair checklist using the unified checklist
+    # family (DEFAULT_CHECKLISTS), pre-populating check state from intake data.
     import json as _json
-    if intake.precheck_data:
-        try:
-            from app.models import RepairChecklist
-            from app.models.checklist import ChecklistItem
-            precheck_items = _json.loads(intake.precheck_data)
-            if precheck_items:
-                nested = db.session.begin_nested()
-                try:
-                    checklist = RepairChecklist(
-                        ticket_id=ticket.id,
-                        intake_submission_id=intake.id,
-                        checklist_type="pre_repair",
-                        device_category=intake.category,
-                        completed_at=datetime.utcnow(),
-                        completed_by_user_id=current_user.id,
-                    )
-                    db.session.add(checklist)
-                    db.session.flush()
-                    for idx, item in enumerate(precheck_items):
-                        db.session.add(ChecklistItem(
-                            checklist_id=checklist.id,
-                            position=idx,
-                            label=item.get("label", item.get("check_key", "")),
-                            is_checked=item.get("passed", False),
-                            checked_at=datetime.utcnow() if item.get("passed") else None,
-                            checked_by_user_id=current_user.id if item.get("passed") else None,
-                        ))
-                    nested.commit()
-                except Exception:
-                    nested.rollback()
-        except Exception:
-            pass  # Don't fail conversion over checklist errors
+    try:
+        from app.models import RepairChecklist
+        from app.models.checklist import ChecklistItem, DEFAULT_CHECKLISTS
+        device_cat = (intake.category or "other").lower().strip()
+        if device_cat not in DEFAULT_CHECKLISTS:
+            device_cat = "other"
+        unified_items = DEFAULT_CHECKLISTS.get(device_cat, DEFAULT_CHECKLISTS["other"]).get("pre_repair", [])
+
+        # Build a set of intake-checked labels for matching
+        intake_checked = set()
+        if intake.precheck_data:
+            try:
+                for item in _json.loads(intake.precheck_data):
+                    if item.get("passed"):
+                        intake_checked.add(item.get("label", "").lower().strip())
+            except (ValueError, TypeError):
+                pass
+
+        if unified_items:
+            nested = db.session.begin_nested()
+            try:
+                has_intake_data = bool(intake_checked)
+                checklist = RepairChecklist(
+                    ticket_id=ticket.id,
+                    intake_submission_id=intake.id,
+                    checklist_type="pre_repair",
+                    device_category=device_cat,
+                    completed_at=datetime.utcnow() if has_intake_data else None,
+                    completed_by_user_id=current_user.id if has_intake_data else None,
+                )
+                db.session.add(checklist)
+                db.session.flush()
+                for idx, label in enumerate(unified_items):
+                    matched = label.lower().strip() in intake_checked
+                    db.session.add(ChecklistItem(
+                        checklist_id=checklist.id,
+                        position=idx,
+                        label=label,
+                        is_checked=matched,
+                        checked_at=datetime.utcnow() if matched else None,
+                        checked_by_user_id=current_user.id if matched else None,
+                    ))
+                nested.commit()
+            except Exception:
+                nested.rollback()
+    except Exception:
+        pass  # Don't fail conversion over checklist errors
 
     intake.converted_ticket_id = ticket.id
     intake.converted_at = datetime.utcnow()
