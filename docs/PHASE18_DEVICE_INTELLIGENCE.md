@@ -178,6 +178,59 @@ After a successful lookup, a summary panel appears in the intake form showing:
 - Warning badges for security-sensitive values (SIM Locked, FMI ON, Blacklisted)
 - A reminder that all fields are editable
 
+### Phase 18.4 — Intelligent Service Routing and Secondary Checks
+
+#### Recommended Service Map
+The following brand-to-service mappings are recommended for IMEIcheck.net:
+
+```bash
+IMEICHECK_SERVICE_MAP={"apple": 2, "samsung": 5, "xiaomi": 6, "oneplus": 7, "motorola": 8, "zte": 9, "google": 10, "pixel": 10, "huawei": 11, "lg": 4, "default": 22}
+```
+
+| Brand | Service ID | Notes |
+|-------|-----------|-------|
+| Apple | 2 | Apple device info |
+| Samsung | 5 | Samsung device info |
+| Xiaomi | 6 | Xiaomi device info |
+| OnePlus | 7 | OnePlus device info |
+| Motorola | 8 | Motorola device info |
+| ZTE | 9 | ZTE device info |
+| Google / Pixel | 10 | Google device info |
+| Huawei | 11 | Huawei device info |
+| LG | 4 | LG device info |
+| Default | 22 | Generic IMEI check |
+
+#### Secondary IMEI Checks
+Optional additional checks can be triggered from the intake UI after a primary lookup:
+
+```bash
+IMEICHECK_SECONDARY_SERVICES={"fmi": 18, "carrier": 17, "warranty": 25, "blacklist": 16}
+```
+
+| Check Type | Service ID | Returns |
+|-----------|-----------|---------|
+| FMI (Find My iPhone) | 18 | `fmi_status`: ON/OFF |
+| Carrier / SIM Lock | 17 | `carrier_lock`: Locked/Unlocked |
+| Warranty | 25 | `warranty_status` |
+| Blacklist | 16 | `blacklist_status`: Clean/Blacklisted |
+
+Secondary checks:
+- Are triggered manually via buttons that appear after a successful primary lookup
+- Use the same API (`POST /v1/checks`) with the secondary service ID
+- Results are merged into existing form fields without overwriting non-empty values
+- Each button shows its result status (success/fail) after completion
+
+#### API Endpoints
+- `POST /intake/imei-secondary-check` — Run a secondary check from intake
+- `POST /tickets/imei-secondary-check` — Run a secondary check from tickets
+- Request body: `{"imei": "...", "check_type": "fmi|carrier|warranty|blacklist"}`
+
+#### Field Merge Logic
+When a secondary check returns data, the `merge_results()` function:
+1. Only fills in fields that are empty in the base result
+2. Never overwrites existing non-empty values
+3. Recalculates `fields_populated` count after merge
+
 ## Service Catalog
 
 ### Enhanced RepairService Model

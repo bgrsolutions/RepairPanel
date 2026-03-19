@@ -506,6 +506,72 @@ def get_account_balance() -> dict:
         return {"success": False, "error": str(e)}
 
 
+def get_secondary_services() -> dict:
+    """Return configured secondary check services.
+
+    Returns a dict like {"fmi": 18, "carrier": 17, "warranty": 25, "blacklist": 16}.
+    Empty dict if not configured.
+    """
+    return current_app.config.get("IMEICHECK_SECONDARY_SERVICES", {})
+
+
+def secondary_check(imei: str, check_type: str) -> IMEILookupResult:
+    """Run a secondary IMEI check for a specific check type.
+
+    Args:
+        imei: The IMEI to check.
+        check_type: One of "fmi", "carrier", "warranty", "blacklist".
+
+    Returns IMEILookupResult from the secondary service.
+    """
+    services = get_secondary_services()
+    if not services:
+        return IMEILookupResult(
+            success=False,
+            error="Secondary IMEI checks not configured",
+            imei=imei,
+        )
+
+    service_id = services.get(check_type.lower())
+    if not service_id:
+        return IMEILookupResult(
+            success=False,
+            error=f"No service configured for check type '{check_type}'",
+            imei=imei,
+        )
+
+    return lookup_imei(imei, service_id=service_id)
+
+
+def merge_results(base: IMEILookupResult, extra: IMEILookupResult) -> IMEILookupResult:
+    """Merge extra lookup result into the base, preserving non-empty base values.
+
+    Only fills in fields that are empty/blank in the base result.
+    """
+    if not extra.success:
+        return base
+
+    merge_fields = [
+        "brand", "model", "storage", "color", "carrier_lock", "fmi_status",
+        "serial_number", "warranty_status", "blacklist_status",
+        "purchase_country", "model_number", "device_image",
+    ]
+    for field in merge_fields:
+        base_val = getattr(base, field, "")
+        extra_val = getattr(extra, field, "")
+        if not base_val and extra_val:
+            setattr(base, field, extra_val)
+
+    # Recount populated fields
+    core_fields = [base.brand, base.model, base.storage, base.color,
+                   base.serial_number, base.carrier_lock, base.fmi_status]
+    extra_fields = [base.warranty_status, base.blacklist_status,
+                    base.purchase_country, base.model_number]
+    base.fields_populated = sum(1 for f in core_fields + extra_fields if f)
+
+    return base
+
+
 def cache_lookup_result(device, result: IMEILookupResult) -> None:
     """Store the raw lookup result JSON on the device for reference."""
     if result.raw_data:

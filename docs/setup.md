@@ -105,8 +105,20 @@ The application integrates with [imeicheck.net](https://imeicheck.net) for autom
 | `IMEICHECK_API_URL`    | `https://api.imeicheck.net`   | API base URL                        |
 | `IMEICHECK_SERVICE_ID` | `12`                          | Service type for checks (see below) |
 | `IMEICHECK_TIMEOUT`    | `10`                          | Request timeout (seconds)           |
+| `IMEICHECK_SERVICE_MAP` |                              | JSON brand→service ID mapping (optional) |
+| `IMEICHECK_SECONDARY_SERVICES` |                       | JSON secondary check types (optional) |
 
 **`IMEICHECK_SERVICE_ID`** determines what type of device information is returned. Each service ID corresponds to a specific check type (e.g., Apple Info, Samsung Info). To find available services for your account, you can use the `list_services()` helper in `app/services/imei_lookup_service.py` or call `GET /v1/services` directly.
+
+**`IMEICHECK_SERVICE_MAP`** enables automatic brand-aware routing. When a brand hint is provided (e.g., "Apple"), the matching service ID is used. Recommended:
+```env
+IMEICHECK_SERVICE_MAP={"apple": 2, "samsung": 5, "xiaomi": 6, "oneplus": 7, "motorola": 8, "zte": 9, "google": 10, "pixel": 10, "huawei": 11, "lg": 4, "default": 22}
+```
+
+**`IMEICHECK_SECONDARY_SERVICES`** enables extra check buttons (FMI, carrier lock, warranty, blacklist) in the intake UI:
+```env
+IMEICHECK_SECONDARY_SERVICES={"fmi": 18, "carrier": 17, "warranty": 25, "blacklist": 16}
+```
 
 To enable:
 

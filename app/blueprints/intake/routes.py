@@ -127,6 +127,27 @@ def imei_lookup_json():
     return {"ok": result.success, **result.to_dict()}
 
 
+@intake_bp.post("/imei-secondary-check")
+@login_required
+def imei_secondary_check_json():
+    """AJAX: Run a secondary IMEI check (FMI, carrier, warranty, blacklist)."""
+    from app.services.imei_lookup_service import is_imei_lookup_configured, secondary_check, get_secondary_services
+    data = request.get_json(silent=True) or {}
+    imei_value = (data.get("imei") or "").strip()
+    check_type = (data.get("check_type") or "").strip()
+    if not imei_value:
+        return {"ok": False, "error": "IMEI is required"}, 400
+    if not check_type:
+        return {"ok": False, "error": "check_type is required"}, 400
+    if not is_imei_lookup_configured():
+        return {"ok": False, "error": "IMEI lookup not configured"}
+    services = get_secondary_services()
+    if not services:
+        return {"ok": False, "error": "Secondary checks not configured"}
+    result = secondary_check(imei_value, check_type)
+    return {"ok": result.success, "check_type": check_type, **result.to_dict()}
+
+
 @intake_bp.get("/prechecks/<category>")
 @login_required
 def get_prechecks_json(category):
