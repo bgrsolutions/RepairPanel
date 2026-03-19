@@ -1180,3 +1180,222 @@ def test_imei_intake_brand_hint_passed(monkeypatch):
         client.post("/intake/imei-lookup",
                      json={"imei": "356938035643809", "brand_hint": "Samsung"})
     assert mock_post.call_args[1]["json"]["serviceId"] == 3
+
+
+# ===========================================================================
+# O. Phase 18.4 — Intelligent IMEI service routing, secondary checks
+# ===========================================================================
+
+def test_imei_secondary_check_fmi(monkeypatch):
+    """Secondary FMI check should call the configured FMI service ID."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"fmi": 18, "carrier": 17}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15", "fmiStatus": True},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        resp = client.post("/intake/imei-secondary-check",
+                           json={"imei": "356938035643809", "check_type": "fmi"})
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert data["check_type"] == "fmi"
+    assert data["fmi_status"] == "ON"
+    assert mock_post.call_args[1]["json"]["serviceId"] == 18
+
+
+def test_imei_secondary_check_carrier(monkeypatch):
+    """Secondary carrier check should use the carrier service ID."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"fmi": 18, "carrier": 17}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15", "simLock": "Locked"},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        resp = client.post("/intake/imei-secondary-check",
+                           json={"imei": "356938035643809", "check_type": "carrier"})
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert data["carrier_lock"] == "Locked"
+    assert mock_post.call_args[1]["json"]["serviceId"] == 17
+
+
+def test_imei_secondary_check_not_configured(monkeypatch):
+    """Secondary check should fail gracefully when not configured."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {}
+
+    resp = client.post("/intake/imei-secondary-check",
+                       json={"imei": "356938035643809", "check_type": "fmi"})
+    data = resp.get_json()
+    assert data["ok"] is False
+    assert "not configured" in data["error"].lower()
+
+
+def test_imei_secondary_check_unknown_type(monkeypatch):
+    """Secondary check with unknown type should fail gracefully."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"fmi": 18}
+
+    resp = client.post("/intake/imei-secondary-check",
+                       json={"imei": "356938035643809", "check_type": "unknown"})
+    data = resp.get_json()
+    assert data["ok"] is False
+
+
+def test_imei_secondary_check_tickets_endpoint(monkeypatch):
+    """Secondary check should also work via tickets blueprint."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"blacklist": 16}
+
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {
+        "id": 1, "status": "completed",
+        "properties": {"brand": "Apple", "modelName": "iPhone 15", "blacklisted": False},
+    }
+
+    with patch("app.services.imei_lookup_service.requests.post", return_value=mock_response) as mock_post:
+        resp = client.post("/tickets/imei-secondary-check",
+                           json={"imei": "356938035643809", "check_type": "blacklist"})
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert data["blacklist_status"] == "Clean"
+    assert mock_post.call_args[1]["json"]["serviceId"] == 16
+
+
+def test_imei_secondary_check_missing_imei(monkeypatch):
+    """Secondary check should require IMEI."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"fmi": 18}
+
+    resp = client.post("/intake/imei-secondary-check",
+                       json={"check_type": "fmi"})
+    assert resp.status_code == 400
+
+
+def test_imei_secondary_check_missing_type(monkeypatch):
+    """Secondary check should require check_type."""
+    app, client, ids = _setup(monkeypatch)
+    with app.app_context():
+        app.config["IMEICHECK_API_KEY"] = "test-key"
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"fmi": 18}
+
+    resp = client.post("/intake/imei-secondary-check",
+                       json={"imei": "356938035643809"})
+    assert resp.status_code == 400
+
+
+def test_imei_merge_results_preserves_existing(monkeypatch):
+    """merge_results should not overwrite non-empty base values."""
+    app, client, ids = _setup(monkeypatch)
+    from app.services.imei_lookup_service import IMEILookupResult, merge_results
+    with app.app_context():
+        base = IMEILookupResult(
+            success=True, brand="Apple", model="iPhone 15",
+            carrier_lock="Unlocked", fmi_status="", warranty_status="",
+        )
+        extra = IMEILookupResult(
+            success=True, brand="Apple Inc", model="iPhone 15 Pro",
+            carrier_lock="Locked", fmi_status="ON", warranty_status="Active",
+        )
+        merged = merge_results(base, extra)
+        # Base non-empty values should be preserved
+        assert merged.brand == "Apple"
+        assert merged.model == "iPhone 15"
+        assert merged.carrier_lock == "Unlocked"
+        # Empty base values should be filled from extra
+        assert merged.fmi_status == "ON"
+        assert merged.warranty_status == "Active"
+
+
+def test_imei_merge_results_failed_extra(monkeypatch):
+    """merge_results with failed extra should return base unchanged."""
+    app, client, ids = _setup(monkeypatch)
+    from app.services.imei_lookup_service import IMEILookupResult, merge_results
+    with app.app_context():
+        base = IMEILookupResult(success=True, brand="Apple", model="iPhone 15")
+        extra = IMEILookupResult(success=False, error="API error")
+        merged = merge_results(base, extra)
+        assert merged.brand == "Apple"
+        assert merged.model == "iPhone 15"
+
+
+def test_imei_recommended_service_map_routing(monkeypatch):
+    """The recommended service map should route brands correctly."""
+    app, client, ids = _setup(monkeypatch)
+    from app.services.imei_lookup_service import resolve_service_id
+    with app.app_context():
+        app.config["IMEICHECK_SERVICE_ID"] = 1
+        app.config["IMEICHECK_SERVICE_MAP"] = {
+            "apple": 2, "samsung": 5, "xiaomi": 6, "oneplus": 7,
+            "motorola": 8, "zte": 9, "google": 10, "pixel": 10,
+            "huawei": 11, "lg": 4, "default": 22,
+        }
+        assert resolve_service_id("Apple") == 2
+        assert resolve_service_id("Samsung") == 5
+        assert resolve_service_id("Xiaomi") == 6
+        assert resolve_service_id("OnePlus") == 7
+        assert resolve_service_id("Motorola") == 8
+        assert resolve_service_id("ZTE") == 9
+        assert resolve_service_id("Google") == 10
+        assert resolve_service_id("Pixel") == 10
+        assert resolve_service_id("Huawei") == 11
+        assert resolve_service_id("LG") == 4
+        assert resolve_service_id("Nokia") == 22  # falls back to default
+        assert resolve_service_id("") == 1  # no hint = config IMEICHECK_SERVICE_ID
+
+
+def test_imei_secondary_buttons_in_intake_html(monkeypatch):
+    """Intake form should contain secondary check buttons."""
+    app, client, ids = _setup(monkeypatch)
+    resp = client.get("/intake/new")
+    html = resp.data.decode()
+    assert 'id="imei-secondary-checks"' in html
+    assert 'data-check="fmi"' in html
+    assert 'data-check="carrier"' in html
+    assert 'data-check="warranty"' in html
+    assert 'data-check="blacklist"' in html
+
+
+def test_imei_service_id_shown_in_result(monkeypatch):
+    """Intake form should contain element for showing service ID used."""
+    app, client, ids = _setup(monkeypatch)
+    resp = client.get("/intake/new")
+    html = resp.data.decode()
+    assert 'id="imei-service-used"' in html
+
+
+def test_get_secondary_services_unit(monkeypatch):
+    """get_secondary_services() should return configured services."""
+    app, client, ids = _setup(monkeypatch)
+    from app.services.imei_lookup_service import get_secondary_services
+    with app.app_context():
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {"fmi": 18, "carrier": 17}
+        services = get_secondary_services()
+        assert services["fmi"] == 18
+        assert services["carrier"] == 17
+
+        app.config["IMEICHECK_SECONDARY_SERVICES"] = {}
+        assert get_secondary_services() == {}

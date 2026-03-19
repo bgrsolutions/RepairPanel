@@ -90,10 +90,23 @@
         <div id="imei-result-panel" class="hidden border-t border-slate-800 pt-3 mt-2">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">{{ _("IMEI Lookup Result") }}</span>
-            <span id="imei-fields-count" class="text-[10px] text-slate-500"></span>
+            <span class="flex items-center gap-2">
+              <span id="imei-service-used" class="text-[10px] text-slate-600"></span>
+              <span id="imei-fields-count" class="text-[10px] text-slate-500"></span>
+            </span>
           </div>
           <div id="imei-result-badges" class="flex flex-wrap gap-1.5"></div>
           <div id="imei-result-extras" class="mt-2 flex flex-wrap gap-1.5"></div>
+
+          {# Secondary check buttons — shown after primary lookup #}
+          <div id="imei-secondary-checks" class="mt-3 flex flex-wrap gap-2 hidden">
+            <span class="text-[10px] font-medium text-slate-500 self-center mr-1">{{ _("Extra checks:") }}</span>
+            <button type="button" data-check="fmi" class="imei-secondary-btn rounded-lg border border-indigo-700/40 bg-indigo-950/30 px-2.5 py-1 text-[11px] font-medium text-indigo-300 hover:bg-indigo-900/40 transition-colors disabled:opacity-40">{{ _("FMI Status") }}</button>
+            <button type="button" data-check="carrier" class="imei-secondary-btn rounded-lg border border-indigo-700/40 bg-indigo-950/30 px-2.5 py-1 text-[11px] font-medium text-indigo-300 hover:bg-indigo-900/40 transition-colors disabled:opacity-40">{{ _("Carrier Lock") }}</button>
+            <button type="button" data-check="warranty" class="imei-secondary-btn rounded-lg border border-indigo-700/40 bg-indigo-950/30 px-2.5 py-1 text-[11px] font-medium text-indigo-300 hover:bg-indigo-900/40 transition-colors disabled:opacity-40">{{ _("Warranty") }}</button>
+            <button type="button" data-check="blacklist" class="imei-secondary-btn rounded-lg border border-indigo-700/40 bg-indigo-950/30 px-2.5 py-1 text-[11px] font-medium text-indigo-300 hover:bg-indigo-900/40 transition-colors disabled:opacity-40">{{ _("Blacklist") }}</button>
+          </div>
+
           <p class="mt-2 text-[10px] text-slate-500">{{ _("All fields remain editable. Edit any value above to override.") }}</p>
         </div>
 
@@ -408,6 +421,14 @@ if(imeiBtn && imeiField){
         if(imeiFieldsCount) imeiFieldsCount.textContent = total + ' {{ _("fields populated") }}';
         if(imeiResultPanel) imeiResultPanel.classList.remove('hidden');
 
+        /* Show which service was used */
+        const serviceUsed = document.getElementById('imei-service-used');
+        if(serviceUsed && data.service_id_used) serviceUsed.textContent = 'Service #' + data.service_id_used;
+
+        /* Show secondary check buttons */
+        const secPanel = document.getElementById('imei-secondary-checks');
+        if(secPanel) secPanel.classList.remove('hidden');
+
         const partial = total < 5;
         imeiStatus.textContent = partial
           ? '{{ _("Partial device details populated — verify and complete manually") }}'
@@ -424,6 +445,64 @@ if(imeiBtn && imeiField){
     imeiBtn.disabled=false;
   });
 }
+
+/* ── Secondary IMEI checks ── */
+document.querySelectorAll('.imei-secondary-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const checkType = btn.dataset.check;
+    const imei = imeiField?.value?.trim();
+    if(!imei) return;
+    btn.disabled = true;
+    btn.textContent = '{{ _("Checking...") }}';
+    try {
+      const csrfToken = document.querySelector('input[name=csrf_token]')?.value || '';
+      const r = await fetch('/intake/imei-secondary-check', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        body: JSON.stringify({imei, check_type: checkType})
+      });
+      const data = await r.json();
+      if(data.ok && data.success) {
+        /* Merge into form fields — only fill empty ones */
+        const mergeField = (id, val) => {
+          if(!val) return;
+          const el = document.getElementById(id);
+          if(el && !el.value) el.value = val;
+        };
+        mergeField('device-brand', data.brand);
+        mergeField('device-model', data.model);
+        mergeField('serial-number', data.serial_number);
+        mergeField('device-storage', data.storage);
+        mergeField('device-color', data.color);
+        mergeField('device-carrier-lock', data.carrier_lock);
+        mergeField('device-fmi-status', data.fmi_status);
+
+        /* Update extras badges with new data */
+        const bc = 'border-slate-700/50 bg-slate-800/40';
+        let extras = '';
+        const wStatus = data.warranty_status || document.querySelector('[data-field="warranty"]')?.textContent || '';
+        const bStatus = data.blacklist_status || document.querySelector('[data-field="blacklist"]')?.textContent || '';
+        const pCountry = data.purchase_country || '';
+        const mNum = data.model_number || '';
+        extras += makeBadge('{{ _("Warranty") }}', wStatus || (imeiResultExtras?.querySelector('[data-field="warranty"]')?.dataset?.value), bc);
+        extras += makeBadge('{{ _("Blacklist") }}', bStatus || '', bStatus === 'Blacklisted' ? 'border-rose-700/50 bg-rose-950/30' : bc);
+        extras += makeBadge('{{ _("Country") }}', pCountry, bc);
+        extras += makeBadge('{{ _("Model #") }}', mNum, bc);
+        if(imeiResultExtras && extras.trim()) imeiResultExtras.innerHTML = extras;
+
+        btn.textContent = '✓ ' + checkType.charAt(0).toUpperCase() + checkType.slice(1);
+        btn.className = btn.className.replace('border-indigo-700/40 bg-indigo-950/30 text-indigo-300', 'border-emerald-700/40 bg-emerald-950/30 text-emerald-300');
+      } else {
+        btn.textContent = data.error || '{{ _("Failed") }}';
+        btn.className = btn.className.replace('border-indigo-700/40 bg-indigo-950/30 text-indigo-300', 'border-rose-700/40 bg-rose-950/30 text-rose-300');
+      }
+    } catch(e) {
+      btn.textContent = '{{ _("Error") }}';
+    }
+    /* Re-enable after 3s for retry */
+    setTimeout(() => { btn.disabled = false; }, 3000);
+  });
+});
 
 /* ── Category-dependent UI: device fields + pre-checks ── */
 const catSelect=document.getElementById('category-select');

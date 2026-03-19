@@ -75,10 +75,14 @@ def validate_config(app) -> list[str]:
 
     if imei_enabled and imei_key:
         service_id = cfg.get("IMEICHECK_SERVICE_ID", 12)
+        service_map = cfg.get("IMEICHECK_SERVICE_MAP", {})
+        secondary = cfg.get("IMEICHECK_SECONDARY_SERVICES", {})
         logger.info(
-            "IMEIcheck.net configured: url=%s service_id=%s",
+            "IMEIcheck.net configured: url=%s service_id=%s service_map=%s secondary=%s",
             cfg.get("IMEICHECK_API_URL", "https://api.imeicheck.net"),
             service_id,
+            list(service_map.keys()) if service_map else "none",
+            list(secondary.keys()) if secondary else "none",
         )
 
     # Also warn if an API key is set but enabled flag is off (likely oversight)

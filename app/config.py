@@ -83,6 +83,20 @@ class Config:
 
     IMEICHECK_SERVICE_MAP = _parse_service_map()
 
+    # Secondary check service IDs: {"fmi": 18, "carrier": 17, "warranty": 25, "blacklist": 16}
+    @staticmethod
+    def _parse_secondary_services():
+        raw = os.getenv("IMEICHECK_SECONDARY_SERVICES", "")
+        if not raw:
+            return {}
+        try:
+            import json
+            return {k.lower(): int(v) for k, v in json.loads(raw).items()}
+        except Exception:
+            return {}
+
+    IMEICHECK_SECONDARY_SERVICES = _parse_secondary_services()
+
     # --- Device Security ------------------------------------------------------
     DEVICE_UNLOCK_KEY = os.getenv("DEVICE_UNLOCK_KEY", "")
 
