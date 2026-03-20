@@ -398,7 +398,14 @@ def _parse_response(imei: str, data: dict) -> IMEILookupResult:
         extra_fields = [warranty, blacklist, purchase_country, model_number]
         fields_populated = sum(1 for f in core_fields + extra_fields if f)
 
-        has_data = bool(brand or model_name)
+        # Success = any meaningful data returned.  Previous logic only
+        # accepted brand/model, which rejected narrow secondary checks
+        # (FMI-only, carrier-only, blacklist-only).
+        has_data = bool(
+            brand or model_name or serial or storage
+            or fmi or carrier or blacklist or warranty
+            or purchase_country or model_number or activation_status
+        )
 
         return IMEILookupResult(
             success=has_data,
@@ -607,11 +614,12 @@ def merge_results(base: IMEILookupResult, extra: IMEILookupResult) -> IMEILookup
     """Merge extra lookup result into the base, preserving non-empty base values.
 
     Only fills in fields that are empty/blank in the base result.
+    Merges any result that carries useful field data — even if the extra
+    result is marked success=False (e.g. a narrow secondary check that
+    returned a single field).
     """
-    if not extra.success:
-        return base
-
-    merge_fields = [
+    # Check if extra has ANY useful field data worth merging
+    _merge_fields = [
         "brand", "model", "storage", "color", "carrier_lock", "fmi_status",
         "serial_number", "warranty_status", "blacklist_status",
         "purchase_country", "model_number", "device_image",
@@ -619,31 +627,57 @@ def merge_results(base: IMEILookupResult, extra: IMEILookupResult) -> IMEILookup
         "applecare_eligible", "technical_support", "sold_by",
         "production_date", "buyer_code", "sim_lock_country",
     ]
-    for field in merge_fields:
-        base_val = getattr(base, field, "")
-        extra_val = getattr(extra, field, "")
+    has_any_data = any(getattr(extra, f, "") for f in _merge_fields)
+    if not has_any_data:
+        return base
+
+    for fld in _merge_fields:
+        base_val = getattr(base, fld, "")
+        extra_val = getattr(extra, fld, "")
         if not base_val and extra_val:
-            setattr(base, field, extra_val)
+            setattr(base, fld, extra_val)
 
     # Recount populated fields
-    core_fields = [base.brand, base.model, base.storage, base.color,
-                   base.serial_number, base.carrier_lock, base.fmi_status]
-    extra_fields = [base.warranty_status, base.blacklist_status,
-                    base.purchase_country, base.model_number]
-    base.fields_populated = sum(1 for f in core_fields + extra_fields if f)
+    core = [base.brand, base.model, base.storage, base.color,
+            base.serial_number, base.carrier_lock, base.fmi_status]
+    ext = [base.warranty_status, base.blacklist_status,
+           base.purchase_country, base.model_number]
+    base.fields_populated = sum(1 for f in core + ext if f)
+
+    # Mark base as successful if it now has meaningful data
+    if not base.success and base.fields_populated > 0:
+        base.success = True
+        base.error = None
 
     return base
 
 
 def cache_lookup_result(device, result: IMEILookupResult) -> None:
-    """Store the raw lookup result JSON on the device for reference."""
-    import json
+    """Persist lookup result fields onto the device model.
+
+    Updates core fields (brand, model, serial, storage, color, etc.) and
+    extended Phase 18.5 fields.  Only overwrites a device field when the
+    result supplies a non-empty value — never blanks out existing data.
+    """
+    import json as _json
     from datetime import datetime
+
     if result.raw_data:
-        device.imei_lookup_data = json.dumps(result.raw_data, default=str)
+        device.imei_lookup_data = _json.dumps(result.raw_data, default=str)
     device.last_lookup_at = datetime.utcnow()
-    # Phase 18.5: Persist richer fields to device
-    _field_map = {
+
+    # Core fields (result attr → device attr)
+    _core_map = {
+        "brand": "brand",
+        "model": "model",
+        "serial_number": "serial_number",
+        "storage": "storage",
+        "color": "color",
+        "carrier_lock": "carrier_lock",
+        "fmi_status": "fmi_status",
+    }
+    # Extended / Phase 18.5 fields
+    _extended_map = {
         "imei2": "imei2",
         "model_number": "model_number",
         "purchase_country": "purchase_country",
@@ -657,7 +691,7 @@ def cache_lookup_result(device, result: IMEILookupResult) -> None:
         "buyer_code": "buyer_code",
         "eid": "eid",
     }
-    for result_field, device_field in _field_map.items():
+    for result_field, device_field in {**_core_map, **_extended_map}.items():
         val = getattr(result, result_field, "")
         if val and hasattr(device, device_field):
             setattr(device, device_field, str(val))

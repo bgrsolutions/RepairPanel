@@ -59,18 +59,27 @@ class ChecklistItem(UUIDMixin, TimestampMixin, db.Model):
     checked_by = relationship("User", foreign_keys=[checked_by_user_id])
 
 
-# Default checklist templates by device category
+# ---------------------------------------------------------------------------
+# Unified checklist templates by device category.
+#
+# IMPORTANT: The pre_repair items MUST match the labels used by
+# precheck_service._FALLBACK_CHECKS (and the DevicePreCheckTemplate DB
+# seeds).  This ensures the same checklist family is used consistently
+# across intake/check-in, ticket pre-repair, and post-repair workflows.
+# ---------------------------------------------------------------------------
 DEFAULT_CHECKLISTS = {
     "phones": {
         "pre_repair": [
-            "Verify device powers on",
-            "Document current screen condition (cracks, dead pixels)",
-            "Test touch screen responsiveness",
-            "Check charging port functionality",
-            "Test all buttons (power, volume, mute)",
-            "Verify SIM tray present",
-            "Note any existing water damage indicators",
-            "Confirm customer data backup status",
+            "Device powers on",
+            "Screen displays correctly",
+            "Touch screen responsive",
+            "Charging port functional",
+            "Physical buttons work",
+            "Speakers and microphone work",
+            "Cameras functional",
+            "WiFi/Bluetooth working",
+            "No visible water damage",
+            "Biometrics functional",
         ],
         "post_repair": [
             "Verify device powers on and boots correctly",
@@ -86,12 +95,13 @@ DEFAULT_CHECKLISTS = {
     },
     "tablets": {
         "pre_repair": [
-            "Verify device powers on",
-            "Document screen condition",
-            "Test touch screen responsiveness",
-            "Check charging port",
-            "Test all buttons",
-            "Confirm customer data backup status",
+            "Device powers on",
+            "Screen displays correctly",
+            "Touch screen responsive",
+            "Charging port functional",
+            "Physical buttons work",
+            "Cameras functional",
+            "WiFi/Bluetooth working",
         ],
         "post_repair": [
             "Verify device powers on and boots correctly",
@@ -105,13 +115,17 @@ DEFAULT_CHECKLISTS = {
     },
     "laptops": {
         "pre_repair": [
-            "Verify device powers on",
-            "Document screen condition and hinge",
-            "Test keyboard and trackpad",
-            "Check all ports (USB, HDMI, charging)",
-            "Note battery health/charge level",
-            "Check for physical damage (case, screen, keyboard)",
-            "Confirm customer data backup status",
+            "Device powers on",
+            "Screen displays correctly",
+            "Keyboard functional",
+            "Trackpad functional",
+            "Charges correctly",
+            "Battery holds charge",
+            "WiFi/Bluetooth working",
+            "USB/ports functional",
+            "Speakers and microphone work",
+            "Webcam functional",
+            "Hinges intact",
         ],
         "post_repair": [
             "Verify device powers on and boots to OS",
@@ -129,10 +143,12 @@ DEFAULT_CHECKLISTS = {
     },
     "desktops": {
         "pre_repair": [
-            "Verify device powers on",
-            "Check all ports (USB, HDMI, audio, ethernet)",
-            "Note any unusual sounds (fans, drives)",
-            "Document visible hardware condition",
+            "System powers on",
+            "Display output working",
+            "USB/ports functional",
+            "Fans/cooling working",
+            "Storage drives detected",
+            "Network connectivity",
         ],
         "post_repair": [
             "Verify device powers on and boots to OS",
@@ -146,11 +162,12 @@ DEFAULT_CHECKLISTS = {
     },
     "game_consoles": {
         "pre_repair": [
-            "Verify device powers on",
-            "Test disc drive (if applicable)",
-            "Check controller ports",
-            "Check HDMI output",
-            "Note any overheating signs",
+            "Console powers on",
+            "Display output working",
+            "Disc drive functional",
+            "Controllers connect",
+            "WiFi working",
+            "Fans/cooling working",
         ],
         "post_repair": [
             "Verify device powers on and boots",
@@ -162,12 +179,29 @@ DEFAULT_CHECKLISTS = {
             "Clean device exterior",
         ],
     },
+    "smartwatches": {
+        "pre_repair": [
+            "Device powers on",
+            "Screen displays correctly",
+            "Charges correctly",
+            "Heart rate sensor works",
+            "Buttons/crown functional",
+        ],
+        "post_repair": [
+            "Verify device powers on and boots",
+            "Test screen and touch",
+            "Test charging",
+            "Test heart rate sensor",
+            "Test buttons/crown",
+            "Test Bluetooth connectivity",
+            "Clean device exterior",
+        ],
+    },
     "other": {
         "pre_repair": [
-            "Verify device powers on",
-            "Document current condition",
-            "Note any visible damage",
-            "Confirm customer expectations",
+            "Device powers on",
+            "Basic function works",
+            "Physical condition noted",
         ],
         "post_repair": [
             "Verify device powers on",
